@@ -84,7 +84,7 @@ $compressed_exts = array('zip', 'rar');
             <div class="post-meta"><?php echo h($p['nickname']); ?> <span class="floor-label"><?php echo h(qf_floor_name($floor_no)); ?><?php if (qf_floor_icon($floor_no) !== '') { ?> <span class="floor-icon"><?php echo h(qf_floor_icon($floor_no)); ?></span><?php } ?></span><?php if (intval(isset($p['author_is_moderator']) ? $p['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($p['created_at']); ?>
                 <?php if (is_admin()) { ?><span class="admin-tools"><span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($p['ip']); ?></span></span><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('del_post', $p['id'], intval($id)))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？"'); ?></span><?php } ?>
                 <?php if (!is_admin() && qf_can_moderator_delete_post(current_user(), $p)) { ?><span class="admin-tools"><?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('mod_del_post', $p['id'], intval($id)))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该回复？"'); ?></span><?php } ?>
-                <?php if (current_user()) { ?><span class="floor-reply-actions"><button class="btn btn-small btn-light floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>">回复</button></span><?php } ?>
+                <?php if (current_user()) { ?><span class="floor-reply-actions"><button class="action-badge action-badge-reply floor-reply-toggle" type="button" title="回复" aria-label="回复" data-tooltip="回复" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>"><i class="fa-solid fa-reply" aria-hidden="true"></i><span>回复</span></button></span><?php } ?>
             </div>
             <div class="content"><?php echo qf_render_content($p['content']); ?></div>
             <?php if ($reply_attachments && mysqli_num_rows($reply_attachments) > 0) { ?>
@@ -113,7 +113,7 @@ $compressed_exts = array('zip', 'rar');
                         <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
                         <input type="hidden" name="post_id" value="<?php echo intval($p['id']); ?>">
                         <input type="text" name="content" maxlength="500" placeholder="回复 <?php echo h($p['nickname']); ?>" required>
-                        <button class="btn btn-small" type="submit">回复</button>
+                        <button class="action-badge action-badge-reply floor-reply-submit" type="submit" title="回复" aria-label="回复" data-tooltip="回复"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>回复</span></button>
                     </form>
                 <?php } ?>
             </div>

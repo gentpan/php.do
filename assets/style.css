@@ -1645,6 +1645,12 @@ a:hover {
     --badge-border: #fde68a;
 }
 
+.action-badge-reply {
+    --badge-color: #0052D9;
+    --badge-bg: #edf4ff;
+    --badge-border: #cfe0ff;
+}
+
 .action-badge-danger {
     --badge-color: #d93025;
     --badge-bg: #fff1f0;
@@ -1912,9 +1918,9 @@ button.action-badge {
     float: right;
 }
 
-.floor-reply-toggle.btn {
-    padding: 5px 12px;
-    font-size: 12px;
+.floor-reply-toggle,
+.floor-reply-submit {
+    vertical-align: middle;
 }
 
 .notification-actions {
@@ -2732,12 +2738,8 @@ form .btn {
     }
 
     .floor-reply-form {
-        display: block;
-    }
-
-    .floor-reply-form .btn {
-        width: 100%;
-        margin-top: 8px;
+        display: flex;
+        align-items: center;
     }
 
     .user-table tr:first-child {
