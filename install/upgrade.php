@@ -43,6 +43,14 @@ if ($ok) {
     if ($check && mysqli_num_rows($check) == 0) {
         mysqli_query(db(), "ALTER TABLE qf_users ADD signature varchar(255) NOT NULL DEFAULT '' AFTER avatar");
     }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'email'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD email varchar(190) NOT NULL DEFAULT '' AFTER nickname");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'email_bound_at'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD email_bound_at datetime DEFAULT NULL AFTER email");
+    }
     $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'gender'");
     if ($check && mysqli_num_rows($check) == 0) {
         mysqli_query(db(), "ALTER TABLE qf_users ADD gender varchar(10) NOT NULL DEFAULT '' AFTER signature");
@@ -158,6 +166,25 @@ $settings_sql = "CREATE TABLE IF NOT EXISTS qf_settings (
 
 if ($ok) {
     $ok = mysqli_query(db(), $settings_sql);
+}
+
+$passkeys_sql = "CREATE TABLE IF NOT EXISTS qf_passkeys (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) NOT NULL DEFAULT '0',
+  credential_id varchar(255) NOT NULL DEFAULT '',
+  public_key_cose text NOT NULL,
+  sign_count bigint(20) NOT NULL DEFAULT '0',
+  label varchar(80) NOT NULL DEFAULT '',
+  transports varchar(120) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  last_used_at datetime DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY credential_id (credential_id),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+if ($ok) {
+    $ok = mysqli_query(db(), $passkeys_sql);
 }
 
 $signins_sql = "CREATE TABLE IF NOT EXISTS qf_signins (

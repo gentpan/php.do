@@ -200,6 +200,9 @@ function qf_csrf_field() {
 
 function qf_verify_csrf() {
     $sent = isset($_POST['csrf_token']) ? (string)$_POST['csrf_token'] : '';
+    if ($sent === '' && isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+        $sent = (string)$_SERVER['HTTP_X_CSRF_TOKEN'];
+    }
     return $sent !== '' && hash_equals(qf_csrf_token(), $sent);
 }
 
@@ -399,6 +402,7 @@ function qf_route_script($script, &$params = array()) {
         'delete_attachment.php' => 'api/delete-attachment.php',
         'floor_reply.php' => 'api/floor-reply.php',
         'moderator_action.php' => 'api/moderator.php',
+        'passkey.php' => 'api/passkey.php',
         'reply.php' => 'api/reply.php',
         'signin.php' => 'api/signin.php',
         'login.php' => 'api/auth.php',
@@ -445,6 +449,7 @@ function qf_clean_route_path($script) {
         'api/delete-attachment.php' => 'api/delete-attachment',
         'api/floor-reply.php' => 'api/floor-reply',
         'api/moderator.php' => 'api/moderator',
+        'api/passkey.php' => 'api/passkey',
         'api/reply.php' => 'api/reply',
         'api/signin.php' => 'api/signin',
     );
@@ -1276,6 +1281,236 @@ function is_moderator_user($user = null) {
         $user = current_user();
     }
     return $user && (intval($user['is_admin']) === 1 || intval(isset($user['is_moderator']) ? $user['is_moderator'] : 0) === 1);
+}
+
+function qf_ensure_account_auth_schema() {
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'email'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD email varchar(190) NOT NULL DEFAULT '' AFTER nickname");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'email_bound_at'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD email_bound_at datetime DEFAULT NULL AFTER email");
+    }
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_passkeys (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      user_id int(11) NOT NULL DEFAULT '0',
+      credential_id varchar(255) NOT NULL DEFAULT '',
+      public_key_cose text NOT NULL,
+      sign_count bigint(20) NOT NULL DEFAULT '0',
+      label varchar(80) NOT NULL DEFAULT '',
+      transports varchar(120) NOT NULL DEFAULT '',
+      created_at datetime NOT NULL,
+      last_used_at datetime DEFAULT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY credential_id (credential_id),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function qf_b64url_encode($data) {
+    return rtrim(strtr(base64_encode((string)$data), '+/', '-_'), '=');
+}
+
+function qf_b64url_decode($data) {
+    $data = strtr((string)$data, '-_', '+/');
+    $pad = strlen($data) % 4;
+    if ($pad) {
+        $data .= str_repeat('=', 4 - $pad);
+    }
+    return base64_decode($data, true);
+}
+
+function qf_json_response($data, $status = 200) {
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function qf_json_input() {
+    $raw = file_get_contents('php://input');
+    $json = json_decode($raw ? $raw : '{}', true);
+    return is_array($json) ? $json : array();
+}
+
+function qf_webauthn_rp_id() {
+    $host = isset($_SERVER['HTTP_HOST']) ? strtolower((string)$_SERVER['HTTP_HOST']) : '';
+    $host = preg_replace('/:\d+$/', '', $host);
+    return $host !== '' ? $host : 'localhost';
+}
+
+function qf_webauthn_origin() {
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    return ($https ? 'https://' : 'http://') . qf_webauthn_rp_id();
+}
+
+class QfCborReader {
+    private string $data;
+    private int $pos = 0;
+
+    public function __construct(string $data) {
+        $this->data = $data;
+    }
+
+    public function read() {
+        if ($this->pos >= strlen($this->data)) {
+            throw new Exception('CBOR 数据不完整。');
+        }
+        $initial = ord($this->data[$this->pos++]);
+        $major = $initial >> 5;
+        $ai = $initial & 31;
+        $value = $this->readLength($ai);
+        if ($major === 0) return $value;
+        if ($major === 1) return -1 - $value;
+        if ($major === 2) return $this->readBytes($value);
+        if ($major === 3) return $this->readBytes($value);
+        if ($major === 4) {
+            $arr = array();
+            for ($i = 0; $i < $value; $i++) $arr[] = $this->read();
+            return $arr;
+        }
+        if ($major === 5) {
+            $map = array();
+            for ($i = 0; $i < $value; $i++) {
+                $key = $this->read();
+                $map[$key] = $this->read();
+            }
+            return $map;
+        }
+        if ($major === 7) {
+            if ($ai === 20) return false;
+            if ($ai === 21) return true;
+            if ($ai === 22) return null;
+        }
+        throw new Exception('暂不支持的 CBOR 格式。');
+    }
+
+    private function readLength(int $ai): int {
+        if ($ai < 24) return $ai;
+        if ($ai === 24) return ord($this->readBytes(1));
+        if ($ai === 25) {
+            $v = unpack('n', $this->readBytes(2));
+            return intval($v[1]);
+        }
+        if ($ai === 26) {
+            $v = unpack('N', $this->readBytes(4));
+            return intval($v[1]);
+        }
+        if ($ai === 27) {
+            $v = unpack('J', $this->readBytes(8));
+            return intval($v[1]);
+        }
+        throw new Exception('暂不支持不定长 CBOR。');
+    }
+
+    private function readBytes(int $length): string {
+        if ($length < 0 || $this->pos + $length > strlen($this->data)) {
+            throw new Exception('CBOR 数据长度错误。');
+        }
+        $out = substr($this->data, $this->pos, $length);
+        $this->pos += $length;
+        return $out;
+    }
+}
+
+function qf_cbor_decode($data) {
+    $reader = new QfCborReader((string)$data);
+    return $reader->read();
+}
+
+function qf_der_len($len) {
+    if ($len < 128) return chr($len);
+    $bytes = '';
+    while ($len > 0) {
+        $bytes = chr($len & 0xff) . $bytes;
+        $len >>= 8;
+    }
+    return chr(0x80 | strlen($bytes)) . $bytes;
+}
+
+function qf_der_seq($body) {
+    return "\x30" . qf_der_len(strlen($body)) . $body;
+}
+
+function qf_der_bit_string($body) {
+    return "\x03" . qf_der_len(strlen($body) + 1) . "\x00" . $body;
+}
+
+function qf_der_oid($oid) {
+    $parts = array_map('intval', explode('.', $oid));
+    $body = chr($parts[0] * 40 + $parts[1]);
+    for ($i = 2; $i < count($parts); $i++) {
+        $n = $parts[$i];
+        $chunk = chr($n & 0x7f);
+        while ($n >>= 7) {
+            $chunk = chr(0x80 | ($n & 0x7f)) . $chunk;
+        }
+        $body .= $chunk;
+    }
+    return "\x06" . qf_der_len(strlen($body)) . $body;
+}
+
+function qf_webauthn_ec2_pem($cose) {
+    if (!isset($cose[-2], $cose[-3]) || strlen($cose[-2]) !== 32 || strlen($cose[-3]) !== 32) {
+        return '';
+    }
+    $algorithm = qf_der_seq(qf_der_oid('1.2.840.10045.2.1') . qf_der_oid('1.2.840.10045.3.1.7'));
+    $point = "\x04" . $cose[-2] . $cose[-3];
+    $spki = qf_der_seq($algorithm . qf_der_bit_string($point));
+    return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($spki), 64, "\n") . "-----END PUBLIC KEY-----\n";
+}
+
+function qf_webauthn_rsa_pem($cose) {
+    if (!isset($cose[-1], $cose[-2])) {
+        return '';
+    }
+    $n = $cose[-1];
+    $e = $cose[-2];
+    if ($n === '' || $e === '') return '';
+    if ((ord($n[0]) & 0x80) !== 0) $n = "\x00" . $n;
+    if ((ord($e[0]) & 0x80) !== 0) $e = "\x00" . $e;
+    $rsa_public_key = qf_der_seq("\x02" . qf_der_len(strlen($n)) . $n . "\x02" . qf_der_len(strlen($e)) . $e);
+    $algorithm = qf_der_seq(qf_der_oid('1.2.840.113549.1.1.1') . "\x05\x00");
+    $spki = qf_der_seq($algorithm . qf_der_bit_string($rsa_public_key));
+    return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($spki), 64, "\n") . "-----END PUBLIC KEY-----\n";
+}
+
+function qf_webauthn_public_key_pem($cose_raw) {
+    $cose = qf_cbor_decode($cose_raw);
+    if (!is_array($cose) || !isset($cose[1])) return '';
+    if (intval($cose[1]) === 2) return qf_webauthn_ec2_pem($cose);
+    if (intval($cose[1]) === 3) return qf_webauthn_rsa_pem($cose);
+    return '';
+}
+
+function qf_webauthn_verify_client($client_data_json, $expected_type, $expected_challenge) {
+    $client = json_decode($client_data_json, true);
+    if (!is_array($client) || !isset($client['type'], $client['challenge'], $client['origin'])) return false;
+    if ($client['type'] !== $expected_type) return false;
+    if (!hash_equals($expected_challenge, (string)$client['challenge'])) return false;
+    return hash_equals(qf_webauthn_origin(), (string)$client['origin']);
+}
+
+function qf_webauthn_auth_data_info($auth_data) {
+    if (strlen($auth_data) < 37) {
+        throw new Exception('认证器数据不完整。');
+    }
+    if (!hash_equals(hash('sha256', qf_webauthn_rp_id(), true), substr($auth_data, 0, 32))) {
+        throw new Exception('Passkey 域名不匹配。');
+    }
+    $counter = unpack('N', substr($auth_data, 33, 4));
+    return array('flags' => ord($auth_data[32]), 'sign_count' => intval($counter[1]));
+}
+
+function qf_passkey_count($user_id) {
+    qf_ensure_account_auth_schema();
+    return count_rows("SELECT COUNT(*) FROM qf_passkeys WHERE user_id=" . intval($user_id));
 }
 
 function require_login() {

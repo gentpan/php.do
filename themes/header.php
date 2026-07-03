@@ -177,6 +177,7 @@ if (!$me) {
                 <label>用户名</label><input name="username" value="<?php echo h($auth_login_username); ?>" required>
                 <label>密码</label><input type="password" name="password" required>
                 <button class="btn auth-submit" type="submit">登录</button>
+                <button class="btn btn-light auth-passkey" type="button" data-passkey-login><i class="fa-solid fa-key" aria-hidden="true"></i> 使用 Passkey 登录</button>
             </form>
         </section>
         <section class="auth-panel<?php echo $auth_modal === 'register' ? ' active' : ''; ?>" data-auth-panel="register">

@@ -15,6 +15,8 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
   username varchar(32) NOT NULL DEFAULT '',
   password varchar(255) NOT NULL DEFAULT '',
   nickname varchar(32) NOT NULL DEFAULT '',
+  email varchar(190) NOT NULL DEFAULT '',
+  email_bound_at datetime DEFAULT NULL,
   avatar varchar(255) NOT NULL DEFAULT '',
   signature varchar(255) NOT NULL DEFAULT '',
   gender varchar(10) NOT NULL DEFAULT '',
@@ -31,6 +33,21 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
   created_at datetime NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+$sqls[] = "CREATE TABLE IF NOT EXISTS qf_passkeys (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) NOT NULL DEFAULT '0',
+  credential_id varchar(255) NOT NULL DEFAULT '',
+  public_key_cose text NOT NULL,
+  sign_count bigint(20) NOT NULL DEFAULT '0',
+  label varchar(80) NOT NULL DEFAULT '',
+  transports varchar(120) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  last_used_at datetime DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY credential_id (credential_id),
+  KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS qf_forums (

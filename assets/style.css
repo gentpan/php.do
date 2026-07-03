@@ -1970,6 +1970,41 @@ button.action-badge {
     margin-right: auto;
 }
 
+.auth-passkey {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.passkey-card h2 {
+    margin-top: 0;
+}
+
+.passkey-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.passkey-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #e5edf5;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.passkey-item p {
+    margin: 4px 0 0;
+}
+
+body.theme-dark .passkey-item {
+    border-color: #273142;
+    background: #111827;
+}
+
 label {
     display: block;
     margin: 12px 0 6px;

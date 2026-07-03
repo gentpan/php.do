@@ -70,6 +70,164 @@
         });
     }
 
+    function b64urlToBuffer(value) {
+        value = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+        while (value.length % 4) value += '=';
+        var binary = atob(value);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes.buffer;
+    }
+
+    function bufferToB64url(buffer) {
+        var bytes = new Uint8Array(buffer);
+        var binary = '';
+        for (var i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    }
+
+    function passkeyOptions(options) {
+        options.challenge = b64urlToBuffer(options.challenge);
+        if (options.user && options.user.id) options.user.id = b64urlToBuffer(options.user.id);
+        ['allowCredentials', 'excludeCredentials'].forEach(function(key) {
+            if (!options[key]) return;
+            options[key].forEach(function(item) {
+                item.id = b64urlToBuffer(item.id);
+            });
+        });
+        return options;
+    }
+
+    function passkeyAvailable() {
+        return window.PublicKeyCredential && navigator.credentials;
+    }
+
+    function passkeyRequest(action, payload) {
+        return fetch('api/passkey?action=' + encodeURIComponent(action), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': window.qfCsrfToken || ''
+            },
+            body: JSON.stringify(payload || {})
+        }).then(function(res) {
+            return res.json().then(function(json) {
+                if (!res.ok || !json.ok) throw new Error(json.error || 'Passkey 操作失败。');
+                return json;
+            });
+        });
+    }
+
+    function credentialCreatePayload(credential) {
+        var response = credential.response;
+        return {
+            id: credential.id,
+            rawId: bufferToB64url(credential.rawId),
+            type: credential.type,
+            clientDataJSON: bufferToB64url(response.clientDataJSON),
+            attestationObject: bufferToB64url(response.attestationObject),
+            transports: typeof response.getTransports === 'function' ? response.getTransports() : []
+        };
+    }
+
+    function credentialGetPayload(credential) {
+        var response = credential.response;
+        return {
+            id: credential.id,
+            rawId: bufferToB64url(credential.rawId),
+            type: credential.type,
+            clientDataJSON: bufferToB64url(response.clientDataJSON),
+            authenticatorData: bufferToB64url(response.authenticatorData),
+            signature: bufferToB64url(response.signature),
+            userHandle: response.userHandle ? bufferToB64url(response.userHandle) : ''
+        };
+    }
+
+    function initPasskeys() {
+        document.addEventListener('click', function(e) {
+            var register = e.target.closest('[data-passkey-register]');
+            if (register) {
+                e.preventDefault();
+                if (!passkeyAvailable()) {
+                    toast('当前浏览器不支持 Passkey。', 'error');
+                    return;
+                }
+                setLoading(true);
+                passkeyRequest('register-options')
+                    .then(function(json) {
+                        return navigator.credentials.create({ publicKey: passkeyOptions(json.publicKey) });
+                    })
+                    .then(function(credential) {
+                        return passkeyRequest('register-verify', credentialCreatePayload(credential));
+                    })
+                    .then(function(json) {
+                        toast(json.message || 'Passkey 已添加。', 'success');
+                        window.setTimeout(function() { window.location.reload(); }, 500);
+                    })
+                    .catch(function(err) {
+                        toast(err.message || 'Passkey 添加失败。', 'error');
+                    })
+                    .finally(function() {
+                        setLoading(false);
+                    });
+                return;
+            }
+
+            var login = e.target.closest('[data-passkey-login]');
+            if (login) {
+                e.preventDefault();
+                if (!passkeyAvailable()) {
+                    toast('当前浏览器不支持 Passkey。', 'error');
+                    return;
+                }
+                var form = login.closest('form');
+                var username = form ? form.querySelector('input[name="username"]') : null;
+                var usernameValue = username ? username.value.trim() : '';
+                if (!usernameValue) {
+                    toast('请先输入用户名。', 'error');
+                    if (username) username.focus();
+                    return;
+                }
+                setLoading(true);
+                passkeyRequest('login-options', { username: usernameValue })
+                    .then(function(json) {
+                        return navigator.credentials.get({ publicKey: passkeyOptions(json.publicKey) });
+                    })
+                    .then(function(credential) {
+                        return passkeyRequest('login-verify', credentialGetPayload(credential));
+                    })
+                    .then(function(json) {
+                        window.location.href = json.redirect || '/';
+                    })
+                    .catch(function(err) {
+                        toast(err.message || 'Passkey 登录失败。', 'error');
+                    })
+                    .finally(function() {
+                        setLoading(false);
+                    });
+                return;
+            }
+
+            var remove = e.target.closest('[data-passkey-delete]');
+            if (remove) {
+                e.preventDefault();
+                setLoading(true);
+                passkeyRequest('delete', { id: remove.getAttribute('data-passkey-delete') })
+                    .then(function(json) {
+                        toast(json.message || 'Passkey 已删除。', 'success');
+                        window.setTimeout(function() { window.location.reload(); }, 500);
+                    })
+                    .catch(function(err) {
+                        toast(err.message || 'Passkey 删除失败。', 'error');
+                    })
+                    .finally(function() {
+                        setLoading(false);
+                    });
+            }
+        });
+    }
+
     function initAuthModal() {
         var modal = document.getElementById('qf-auth-modal');
         if (!modal) return;
@@ -370,6 +528,7 @@
     initNavMore();
     initSideUserMenu();
     initAuthModal();
+    initPasskeys();
     initSearchModal();
     initSigninModal();
     initInlineActions();
