@@ -1,0 +1,21 @@
+{
+    "name": "lume/forum",
+    "description": "Lume lightweight PHP forum",
+    "license": "proprietary",
+    "type": "project",
+    "require": {
+        "php": ">=8.4 <8.6",
+        "ext-mysqli": "*",
+        "ext-json": "*"
+    },
+    "suggest": {
+        "ext-curl": "Required when Qiniu cloud upload is enabled.",
+        "ext-mbstring": "Recommended for safer UTF-8 text length handling."
+    },
+    "config": {
+        "platform": {
+            "php": "8.4.0"
+        },
+        "sort-packages": true
+    }
+}

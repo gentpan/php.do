@@ -1,0 +1,8 @@
+config.php
+uploads/
+.DS_Store
+*.log
+*.pem
+.env
+vendor/
+node_modules/
