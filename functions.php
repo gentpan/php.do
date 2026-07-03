@@ -244,6 +244,9 @@ function qf_default_nginx_rewrite_rules() {
 function qf_base_href() {
     $script_name = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
     $dir = str_replace('\\', '/', dirname($script_name));
+    if (basename($dir) === 'admin') {
+        $dir = dirname($dir);
+    }
     if ($dir === '/' || $dir === '\\' || $dir === '.' || $dir === '') {
         return '/';
     }
@@ -274,9 +277,26 @@ function qf_append_url_parts($path, $params = array(), $fragment = '') {
     return $path . ($query !== '' ? '?' . $query : '') . ($fragment !== '' ? '#' . ltrim($fragment, '#') : '');
 }
 
+function qf_admin_page_map() {
+    return array(
+        'admin.php' => 'admin/index.php',
+        'admin_action.php' => 'admin/action.php',
+        'admin_ads.php' => 'admin/ads.php',
+        'admin_cache.php' => 'admin/cache.php',
+        'admin_navs.php' => 'admin/navs.php',
+        'admin_security.php' => 'admin/security.php',
+        'admin_settings.php' => 'admin/settings.php',
+        'admin_users.php' => 'admin/users.php',
+    );
+}
+
 function qf_url_page($script, $params = array(), $fragment = '') {
     $script = ltrim((string)$script, '/');
     $params = is_array($params) ? $params : array();
+    $admin_map = qf_admin_page_map();
+    if (isset($admin_map[$script])) {
+        $script = $admin_map[$script];
+    }
     if (!qf_rewrite_enabled()) {
         return qf_append_url_parts($script, $params, $fragment);
     }
@@ -297,6 +317,9 @@ function qf_url_page($script, $params = array(), $fragment = '') {
         $id = intval($params['id']);
         unset($params['id']);
         return qf_append_url_parts('/download/' . $id, $params, $fragment);
+    }
+    if ($script === 'admin/index.php') {
+        return qf_append_url_parts('/admin/index', $params, $fragment);
     }
     if (substr($script, -4) === '.php') {
         $script = substr($script, 0, -4);

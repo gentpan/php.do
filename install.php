@@ -219,7 +219,7 @@ foreach ($sqls as $sql) {
 }
 
 if ($ok) {
-    require_once __DIR__ . '/db.php';
+    require_once __DIR__ . '/functions.php';
     $forum_count = 0;
     $rs = mysqli_query($conn, "SELECT COUNT(*) FROM qf_forums");
     if ($rs) {

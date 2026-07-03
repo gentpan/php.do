@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $u = require_login();
 if (ip_banned(client_ip())) exit('当前 IP 已被封禁');
 $fid = isset($_GET['fid']) ? intval($_GET['fid']) : 0;

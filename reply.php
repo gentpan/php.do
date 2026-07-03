@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $u = require_login();
 if (ip_banned(client_ip())) exit('当前 IP 已被封禁');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') redirect(qf_url_page('index.php'));

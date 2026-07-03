@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $download_user = current_user();
 
 function qf_safe_download_name($name) {

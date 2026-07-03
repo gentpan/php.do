@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $page_title = SITE_NAME . ' - 首页';
 include __DIR__ . '/header.php';
 $forums = mysqli_query(db(), "SELECT f.*, 

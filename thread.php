@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
 $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t

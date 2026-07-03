@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $q = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
 $page_title = '搜索 - ' . SITE_NAME;
 include __DIR__ . '/header.php';

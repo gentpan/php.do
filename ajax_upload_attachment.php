@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $u = require_login();

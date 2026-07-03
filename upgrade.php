@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 
 $sql = "CREATE TABLE IF NOT EXISTS qf_attachments (
   id int(11) NOT NULL AUTO_INCREMENT,

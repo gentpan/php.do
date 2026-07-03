@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);

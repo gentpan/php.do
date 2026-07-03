@@ -1,6 +1,6 @@
 <?php
 // Lume profile page build: 2026-06-15 with password_confirm
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $u = require_login();
 $error = '';
 $saved = false;

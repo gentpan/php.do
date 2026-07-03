@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 $fid = qf_path_id();
 $frs = mysqli_query(db(), "SELECT * FROM qf_forums WHERE id={$fid} LIMIT 1");
 $forum = $frs ? mysqli_fetch_assoc($frs) : null;
