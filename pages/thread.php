@@ -28,18 +28,18 @@ $compressed_exts = array('zip', 'rar');
         · <?php echo h($thread['nickname']); ?><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?>
         <?php if (is_admin()) { ?>
             <span class="admin-tools">
-                IP: <?php echo h($thread['ip']); ?>
-                <a href="<?php echo h(qf_url_page('edit_thread.php', array('id' => intval($thread['id'])))); ?>">编辑</a>
-                <a href="<?php echo h(qf_url_page('move_thread.php', array('id' => intval($thread['id'])))); ?>">移动</a>
-                <a href="<?php echo h(qf_url_page('admin/action.php', array('action' => 'top_board', 'id' => intval($thread['id']), 'token' => qf_action_token('top_board', $thread['id'])))); ?>">本版块置顶</a>
-                <a href="<?php echo h(qf_url_page('admin/action.php', array('action' => 'top_global', 'id' => intval($thread['id']), 'token' => qf_action_token('top_global', $thread['id'])))); ?>">全站置顶</a>
-                <?php if (intval($thread['is_top']) > 0) { ?><a href="<?php echo h(qf_url_page('admin/action.php', array('action' => 'cancel_top', 'id' => intval($thread['id']), 'token' => qf_action_token('cancel_top', $thread['id'])))); ?>">取消置顶</a><?php } ?>
-                <a href="<?php echo h(qf_url_page('admin/action.php', array('action' => 'good', 'id' => intval($thread['id']), 'token' => qf_action_token('good', $thread['id'])))); ?>"><?php echo intval($thread['is_good']) ? '取消加精' : '加精'; ?></a>
-                <a data-confirm="确定删除？" href="<?php echo h(qf_url_page('admin/action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('del_thread', $thread['id'])))); ?>">删除</a>
+                <span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($thread['ip']); ?></span></span>
+                <?php echo qf_action_badge(qf_url_page('edit_thread.php', array('id' => intval($thread['id']))), '编辑', 'fa-solid fa-pen-to-square'); ?>
+                <?php echo qf_action_badge(qf_url_page('move_thread.php', array('id' => intval($thread['id']))), '移动', 'fa-solid fa-arrow-right-arrow-left'); ?>
+                <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_board', 'id' => intval($thread['id']), 'token' => qf_action_token('top_board', $thread['id']))), '本版块置顶', 'fa-solid fa-thumbtack'); ?>
+                <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_global', 'id' => intval($thread['id']), 'token' => qf_action_token('top_global', $thread['id']))), '全站置顶', 'fa-solid fa-up-long'); ?>
+                <?php if (intval($thread['is_top']) > 0) { ?><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'cancel_top', 'id' => intval($thread['id']), 'token' => qf_action_token('cancel_top', $thread['id']))), '取消置顶', 'fa-solid fa-ban', 'action-badge-muted'); ?><?php } ?>
+                <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'good', 'id' => intval($thread['id']), 'token' => qf_action_token('good', $thread['id']))), intval($thread['is_good']) ? '取消加精' : '加精', 'fa-solid fa-star'); ?>
+                <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('del_thread', $thread['id']))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？"'); ?>
             </span>
         <?php } elseif (qf_can_moderator_delete_thread(current_user(), $thread)) { ?>
             <span class="admin-tools">
-                <a data-confirm="确定删除该主题？" href="<?php echo h(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('mod_del_thread', $thread['id'])))); ?>">版主删除</a>
+                <?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('mod_del_thread', $thread['id']))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？"'); ?>
             </span>
         <?php } ?>
     </div>
@@ -82,8 +82,8 @@ $compressed_exts = array('zip', 'rar');
         <?php $reply_attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE post_id=" . intval($p['id']) . " ORDER BY id ASC"); ?>
         <div class="reply">
             <div class="post-meta"><?php echo h($p['nickname']); ?> <span class="floor-label"><?php echo h(qf_floor_name($floor_no)); ?><?php if (qf_floor_icon($floor_no) !== '') { ?> <span class="floor-icon"><?php echo h(qf_floor_icon($floor_no)); ?></span><?php } ?></span><?php if (intval(isset($p['author_is_moderator']) ? $p['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($p['created_at']); ?>
-                <?php if (is_admin()) { ?><span class="admin-tools">IP: <?php echo h($p['ip']); ?> <a data-confirm="确定删除？" href="<?php echo h(qf_url_page('admin/action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('del_post', $p['id'], intval($id))))); ?>">删除</a></span><?php } ?>
-                <?php if (!is_admin() && qf_can_moderator_delete_post(current_user(), $p)) { ?><span class="admin-tools"><a data-confirm="确定删除该回复？" href="<?php echo h(qf_url_page('moderator_action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('mod_del_post', $p['id'], intval($id))))); ?>">版主删除</a></span><?php } ?>
+                <?php if (is_admin()) { ?><span class="admin-tools"><span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($p['ip']); ?></span></span><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('del_post', $p['id'], intval($id)))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？"'); ?></span><?php } ?>
+                <?php if (!is_admin() && qf_can_moderator_delete_post(current_user(), $p)) { ?><span class="admin-tools"><?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('mod_del_post', $p['id'], intval($id)))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该回复？"'); ?></span><?php } ?>
                 <?php if (current_user()) { ?><span class="floor-reply-actions"><button class="btn btn-small btn-light floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>">回复</button></span><?php } ?>
             </div>
             <div class="content"><?php echo qf_render_content($p['content']); ?></div>

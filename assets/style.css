@@ -1539,10 +1539,69 @@ a:hover {
 
 .admin-tools {
     float: right;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    max-width: 100%;
 }
 
 .admin-tools a {
-    margin-left: 8px;
+    margin-left: 0;
+}
+
+.action-badge {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    min-height: 26px;
+    padding: 4px 9px;
+    color: #0052D9 !important;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+    background: #edf4ff;
+    border: 1px solid #cfe0ff;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.action-badge i {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.action-badge:hover {
+    color: #003cab !important;
+    background: #dbeaff;
+}
+
+.action-badge-danger {
+    color: #d93025 !important;
+    background: #fff1f0;
+    border-color: #ffd0cc;
+}
+
+.action-badge-danger:hover {
+    color: #b42318 !important;
+    background: #ffe4e0;
+}
+
+.action-badge-muted,
+.action-badge-static {
+    color: #64748b !important;
+    background: #f6f8fb;
+    border-color: #e2e8f0;
+}
+
+.action-badge-static {
+    cursor: default;
+}
+
+button.action-badge {
+    font-family: inherit;
 }
 
 .move-thread-form {

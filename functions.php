@@ -674,8 +674,13 @@ function qf_attachment_delete_form($att, $label = '删除附件') {
         . qf_csrf_field()
         . '<input type="hidden" name="id" value="' . intval($att['id']) . '">'
         . '<input type="hidden" name="redirect" value="' . h($redirect) . '">'
-        . '<button class="attachment-delete-btn" type="submit">' . h($label) . '</button>'
+        . '<button class="action-badge action-badge-danger" type="submit"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>' . h($label) . '</span></button>'
         . '</form>';
+}
+
+function qf_action_badge($href, $label, $icon, $extra_class = '', $attrs = '') {
+    $class = trim('action-badge ' . $extra_class);
+    return '<a class="' . h($class) . '" href="' . h($href) . '" ' . trim($attrs) . '><i class="' . h($icon) . '" aria-hidden="true"></i><span>' . h($label) . '</span></a>';
 }
 
 function qf_guest_download_confirm_onclick() {
