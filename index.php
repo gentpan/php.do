@@ -18,7 +18,7 @@ $legacy_admin_paths = array(
     'admin_users.php',
 );
 $request_path = trim(parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_PATH), '/');
-if (in_array($request_path, $legacy_admin_paths, true)) {
+if (in_array($request_path, $legacy_admin_paths, true) || strpos($request_path, 'actions/') === 0) {
     http_response_code(404);
     exit('404 Not Found');
 }

@@ -244,7 +244,7 @@ function qf_default_nginx_rewrite_rules() {
 function qf_base_href() {
     $script_name = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
     $dir = str_replace('\\', '/', dirname($script_name));
-    if (in_array(basename($dir), array('admin', 'api', 'actions', 'pages'), true)) {
+    if (in_array(basename($dir), array('admin', 'api', 'pages'), true)) {
         $dir = dirname($dir);
     }
     if ($dir === '/' || $dir === '\\' || $dir === '.' || $dir === '') {
@@ -295,14 +295,14 @@ function qf_route_script($script, &$params = array()) {
         'captcha.php' => 'api/captcha.php',
         'ajax_upload_image.php' => 'api/upload-image.php',
         'ajax_upload_attachment.php' => 'api/upload-attachment.php',
-        'delete_attachment.php' => 'actions/delete-attachment.php',
-        'floor_reply.php' => 'actions/floor-reply.php',
-        'moderator_action.php' => 'actions/moderator.php',
-        'reply.php' => 'actions/reply.php',
-        'signin.php' => 'actions/signin.php',
-        'login.php' => 'actions/auth.php',
-        'logout.php' => 'actions/auth.php',
-        'register.php' => 'actions/auth.php',
+        'delete_attachment.php' => 'api/delete-attachment.php',
+        'floor_reply.php' => 'api/floor-reply.php',
+        'moderator_action.php' => 'api/moderator.php',
+        'reply.php' => 'api/reply.php',
+        'signin.php' => 'api/signin.php',
+        'login.php' => 'api/auth.php',
+        'logout.php' => 'api/auth.php',
+        'register.php' => 'api/auth.php',
         'download.php' => 'pages/download.php',
         'edit_thread.php' => 'pages/edit-thread.php',
         'forum.php' => 'pages/forum.php',
@@ -340,12 +340,12 @@ function qf_clean_route_path($script) {
         'api/captcha.php' => 'api/captcha',
         'api/upload-attachment.php' => 'api/upload-attachment',
         'api/upload-image.php' => 'api/upload-image',
-        'actions/auth.php' => 'actions/auth',
-        'actions/delete-attachment.php' => 'actions/delete-attachment',
-        'actions/floor-reply.php' => 'actions/floor-reply',
-        'actions/moderator.php' => 'actions/moderator',
-        'actions/reply.php' => 'actions/reply',
-        'actions/signin.php' => 'actions/signin',
+        'api/auth.php' => 'api/auth',
+        'api/delete-attachment.php' => 'api/delete-attachment',
+        'api/floor-reply.php' => 'api/floor-reply',
+        'api/moderator.php' => 'api/moderator',
+        'api/reply.php' => 'api/reply',
+        'api/signin.php' => 'api/signin',
     );
     return isset($map[$script]) ? $map[$script] : $script;
 }
