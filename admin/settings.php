@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = '站点设置 - ' . SITE_NAME;
-include __DIR__ . '/../header.php';
+qf_include_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
@@ -380,4 +380,4 @@ include __DIR__ . '/../header.php';
     </form>
 </section>
 <script src="<?php echo h(qf_asset_js('admin-settings')); ?>"></script>
-<?php include __DIR__ . '/../footer.php'; ?>
+<?php qf_include_footer(); ?>

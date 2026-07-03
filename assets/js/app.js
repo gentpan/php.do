@@ -144,7 +144,7 @@
         document.addEventListener('click', function(e) {
             var captcha = e.target.closest('[data-captcha-refresh]');
             if (captcha) {
-                captcha.src = 'captcha.php?t=' + Date.now();
+                captcha.src = 'api/captcha?t=' + Date.now();
                 return;
             }
 

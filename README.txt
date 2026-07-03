@@ -9,10 +9,10 @@ MySQL 5.7+ 或 MariaDB 10.3+
 安装：
 1. 上传 qing_forum 整个目录到网站。
 2. 修改 config.php 的数据库信息。
-3. 访问 install.php 自动建表。
+3. 访问 setup/install.php 自动建表。
 4. 默认管理员：admin
 5. 默认密码：admin123
-6. 登录后请尽快修改密码，测试完成后删除 install.php。
+6. 登录后请尽快修改密码，测试完成后删除 setup/install.php。
 
 功能：
 1. 用户注册、登录、退出。
@@ -39,9 +39,9 @@ MySQL 5.7+ 或 MariaDB 10.3+
 
 升级说明：
 如果你已经安装过旧版本，不需要重装数据库。
-上传覆盖文件后，访问一次 upgrade.php 创建附件表。
+上传覆盖文件后，访问一次 setup/upgrade.php 创建附件表。
 新版还会创建 qf_settings 设置表。
-升级成功后建议删除 upgrade.php。
+升级成功后建议删除 setup/upgrade.php。
 
 说明：
 这是第一版轻量论坛程序，界面清爽简约，适合先上传测试。

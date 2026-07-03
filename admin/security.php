@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $recent_bans = mysqli_query(db(), "SELECT * FROM qf_bans ORDER BY id DESC LIMIT 20");
 $page_title = '安全相关 - ' . SITE_NAME;
-include __DIR__ . '/../header.php';
+qf_include_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
@@ -84,4 +84,4 @@ include __DIR__ . '/../header.php';
         <p class="muted">暂无封禁记录。</p>
     <?php } ?>
 </section>
-<?php include __DIR__ . '/../footer.php'; ?>
+<?php qf_include_footer(); ?>

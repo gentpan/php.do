@@ -1,6 +1,6 @@
 <?php
 // Lume profile page build: 2026-06-15 with password_confirm
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $u = require_login();
 $error = '';
 $saved = false;
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = '基本资料 - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 ?>
 <section class="card narrow-card">
     <h1>基本资料</h1>
@@ -107,4 +107,4 @@ include __DIR__ . '/header.php';
         <button class="btn" type="submit">保存资料</button>
     </form>
 </section>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

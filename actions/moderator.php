@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $u = require_login();
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 

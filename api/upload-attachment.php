@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $u = require_login();
@@ -65,7 +65,7 @@ if (!$ok) {
     exit;
 }
 $attach_id = intval(mysqli_insert_id(db()));
-$url = qf_attachment_url($attach_id); // download.php?id= 附件ID
+$url = qf_attachment_url($attach_id); // download?id= 附件ID
 
 $tag_name = str_replace(array('"', '[', ']', "\r", "\n"), '', $original);
 $tag_description = str_replace(array('"', '[', ']', "\r", "\n"), '', $description);

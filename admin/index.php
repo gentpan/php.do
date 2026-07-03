@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../functions.php';
 require_admin();
 $page_title = '后台管理 - ' . SITE_NAME;
-include __DIR__ . '/../header.php';
+qf_include_header();
 $forums = mysqli_query(db(), "SELECT * FROM qf_forums ORDER BY display_order ASC, id ASC");
 $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR expires_at > NOW() ORDER BY id DESC");
 ?>
@@ -99,4 +99,4 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
         <?php } ?>
     </section>
 </div>
-<?php include __DIR__ . '/../footer.php'; ?>
+<?php qf_include_footer(); ?>

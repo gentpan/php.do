@@ -65,7 +65,7 @@ while ($rs && $row = mysqli_fetch_assoc($rs)) {
 }
 
 $page_title = '广告位置 - ' . SITE_NAME;
-include __DIR__ . '/../header.php';
+qf_include_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
@@ -105,4 +105,4 @@ include __DIR__ . '/../header.php';
     </form>
 </section>
 <?php } ?>
-<?php include __DIR__ . '/../footer.php'; ?>
+<?php qf_include_footer(); ?>

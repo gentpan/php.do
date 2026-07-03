@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $page_title = '排行榜 - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 
 $signin_rank = qf_signin_table_ready() ? mysqli_query(db(), "SELECT u.nickname, u.username, COUNT(s.id) AS total_days, MAX(s.continuous_days) AS best_streak
     FROM qf_users u
@@ -50,4 +50,4 @@ $coin_rank = qf_user_coins_ready() ? mysqli_query(db(), "SELECT nickname, userna
         </table>
     </section>
 </div>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

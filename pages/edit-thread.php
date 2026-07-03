@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 require_admin();
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
 $page_title = '编辑帖子 - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 ?>
 <section class="card post-form-card">
     <h1>编辑帖子</h1>
@@ -102,4 +102,4 @@ include __DIR__ . '/header.php';
     </form>
 </section>
 <script src="<?php echo h(qf_asset_js('editor')); ?>"></script>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

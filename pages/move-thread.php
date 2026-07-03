@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 require_admin();
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -11,7 +11,7 @@ if (!$thread) {
 
 $forums = mysqli_query(db(), "SELECT * FROM qf_forums ORDER BY display_order ASC, id ASC");
 $page_title = '移动帖子 - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 ?>
 <section class="card narrow-card">
     <h1>移动帖子</h1>
@@ -30,4 +30,4 @@ include __DIR__ . '/header.php';
         <a class="btn btn-light" href="<?php echo h(qf_url_thread($thread['id'])); ?>">返回帖子</a>
     </form>
 </section>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

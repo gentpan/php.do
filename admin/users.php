@@ -15,7 +15,7 @@ while ($forums && $forum = mysqli_fetch_assoc($forums)) {
     $forum_options[] = $forum;
 }
 $page_title = '用户管理 - ' . SITE_NAME;
-include __DIR__ . '/../header.php';
+qf_include_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
@@ -99,4 +99,4 @@ include __DIR__ . '/../header.php';
         <p class="muted">没有找到普通用户。</p>
     <?php } ?>
 </section>
-<?php include __DIR__ . '/../footer.php'; ?>
+<?php qf_include_footer(); ?>

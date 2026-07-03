@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $u = require_login();
 $uid = intval($u['id']);
 $notice = '';
@@ -20,7 +20,7 @@ if (qf_notifications_ready()) {
     mysqli_query(db(), "UPDATE qf_notifications SET is_read=1 WHERE user_id={$uid}");
 }
 $page_title = '消息提醒 - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 ?>
 <section class="card">
     <h1>消息提醒</h1>
@@ -52,4 +52,4 @@ include __DIR__ . '/header.php';
         <p class="muted">暂无消息。</p>
     <?php } ?>
 </section>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 
 $u = require_login();
 qf_require_csrf();
@@ -33,7 +33,7 @@ if (!$file_deleted) {
 }
 
 $tag_id = intval($att['id']);
-$thread_rows = mysqli_query(db(), "SELECT id, content FROM qf_threads WHERE content LIKE '%download.php?id={$tag_id}%'");
+$thread_rows = mysqli_query(db(), "SELECT id, content FROM qf_threads WHERE content LIKE '%download?id={$tag_id}%'");
 while ($thread_rows && ($row = mysqli_fetch_assoc($thread_rows))) {
     $new_content = qf_remove_attachment_tag_from_content($row['content'], $tag_id);
     $content_sql = esc($new_content);
@@ -41,7 +41,7 @@ while ($thread_rows && ($row = mysqli_fetch_assoc($thread_rows))) {
     mysqli_query(db(), "UPDATE qf_threads SET content='{$content_sql}' WHERE id={$row_id}");
 }
 
-$post_rows = mysqli_query(db(), "SELECT id, content FROM qf_posts WHERE content LIKE '%download.php?id={$tag_id}%'");
+$post_rows = mysqli_query(db(), "SELECT id, content FROM qf_posts WHERE content LIKE '%download?id={$tag_id}%'");
 while ($post_rows && ($row = mysqli_fetch_assoc($post_rows))) {
     $new_content = qf_remove_attachment_tag_from_content($row['content'], $tag_id);
     $content_sql = esc($new_content);

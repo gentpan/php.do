@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $u = require_login();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = '';

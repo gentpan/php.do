@@ -22,8 +22,23 @@ if (in_array($request_path, $legacy_admin_paths, true)) {
     http_response_code(404);
     exit('404 Not Found');
 }
+$front_routes = array(
+    'download' => 'download.php',
+    'edit-thread' => 'edit-thread.php',
+    'move-thread' => 'move-thread.php',
+    'notifications' => 'notifications.php',
+    'post' => 'post.php',
+    'profile' => 'profile.php',
+    'rankings' => 'rankings.php',
+    'search' => 'search.php',
+);
+if (isset($front_routes[$request_path])) {
+    $_SERVER['SCRIPT_NAME'] = '/' . str_replace('-', '_', $front_routes[$request_path]);
+    require __DIR__ . '/pages/' . $front_routes[$request_path];
+    exit;
+}
 $page_title = SITE_NAME . ' - 首页';
-include __DIR__ . '/header.php';
+qf_include_header();
 $forums = mysqli_query(db(), "SELECT f.*, 
     (SELECT COUNT(*) FROM qf_threads t WHERE t.forum_id=f.id AND t.is_deleted=0) AS thread_count,
     (SELECT COUNT(*) FROM qf_posts p INNER JOIN qf_threads t2 ON p.thread_id=t2.id WHERE t2.forum_id=f.id AND p.is_deleted=0 AND t2.is_deleted=0) AS post_count
@@ -125,4 +140,4 @@ $latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
     </aside>
 </div>
 <?php echo qf_render_ad('footer'); ?>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

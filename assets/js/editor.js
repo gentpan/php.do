@@ -91,7 +91,7 @@
         if (status) status.textContent = '正在上传附件...';
         if (window.qfSetLoading) window.qfSetLoading(true);
 
-        fetch('ajax_upload_attachment.php', { method: 'POST', body: attachmentData, credentials: 'same-origin' })
+        fetch('api/upload-attachment', { method: 'POST', body: attachmentData, credentials: 'same-origin' })
             .then(function(res) {
                 return res.json();
             })
@@ -120,7 +120,7 @@
         if (status) status.textContent = '正在上传图片...';
         if (window.qfSetLoading) window.qfSetLoading(true);
 
-        fetch('ajax_upload_image.php', { method: 'POST', body: data, credentials: 'same-origin' })
+        fetch('api/upload-image', { method: 'POST', body: data, credentials: 'same-origin' })
             .then(function(res) {
                 return res.json();
             })

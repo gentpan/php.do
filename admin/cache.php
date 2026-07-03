@@ -19,7 +19,7 @@ $messages[] = '会话提示缓存已清理。';
 $messages[] = '缓存已清理。';
 
 $page_title = '清理缓存 - ' . SITE_NAME;
-include __DIR__ . '/../header.php';
+qf_include_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
@@ -30,4 +30,4 @@ include __DIR__ . '/../header.php';
         <p class="success"><?php echo h($msg); ?></p>
     <?php } ?>
 </section>
-<?php include __DIR__ . '/../footer.php'; ?>
+<?php qf_include_footer(); ?>

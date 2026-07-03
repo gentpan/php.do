@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $q = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
 $page_title = '搜索 - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 ?>
 <section class="card">
     <h1>搜索</h1>
@@ -24,4 +24,4 @@ include __DIR__ . '/header.php';
     <?php } ?>
 </section>
 <?php } ?>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

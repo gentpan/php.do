@@ -235,22 +235,34 @@ function qf_selected_font_urls() {
 }
 
 function qf_default_nginx_rewrite_rules() {
-    return "rewrite ^/thread/([0-9]+)\\.html$ /thread.php?id=$1 last;\n"
-        . "rewrite ^/forum/([0-9]+)\\.html$ /forum.php?id=$1 last;\n"
-        . "rewrite ^/download/([0-9]+)$ /download.php?id=$1 last;\n"
+    return "rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;\n"
+        . "rewrite ^/forum/([0-9]+)\\.html$ /pages/forum.php?id=$1 last;\n"
+        . "rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;\n"
         . "try_files $uri $uri.php $uri/ /index.php?$query_string;";
 }
 
 function qf_base_href() {
     $script_name = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
     $dir = str_replace('\\', '/', dirname($script_name));
-    if (basename($dir) === 'admin') {
+    if (in_array(basename($dir), array('admin', 'api', 'actions', 'pages'), true)) {
         $dir = dirname($dir);
     }
     if ($dir === '/' || $dir === '\\' || $dir === '.' || $dir === '') {
         return '/';
     }
     return rtrim($dir, '/') . '/';
+}
+
+function qf_theme_file($file) {
+    return __DIR__ . '/themes/blue/' . ltrim($file, '/');
+}
+
+function qf_include_header() {
+    include qf_theme_file('header.php');
+}
+
+function qf_include_footer() {
+    include qf_theme_file('footer.php');
 }
 
 function qf_asset_js($name) {
@@ -277,32 +289,99 @@ function qf_append_url_parts($path, $params = array(), $fragment = '') {
     return $path . ($query !== '' ? '?' . $query : '') . ($fragment !== '' ? '#' . ltrim($fragment, '#') : '');
 }
 
+function qf_route_script($script, &$params = array()) {
+    $map = array(
+        'ad.php' => 'api/ad.php',
+        'captcha.php' => 'api/captcha.php',
+        'ajax_upload_image.php' => 'api/upload-image.php',
+        'ajax_upload_attachment.php' => 'api/upload-attachment.php',
+        'delete_attachment.php' => 'actions/delete-attachment.php',
+        'floor_reply.php' => 'actions/floor-reply.php',
+        'moderator_action.php' => 'actions/moderator.php',
+        'reply.php' => 'actions/reply.php',
+        'signin.php' => 'actions/signin.php',
+        'login.php' => 'actions/auth.php',
+        'logout.php' => 'actions/auth.php',
+        'register.php' => 'actions/auth.php',
+        'download.php' => 'pages/download.php',
+        'edit_thread.php' => 'pages/edit-thread.php',
+        'forum.php' => 'pages/forum.php',
+        'move_thread.php' => 'pages/move-thread.php',
+        'notifications.php' => 'pages/notifications.php',
+        'post.php' => 'pages/post.php',
+        'profile.php' => 'pages/profile.php',
+        'rankings.php' => 'pages/rankings.php',
+        'search.php' => 'pages/search.php',
+        'thread.php' => 'pages/thread.php',
+    );
+    if ($script === 'login.php' && !isset($params['action'])) {
+        $params['action'] = 'login';
+    } elseif ($script === 'logout.php' && !isset($params['action'])) {
+        $params['action'] = 'logout';
+    } elseif ($script === 'register.php' && !isset($params['action'])) {
+        $params['action'] = 'register';
+    }
+    return isset($map[$script]) ? $map[$script] : $script;
+}
+
+function qf_clean_route_path($script) {
+    $map = array(
+        'pages/download.php' => 'download',
+        'pages/edit-thread.php' => 'edit-thread',
+        'pages/forum.php' => 'forum',
+        'pages/move-thread.php' => 'move-thread',
+        'pages/notifications.php' => 'notifications',
+        'pages/post.php' => 'post',
+        'pages/profile.php' => 'profile',
+        'pages/rankings.php' => 'rankings',
+        'pages/search.php' => 'search',
+        'pages/thread.php' => 'thread',
+        'api/ad.php' => 'api/ad',
+        'api/captcha.php' => 'api/captcha',
+        'api/upload-attachment.php' => 'api/upload-attachment',
+        'api/upload-image.php' => 'api/upload-image',
+        'actions/auth.php' => 'actions/auth',
+        'actions/delete-attachment.php' => 'actions/delete-attachment',
+        'actions/floor-reply.php' => 'actions/floor-reply',
+        'actions/moderator.php' => 'actions/moderator',
+        'actions/reply.php' => 'actions/reply',
+        'actions/signin.php' => 'actions/signin',
+    );
+    return isset($map[$script]) ? $map[$script] : $script;
+}
+
 function qf_url_page($script, $params = array(), $fragment = '') {
     $script = ltrim((string)$script, '/');
     $params = is_array($params) ? $params : array();
+    $logical_script = $script;
+    $script = qf_route_script($script, $params);
     if (!qf_rewrite_enabled()) {
         return qf_append_url_parts($script, $params, $fragment);
     }
     if ($script === 'index.php' || $script === '') {
         return qf_append_url_parts('/', $params, $fragment);
     }
-    if ($script === 'thread.php' && isset($params['id'])) {
+    if (($logical_script === 'thread.php' || $script === 'pages/thread.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
         return qf_append_url_parts('/thread/' . $id . '.html', $params, $fragment);
     }
-    if ($script === 'forum.php' && isset($params['id'])) {
+    if (($logical_script === 'forum.php' || $script === 'pages/forum.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
         return qf_append_url_parts('/forum/' . $id . '.html', $params, $fragment);
     }
-    if ($script === 'download.php' && isset($params['id'])) {
+    if (($logical_script === 'download.php' || $script === 'pages/download.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
         return qf_append_url_parts('/download/' . $id, $params, $fragment);
     }
     if ($script === 'admin/index.php') {
         return qf_append_url_parts('/admin/index', $params, $fragment);
+    }
+    $clean = qf_clean_route_path($script);
+    if ($clean !== $script) {
+        return qf_append_url_parts('/' . $clean, $params, $fragment);
     }
     if (substr($script, -4) === '.php') {
         $script = substr($script, 0, -4);
@@ -761,7 +840,7 @@ function qf_render_captcha() {
     return '<div class="hp-field"><label>网址</label><input type="text" name="' . h($hp) . '" value=""></div>'
         . '<div class="captcha-box"><label>验证码</label><div class="captcha-row">'
         . '<input type="text" name="captcha_code" maxlength="6" autocomplete="off" required placeholder="输入图片中的字符">'
-        . '<img src="captcha.php?t=' . time() . '" alt="验证码" data-captcha-refresh title="点击刷新">'
+        . '<img src="api/captcha?t=' . time() . '" alt="验证码" data-captcha-refresh title="点击刷新">'
         . '</div><p class="muted">看不清可点击图片刷新。</p></div>';
 }
 
@@ -1119,11 +1198,11 @@ function qf_signin_reward($user_id, &$message) {
         return false;
     }
     if (!qf_signin_table_ready()) {
-        $message = '签到表不存在，请先访问 upgrade.php 升级数据库。';
+        $message = '签到表不存在，请先访问 setup/upgrade.php 升级数据库。';
         return false;
     }
     if (!qf_user_coins_ready()) {
-        $message = '金币字段不存在，请先访问 upgrade.php 升级数据库。';
+        $message = '金币字段不存在，请先访问 setup/upgrade.php 升级数据库。';
         return false;
     }
     if (qf_user_signed_today($user_id)) {
@@ -1164,6 +1243,91 @@ function require_login() {
         exit;
     }
     return $u;
+}
+
+function qf_handle_login() {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect(qf_url_page('index.php', array('auth' => 'login')));
+    }
+    $username_raw = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
+    $username = esc($username_raw);
+    $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
+    $rs = mysqli_query(db(), "SELECT * FROM qf_users WHERE username='{$username}' AND status=1 LIMIT 1");
+    $u = $rs ? mysqli_fetch_assoc($rs) : null;
+    if ($u && qf_password_verify($password, $u['password'])) {
+        session_regenerate_id(true);
+        $_SESSION['qf_uid'] = intval($u['id']);
+        redirect(qf_url_page('index.php'));
+    }
+    $_SESSION['auth_modal'] = 'login';
+    $_SESSION['auth_error'] = '用户名或密码错误。';
+    $_SESSION['auth_login_username'] = $username_raw;
+    redirect(qf_url_page('index.php'));
+}
+
+function qf_handle_register() {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect(qf_url_page('index.php', array('auth' => 'register')));
+    }
+    $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
+    $nickname = clean_text(isset($_POST['nickname']) ? $_POST['nickname'] : '', 30);
+    $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
+    $error = '';
+    if (qf_captcha_required('register') && !qf_verify_captcha()) {
+        $error = '验证码错误，请重新输入。';
+    } elseif (!preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
+        $error = '用户名只能使用字母、数字、下划线，长度 3-30。';
+    } elseif ($nickname === '' || strlen($password) < 6) {
+        $error = '昵称不能为空，密码至少 6 位。';
+    } else {
+        $daily_limit = intval(qf_setting('register_ip_daily_limit', '5'));
+        if ($daily_limit < 1) {
+            $daily_limit = 5;
+        }
+        $ip_raw = client_ip();
+        $ip_check = esc($ip_raw);
+        $today_count = count_rows("SELECT COUNT(*) FROM qf_users WHERE ip='{$ip_check}' AND created_at >= CURDATE()");
+        if ($today_count >= $daily_limit) {
+            $error = '当前 IP 今天注册次数已达到上限。';
+        } else {
+            $u = esc($username);
+            $n = esc($nickname);
+            $p = qf_password_hash($password);
+            $ip = esc($ip_raw);
+            if (mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$ip}',NOW())")) {
+                session_regenerate_id(true);
+                $_SESSION['qf_uid'] = mysqli_insert_id(db());
+                redirect(qf_url_page('index.php'));
+            }
+            $error = '注册失败，用户名可能已存在。';
+        }
+    }
+    $_SESSION['auth_modal'] = 'register';
+    $_SESSION['auth_error'] = $error;
+    $_SESSION['auth_register_username'] = $username;
+    $_SESSION['auth_register_nickname'] = $nickname;
+    redirect(qf_url_page('index.php'));
+}
+
+function qf_handle_logout() {
+    unset($_SESSION['qf_uid']);
+    session_regenerate_id(true);
+    redirect(qf_url_page('index.php'));
+}
+
+function qf_handle_auth_action() {
+    $action = isset($_GET['action']) ? clean_text($_GET['action'], 20) : '';
+    if ($action === '' && isset($_POST['action'])) {
+        $action = clean_text($_POST['action'], 20);
+    }
+    if ($action === 'login') {
+        qf_handle_login();
+    } elseif ($action === 'register') {
+        qf_handle_register();
+    } elseif ($action === 'logout') {
+        qf_handle_logout();
+    }
+    redirect(qf_url_page('index.php'));
 }
 
 function require_admin() {
@@ -1428,12 +1592,12 @@ function redirect($url) {
 
 function qf_check_copyright() {
     $script = isset($_SERVER['SCRIPT_NAME']) ? basename($_SERVER['SCRIPT_NAME']) : '';
-    if (in_array($script, array('install.php', 'upgrade.php', 'copyright.php'))) {
+    if (in_array($script, array('install.php', 'upgrade.php', 'copyright.php', 'setup/install.php', 'setup/upgrade.php'))) {
         return;
     }
 
     $message = '请勿修改版权信息，本站正在维护升级中~';
-    $footer_file = __DIR__ . '/footer.php';
+    $footer_file = qf_theme_file('footer.php');
     $css_file = __DIR__ . '/assets/style.css';
     $required_link = 'http://lume.0816y.com/';
     $required_text = 'Lume 1.0';
@@ -1495,7 +1659,7 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
 
     $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_attachments'");
     if (!$table || mysqli_num_rows($table) == 0) {
-        $errors[] = '附件表不存在，请先访问 upgrade.php 升级数据库。';
+        $errors[] = '附件表不存在，请先访问 setup/upgrade.php 升级数据库。';
         return 0;
     }
 

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $u = require_login();
 if (ip_banned(client_ip())) exit('当前 IP 已被封禁');
 $fid = isset($_GET['fid']) ? intval($_GET['fid']) : 0;
@@ -63,7 +63,7 @@ while ($forums && $f = mysqli_fetch_assoc($forums)) {
     $forum_category_map[intval($f['id'])] = intval($f['topic_category_enabled']) ? qf_topic_categories(intval($f['id'])) : array();
 }
 $page_title = '发布新帖 - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 ?>
 <section class="card post-form-card">
     <h1>发布新帖</h1>
@@ -119,4 +119,4 @@ include __DIR__ . '/header.php';
 </section>
 <script>window.qfForumCategories = <?php echo json_encode($forum_category_map); ?>;</script>
 <script src="<?php echo h(qf_asset_js('editor')); ?>"></script>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $fid = qf_path_id();
 $frs = mysqli_query(db(), "SELECT * FROM qf_forums WHERE id={$fid} LIMIT 1");
 $forum = $frs ? mysqli_fetch_assoc($frs) : null;
@@ -29,7 +29,7 @@ if (qf_topic_category_enabled($fid)) {
     }
 }
 $page_title = $forum['name'] . ' - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 $threads = mysqli_query(db(), "SELECT t.*, u.nickname FROM qf_threads t LEFT JOIN qf_users u ON t.user_id=u.id
     WHERE t.forum_id={$fid} AND t.is_deleted=0{$where_extra}
     ORDER BY {$order_sql}
@@ -72,4 +72,4 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname FROM qf_threads t LEFT JOI
         </div>
     <?php } ?>
 </section>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
 $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
@@ -11,7 +11,7 @@ if (!$thread) exit('帖子不存在');
 $content_page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $paged_content = qf_paginate_content($thread['content'], qf_thread_page_chars(), $content_page);
 $page_title = $thread['title'] . ' - ' . SITE_NAME;
-include __DIR__ . '/header.php';
+qf_include_header();
 $posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
     WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT 200");
 $attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
@@ -160,4 +160,4 @@ $compressed_exts = array('zip', 'rar');
 <section class="card"><a href="<?php echo h(qf_url_page('login.php')); ?>">登录后回复</a></section>
 <?php } ?>
 <script src="<?php echo h(qf_asset_js('editor')); ?>"></script>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php qf_include_footer(); ?>

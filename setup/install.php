@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/compat.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../compat.php';
 $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
 if (!$conn) {
     exit('数据库连接失败：' . mysqli_connect_error());
@@ -286,9 +286,9 @@ if ($ok) {
         'friend_links_enabled' => '0',
         'friend_links' => '',
         'rewrite_enabled' => '1',
-        'rewrite_nginx_rules' => 'rewrite ^/thread/([0-9]+)\\.html$ /thread.php?id=$1 last;
-rewrite ^/forum/([0-9]+)\\.html$ /forum.php?id=$1 last;
-rewrite ^/download/([0-9]+)$ /download.php?id=$1 last;
+        'rewrite_nginx_rules' => 'rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;
+rewrite ^/forum/([0-9]+)\\.html$ /pages/forum.php?id=$1 last;
+rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;
 try_files $uri $uri.php $uri/ /index.php?$query_string;'
     );
     foreach ($settings as $k => $v) {
@@ -309,7 +309,7 @@ try_files $uri $uri.php $uri/ /index.php?$query_string;'
 <head>
     <meta charset="utf-8">
     <title>论坛安装</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
 <main class="wrap narrow">
@@ -319,8 +319,8 @@ try_files $uri $uri.php $uri/ /index.php?$query_string;'
             <p class="success">安装成功。</p>
             <p>默认管理员：<strong>admin</strong></p>
             <p>默认密码：<strong>admin123</strong></p>
-            <p><a class="btn" href="index.php">进入论坛</a></p>
-            <p class="muted">测试完成后请删除 install.php，并登录后台修改管理员密码。</p>
+            <p><a class="btn" href="../">进入论坛</a></p>
+            <p class="muted">测试完成后请删除 setup/install.php，并登录后台修改管理员密码。</p>
         <?php } else { ?>
             <p class="danger">安装失败：</p>
             <pre><?php echo htmlspecialchars(implode("\n", $errors), ENT_QUOTES, 'UTF-8'); ?></pre>

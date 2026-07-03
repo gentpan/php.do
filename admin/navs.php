@@ -6,7 +6,7 @@ $saved = false;
 $error = '';
 
 if (!qf_nav_table_ready()) {
-    $error = '主导航表不存在，请先访问 upgrade.php 升级数据库。';
+    $error = '主导航表不存在，请先访问 setup/upgrade.php 升级数据库。';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {
 
 $navs = qf_nav_table_ready() ? mysqli_query(db(), "SELECT * FROM qf_navs ORDER BY display_order ASC, id ASC") : false;
 $page_title = '主导航设置 - ' . SITE_NAME;
-include __DIR__ . '/../header.php';
+qf_include_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
@@ -110,4 +110,4 @@ include __DIR__ . '/../header.php';
         <button class="btn" type="submit" data-confirm="确定保存主导航设置？勾选删除的导航将被删除。">保存全部主导航</button>
     </form>
 </section>
-<?php include __DIR__ . '/../footer.php'; ?>
+<?php qf_include_footer(); ?>

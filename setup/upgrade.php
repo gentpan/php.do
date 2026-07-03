@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../functions.php';
 
 $sql = "CREATE TABLE IF NOT EXISTS qf_attachments (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -272,6 +272,9 @@ if ($ok) {
     if ($rewrite_row && (
         strpos($rewrite_row['setting_value'], '/thread.php/$1') !== false
         || strpos($rewrite_row['setting_value'], '/forum.php/$1') !== false
+        || strpos($rewrite_row['setting_value'], '/thread.php?id=$1') !== false
+        || strpos($rewrite_row['setting_value'], '/forum.php?id=$1') !== false
+        || strpos($rewrite_row['setting_value'], '/download.php?id=$1') !== false
         || strpos($rewrite_row['setting_value'], 'rewrite ^/thread/([0-9]+)$') !== false
         || strpos($rewrite_row['setting_value'], 'rewrite ^/forum/([0-9]+)$') !== false
     )) {
@@ -326,7 +329,7 @@ if ($ok) {
 <head>
     <meta charset="utf-8">
     <title>升级数据库</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
 <main class="wrap narrow">
@@ -334,8 +337,8 @@ if ($ok) {
         <h1>升级结果</h1>
         <?php if ($ok) { ?>
             <p class="success">升级成功，附件表、站点设置表、广告表、用户管理字段和资料字段已准备好。</p>
-            <p><a class="btn" href="index.php">返回首页</a></p>
-            <p class="muted">升级完成后建议删除 upgrade.php。</p>
+            <p><a class="btn" href="../">返回首页</a></p>
+            <p class="muted">升级完成后建议删除 setup/upgrade.php。</p>
         <?php } else { ?>
             <p class="danger">升级失败：<?php echo h(mysqli_error(db())); ?></p>
         <?php } ?>
