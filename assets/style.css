@@ -931,18 +931,24 @@ a:hover {
 }
 
 .grid {
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 24px;
+    align-items: start;
+    overflow: visible;
 }
 
 .grid > section {
-    float: left;
-    width: 760px;
+    float: none;
+    width: auto;
     max-width: 100%;
+    min-width: 0;
 }
 
 .grid > aside {
-    float: right;
-    width: 330px;
+    float: none;
+    width: auto;
+    min-width: 0;
 }
 
 .section-title {
@@ -3958,6 +3964,19 @@ main.wrap {
     justify-content: space-between;
 }
 
+.grid {
+    grid-template-columns: minmax(0, 700px) 300px;
+}
+
+.latest-list,
+.grid > section .card {
+    width: 100%;
+}
+
+.grid > aside {
+    justify-self: stretch;
+}
+
 .search-modal-overlay {
     position: fixed;
     inset: 0;
@@ -4057,5 +4076,15 @@ body.theme-dark .search-modal-close {
 
     .search-modal-row .btn {
         width: 100%;
+    }
+}
+
+@media (max-width: 860px) {
+    .grid {
+        display: block;
+    }
+
+    .grid > aside {
+        margin-top: 18px;
     }
 }
