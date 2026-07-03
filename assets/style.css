@@ -1552,11 +1552,15 @@ a:hover {
 }
 
 .action-badge {
+    position: relative;
     display: inline-flex;
-    gap: 5px;
     align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
     min-height: 26px;
-    padding: 4px 9px;
+    padding: 0;
     color: var(--badge-color, #0052D9) !important;
     font-size: 12px;
     font-weight: 800;
@@ -1571,6 +1575,44 @@ a:hover {
 .action-badge i {
     font-size: 12px;
     line-height: 1;
+}
+
+.action-badge > span {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    z-index: 20;
+    width: max-content;
+    max-width: 180px;
+    padding: 6px 8px;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    background: #111827;
+    border-radius: 4px;
+    opacity: 0;
+    transform: translate(-50%, 4px);
+    transition: opacity .14s ease, transform .14s ease;
+}
+
+.action-badge > span::after {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    margin-left: -5px;
+    content: "";
+    border: 5px solid transparent;
+    border-top-color: #111827;
+}
+
+.action-badge:hover > span,
+.action-badge:focus-visible > span {
+    opacity: 1;
+    transform: translate(-50%, 0);
 }
 
 .action-badge:hover {
@@ -1625,6 +1667,27 @@ a:hover {
 
 button.action-badge {
     font-family: inherit;
+}
+
+.action-badge-static {
+    width: auto;
+    min-width: 0;
+    padding: 0 8px;
+}
+
+.action-badge-static > span {
+    position: static;
+    width: auto;
+    max-width: none;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    opacity: 1;
+    transform: none;
+}
+
+.action-badge-static > span::after {
+    display: none;
 }
 
 .move-thread-form {
