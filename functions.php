@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/compat.php';
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 if (PHP_SAPI !== 'cli') {
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
     session_set_cookie_params(array(
@@ -76,15 +79,12 @@ function qf_avatar_initial($nickname, $username) {
     return function_exists('mb_substr') ? mb_substr($label, 0, 1, 'UTF-8') : strtoupper(substr($label, 0, 1));
 }
 
-function qf_generate_default_avatar($user_id, $username, $nickname) {
-    $user_id = intval($user_id);
-    if ($user_id < 1) {
-        return '';
-    }
-    $dir = qf_default_avatar_dir();
-    if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
-        return '';
-    }
+function qf_is_generated_avatar_path($avatar) {
+    $avatar = (string)$avatar;
+    return preg_match('#^assets/avatars/(user|demo)-[a-zA-Z0-9_-]+\.svg$#', $avatar) === 1;
+}
+
+function qf_fallback_default_avatar_svg($user_id, $username, $nickname) {
     $hash = crc32($user_id . '|' . $username . '|' . $nickname);
     $palettes = array(
         array('#0052D9', '#78a9ff', '#ffffff', '#10234a'),
@@ -104,7 +104,7 @@ function qf_generate_default_avatar($user_id, $username, $nickname) {
     $eye = 3 + ($hash % 3);
     $mouth = 78 + (($hash >> 3) % 8);
     $initial = qf_avatar_initial($nickname, $username);
-    $svg = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+    return '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
         . '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">'
         . '<rect width="128" height="128" rx="34" fill="' . $palette[0] . '"/>'
         . '<circle cx="' . $cx1 . '" cy="' . $cy1 . '" r="42" fill="' . $palette[1] . '" opacity=".92"/>'
@@ -115,6 +115,24 @@ function qf_generate_default_avatar($user_id, $username, $nickname) {
         . '<path d="M45 ' . $mouth . 'c9 10 29 10 38 0" fill="none" stroke="' . $palette[3] . '" stroke-width="6" stroke-linecap="round"/>'
         . '<text x="64" y="116" text-anchor="middle" font-size="28" font-family="Arial, sans-serif" font-weight="800" fill="#fff">' . h($initial) . '</text>'
         . '</svg>';
+}
+
+function qf_generate_default_avatar($user_id, $username, $nickname) {
+    $user_id = intval($user_id);
+    if ($user_id < 1) {
+        return '';
+    }
+    $dir = qf_default_avatar_dir();
+    if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+        return '';
+    }
+    $seed = trim((string)$username) . '-' . $user_id . '-' . trim((string)$nickname);
+    if (class_exists('Multiavatar')) {
+        $multiavatar = new Multiavatar();
+        $svg = $multiavatar($seed, null, null);
+    } else {
+        $svg = qf_fallback_default_avatar_svg($user_id, $username, $nickname);
+    }
     $path = $dir . '/user-' . $user_id . '.svg';
     if (file_put_contents($path, $svg) === false) {
         return '';

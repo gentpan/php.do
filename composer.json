@@ -5,8 +5,9 @@
     "type": "project",
     "require": {
         "php": ">=8.4 <8.6",
+        "ext-json": "*",
         "ext-mysqli": "*",
-        "ext-json": "*"
+        "multiavatar/multiavatar-php": "^1.0"
     },
     "suggest": {
         "ext-curl": "Required when S3/R2 cloud upload is enabled.",

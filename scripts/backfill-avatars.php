@@ -6,9 +6,14 @@ if (PHP_SAPI !== 'cli') {
     exit('404 Not Found');
 }
 
-$rs = mysqli_query(db(), "SELECT id, username, nickname FROM qf_users WHERE avatar=''");
+$force = in_array('--force-generated', $argv, true);
+$where = $force ? "avatar='' OR avatar LIKE 'assets/avatars/%.svg'" : "avatar=''";
+$rs = mysqli_query(db(), "SELECT id, username, nickname, avatar FROM qf_users WHERE {$where}");
 $count = 0;
 while ($rs && $u = mysqli_fetch_assoc($rs)) {
+    if ($force && $u['avatar'] !== '' && !qf_is_generated_avatar_path($u['avatar'])) {
+        continue;
+    }
     $avatar = qf_generate_default_avatar(intval($u['id']), $u['username'], $u['nickname']);
     if ($avatar !== '') {
         $avatar_sql = esc($avatar);

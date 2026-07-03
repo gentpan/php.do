@@ -6,44 +6,12 @@ if (PHP_SAPI !== 'cli') {
     exit('404 Not Found');
 }
 
-$avatar_dir = __DIR__ . '/../assets/avatars';
-if (!is_dir($avatar_dir)) {
-    mkdir($avatar_dir, 0755, true);
-}
-
 function seed_pick($items, $index) {
     return $items[$index % count($items)];
 }
 
 function seed_sql($value) {
     return esc($value);
-}
-
-function seed_make_avatar($path, $seed, $label) {
-    $palettes = array(
-        array('#0052D9', '#7fb2ff', '#ffffff'),
-        array('#e65a4c', '#ffd6c9', '#ffffff'),
-        array('#111827', '#8db7ff', '#ffffff'),
-        array('#0f766e', '#99f6e4', '#ffffff'),
-        array('#7c3aed', '#ddd6fe', '#ffffff'),
-        array('#ca8a04', '#fef3c7', '#ffffff'),
-    );
-    $palette = $palettes[$seed % count($palettes)];
-    $face_x = 36 + ($seed * 7) % 56;
-    $face_y = 34 + ($seed * 11) % 44;
-    $eye = 3 + ($seed % 3);
-    $initial = function_exists('mb_substr') ? mb_substr($label, 0, 1, 'UTF-8') : substr($label, 0, 1);
-    $svg = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-        . '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">'
-        . '<rect width="128" height="128" rx="34" fill="' . $palette[0] . '"/>'
-        . '<circle cx="' . $face_x . '" cy="' . $face_y . '" r="38" fill="' . $palette[1] . '" opacity=".9"/>'
-        . '<circle cx="' . (128 - $face_x) . '" cy="' . (126 - $face_y) . '" r="42" fill="' . $palette[2] . '" opacity=".22"/>'
-        . '<circle cx="48" cy="57" r="' . $eye . '" fill="#10234a"/>'
-        . '<circle cx="80" cy="57" r="' . $eye . '" fill="#10234a"/>'
-        . '<path d="M45 80c9 10 29 10 38 0" fill="none" stroke="#10234a" stroke-width="6" stroke-linecap="round"/>'
-        . '<text x="64" y="112" text-anchor="middle" font-size="28" font-family="Arial, sans-serif" font-weight="800" fill="#fff">' . h($initial) . '</text>'
-        . '</svg>';
-    file_put_contents($path, $svg);
 }
 
 $forum_names = array(
@@ -96,21 +64,29 @@ $users = array();
 for ($i = 1; $i <= 48; $i++) {
     $username = 'blue_demo_' . str_pad((string)$i, 3, '0', STR_PAD_LEFT);
     $nickname = seed_pick($nick_prefixes, $i) . seed_pick($nick_suffixes, $i * 3);
-    $avatar_file = 'demo-' . str_pad((string)$i, 2, '0', STR_PAD_LEFT) . '.svg';
-    seed_make_avatar($avatar_dir . '/' . $avatar_file, $i, $nickname);
-    $avatar = 'assets/avatars/' . $avatar_file;
     $username_sql = seed_sql($username);
     $rs = mysqli_query(db(), "SELECT id FROM qf_users WHERE username='{$username_sql}' LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if (!$row) {
         $nickname_sql = seed_sql($nickname);
-        $avatar_sql = seed_sql($avatar);
         $password_sql = seed_sql(qf_password_hash('demo123456'));
         $ip = '10.20.' . intval($i % 255) . '.' . intval(20 + $i);
-        mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,avatar,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','{$avatar_sql}','这里是 Blue 演示用户',1," . mt_rand(0, 280) . ",0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(3, 80) . " DAY))");
-        $users[] = intval(mysqli_insert_id(db()));
+        mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','这里是 Blue 演示用户',1," . mt_rand(0, 280) . ",0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(3, 80) . " DAY))");
+        $user_id = intval(mysqli_insert_id(db()));
+        $avatar = qf_generate_default_avatar($user_id, $username, $nickname);
+        if ($avatar !== '') {
+            $avatar_sql = seed_sql($avatar);
+            mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$user_id}");
+        }
+        $users[] = $user_id;
     } else {
-        $users[] = intval($row['id']);
+        $user_id = intval($row['id']);
+        $avatar = qf_generate_default_avatar($user_id, $username, $nickname);
+        if ($avatar !== '') {
+            $avatar_sql = seed_sql($avatar);
+            mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$user_id} AND avatar LIKE 'assets/avatars/%'");
+        }
+        $users[] = $user_id;
     }
 }
 
