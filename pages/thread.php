@@ -131,27 +131,18 @@ $compressed_exts = array('zip', 'rar');
             <button type="button" data-wrap="[b]" data-close="[/b]">加粗</button>
             <button type="button" data-link="1">超链接</button>
             <button type="button" data-remote-img="1">远程图片</button>
+            <label class="editor-upload-button" title="上传图片/附件">
+                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>上传</span>
+                <input class="qf-instant-upload" data-target="reply-content-textarea" data-status="reply-upload-status" type="file" name="attachments[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.zip,.rar">
+            </label>
+            <button class="upload-help editor-help-button" type="button">?</button>
         </div>
+        <p class="muted upload-tip editor-upload-tip">支持 <?php echo h(qf_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(qf_upload_max_mb()); ?>MB。</p>
+        <p id="reply-upload-status" class="muted upload-status"></p>
         <textarea id="reply-content-textarea" name="content" rows="5" maxlength="<?php echo intval(qf_reply_max_chars()); ?>" required placeholder="写下你的回复"></textarea>
         <p class="muted">最多可输入 <?php echo intval(qf_reply_max_chars()); ?> 字。</p>
         <div class="upload-captcha-row">
             <div class="captcha-col"><?php if (qf_captcha_required('reply', current_user())) { echo qf_render_captcha(); } ?></div>
-            <div class="upload-col">
-                <label class="upload-icon-box">
-                    <span class="upload-icon" aria-hidden="true">
-                        <svg viewBox="0 0 48 38" width="42" height="34">
-                            <rect x="4" y="4" width="40" height="30" rx="2"></rect>
-                            <circle cx="15" cy="13" r="4"></circle>
-                            <path d="M8 31 L20 20 L28 27 L34 18 L42 31"></path>
-                        </svg>
-                    </span>
-                    <span class="upload-text">图片/附件</span>
-                    <input class="qf-instant-upload" data-target="reply-content-textarea" data-status="reply-upload-status" type="file" name="attachments[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.zip,.rar">
-                </label>
-                <button class="upload-help" type="button">?</button>
-                <p class="muted upload-tip">支持 <?php echo h(qf_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(qf_upload_max_mb()); ?>MB。</p>
-                <p id="reply-upload-status" class="muted upload-status"></p>
-            </div>
         </div>
         <button class="btn" type="submit">回帖</button>
     </form>
