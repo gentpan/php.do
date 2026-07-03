@@ -57,6 +57,71 @@ function qf_password_verify($password, $hash) {
     return password_verify($password, $hash);
 }
 
+function qf_default_avatar_dir() {
+    return __DIR__ . '/assets/avatars';
+}
+
+function qf_default_avatar_public_path($user_id) {
+    return 'assets/avatars/user-' . intval($user_id) . '.svg';
+}
+
+function qf_avatar_initial($nickname, $username) {
+    $label = trim((string)$nickname);
+    if ($label === '') {
+        $label = trim((string)$username);
+    }
+    if ($label === '') {
+        return 'B';
+    }
+    return function_exists('mb_substr') ? mb_substr($label, 0, 1, 'UTF-8') : strtoupper(substr($label, 0, 1));
+}
+
+function qf_generate_default_avatar($user_id, $username, $nickname) {
+    $user_id = intval($user_id);
+    if ($user_id < 1) {
+        return '';
+    }
+    $dir = qf_default_avatar_dir();
+    if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+        return '';
+    }
+    $hash = crc32($user_id . '|' . $username . '|' . $nickname);
+    $palettes = array(
+        array('#0052D9', '#78a9ff', '#ffffff', '#10234a'),
+        array('#e65a4c', '#ffd6c9', '#ffffff', '#10234a'),
+        array('#111827', '#8db7ff', '#ffffff', '#0b1220'),
+        array('#0f766e', '#99f6e4', '#ffffff', '#0f2f2d'),
+        array('#7c3aed', '#ddd6fe', '#ffffff', '#26124f'),
+        array('#ca8a04', '#fef3c7', '#ffffff', '#3d2a07'),
+        array('#2563eb', '#bfdbfe', '#ffffff', '#10234a'),
+        array('#be185d', '#fbcfe8', '#ffffff', '#4a1230'),
+    );
+    $palette = $palettes[$hash % count($palettes)];
+    $cx1 = 34 + ($hash % 54);
+    $cy1 = 30 + (($hash >> 4) % 50);
+    $cx2 = 128 - $cx1;
+    $cy2 = 126 - $cy1;
+    $eye = 3 + ($hash % 3);
+    $mouth = 78 + (($hash >> 3) % 8);
+    $initial = qf_avatar_initial($nickname, $username);
+    $svg = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+        . '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">'
+        . '<rect width="128" height="128" rx="34" fill="' . $palette[0] . '"/>'
+        . '<circle cx="' . $cx1 . '" cy="' . $cy1 . '" r="42" fill="' . $palette[1] . '" opacity=".92"/>'
+        . '<circle cx="' . $cx2 . '" cy="' . $cy2 . '" r="44" fill="' . $palette[2] . '" opacity=".24"/>'
+        . '<path d="M28 104c19-20 53-20 72 0" fill="' . $palette[1] . '" opacity=".35"/>'
+        . '<circle cx="48" cy="57" r="' . $eye . '" fill="' . $palette[3] . '"/>'
+        . '<circle cx="80" cy="57" r="' . $eye . '" fill="' . $palette[3] . '"/>'
+        . '<path d="M45 ' . $mouth . 'c9 10 29 10 38 0" fill="none" stroke="' . $palette[3] . '" stroke-width="6" stroke-linecap="round"/>'
+        . '<text x="64" y="116" text-anchor="middle" font-size="28" font-family="Arial, sans-serif" font-weight="800" fill="#fff">' . h($initial) . '</text>'
+        . '</svg>';
+    $path = $dir . '/user-' . $user_id . '.svg';
+    if (file_put_contents($path, $svg) === false) {
+        return '';
+    }
+    return qf_default_avatar_public_path($user_id);
+}
+
 function qf_setting($key, $default = '') {
     static $cache = null;
     if ($key === null) {
@@ -1231,8 +1296,14 @@ function qf_handle_register() {
             $p = qf_password_hash($password);
             $ip = esc($ip_raw);
             if (mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$ip}',NOW())")) {
+                $new_user_id = intval(mysqli_insert_id(db()));
+                $avatar = qf_generate_default_avatar($new_user_id, $username, $nickname);
+                if ($avatar !== '') {
+                    $avatar_sql = esc($avatar);
+                    mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$new_user_id}");
+                }
                 session_regenerate_id(true);
-                $_SESSION['qf_uid'] = mysqli_insert_id(db());
+                $_SESSION['qf_uid'] = $new_user_id;
                 redirect(qf_url_page('index.php'));
             }
             $error = '注册失败，用户名可能已存在。';
