@@ -71,7 +71,7 @@ include __DIR__ . '/../header.php';
     <div class="admin-page-title">
         <h1>广告位置</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin.php')); ?>">返回后台</a></p>
+    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php if ($message !== '') { ?><div class="alert success"><?php echo h($message); ?></div><?php } ?>
     <p class="muted">可以分别管理顶部广告、右侧板块上方广告、底部广告。关闭后前台不显示。</p>
 </section>

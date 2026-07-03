@@ -14,7 +14,7 @@ if ($action === 'add_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($name !== '') {
         mysqli_query(db(), "INSERT INTO qf_forums (name, description, topic_category_enabled, topic_categories, post_user_limit_enabled, post_user_ids, display_order, created_at) VALUES ('{$name}', '{$desc}', {$new_topic_category_enabled}, '{$new_topic_categories}', {$new_post_user_limit_enabled}, '{$new_post_user_ids}', {$order}, NOW())");
     }
-    redirect(qf_url_page('admin.php'));
+    redirect(qf_url_page('admin/index.php'));
 }
 
 if ($action === 'edit_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -25,7 +25,7 @@ if ($action === 'edit_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($forum_id > 0 && $name !== '') {
         mysqli_query(db(), "UPDATE qf_forums SET name='{$name}', description='{$desc}', display_order={$order} WHERE id={$forum_id}");
     }
-    redirect(qf_url_page('admin.php'));
+    redirect(qf_url_page('admin/index.php'));
 }
 
 if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -56,7 +56,7 @@ if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    redirect(qf_url_page('admin.php'));
+    redirect(qf_url_page('admin/index.php'));
 }
 
 if ($action === 'add_ban' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -72,14 +72,14 @@ if ($action === 'add_ban' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($ip !== '') {
         mysqli_query(db(), "INSERT INTO qf_bans (ip, reason, expires_at, created_at) VALUES ('{$ip}', '{$reason}', DATE_ADD(NOW(), INTERVAL {$days} DAY), NOW())");
     }
-    redirect(qf_url_page('admin.php'));
+    redirect(qf_url_page('admin/index.php'));
 }
 
 if ($action === 'del_ban') {
     $id = intval($_GET['id']);
     qf_require_action_token('del_ban', $id);
     mysqli_query(db(), "DELETE FROM qf_bans WHERE id={$id}");
-    redirect(qf_url_page('admin.php'));
+    redirect(qf_url_page('admin/index.php'));
 }
 
 if ($action === 'mute_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -95,7 +95,7 @@ if ($action === 'mute_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_query(db(), "UPDATE qf_users SET mute_until=DATE_ADD(NOW(), INTERVAL {$days} DAY) WHERE id={$user_id} AND is_admin=0");
         $_SESSION['flash'] = '已禁止该用户发言 ' . $days . ' 天。';
     }
-    redirect(qf_url_page('admin_users.php'));
+    redirect(qf_url_page('admin/users.php'));
 }
 
 if ($action === 'set_moderator' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -119,7 +119,7 @@ if ($action === 'set_moderator' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash'] = '已取消版主权限。';
         }
     }
-    redirect(qf_url_page('admin_users.php'));
+    redirect(qf_url_page('admin/users.php'));
 }
 
 if ($action === 'change_user_password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -132,7 +132,7 @@ if ($action === 'change_user_password' && $_SERVER['REQUEST_METHOD'] === 'POST')
     } else {
         $_SESSION['flash'] = '密码修改失败，新密码至少 6 位。';
     }
-    redirect(qf_url_page('admin_users.php'));
+    redirect(qf_url_page('admin/users.php'));
 }
 
 if ($action === 'clear_user_content' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -144,7 +144,7 @@ if ($action === 'clear_user_content' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_query(db(), "UPDATE qf_users SET reply_count=0 WHERE id={$user_id} AND is_admin=0");
         $_SESSION['flash'] = '已清除该用户全部发帖和回帖。';
     }
-    redirect(qf_url_page('admin_users.php'));
+    redirect(qf_url_page('admin/users.php'));
 }
 
 if ($action === 'top_board') {
@@ -200,5 +200,5 @@ if ($action === 'del_post') {
     redirect(qf_url_thread($tid));
 }
 
-redirect(qf_url_page('admin.php'));
+redirect(qf_url_page('admin/index.php'));
 ?>

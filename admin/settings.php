@@ -208,7 +208,7 @@ include __DIR__ . '/../header.php';
     <div class="admin-page-title">
         <h1>站点设置</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin.php')); ?>">返回后台</a></p>
+    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php if ($saved) { ?><div class="alert success">设置已保存。</div><?php } ?>
     <?php if ($s3_test_message !== '') { ?><div class="alert <?php echo $s3_test_ok ? 'success' : ''; ?>"><?php echo h($s3_test_message); ?></div><?php } ?>
     <form method="post">

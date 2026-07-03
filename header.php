@@ -106,7 +106,7 @@ if (!$me) {
                             </form>
                         <?php } ?>
                         <?php if (intval($me['is_admin']) === 1) { ?>
-                            <a class="nav-more-item" href="<?php echo h(qf_url_page('admin.php')); ?>" role="menuitem"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>后台</span></a>
+                            <a class="nav-more-item" href="<?php echo h(qf_url_page('admin/index.php')); ?>" role="menuitem"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>后台</span></a>
                         <?php } ?>
                         <a class="nav-more-item" href="<?php echo h(qf_url_page('logout.php')); ?>" role="menuitem"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>退出</span></a>
                     <?php } else { ?>
@@ -138,8 +138,8 @@ if (!$me) {
             <a href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem"><i class="fa-regular fa-circle-user" aria-hidden="true"></i><span>个人资料</span></a>
             <a href="<?php echo h(qf_url_page('notifications.php')); ?>" role="menuitem"><i class="fa-regular fa-bell" aria-hidden="true"></i><span>消息<?php echo $unread_notifications > 0 ? ' · ' . intval($unread_notifications) : ''; ?></span></a>
             <?php if (intval($me['is_admin']) === 1) { ?>
-                <a href="<?php echo h(qf_url_page('admin_settings.php')); ?>" role="menuitem"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>站点设置</span></a>
-                <a href="<?php echo h(qf_url_page('admin.php')); ?>" role="menuitem"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>后台</span></a>
+                <a href="<?php echo h(qf_url_page('admin/settings.php')); ?>" role="menuitem"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>站点设置</span></a>
+                <a href="<?php echo h(qf_url_page('admin/index.php')); ?>" role="menuitem"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>后台</span></a>
             <?php } ?>
             <a href="<?php echo h(qf_url_page('logout.php')); ?>" role="menuitem"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>退出</span></a>
         <?php } else { ?>

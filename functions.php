@@ -277,26 +277,9 @@ function qf_append_url_parts($path, $params = array(), $fragment = '') {
     return $path . ($query !== '' ? '?' . $query : '') . ($fragment !== '' ? '#' . ltrim($fragment, '#') : '');
 }
 
-function qf_admin_page_map() {
-    return array(
-        'admin.php' => 'admin/index.php',
-        'admin_action.php' => 'admin/action.php',
-        'admin_ads.php' => 'admin/ads.php',
-        'admin_cache.php' => 'admin/cache.php',
-        'admin_navs.php' => 'admin/navs.php',
-        'admin_security.php' => 'admin/security.php',
-        'admin_settings.php' => 'admin/settings.php',
-        'admin_users.php' => 'admin/users.php',
-    );
-}
-
 function qf_url_page($script, $params = array(), $fragment = '') {
     $script = ltrim((string)$script, '/');
     $params = is_array($params) ? $params : array();
-    $admin_map = qf_admin_page_map();
-    if (isset($admin_map[$script])) {
-        $script = $admin_map[$script];
-    }
     if (!qf_rewrite_enabled()) {
         return qf_append_url_parts($script, $params, $fragment);
     }

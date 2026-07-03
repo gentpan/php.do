@@ -17,7 +17,7 @@ include __DIR__ . '/header.php';
     <h1>移动帖子</h1>
     <p class="muted">当前帖子：<?php echo h($thread['title']); ?></p>
     <p class="muted">当前版块：<?php echo h($thread['forum_name']); ?></p>
-    <form method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'move_thread'))); ?>">
+    <form method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'move_thread'))); ?>">
         <input type="hidden" name="thread_id" value="<?php echo intval($thread['id']); ?>">
         <label>移动到目标版块</label>
         <select name="new_forum_id" required>

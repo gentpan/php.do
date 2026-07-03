@@ -43,7 +43,7 @@ include __DIR__ . '/../header.php';
     <div class="admin-page-title">
         <h1>安全相关</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin.php')); ?>">返回后台</a></p>
+    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php if ($saved) { ?><div class="alert success">安全设置已保存。</div><?php } ?>
     <form method="post">
         <label>防 CC 访问限制</label>

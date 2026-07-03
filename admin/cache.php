@@ -25,7 +25,7 @@ include __DIR__ . '/../header.php';
     <div class="admin-page-title">
         <h1>清理缓存</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin.php')); ?>">返回后台</a></p>
+    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php foreach ($messages as $msg) { ?>
         <p class="success"><?php echo h($msg); ?></p>
     <?php } ?>

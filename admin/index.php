@@ -10,18 +10,18 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
     <h1>后台管理</h1>
     <p class="muted">管理版块、帖子、置顶、加精和删除。</p>
     <p>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin_settings.php')); ?>">站点设置</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin_users.php')); ?>">用户管理</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin_navs.php')); ?>">主导航设置</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin_ads.php')); ?>">广告位置</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin_security.php')); ?>">安全相关</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin_cache.php')); ?>">清理缓存</a>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/settings.php')); ?>">站点设置</a>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/users.php')); ?>">用户管理</a>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/navs.php')); ?>">主导航设置</a>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/ads.php')); ?>">广告位置</a>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/security.php')); ?>">安全相关</a>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/cache.php')); ?>">清理缓存</a>
     </p>
 </section>
 <div class="admin-stack">
     <section class="card">
         <h2>新增版块</h2>
-        <form method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'add_forum'))); ?>">
+        <form method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'add_forum'))); ?>">
             <div class="add-forum-grid">
                 <div>
                     <label>版块名称</label><input name="name" required>
@@ -46,7 +46,7 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
             <button class="btn">保存</button>
         </form>
         <h2>现有版块</h2>
-        <form method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'save_forums'))); ?>">
+        <form method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'save_forums'))); ?>">
             <table class="forum-table forum-admin-table">
                 <tr><th class="forum-name-col">名称</th><th class="forum-desc-col">简介</th><th class="forum-category-col">主题分类</th><th class="forum-limit-col">指定用户ID发帖</th><th class="forum-order-col">排序</th><th class="forum-del-col">删除</th></tr>
                 <?php while ($forums && $f = mysqli_fetch_assoc($forums)) { ?>
@@ -72,7 +72,7 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
     </section>
     <section class="card">
         <h2>禁封IP</h2>
-        <form class="ban-form" method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'add_ban'))); ?>">
+        <form class="ban-form" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'add_ban'))); ?>">
             <label>IP地址</label>
             <input type="text" name="ip" placeholder="例如：192.168.1.100" required>
             <label>封禁天数</label>
@@ -90,7 +90,7 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
                         <td><?php echo h($ban['ip']); ?></td>
                         <td><?php echo h($ban['reason']); ?></td>
                         <td><?php echo $ban['expires_at'] ? h($ban['expires_at']) : '永久'; ?></td>
-                        <td><a class="danger-link" data-confirm="确定解除该 IP 禁封？" href="<?php echo h(qf_url_page('admin_action.php', array('action' => 'del_ban', 'id' => intval($ban['id']), 'token' => qf_action_token('del_ban', $ban['id'])))); ?>">解除</a></td>
+                        <td><a class="danger-link" data-confirm="确定解除该 IP 禁封？" href="<?php echo h(qf_url_page('admin/action.php', array('action' => 'del_ban', 'id' => intval($ban['id']), 'token' => qf_action_token('del_ban', $ban['id'])))); ?>">解除</a></td>
                     </tr>
                 <?php } ?>
             </table>

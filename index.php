@@ -1,5 +1,27 @@
 <?php
 require_once __DIR__ . '/functions.php';
+$legacy_admin_paths = array(
+    'admin.php',
+    'admin_action',
+    'admin_action.php',
+    'admin_ads',
+    'admin_ads.php',
+    'admin_cache',
+    'admin_cache.php',
+    'admin_navs',
+    'admin_navs.php',
+    'admin_security',
+    'admin_security.php',
+    'admin_settings',
+    'admin_settings.php',
+    'admin_users',
+    'admin_users.php',
+);
+$request_path = trim(parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_PATH), '/');
+if (in_array($request_path, $legacy_admin_paths, true)) {
+    http_response_code(404);
+    exit('404 Not Found');
+}
 $page_title = SITE_NAME . ' - 首页';
 include __DIR__ . '/header.php';
 $forums = mysqli_query(db(), "SELECT f.*, 

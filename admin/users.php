@@ -21,7 +21,7 @@ include __DIR__ . '/../header.php';
     <div class="admin-page-title">
         <h1>用户管理</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin.php')); ?>">返回后台</a></p>
+    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php if (!empty($_SESSION['flash'])) { ?>
         <div class="alert success"><?php echo nl2br(h($_SESSION['flash'])); unset($_SESSION['flash']); ?></div>
     <?php } ?>
@@ -64,7 +64,7 @@ include __DIR__ . '/../header.php';
                     </td>
                     <td><?php echo h($user['created_at']); ?></td>
                     <td class="user-actions">
-                        <form class="user-action-moderator" method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'set_moderator'))); ?>">
+                        <form class="user-action-moderator" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'set_moderator'))); ?>">
                             <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
                             <label>任命板块</label>
                             <select name="forum_id">
@@ -77,17 +77,17 @@ include __DIR__ . '/../header.php';
                             <input type="number" name="moderator_delete_limit" min="0" max="10000" value="<?php echo intval(isset($user['moderator_delete_limit']) ? $user['moderator_delete_limit'] : qf_moderator_daily_delete_limit()); ?>">
                             <button class="btn btn-small btn-light" type="submit">保存版主设置</button>
                         </form>
-                        <form class="user-action-mute" method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'mute_user'))); ?>">
+                        <form class="user-action-mute" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'mute_user'))); ?>">
                             <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
                             <input type="number" name="days" min="1" max="3650" value="7" title="禁止发言天数">
                             <button class="btn btn-small" type="submit">禁止发言</button>
                         </form>
-                        <form class="user-action-password" method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'change_user_password'))); ?>">
+                        <form class="user-action-password" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'change_user_password'))); ?>">
                             <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
                             <input type="password" name="password" minlength="6" placeholder="新密码" required>
                             <button class="btn btn-small" type="submit">修改密码</button>
                         </form>
-                        <form class="user-action-clear" method="post" action="<?php echo h(qf_url_page('admin_action.php', array('action' => 'clear_user_content'))); ?>" data-confirm="确定清除该用户全部发帖和回帖？此操作会把内容标记为删除。">
+                        <form class="user-action-clear" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'clear_user_content'))); ?>" data-confirm="确定清除该用户全部发帖和回帖？此操作会把内容标记为删除。">
                             <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
                             <button class="btn btn-small btn-danger" type="submit">清除发帖和回帖</button>
                         </form>
