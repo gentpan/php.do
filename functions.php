@@ -1,9 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/compat.php';
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-}
 if (PHP_SAPI !== 'cli') {
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
     session_set_cookie_params(array(
@@ -84,36 +81,63 @@ function qf_is_generated_avatar_path($avatar) {
     return preg_match('#^assets/avatars/(user|demo)-[a-zA-Z0-9_-]+\.svg$#', $avatar) === 1;
 }
 
-function qf_fallback_default_avatar_svg($user_id, $username, $nickname) {
+function qf_pick_avatar_part($items, $hash, $shift = 0) {
+    return $items[($hash >> $shift) % count($items)];
+}
+
+function qf_cartoon_default_avatar_svg($user_id, $username, $nickname) {
     $hash = crc32($user_id . '|' . $username . '|' . $nickname);
-    $palettes = array(
-        array('#0052D9', '#78a9ff', '#ffffff', '#10234a'),
-        array('#e65a4c', '#ffd6c9', '#ffffff', '#10234a'),
-        array('#111827', '#8db7ff', '#ffffff', '#0b1220'),
-        array('#0f766e', '#99f6e4', '#ffffff', '#0f2f2d'),
-        array('#7c3aed', '#ddd6fe', '#ffffff', '#26124f'),
-        array('#ca8a04', '#fef3c7', '#ffffff', '#3d2a07'),
-        array('#2563eb', '#bfdbfe', '#ffffff', '#10234a'),
-        array('#be185d', '#fbcfe8', '#ffffff', '#4a1230'),
+    $backgrounds = array('#ff4f9a', '#5668f5', '#65d3e7', '#d9d1ff', '#ffd34f', '#ff8da3', '#8ed9ff', '#b990ff');
+    $skins = array('#ffd2ba', '#f2b893', '#e9a978', '#ffe0c9', '#d8986d');
+    $hair_colors = array('#1f2430', '#4159f2', '#ffe67a', '#a868ff', '#f05b6a', '#6b3c23');
+    $shirt_colors = array('#f5d7e9', '#ffd7c5', '#d8e0ff', '#ffe47a', '#c6f3ff', '#e9ddff');
+    $bg = qf_pick_avatar_part($backgrounds, $hash, 0);
+    $skin = qf_pick_avatar_part($skins, $hash, 3);
+    $hair = qf_pick_avatar_part($hair_colors, $hash, 6);
+    $shirt = qf_pick_avatar_part($shirt_colors, $hash, 9);
+    $hair_style = ($hash >> 12) % 6;
+    $glasses = (($hash >> 16) % 100) < 64;
+    $mouth = ($hash >> 18) % 4;
+    $brows = ($hash >> 20) % 3;
+    $earring = (($hash >> 22) % 100) < 28;
+    $tilt = (($hash >> 24) % 7) - 3;
+    $hair_paths = array(
+        '<path d="M34 54c2-23 18-36 39-34 19 2 30 16 31 35-17-12-42-12-70-1z" fill="' . $hair . '"/>',
+        '<path d="M31 58c3-25 19-39 41-38 16 1 27 10 32 26-15-5-28-12-43-5-10 5-18 11-30 17z" fill="' . $hair . '"/>',
+        '<path d="M35 52c4-22 20-34 41-30 15 3 24 15 27 30-22-13-43-14-68 0z" fill="' . $hair . '"/><path d="M48 24c9-10 24-10 34 0-12-2-22-1-34 0z" fill="' . $hair . '"/>',
+        '<path d="M32 62c0-28 17-45 40-45 25 0 39 17 38 49-8-17-18-25-32-28-18-4-31 3-46 24z" fill="' . $hair . '"/>',
+        '<path d="M36 50c7-20 22-29 42-27 17 2 25 10 27 23-16-9-32-8-48-3-8 2-15 5-21 7z" fill="' . $hair . '"/><path d="M32 55c7-7 15-11 25-13-8 8-15 15-22 25z" fill="' . $hair . '"/>',
+        '<path d="M37 52c2-21 16-34 34-34 20 0 34 12 37 34-16-7-33-13-52-8-8 2-14 5-19 8z" fill="' . $hair . '"/><path d="M48 23l15-8 13 8-14 8z" fill="' . $hair . '"/>',
     );
-    $palette = $palettes[$hash % count($palettes)];
-    $cx1 = 34 + ($hash % 54);
-    $cy1 = 30 + (($hash >> 4) % 50);
-    $cx2 = 128 - $cx1;
-    $cy2 = 126 - $cy1;
-    $eye = 3 + ($hash % 3);
-    $mouth = 78 + (($hash >> 3) % 8);
-    $initial = qf_avatar_initial($nickname, $username);
+    $mouth_paths = array(
+        '<path d="M58 82c6 5 15 5 21 0" fill="none" stroke="#3b1f1f" stroke-width="4" stroke-linecap="round"/>',
+        '<path d="M58 82c7 8 17 8 23 0" fill="#fff" stroke="#3b1f1f" stroke-width="3" stroke-linejoin="round"/>',
+        '<circle cx="69" cy="84" r="5" fill="#3b1f1f"/>',
+        '<path d="M60 85c6-4 13-4 19 0" fill="none" stroke="#3b1f1f" stroke-width="4" stroke-linecap="round"/>',
+    );
+    $brow_paths = array(
+        '<path d="M46 62l13-3M78 59l13 3" stroke="#2b211d" stroke-width="4" stroke-linecap="round"/>',
+        '<path d="M46 58l13 3M78 62l13-3" stroke="#2b211d" stroke-width="4" stroke-linecap="round"/>',
+        '<path d="M46 60h13M78 60h13" stroke="#2b211d" stroke-width="4" stroke-linecap="round"/>',
+    );
     return '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
         . '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">'
-        . '<rect width="128" height="128" rx="34" fill="' . $palette[0] . '"/>'
-        . '<circle cx="' . $cx1 . '" cy="' . $cy1 . '" r="42" fill="' . $palette[1] . '" opacity=".92"/>'
-        . '<circle cx="' . $cx2 . '" cy="' . $cy2 . '" r="44" fill="' . $palette[2] . '" opacity=".24"/>'
-        . '<path d="M28 104c19-20 53-20 72 0" fill="' . $palette[1] . '" opacity=".35"/>'
-        . '<circle cx="48" cy="57" r="' . $eye . '" fill="' . $palette[3] . '"/>'
-        . '<circle cx="80" cy="57" r="' . $eye . '" fill="' . $palette[3] . '"/>'
-        . '<path d="M45 ' . $mouth . 'c9 10 29 10 38 0" fill="none" stroke="' . $palette[3] . '" stroke-width="6" stroke-linecap="round"/>'
-        . '<text x="64" y="116" text-anchor="middle" font-size="28" font-family="Arial, sans-serif" font-weight="800" fill="#fff">' . h($initial) . '</text>'
+        . '<rect width="128" height="128" rx="14" fill="' . $bg . '"/>'
+        . '<g transform="rotate(' . $tilt . ' 64 70)">'
+        . '<path d="M38 123c4-20 16-31 31-31s27 11 31 31z" fill="' . $shirt . '" stroke="#191919" stroke-width="1.6"/>'
+        . '<path d="M57 91h23v20c0 6-23 6-23 0z" fill="' . $skin . '" stroke="#191919" stroke-width="1.5"/>'
+        . '<circle cx="39" cy="69" r="7" fill="' . $skin . '" stroke="#191919" stroke-width="1.5"/>'
+        . '<circle cx="98" cy="69" r="7" fill="' . $skin . '" stroke="#191919" stroke-width="1.5"/>'
+        . '<path d="M37 60c0-23 13-38 32-38s33 15 33 38v18c0 19-14 30-33 30S37 97 37 78z" fill="' . $skin . '" stroke="#191919" stroke-width="1.8"/>'
+        . $hair_paths[$hair_style]
+        . $brow_paths[$brows]
+        . ($glasses
+            ? '<circle cx="54" cy="69" r="9" fill="none" stroke="#171717" stroke-width="2.2"/><circle cx="84" cy="69" r="9" fill="none" stroke="#171717" stroke-width="2.2"/><path d="M63 69h12" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>'
+            : '<circle cx="54" cy="69" r="3" fill="#171717"/><circle cx="84" cy="69" r="3" fill="#171717"/>')
+        . '<path d="M68 71c-1 5-3 9-5 12 3 2 7 2 10 0" fill="none" stroke="#9a5b42" stroke-width="2" stroke-linecap="round"/>'
+        . $mouth_paths[$mouth]
+        . ($earring ? '<circle cx="100" cy="78" r="3" fill="#ffe36d" stroke="#191919" stroke-width="1"/>' : '')
+        . '</g>'
         . '</svg>';
 }
 
@@ -126,13 +150,7 @@ function qf_generate_default_avatar($user_id, $username, $nickname) {
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
         return '';
     }
-    $seed = trim((string)$username) . '-' . $user_id . '-' . trim((string)$nickname);
-    if (class_exists('Multiavatar')) {
-        $multiavatar = new Multiavatar();
-        $svg = $multiavatar($seed, null, null);
-    } else {
-        $svg = qf_fallback_default_avatar_svg($user_id, $username, $nickname);
-    }
+    $svg = qf_cartoon_default_avatar_svg($user_id, $username, $nickname);
     $path = $dir . '/user-' . $user_id . '.svg';
     if (file_put_contents($path, $svg) === false) {
         return '';

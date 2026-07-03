@@ -6,8 +6,7 @@
     "require": {
         "php": ">=8.4 <8.6",
         "ext-json": "*",
-        "ext-mysqli": "*",
-        "multiavatar/multiavatar-php": "^1.0"
+        "ext-mysqli": "*"
     },
     "suggest": {
         "ext-curl": "Required when S3/R2 cloud upload is enabled.",
