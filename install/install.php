@@ -320,7 +320,7 @@ try_files $uri $uri.php $uri/ /index.php?$query_string;'
             <p>默认管理员：<strong>admin</strong></p>
             <p>默认密码：<strong>admin123</strong></p>
             <p><a class="btn" href="../">进入论坛</a></p>
-            <p class="muted">测试完成后请删除 setup/install.php，并登录后台修改管理员密码。</p>
+            <p class="muted">测试完成后请删除 install/install.php，并登录后台修改管理员密码。</p>
         <?php } else { ?>
             <p class="danger">安装失败：</p>
             <pre><?php echo htmlspecialchars(implode("\n", $errors), ENT_QUOTES, 'UTF-8'); ?></pre>

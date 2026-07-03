@@ -338,7 +338,7 @@ if ($ok) {
         <?php if ($ok) { ?>
             <p class="success">升级成功，附件表、站点设置表、广告表、用户管理字段和资料字段已准备好。</p>
             <p><a class="btn" href="../">返回首页</a></p>
-            <p class="muted">升级完成后建议删除 setup/upgrade.php。</p>
+            <p class="muted">升级完成后建议删除 install/upgrade.php。</p>
         <?php } else { ?>
             <p class="danger">升级失败：<?php echo h(mysqli_error(db())); ?></p>
         <?php } ?>

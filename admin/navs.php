@@ -6,7 +6,7 @@ $saved = false;
 $error = '';
 
 if (!qf_nav_table_ready()) {
-    $error = '主导航表不存在，请先访问 setup/upgrade.php 升级数据库。';
+    $error = '主导航表不存在，请先访问 install/upgrade.php 升级数据库。';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {

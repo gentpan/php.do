@@ -1198,11 +1198,11 @@ function qf_signin_reward($user_id, &$message) {
         return false;
     }
     if (!qf_signin_table_ready()) {
-        $message = '签到表不存在，请先访问 setup/upgrade.php 升级数据库。';
+        $message = '签到表不存在，请先访问 install/upgrade.php 升级数据库。';
         return false;
     }
     if (!qf_user_coins_ready()) {
-        $message = '金币字段不存在，请先访问 setup/upgrade.php 升级数据库。';
+        $message = '金币字段不存在，请先访问 install/upgrade.php 升级数据库。';
         return false;
     }
     if (qf_user_signed_today($user_id)) {
@@ -1592,7 +1592,7 @@ function redirect($url) {
 
 function qf_check_copyright() {
     $script = isset($_SERVER['SCRIPT_NAME']) ? basename($_SERVER['SCRIPT_NAME']) : '';
-    if (in_array($script, array('install.php', 'upgrade.php', 'copyright.php', 'setup/install.php', 'setup/upgrade.php'))) {
+    if (in_array($script, array('install.php', 'upgrade.php', 'copyright.php', 'install/install.php', 'install/upgrade.php'))) {
         return;
     }
 
@@ -1659,7 +1659,7 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
 
     $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_attachments'");
     if (!$table || mysqli_num_rows($table) == 0) {
-        $errors[] = '附件表不存在，请先访问 setup/upgrade.php 升级数据库。';
+        $errors[] = '附件表不存在，请先访问 install/upgrade.php 升级数据库。';
         return 0;
     }
 
