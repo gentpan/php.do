@@ -616,7 +616,7 @@ a:hover {
 }
 
 .wrap {
-    width: 1120px;
+    width: 1024px;
     max-width: 94%;
     margin: 0 auto;
 }
@@ -3928,5 +3928,134 @@ body.theme-dark .side-user-panel a:hover {
 @media (max-width: 980px) {
     .side-user-menu {
         display: none;
+    }
+}
+
+/* Site width and search modal */
+:root {
+    --qf-site-width: 1024px;
+}
+
+.wrap,
+main.wrap,
+.footer .wrap {
+    width: var(--qf-site-width);
+    max-width: calc(100vw - 32px);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+main.wrap {
+    flex: 1 0 auto;
+}
+
+.site-nav-bar .nav-pill {
+    width: var(--qf-site-width);
+    max-width: calc(100vw - 32px);
+}
+
+.site-nav-bar .nav-row {
+    justify-content: space-between;
+}
+
+.search-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1120;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(10, 24, 48, .38);
+    backdrop-filter: blur(8px);
+}
+
+.search-modal-overlay.is-open {
+    display: flex;
+}
+
+.search-modal-box {
+    position: relative;
+    width: 520px;
+    max-width: 94vw;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid #dce8ff;
+    border-radius: 6px;
+    box-shadow: 0 24px 70px rgba(0, 36, 96, .2);
+}
+
+.search-modal-box h2 {
+    margin: 0 42px 16px 0;
+    color: #10234a;
+}
+
+.search-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    color: #0052D9;
+    font-size: 22px;
+    line-height: 32px;
+    cursor: pointer;
+    background: #edf4ff;
+    border: 0;
+    border-radius: 50%;
+}
+
+.search-modal-form label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.search-modal-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-modal-row input {
+    width: 100%;
+    margin: 0;
+}
+
+.search-modal-row .btn {
+    width: auto;
+    margin: 0;
+}
+
+body.theme-dark .search-modal-box {
+    color: #d8e2f5;
+    background: #080d17;
+    border-color: #17243a;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .36);
+}
+
+body.theme-dark .search-modal-box h2 {
+    color: #f6f9ff;
+}
+
+body.theme-dark .search-modal-close {
+    color: #78a9ff;
+    background: #111827;
+}
+
+@media (max-width: 640px) {
+    .wrap,
+    main.wrap,
+    .footer .wrap,
+    .site-nav-bar .nav-pill {
+        max-width: calc(100vw - 20px);
+    }
+
+    .search-modal-row {
+        grid-template-columns: 1fr;
+    }
+
+    .search-modal-row .btn {
+        width: 100%;
     }
 }

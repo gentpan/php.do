@@ -15,6 +15,7 @@ $auth_error = '';
 $auth_login_username = '';
 $auth_register_username = '';
 $auth_register_nickname = '';
+$search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
 if (!$me) {
     $auth_modal = isset($_SESSION['auth_modal']) ? (string)$_SESSION['auth_modal'] : '';
     $auth_error = isset($_SESSION['auth_error']) ? (string)$_SESSION['auth_error'] : '';
@@ -66,7 +67,7 @@ if (!$me) {
                     <i class="fa-solid fa-house nav-link-icon" aria-hidden="true"></i>
                     <span>首页</span>
                 </a>
-                <a class="nav-link<?php echo $current_script === 'search.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('search.php')); ?>">
+                <a class="nav-link<?php echo $current_script === 'search.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('search.php')); ?>" data-search-open>
                     <i class="fa-solid fa-magnifying-glass nav-link-icon" aria-hidden="true"></i>
                     <span>搜索</span>
                 </a>
@@ -148,6 +149,19 @@ if (!$me) {
         <?php } ?>
     </div>
 </aside>
+<div class="search-modal-overlay" id="qf-search-modal">
+    <div class="search-modal-box" role="dialog" aria-modal="true" aria-labelledby="qf-search-title">
+        <button class="search-modal-close" type="button" data-search-close aria-label="关闭">×</button>
+        <h2 id="qf-search-title">搜索</h2>
+        <form class="search-modal-form" method="get" action="<?php echo h(qf_url_page('search.php')); ?>">
+            <label>关键词</label>
+            <div class="search-modal-row">
+                <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="输入关键词" autocomplete="search">
+                <button class="btn" type="submit">搜索</button>
+            </div>
+        </form>
+    </div>
+</div>
 <?php if (!$me) { ?>
 <div class="auth-modal-overlay<?php echo $auth_modal ? ' is-open' : ''; ?>" id="qf-auth-modal" data-initial-auth="<?php echo h($auth_modal); ?>">
     <div class="auth-modal-box" role="dialog" aria-modal="true" aria-labelledby="qf-auth-title">

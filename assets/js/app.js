@@ -128,6 +128,43 @@
         }
     }
 
+    function initSearchModal() {
+        var modal = document.getElementById('qf-search-modal');
+        if (!modal) return;
+        var input = modal.querySelector('input[name="q"]');
+
+        function openSearch() {
+            modal.classList.add('is-open');
+            if (input) {
+                setTimeout(function() {
+                    input.focus();
+                    input.select();
+                }, 40);
+            }
+        }
+
+        function closeSearch() {
+            modal.classList.remove('is-open');
+        }
+
+        document.addEventListener('click', function(e) {
+            var open = e.target.closest('[data-search-open]');
+            if (open) {
+                e.preventDefault();
+                openSearch();
+                return;
+            }
+
+            if (e.target.matches('[data-search-close]') || e.target === modal) {
+                closeSearch();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeSearch();
+        });
+    }
+
     function initSigninModal() {
         function closeSigninModal() {
             var modal = document.getElementById('qf-signin-modal');
@@ -333,6 +370,7 @@
     initNavMore();
     initSideUserMenu();
     initAuthModal();
+    initSearchModal();
     initSigninModal();
     initInlineActions();
     initFormLoading();

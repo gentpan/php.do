@@ -1,11 +1,11 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 $q = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
-$page_title = '搜索 - ' . SITE_NAME;
+$page_title = '搜索结果 - ' . SITE_NAME;
 qf_include_header();
 ?>
 <section class="card">
-    <h1>搜索</h1>
+    <h1>搜索结果</h1>
     <form class="search" method="get">
         <input name="q" value="<?php echo h($q); ?>" placeholder="输入关键词">
         <button class="btn">搜索</button>
