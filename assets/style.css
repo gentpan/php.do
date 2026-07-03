@@ -1557,14 +1557,14 @@ a:hover {
     align-items: center;
     min-height: 26px;
     padding: 4px 9px;
-    color: #0052D9 !important;
+    color: var(--badge-color, #0052D9) !important;
     font-size: 12px;
     font-weight: 800;
     line-height: 1;
     white-space: nowrap;
-    background: #edf4ff;
-    border: 1px solid #cfe0ff;
-    border-radius: 999px;
+    background: var(--badge-bg, #edf4ff);
+    border: 1px solid var(--badge-border, #cfe0ff);
+    border-radius: 4px;
     cursor: pointer;
 }
 
@@ -1574,30 +1574,53 @@ a:hover {
 }
 
 .action-badge:hover {
-    color: #003cab !important;
-    background: #dbeaff;
+    color: var(--badge-hover-color, #fff) !important;
+    background: var(--badge-hover-bg, var(--badge-color, #0052D9));
+    border-color: var(--badge-hover-border, var(--badge-color, #0052D9));
+}
+
+.action-badge-edit {
+    --badge-color: #0052D9;
+    --badge-bg: #edf4ff;
+    --badge-border: #cfe0ff;
+}
+
+.action-badge-move {
+    --badge-color: #0f766e;
+    --badge-bg: #ecfdf5;
+    --badge-border: #b7ead9;
+}
+
+.action-badge-pin {
+    --badge-color: #7c3aed;
+    --badge-bg: #f3efff;
+    --badge-border: #ddd2ff;
+}
+
+.action-badge-feature {
+    --badge-color: #ca8a04;
+    --badge-bg: #fffbeb;
+    --badge-border: #fde68a;
 }
 
 .action-badge-danger {
-    color: #d93025 !important;
-    background: #fff1f0;
-    border-color: #ffd0cc;
-}
-
-.action-badge-danger:hover {
-    color: #b42318 !important;
-    background: #ffe4e0;
+    --badge-color: #d93025;
+    --badge-bg: #fff1f0;
+    --badge-border: #ffd0cc;
 }
 
 .action-badge-muted,
 .action-badge-static {
-    color: #64748b !important;
-    background: #f6f8fb;
-    border-color: #e2e8f0;
+    --badge-color: #64748b;
+    --badge-bg: #f6f8fb;
+    --badge-border: #e2e8f0;
 }
 
 .action-badge-static {
     cursor: default;
+    --badge-hover-color: #64748b;
+    --badge-hover-bg: #f6f8fb;
+    --badge-hover-border: #e2e8f0;
 }
 
 button.action-badge {
