@@ -29,7 +29,7 @@ if (!in_array($ext, $attachment_exts) || !in_array($ext, qf_upload_allowed_exts(
     exit;
 }
 
-if (qf_s3_enabled() || qf_qiniu_enabled()) {
+if (qf_s3_enabled()) {
     $safe_name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
     $remote_error = '';
     $file_path = qf_remote_upload_file($file['tmp_name'], $safe_name, 'application/octet-stream', $remote_error);

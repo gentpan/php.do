@@ -33,7 +33,7 @@ if (@getimagesize($file['tmp_name']) === false) {
 }
 
 $safe_name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
-if (qf_s3_enabled() || qf_qiniu_enabled()) {
+if (qf_s3_enabled()) {
     $remote_error = '';
     $content_type = function_exists('mime_content_type') ? mime_content_type($file['tmp_name']) : 'application/octet-stream';
     if (!$content_type || strpos($content_type, 'image/') !== 0) {

@@ -9,7 +9,7 @@
         "ext-json": "*"
     },
     "suggest": {
-        "ext-curl": "Required when Qiniu cloud upload is enabled.",
+        "ext-curl": "Required when S3/R2 cloud upload is enabled.",
         "ext-mbstring": "Recommended for safer UTF-8 text length handling."
     },
     "config": {

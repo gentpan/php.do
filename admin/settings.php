@@ -53,12 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $register_ip_daily_limit = intval($_POST['register_ip_daily_limit']);
     $captcha_enabled = !empty($_POST['captcha_enabled']) ? '1' : '0';
     $captcha_reply_free_count = intval($_POST['captcha_reply_free_count']);
-    $qiniu_enabled = !empty($_POST['qiniu_enabled']) ? '1' : '0';
-    $qiniu_access_key = clean_text($_POST['qiniu_access_key'], 120);
-    $qiniu_secret_key = clean_text($_POST['qiniu_secret_key'], 120);
-    $qiniu_bucket = clean_text($_POST['qiniu_bucket'], 120);
-    $qiniu_domain = rtrim(trim((string)$_POST['qiniu_domain']), '/');
-    $qiniu_upload_host = rtrim(trim((string)$_POST['qiniu_upload_host']), '/');
     $s3_enabled = !empty($_POST['s3_enabled']) ? '1' : '0';
     $s3_endpoint = rtrim(trim((string)$_POST['s3_endpoint']), '/');
     $s3_region = clean_text(isset($_POST['s3_region']) ? $_POST['s3_region'] : 'auto', 80);
@@ -144,9 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($captcha_reply_free_count > 10000) {
         $captcha_reply_free_count = 10000;
     }
-    if ($qiniu_upload_host === '') {
-        $qiniu_upload_host = 'https://upload.qiniup.com';
-    }
     if ($s3_region === '') {
         $s3_region = 'auto';
     }
@@ -179,12 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     qf_update_setting('register_ip_daily_limit', strval($register_ip_daily_limit));
     qf_update_setting('captcha_enabled', $captcha_enabled);
     qf_update_setting('captcha_reply_free_count', strval($captcha_reply_free_count));
-    qf_update_setting('qiniu_enabled', $qiniu_enabled);
-    qf_update_setting('qiniu_access_key', $qiniu_access_key);
-    qf_update_setting('qiniu_secret_key', $qiniu_secret_key);
-    qf_update_setting('qiniu_bucket', $qiniu_bucket);
-    qf_update_setting('qiniu_domain', $qiniu_domain);
-    qf_update_setting('qiniu_upload_host', $qiniu_upload_host);
     qf_update_setting('s3_enabled', $s3_enabled);
     qf_update_setting('s3_endpoint', $s3_endpoint);
     qf_update_setting('s3_region', $s3_region);
@@ -303,65 +288,33 @@ qf_include_header();
         <input type="number" name="captcha_reply_free_count" min="0" max="10000" value="<?php echo h(qf_setting('captcha_reply_free_count', '10')); ?>">
         <p class="muted">例如填 10，用户累计回帖满 10 次后，发帖和回帖不再需要验证码；注册仍需要验证码。</p>
 
-        <div class="storage-settings-tabs" data-storage-tabs>
-            <div class="storage-tabs-head" role="tablist" aria-label="对象存储配置">
-                <button class="storage-tab-btn<?php echo $s3_test_message === '' ? ' active' : ''; ?>" type="button" data-storage-tab="qiniu" role="tab" aria-selected="<?php echo $s3_test_message === '' ? 'true' : 'false'; ?>">七牛云</button>
-                <button class="storage-tab-btn<?php echo $s3_test_message !== '' ? ' active' : ''; ?>" type="button" data-storage-tab="s3" role="tab" aria-selected="<?php echo $s3_test_message !== '' ? 'true' : 'false'; ?>">S3 / R2</button>
-            </div>
+        <h2>S3 / Cloudflare R2 对象存储</h2>
+        <label><input class="inline-check" type="checkbox" name="s3_enabled" value="1" <?php if (qf_s3_enabled()) echo 'checked'; ?>> 开启 S3/R2 上传</label>
+        <p class="muted">开启后，发帖、回帖和编辑帖子上传的图片/附件会上传到 S3/R2；未开启时继续保存到本地 uploads 目录。R2 Endpoint 示例：https://账号ID.r2.cloudflarestorage.com。</p>
 
-            <div class="storage-tab-panel<?php echo $s3_test_message === '' ? ' active' : ''; ?>" data-storage-panel="qiniu" role="tabpanel">
-                <h2>七牛云对象存储</h2>
-                <label><input class="inline-check" type="checkbox" name="qiniu_enabled" value="1" <?php if (qf_qiniu_enabled()) echo 'checked'; ?>> 开启七牛云上传</label>
-                <p class="muted">开启后，发帖、回帖和编辑帖子上传的图片/附件会上传到七牛云；未开启时继续保存到本地 uploads 目录。</p>
+        <label>S3/R2 Endpoint</label>
+        <input type="text" name="s3_endpoint" value="<?php echo h(qf_setting('s3_endpoint', '')); ?>" placeholder="例如：https://xxxx.r2.cloudflarestorage.com">
 
-                <label>七牛 AccessKey</label>
-                <input type="text" name="qiniu_access_key" value="<?php echo h(qf_setting('qiniu_access_key', '')); ?>">
+        <label>S3/R2 Region</label>
+        <input type="text" name="s3_region" value="<?php echo h(qf_setting('s3_region', 'auto')); ?>" placeholder="R2 通常填写 auto">
 
-                <label>七牛 SecretKey</label>
-                <input type="password" name="qiniu_secret_key" value="<?php echo h(qf_setting('qiniu_secret_key', '')); ?>">
+        <label>S3/R2 Bucket</label>
+        <input type="text" name="s3_bucket" value="<?php echo h(qf_setting('s3_bucket', '')); ?>">
 
-                <label>七牛空间名称 Bucket</label>
-                <input type="text" name="qiniu_bucket" value="<?php echo h(qf_setting('qiniu_bucket', '')); ?>">
+        <label>S3/R2 Access Key ID</label>
+        <input type="text" name="s3_access_key" value="<?php echo h(qf_setting('s3_access_key', '')); ?>">
 
-                <label>七牛绑定域名</label>
-                <input type="text" name="qiniu_domain" value="<?php echo h(qf_setting('qiniu_domain', '')); ?>" placeholder="例如：https://img.example.com">
-                <p class="muted">请填写带 http:// 或 https:// 的访问域名，用于前台显示图片和附件。</p>
+        <label>S3/R2 Secret Access Key</label>
+        <input type="password" name="s3_secret_key" value="<?php echo h(qf_setting('s3_secret_key', '')); ?>">
 
-                <label>七牛上传地址</label>
-                <input type="text" name="qiniu_upload_host" value="<?php echo h(qf_setting('qiniu_upload_host', 'https://upload.qiniup.com')); ?>">
-                <p class="muted">华东常用：https://upload.qiniup.com。其他区域可按七牛云空间所在区域修改。</p>
-            </div>
+        <label>CDN 访问域名</label>
+        <input type="text" name="s3_cdn_domain" value="<?php echo h(qf_setting('s3_cdn_domain', '')); ?>" placeholder="例如：https://cdn.example.com">
+        <p class="muted">前台图片和附件会使用这个域名生成访问地址。留空时使用 Endpoint/Bucket 拼接地址。</p>
 
-            <div class="storage-tab-panel<?php echo $s3_test_message !== '' ? ' active' : ''; ?>" data-storage-panel="s3" role="tabpanel">
-                <h2>S3 / Cloudflare R2 对象存储</h2>
-                <label><input class="inline-check" type="checkbox" name="s3_enabled" value="1" <?php if (qf_s3_enabled()) echo 'checked'; ?>> 开启 S3/R2 上传</label>
-                <p class="muted">开启后优先上传到 S3/R2；未开启时会继续使用七牛或本地 uploads。R2 Endpoint 示例：https://账号ID.r2.cloudflarestorage.com。</p>
-
-                <label>S3/R2 Endpoint</label>
-                <input type="text" name="s3_endpoint" value="<?php echo h(qf_setting('s3_endpoint', '')); ?>" placeholder="例如：https://xxxx.r2.cloudflarestorage.com">
-
-                <label>S3/R2 Region</label>
-                <input type="text" name="s3_region" value="<?php echo h(qf_setting('s3_region', 'auto')); ?>" placeholder="R2 通常填写 auto">
-
-                <label>S3/R2 Bucket</label>
-                <input type="text" name="s3_bucket" value="<?php echo h(qf_setting('s3_bucket', '')); ?>">
-
-                <label>S3/R2 Access Key ID</label>
-                <input type="text" name="s3_access_key" value="<?php echo h(qf_setting('s3_access_key', '')); ?>">
-
-                <label>S3/R2 Secret Access Key</label>
-                <input type="password" name="s3_secret_key" value="<?php echo h(qf_setting('s3_secret_key', '')); ?>">
-
-                <label>CDN 访问域名</label>
-                <input type="text" name="s3_cdn_domain" value="<?php echo h(qf_setting('s3_cdn_domain', '')); ?>" placeholder="例如：https://cdn.example.com">
-                <p class="muted">前台图片和附件会使用这个域名生成访问地址。留空时使用 Endpoint/Bucket 拼接地址。</p>
-
-                <label>存储路径前缀</label>
-                <input type="text" name="s3_path_prefix" value="<?php echo h(qf_setting('s3_path_prefix', 'lume')); ?>" placeholder="例如：lume">
-                <p class="muted">实际对象路径会形如：lume/年/月/日/文件名。</p>
-                <p><button class="btn btn-light btn-small" type="submit" name="action" value="s3_test">测试 S3/R2 上传</button></p>
-            </div>
-        </div>
+        <label>存储路径前缀</label>
+        <input type="text" name="s3_path_prefix" value="<?php echo h(qf_setting('s3_path_prefix', 'lume')); ?>" placeholder="例如：lume">
+        <p class="muted">实际对象路径会形如：lume/年/月/日/文件名。</p>
+        <p><button class="btn btn-light btn-small" type="submit" name="action" value="s3_test">测试 S3/R2 上传</button></p>
 
         <label>友情链接</label>
         <label><input class="inline-check" type="checkbox" name="friend_links_enabled" value="1" <?php if (qf_friend_links_enabled()) echo 'checked'; ?>> 开启友情链接</label>

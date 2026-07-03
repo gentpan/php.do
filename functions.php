@@ -942,69 +942,8 @@ function qf_upload_allowed_exts_label() {
     return implode('、', qf_upload_allowed_exts());
 }
 
-function qf_qiniu_enabled() {
-    return intval(qf_setting('qiniu_enabled', '0')) === 1;
-}
-
 function qf_s3_enabled() {
     return intval(qf_setting('s3_enabled', '0')) === 1;
-}
-
-function qf_base64_urlsafe($data) {
-    return str_replace(array('+', '/'), array('-', '_'), base64_encode($data));
-}
-
-function qf_qiniu_upload_token($key) {
-    $access_key = qf_setting('qiniu_access_key', '');
-    $secret_key = qf_setting('qiniu_secret_key', '');
-    $bucket = qf_setting('qiniu_bucket', '');
-    if ($access_key === '' || $secret_key === '' || $bucket === '') {
-        return '';
-    }
-    $policy = array(
-        'scope' => $bucket . ':' . $key,
-        'deadline' => time() + 3600
-    );
-    $encoded_policy = qf_base64_urlsafe(json_encode($policy));
-    $sign = hash_hmac('sha1', $encoded_policy, $secret_key, true);
-    return $access_key . ':' . qf_base64_urlsafe($sign) . ':' . $encoded_policy;
-}
-
-function qf_qiniu_upload_file($tmp_name, $key, &$error) {
-    if (!function_exists('curl_init') || !function_exists('curl_file_create')) {
-        $error = '服务器未开启 PHP cURL，无法上传到七牛云。';
-        return '';
-    }
-    $domain = rtrim(qf_setting('qiniu_domain', ''), '/');
-    $upload_host = rtrim(qf_setting('qiniu_upload_host', 'https://upload.qiniup.com'), '/');
-    if ($domain === '' || $upload_host === '') {
-        $error = '七牛云配置不完整，请填写绑定域名和上传地址。';
-        return '';
-    }
-    $token = qf_qiniu_upload_token($key);
-    if ($token === '') {
-        $error = '七牛云配置不完整，请填写 AccessKey、SecretKey 和 Bucket。';
-        return '';
-    }
-    $ch = curl_init($upload_host);
-    $post = array(
-        'token' => $token,
-        'key' => $key,
-        'file' => curl_file_create($tmp_name)
-    );
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    $body = curl_exec($ch);
-    $http_code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-    $curl_error = curl_error($ch);
-    curl_close($ch);
-    if ($body === false || $http_code < 200 || $http_code >= 300) {
-        $error = '七牛云上传失败：' . ($curl_error !== '' ? $curl_error : $body);
-        return '';
-    }
-    return $domain . '/' . ltrim($key, '/');
 }
 
 function qf_s3_setting($key, $default = '') {
@@ -1123,9 +1062,6 @@ function qf_s3_test(&$message) {
 function qf_remote_upload_file($tmp_name, $safe_name, $content_type, &$error) {
     if (qf_s3_enabled()) {
         return qf_s3_upload_file($tmp_name, qf_s3_key($safe_name), $content_type, $error);
-    }
-    if (qf_qiniu_enabled()) {
-        return qf_qiniu_upload_file($tmp_name, 'lume/' . date('Y/m/d') . '/' . $safe_name, $error);
     }
     return '';
 }
@@ -1664,7 +1600,7 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
     }
 
     $allow_exts = qf_upload_allowed_exts();
-    $use_remote = qf_s3_enabled() || qf_qiniu_enabled();
+    $use_remote = qf_s3_enabled();
     $upload_dir = __DIR__ . '/uploads';
     if (!$use_remote) {
         if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
