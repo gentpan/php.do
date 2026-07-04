@@ -566,6 +566,34 @@
         });
     }
 
+    function initRightToolbar() {
+        var toolbar = document.querySelector('.phpdo-right-toolbar');
+        if (!toolbar) return;
+        var topButton = toolbar.querySelector('[data-scroll-top]');
+        var bottomButton = toolbar.querySelector('[data-scroll-bottom]');
+
+        function setState() {
+            var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+            toolbar.classList.toggle('is-scrolled', y > 160);
+        }
+
+        if (topButton) {
+            topButton.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        if (bottomButton) {
+            bottomButton.addEventListener('click', function() {
+                var bottom = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+                window.scrollTo({ top: bottom, behavior: 'smooth' });
+            });
+        }
+
+        window.addEventListener('scroll', setState, { passive: true });
+        setState();
+    }
+
     window.qfEnhanceMedia = enhanceMedia;
     window.qfSetLoading = setLoading;
     initNavMore();
@@ -576,6 +604,7 @@
     initThreadVotes();
     initSigninModal();
     initInlineActions();
+    initRightToolbar();
     initFormLoading();
     initToast();
     enhanceMedia(document);

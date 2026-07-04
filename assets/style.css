@@ -6104,7 +6104,106 @@ body.theme-php .phpdo-ad-cyan {
 }
 
 body.theme-php .footer {
+    margin-top: 10px;
+    padding: 0 0 36px;
     background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+body.theme-php .footer .wrap {
+    width: min(1180px, calc(100vw - 120px));
+    max-width: none;
+}
+
+body.theme-php .footer-links {
+    display: grid;
+    gap: 12px;
+    color: #8c9199;
+}
+
+body.theme-php .footer-page-nav,
+body.theme-php .footer-friend-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+body.theme-php .footer-page-nav a,
+body.theme-php .footer-friend-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    margin: 0;
+    padding: 0 12px;
+    color: #60656d;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid #e4e7ec;
+    border-radius: 5px;
+}
+
+body.theme-php .footer-page-nav a:hover,
+body.theme-php .footer-friend-links a:hover {
+    color: var(--phpdo-blue);
+    border-color: #c8d8f7;
+    background: #f7faff;
+}
+
+body.theme-php .footer-friend-links {
+    padding-top: 2px;
+}
+
+body.theme-php .footer-friend-links a {
+    color: #858a92;
+    font-size: 13px;
+    background: transparent;
+}
+
+body.theme-php .phpdo-right-toolbar {
+    position: fixed;
+    right: 22px;
+    bottom: 92px;
+    z-index: 80;
+    display: grid;
+    gap: 10px;
+}
+
+body.theme-php .phpdo-right-toolbar a,
+body.theme-php .phpdo-right-toolbar button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    color: #6d737c;
+    text-decoration: none;
+    background: #fff !important;
+    border: 1px solid #e3e6eb;
+    border-radius: 6px !important;
+    box-shadow: 0 8px 22px rgba(30, 42, 60, .08);
+    cursor: pointer;
+}
+
+body.theme-php .phpdo-right-toolbar a:hover,
+body.theme-php .phpdo-right-toolbar button:hover {
+    color: #fff;
+    background: var(--phpdo-blue) !important;
+    border-color: var(--phpdo-blue);
+}
+
+body.theme-php .phpdo-right-toolbar [data-scroll-top] {
+    opacity: .58;
+}
+
+body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
+    opacity: 1;
 }
 
 @media (max-width: 1180px) {
@@ -6262,6 +6361,22 @@ body.theme-php .footer {
 
     body.theme-php .phpdo-home-sidebar {
         grid-template-columns: 1fr;
+    }
+
+    body.theme-php .footer .wrap {
+        width: calc(100vw - 20px);
+    }
+
+    body.theme-php .phpdo-right-toolbar {
+        right: 10px;
+        bottom: 16px;
+        gap: 7px;
+    }
+
+    body.theme-php .phpdo-right-toolbar a,
+    body.theme-php .phpdo-right-toolbar button {
+        width: 40px;
+        height: 40px;
     }
 }
 
