@@ -358,7 +358,7 @@ function qf_base_href() {
 }
 
 function qf_theme_file($file) {
-    return __DIR__ . '/themes/' . ltrim($file, '/');
+    return __DIR__ . '/' . ltrim($file, '/');
 }
 
 function qf_include_header() {
