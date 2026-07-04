@@ -5465,3 +5465,70 @@ body.theme-php .side-user-panel {
         font-size: 22px;
     }
 }
+
+/* php.net conflict reset */
+body.theme-php {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+body.theme-php .site-nav-bar {
+    position: static;
+    top: auto;
+    left: auto;
+    z-index: auto;
+    pointer-events: auto;
+}
+
+body.theme-php .site-nav-bar .nav-pill {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    pointer-events: auto;
+}
+
+body.theme-php .site-nav-bar .nav-row {
+    height: 64px;
+    min-height: 64px;
+    padding: 0;
+}
+
+body.theme-php .phpnet-hero-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    text-decoration: none;
+}
+
+body.theme-php .phpnet-hero-actions .phpnet-primary {
+    background: var(--phpnet-nav) !important;
+}
+
+body.theme-php .phpnet-hero-actions .phpnet-primary:hover {
+    background: #3E4A78 !important;
+}
+
+body.theme-php .phpnet-hero-actions .phpnet-secondary {
+    background: transparent !important;
+}
+
+body.theme-php .phpnet-hero-actions .phpnet-secondary:hover {
+    background: rgba(79, 91, 147, .35) !important;
+}
+
+body.theme-php .phpnet-news-list,
+body.theme-php .card.phpnet-news-list {
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+body.theme-php .side-user-menu {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body.theme-php {
+        padding-bottom: 0;
+    }
+}
