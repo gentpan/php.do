@@ -6150,3 +6150,459 @@ body.theme-php .footer {
         grid-template-columns: 1fr;
     }
 }
+
+/* php.do inner pages */
+body.theme-php.page-forum main.wrap,
+body.theme-php.page-thread main.wrap,
+body.theme-php.page-search main.wrap,
+body.theme-php.page-post main.wrap,
+body.theme-php.page-edit-thread main.wrap {
+    width: min(1180px, calc(100vw - 120px));
+    max-width: none;
+    padding: 24px 0 56px;
+}
+
+body.theme-php .phpdo-page-head,
+body.theme-php .post-title-card,
+body.theme-php .post-content-card,
+body.theme-php .replies,
+body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies),
+body.theme-php .thread-list,
+body.theme-php.page-search .thread-list {
+    color: var(--phpdo-text);
+    background: #fff;
+    border: 1px solid #eceef2;
+    border-radius: 7px;
+    box-shadow: 0 1px 0 rgba(20, 20, 20, .02);
+}
+
+body.theme-php .phpdo-page-head,
+body.theme-php .page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 0 0 16px;
+    padding: 24px 26px;
+}
+
+body.theme-php .page-head h1,
+body.theme-php .post-title-card h1 {
+    margin: 0;
+    color: #333;
+    font-family: var(--qf-content-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+body.theme-php .page-head p {
+    margin: 8px 0 0;
+    color: #85898f;
+    font-size: 15px;
+}
+
+body.theme-php .page-head .back-home {
+    margin-left: 10px;
+    color: #8f9399;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+body.theme-php .page-head .btn,
+body.theme-php.page-thread main.wrap > .card .btn {
+    height: 42px;
+    padding: 0 18px;
+    color: #fff !important;
+    font-size: 16px;
+    font-weight: 850;
+    background: var(--phpdo-blue);
+    border: 0;
+    border-radius: 5px;
+    box-shadow: none;
+}
+
+body.theme-php .filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin: 0 0 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+body.theme-php .filter-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+body.theme-php .filter-tabs a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 74px;
+    height: 38px;
+    padding: 0 14px;
+    color: #4d5259;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    background: #f1f2f4;
+    border: 0;
+    border-radius: 4px;
+}
+
+body.theme-php .filter-tabs a.active {
+    color: #fff;
+    background: var(--phpdo-blue);
+}
+
+body.theme-php .category-tabs {
+    padding-bottom: 6px;
+}
+
+body.theme-php .thread-list {
+    margin: 0;
+    padding: 12px 26px;
+}
+
+body.theme-php .thread-row {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) 132px;
+    gap: 18px;
+    align-items: center;
+    min-height: 92px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--phpdo-line);
+}
+
+body.theme-php .thread-row:last-child {
+    border-bottom: 0;
+}
+
+body.theme-php .thread-main {
+    min-width: 0;
+}
+
+body.theme-php .thread-title {
+    display: block;
+    overflow: hidden;
+    color: #333 !important;
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+body.theme-php .thread-title:hover {
+    color: var(--phpdo-blue) !important;
+}
+
+body.theme-php .thread-main p {
+    margin: 8px 0 0;
+    color: #8f9399;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+body.theme-php .thread-count {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    color: #9b9ea3;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+body.theme-php .thread-count span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+body.theme-php .thread-count i {
+    color: #aeb1b7;
+}
+
+body.theme-php .tag,
+body.theme-php .category-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 23px;
+    margin-right: 7px;
+    padding: 0 7px;
+    color: var(--phpdo-red) !important;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+    vertical-align: 2px;
+    background: #fff3ef !important;
+    border: 1px solid rgba(255, 103, 79, .22);
+    border-radius: 3px;
+}
+
+body.theme-php .tag.blue {
+    color: #6a58cc !important;
+    background: #f0edff !important;
+    border-color: rgba(106, 88, 204, .18);
+}
+
+body.theme-php .phpdo-thread-title-card {
+    padding: 22px 26px 24px;
+}
+
+body.theme-php .phpdo-thread-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 18px;
+    color: #9aa0a8;
+    font-size: 14px;
+}
+
+body.theme-php .phpdo-thread-breadcrumb a {
+    color: #7d838c;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+body.theme-php .phpdo-thread-title-row {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+body.theme-php .phpdo-author-avatar,
+body.theme-php .phpdo-reply-avatar {
+    width: 58px;
+    height: 58px;
+    object-fit: cover;
+    background: #eef0f4;
+    border-radius: 50%;
+}
+
+body.theme-php .post-meta {
+    color: #8d929a;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+body.theme-php .post-content-card {
+    margin-top: 14px;
+    padding: 26px;
+}
+
+body.theme-php .post-content-box,
+body.theme-php .reply .content {
+    color: #333;
+    font-size: 16px;
+    line-height: 1.78;
+}
+
+body.theme-php .content a {
+    color: var(--phpdo-blue);
+}
+
+body.theme-php .replies {
+    margin-top: 14px;
+    padding: 0;
+    overflow: hidden;
+}
+
+body.theme-php .replies > h2 {
+    margin: 0;
+    padding: 18px 24px;
+    color: #333;
+    font-size: 20px;
+    font-weight: 900;
+    background: #fbfbfc;
+    border-bottom: 1px solid var(--phpdo-line);
+}
+
+body.theme-php .reply {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 18px;
+    margin: 0;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--phpdo-line);
+}
+
+body.theme-php .reply:last-child {
+    border-bottom: 0;
+}
+
+body.theme-php .phpdo-reply-body {
+    min-width: 0;
+}
+
+body.theme-php .reply .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 0 0 10px;
+}
+
+body.theme-php .reply .post-meta strong {
+    color: #444;
+    font-weight: 900;
+}
+
+body.theme-php .floor-label {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 7px;
+    color: #6c7480;
+    background: #f1f2f4;
+    border-radius: 99px;
+}
+
+body.theme-php .floor-replies {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 12px;
+    background: #f7f8fa;
+    border: 1px solid #eceef2;
+    border-radius: 6px;
+}
+
+body.theme-php .floor-reply {
+    margin: 0;
+    padding: 8px 10px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.55;
+    background: #fff;
+    border: 1px solid #eef0f3;
+    border-radius: 6px;
+}
+
+body.theme-php .floor-reply strong {
+    color: #333;
+}
+
+body.theme-php .floor-reply span {
+    margin-left: 8px;
+    color: #a0a4aa;
+    font-size: 12px;
+}
+
+body.theme-php .floor-reply-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+body.theme-php .floor-reply-form input {
+    flex: 1;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid #dfe3e8;
+    border-radius: 5px;
+}
+
+body.theme-php .floor-reply-toggle,
+body.theme-php .floor-reply-submit,
+body.theme-php .action-badge {
+    border-radius: 5px;
+}
+
+body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies) {
+    margin-top: 14px;
+    padding: 22px 24px;
+}
+
+body.theme-php.page-thread textarea,
+body.theme-php.page-post textarea,
+body.theme-php.page-edit-thread textarea,
+body.theme-php.page-thread input,
+body.theme-php.page-post input,
+body.theme-php.page-edit-thread input,
+body.theme-php.page-thread select,
+body.theme-php.page-post select,
+body.theme-php.page-edit-thread select {
+    border-color: #dfe3e8;
+    border-radius: 5px;
+}
+
+@media (max-width: 900px) {
+    body.theme-php.page-forum main.wrap,
+    body.theme-php.page-thread main.wrap,
+    body.theme-php.page-search main.wrap,
+    body.theme-php.page-post main.wrap,
+    body.theme-php.page-edit-thread main.wrap {
+        width: calc(100vw - 20px);
+        padding-top: 14px;
+    }
+
+    body.theme-php .page-head {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 18px;
+    }
+
+    body.theme-php .thread-list {
+        padding: 6px 16px;
+    }
+
+    body.theme-php .thread-row {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 12px;
+        min-height: 88px;
+    }
+
+    body.theme-php .thread-row .phpdo-avatar {
+        width: 44px;
+        height: 44px;
+    }
+
+    body.theme-php .thread-title {
+        font-size: 17px;
+    }
+
+    body.theme-php .thread-main p {
+        font-size: 13px;
+    }
+
+    body.theme-php .thread-count {
+        grid-column: 2;
+        justify-content: flex-start;
+        margin-top: -5px;
+        font-size: 13px;
+    }
+
+    body.theme-php .phpdo-thread-title-card,
+    body.theme-php .post-content-card {
+        padding: 18px;
+    }
+
+    body.theme-php .phpdo-thread-title-row,
+    body.theme-php .reply {
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    body.theme-php .phpdo-author-avatar,
+    body.theme-php .phpdo-reply-avatar {
+        width: 44px;
+        height: 44px;
+    }
+
+    body.theme-php .post-title-card h1 {
+        font-size: 21px;
+    }
+
+    body.theme-php .reply {
+        padding: 18px;
+    }
+
+    body.theme-php .floor-reply-form {
+        flex-direction: column;
+    }
+}

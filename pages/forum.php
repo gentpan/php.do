@@ -30,12 +30,12 @@ if (qf_topic_category_enabled($fid)) {
 }
 $page_title = $forum['name'] . ' - ' . SITE_NAME;
 qf_include_header();
-$threads = mysqli_query(db(), "SELECT t.*, u.nickname FROM qf_threads t LEFT JOIN qf_users u ON t.user_id=u.id
+$threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar FROM qf_threads t LEFT JOIN qf_users u ON t.user_id=u.id
     WHERE t.forum_id={$fid} AND t.is_deleted=0{$where_extra}
     ORDER BY {$order_sql}
     LIMIT " . qf_forum_threads_limit());
 ?>
-<section class="card page-head">
+<section class="card page-head phpdo-page-head">
     <div>
         <h1><?php echo h($forum['name']); ?> <a class="back-home" href="<?php echo h(qf_url_page('index.php')); ?>">返回首页</a></h1>
         <p><?php echo h($forum['description']); ?></p>
@@ -55,9 +55,19 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname FROM qf_threads t LEFT JOI
         <?php } ?>
     </nav>
 <?php } ?>
-<section class="card thread-list">
+<section class="card thread-list phpdo-forum-thread-list">
     <?php while ($threads && $t = mysqli_fetch_assoc($threads)) { ?>
+        <?php
+        $avatar = trim((string)$t['avatar']);
+        if ($avatar === '') {
+            $avatar = 'assets/avatar-default.svg';
+        }
+        $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
+        ?>
         <div class="thread-row">
+            <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
+                <img src="<?php echo h($avatar); ?>" alt="">
+            </a>
             <div class="thread-main">
                 <a class="thread-title" href="<?php echo h(qf_url_thread($t['id'])); ?>">
                     <?php if (intval($t['is_top']) === 1) { ?><span class="tag red">置顶</span><?php } ?>
@@ -66,9 +76,12 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname FROM qf_threads t LEFT JOI
                     <?php if ($t['topic_category'] !== '') { ?><span class="category-tag"><?php echo h($t['topic_category']); ?></span><?php } ?>
                     <?php echo h($t['title']); ?>
                 </a>
-                <p><?php echo h($t['nickname']); ?> · <?php echo format_time($t['created_at']); ?></p>
+                <p><?php echo h($author); ?> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>
             </div>
-            <div class="thread-count"><?php echo intval($t['replies']); ?> 回复<br><?php echo intval($t['views']); ?> 浏览</div>
+            <div class="thread-count">
+                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span>
+                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo intval($t['views']); ?></span>
+            </div>
         </div>
     <?php } ?>
 </section>
