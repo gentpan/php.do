@@ -237,7 +237,7 @@ qf_include_header();
 
         <label>网站备案信息代码</label>
         <textarea name="icp_code" rows="3" placeholder="例如：蜀ICP备xxxx号"><?php echo h(qf_setting('icp_code', '')); ?></textarea>
-        <p class="muted">会显示在底部版权信息前面，可填写文字或备案链接代码。</p>
+        <p class="muted">会显示在页面底部，可填写文字或备案链接代码。</p>
 
         <label>第三方统计代码</label>
         <textarea name="stats_code" rows="6" placeholder="例如百度统计、CNZZ等统计代码"><?php echo h(qf_setting('stats_code', '')); ?></textarea>

@@ -1873,57 +1873,6 @@ function redirect($url) {
     exit;
 }
 
-function qf_check_copyright() {
-    $script = isset($_SERVER['SCRIPT_NAME']) ? basename($_SERVER['SCRIPT_NAME']) : '';
-    if (in_array($script, array('install.php', 'upgrade.php', 'copyright.php', 'install/install.php', 'install/upgrade.php'))) {
-        return;
-    }
-
-    $message = '请勿修改版权信息，本站正在维护升级中~';
-    $footer_file = qf_theme_file('footer.php');
-    $css_file = __DIR__ . '/assets/style.css';
-    $required_link = 'http://lume.0816y.com/';
-    $required_text = 'Lume 1.0';
-    $required_class = 'powered-by';
-
-    $ok = true;
-    if (!file_exists($footer_file)) {
-        $ok = false;
-    } else {
-        $footer = file_get_contents($footer_file);
-        if (strpos($footer, $required_link) === false || strpos($footer, $required_text) === false || strpos($footer, $required_class) === false) {
-            $ok = false;
-        }
-    }
-
-    if ($ok && file_exists($css_file)) {
-        $css = strtolower(preg_replace('/\s+/', '', file_get_contents($css_file)));
-        $bad_rules = array(
-            '.powered-by{display:none',
-            '.powered-by{visibility:hidden',
-            '.powered-by{opacity:0',
-            '.copyright{display:none',
-            '.copyright{visibility:hidden',
-            '.copyright{opacity:0',
-            '.footer{display:none',
-            '.footer{visibility:hidden',
-            '.footer{opacity:0'
-        );
-        foreach ($bad_rules as $rule) {
-            if (strpos($css, $rule) !== false) {
-                $ok = false;
-                break;
-            }
-        }
-    }
-
-    if (!$ok) {
-        $_SESSION['copyright_error'] = $message;
-        header('Location: ' . qf_url_page('copyright.php'));
-        exit;
-    }
-}
-
 function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
     if (empty($_FILES['attachments']) || !is_array($_FILES['attachments']['name'])) {
         return 0;

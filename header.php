@@ -2,7 +2,6 @@
 if (!isset($page_title)) {
     $page_title = SITE_NAME;
 }
-qf_check_copyright();
 $me = current_user();
 $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) : 0;
 $main_navs = qf_main_navs();

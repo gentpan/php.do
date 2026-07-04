@@ -2459,18 +2459,8 @@ form .btn {
     border-top: 1px solid #edf1f5;
 }
 
-.copyright {
+.footer-links {
     text-align: left;
-}
-
-.powered-text {
-    font-size: 11px;
-    color: #b6c0ca;
-}
-
-.powered-by {
-    color: #9aa8b5;
-    font-weight: 400;
 }
 
 @media (max-width: 860px) {
