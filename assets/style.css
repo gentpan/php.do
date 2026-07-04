@@ -5673,7 +5673,7 @@ body.theme-php .phpdo-home-shell {
 body.theme-php .phpdo-category-bar {
     display: flex;
     align-items: center;
-    gap: 34px;
+    gap: 28px;
     min-height: 70px;
     padding: 0 30px;
     overflow-x: auto;
@@ -5684,6 +5684,12 @@ body.theme-php .phpdo-category-bar {
     border-radius: 0 0 7px 7px;
     box-shadow: 0 1px 0 rgba(20, 20, 20, .03);
     white-space: nowrap;
+    scrollbar-width: none;
+}
+
+body.theme-php .phpdo-category-bar::-webkit-scrollbar,
+body.theme-php .phpdo-feed-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 body.theme-php .phpdo-category-bar a {
@@ -5737,6 +5743,7 @@ body.theme-php .phpdo-feed-tabs {
     align-items: center;
     gap: 18px;
     margin-bottom: 18px;
+    scrollbar-width: none;
 }
 
 body.theme-php .phpdo-feed-tabs a {
