@@ -37,8 +37,15 @@ if (!$me) {
     <base href="<?php echo h(qf_base_href()); ?>">
     <meta name="keywords" content="<?php echo h(qf_site_keywords()); ?>">
     <meta name="description" content="<?php echo h(qf_site_desc()); ?>">
+    <link rel="icon" href="assets/favicon.ico" sizes="any">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="apple-touch-icon" href="assets/favicon.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="assets/site.webmanifest">
+    <meta name="theme-color" content="#4F5B93">
+    <meta name="msapplication-TileColor" content="#4F5B93">
+    <meta name="msapplication-TileImage" content="assets/mstile-150x150.png">
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
     <?php if (!$use_system_page_font) { foreach (qf_selected_font_urls() as $font_url) { ?>
         <link rel="stylesheet" href="<?php echo h($font_url); ?>">
@@ -58,7 +65,7 @@ if (!$me) {
         <div class="nav-row">
             <div class="nav-identity-orb">
                 <a class="nav-avatar<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
-                    <span class="php-wordmark" aria-hidden="true">php</span>
+                    <img class="php-wordmark" src="assets/php-logo-white.svg" alt="" aria-hidden="true">
                     <span class="nav-avatar-home" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
                 </a>
             </div>

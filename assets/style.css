@@ -5011,15 +5011,9 @@ body.theme-php .site-nav-bar .nav-avatar {
 
 body.theme-php .php-wordmark {
     display: inline-block;
-    color: #FFFFFF;
-    font-size: 42px;
-    font-style: italic;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0;
-    text-decoration: none;
-    transform: skew(-10deg);
-    text-shadow: 0 1px 0 rgba(0, 0, 0, .25);
+    width: 86px;
+    height: auto;
+    transform: none;
 }
 
 body.theme-php .site-nav-bar .nav-avatar-home,
@@ -5117,15 +5111,11 @@ body.theme-php .phpnet-hero {
 }
 
 body.theme-php .phpnet-hero-logo {
+    display: block;
+    width: 300px;
+    max-width: 78vw;
+    height: auto;
     margin: 0 auto 18px;
-    color: #FFFFFF;
-    font-size: 126px;
-    font-style: italic;
-    font-weight: 700;
-    line-height: .82;
-    letter-spacing: 0;
-    transform: skew(-10deg);
-    text-shadow: 0 2px 0 rgba(0, 0, 0, .32);
 }
 
 body.theme-php .phpnet-hero-lead {
@@ -5439,12 +5429,11 @@ body.theme-php .side-user-panel {
     }
 
     body.theme-php .php-wordmark {
-        font-size: 36px;
+        width: 76px;
     }
 
     body.theme-php .phpnet-hero-logo {
-        font-size: 72px;
-        letter-spacing: 0;
+        width: 220px;
     }
 
     body.theme-php .phpnet-hero-lead,
