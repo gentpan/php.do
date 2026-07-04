@@ -231,10 +231,13 @@ $user_id_list = implode(',', array_map('intval', $users));
 if ($user_id_list !== '') {
     mysqli_query(db(), "UPDATE qf_users u SET reply_count=(SELECT COUNT(*) FROM qf_posts p WHERE p.user_id=u.id AND p.is_deleted=0) WHERE u.id IN ({$user_id_list})");
 }
+$nav_tech = seed_phpdo_sql(qf_url_forum($forums[1]));
+$nav_release = seed_phpdo_sql(qf_url_forum($forums[2]));
+$nav_help = seed_phpdo_sql(qf_url_forum($forums[9]));
 mysqli_query(db(), "REPLACE INTO qf_navs (id,title,url,display_order,is_enabled,created_at) VALUES
-    (1,'技术讨论','forum.php?id=" . intval($forums[1]) . "',10,1,NOW()),
-    (2,'程序发布','forum.php?id=" . intval($forums[2]) . "',20,1,NOW()),
-    (3,'代码求助','forum.php?id=" . intval($forums[9]) . "',30,1,NOW())");
+    (1,'技术讨论','{$nav_tech}',10,1,NOW()),
+    (2,'程序发布','{$nav_release}',20,1,NOW()),
+    (3,'代码求助','{$nav_help}',30,1,NOW())");
 
 $summary = array();
 foreach (array('qf_forums', 'qf_users', 'qf_threads', 'qf_posts', 'qf_post_comments') as $table) {
