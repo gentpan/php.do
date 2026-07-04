@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $site_name = clean_text($_POST['site_name'], 80);
     $site_desc = clean_text($_POST['site_desc'], 180);
     $site_keywords = clean_text($_POST['site_keywords'], 160);
-    $theme_name = clean_text(isset($_POST['theme_name']) ? $_POST['theme_name'] : 'light-blue', 40);
+    $theme_name = clean_text(isset($_POST['theme_name']) ? $_POST['theme_name'] : 'php', 40);
     $title_font = clean_text(isset($_POST['title_font']) ? $_POST['title_font'] : 'system', 60);
     $content_font = clean_text(isset($_POST['content_font']) ? $_POST['content_font'] : 'system', 60);
     $icp_code = trim((string)$_POST['icp_code']);
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $theme_options = qf_theme_options();
     if (!isset($theme_options[$theme_name])) {
-        $theme_name = 'light-blue';
+        $theme_name = 'php';
     }
     $font_options = qf_font_options();
     if (!isset($font_options[$title_font])) {
@@ -217,7 +217,7 @@ qf_include_header();
                 <option value="<?php echo h($theme_key); ?>" <?php if (qf_theme() === $theme_key) echo 'selected'; ?>><?php echo h($theme_label); ?></option>
             <?php } ?>
         </select>
-        <p class="muted">包含白色蓝色、LiteNote 淡黄、黑色款三种纯色风格。</p>
+        <p class="muted">当前使用 PHP 官方风格：深靛蓝导航、浅色内容区和克制的蓝紫强调色。</p>
 
         <label>标题字体</label>
         <select name="title_font">

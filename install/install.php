@@ -264,7 +264,7 @@ if ($ok) {
         'site_name' => SITE_NAME,
         'site_desc' => SITE_DESC,
         'site_keywords' => '',
-        'theme_name' => 'light-blue',
+        'theme_name' => 'php',
         'title_font' => 'system',
         'content_font' => 'system',
         'icp_code' => '',

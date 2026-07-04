@@ -263,23 +263,21 @@ function qf_site_keywords() {
 
 function qf_theme_options() {
     return array(
-        'light-blue' => '白色蓝色',
-        'litenote' => 'LiteNote 淡黄',
-        'dark' => '黑色款',
+        'php' => 'PHP 官方风格',
     );
 }
 
 function qf_theme() {
-    $theme = qf_setting('theme_name', 'light-blue');
+    $theme = qf_setting('theme_name', 'php');
     $options = qf_theme_options();
-    return isset($options[$theme]) ? $theme : 'light-blue';
+    return isset($options[$theme]) ? $theme : 'php';
 }
 
 function qf_font_options() {
     return array(
         'system' => array(
             'label' => '系统默认',
-            'family' => '"Microsoft YaHei", "PingFang SC", Arial, sans-serif',
+            'family' => '"Fira Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", "PingFang SC", sans-serif',
             'url' => '',
         ),
         'tencentsans' => array(
