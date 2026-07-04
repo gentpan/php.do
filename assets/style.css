@@ -6457,10 +6457,10 @@ body.theme-php .replies > h2 {
 
 body.theme-php .reply {
     display: grid;
-    grid-template-columns: 58px minmax(0, 1fr);
-    gap: 18px;
+    grid-template-columns: 74px minmax(0, 1fr);
+    gap: 22px;
     margin: 0;
-    padding: 22px 24px;
+    padding: 34px 30px 28px;
     border-bottom: 1px solid var(--phpdo-line);
 }
 
@@ -6469,20 +6469,152 @@ body.theme-php .reply:last-child {
 }
 
 body.theme-php .phpdo-reply-body {
+    position: relative;
     min-width: 0;
+}
+
+body.theme-php .phpdo-reply-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 42px;
+    margin: 0 0 18px;
 }
 
 body.theme-php .reply .post-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 7px;
-    margin: 0 0 10px;
+    gap: 12px;
+    margin: 0;
+    color: #989ca2;
+    font-size: 16px;
 }
 
 body.theme-php .reply .post-meta strong {
-    color: #444;
+    color: #555;
+    font-size: 18px;
     font-weight: 900;
+}
+
+body.theme-php .phpdo-level {
+    display: inline-flex;
+    align-items: center;
+    height: 25px;
+    padding: 0 7px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1;
+    background: var(--phpdo-blue);
+    border-radius: 5px;
+}
+
+body.theme-php .phpdo-meta-sep {
+    width: 1px;
+    height: 20px;
+    background: #eceef2;
+}
+
+body.theme-php .phpdo-only-author {
+    color: #8f9399;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+body.theme-php .phpdo-only-author:hover {
+    color: var(--phpdo-blue);
+}
+
+body.theme-php .phpdo-floor-no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    height: 44px;
+    padding: 0 10px;
+    color: #9a9a9a;
+    font-size: 18px;
+    font-weight: 900;
+    background: #f7f7f7;
+    border-radius: 6px;
+}
+
+body.theme-php .reply .content {
+    min-height: 72px;
+    color: #333;
+    font-size: 20px;
+    line-height: 1.75;
+}
+
+body.theme-php .phpdo-signature {
+    margin-top: 56px;
+    padding-top: 0;
+    color: #333;
+    border-top: 1px dashed #d9dde3;
+}
+
+body.theme-php .phpdo-signature span {
+    display: inline-block;
+    position: relative;
+    top: -11px;
+    padding-right: 12px;
+    color: var(--phpdo-blue);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    background: #fff;
+}
+
+body.theme-php .phpdo-signature p {
+    margin: 8px 0 0;
+    color: #444;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+body.theme-php .phpdo-reply-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 28px;
+    color: #999;
+}
+
+body.theme-php .phpdo-reply-actions > div {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+body.theme-php .phpdo-reply-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    color: #96999e;
+    font-size: 17px;
+    font-weight: 800;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+body.theme-php .phpdo-reply-action i {
+    color: #b0b3b8;
+    font-size: 20px;
+}
+
+body.theme-php .phpdo-reply-action:hover,
+body.theme-php .phpdo-reply-action:hover i {
+    color: var(--phpdo-blue);
+}
+
+body.theme-php .phpdo-report {
+    cursor: default;
 }
 
 body.theme-php .floor-label {
@@ -6498,11 +6630,15 @@ body.theme-php .floor-label {
 body.theme-php .floor-replies {
     display: grid;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 22px;
     padding: 12px;
     background: #f7f8fa;
     border: 1px solid #eceef2;
     border-radius: 6px;
+}
+
+body.theme-php .floor-replies:empty {
+    display: none;
 }
 
 body.theme-php .floor-reply {
@@ -6632,7 +6768,49 @@ body.theme-php.page-edit-thread select {
     }
 
     body.theme-php .reply {
-        padding: 18px;
+        padding: 20px 16px;
+    }
+
+    body.theme-php .phpdo-reply-header {
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    body.theme-php .reply .post-meta {
+        gap: 8px;
+        font-size: 13px;
+    }
+
+    body.theme-php .reply .post-meta strong {
+        font-size: 15px;
+    }
+
+    body.theme-php .phpdo-level {
+        height: 22px;
+        font-size: 12px;
+    }
+
+    body.theme-php .phpdo-floor-no {
+        min-width: 42px;
+        height: 36px;
+        font-size: 15px;
+    }
+
+    body.theme-php .reply .content {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    body.theme-php .phpdo-signature {
+        margin-top: 30px;
+    }
+
+    body.theme-php .phpdo-reply-actions {
+        margin-top: 20px;
+    }
+
+    body.theme-php .phpdo-reply-action {
+        font-size: 14px;
     }
 
     body.theme-php .floor-reply-form {
