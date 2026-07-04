@@ -5703,6 +5703,39 @@ body.theme-php .phpdo-category-bar a:hover {
     color: var(--phpdo-blue);
 }
 
+body.theme-php .phpdo-inner-category-bar {
+    background: #fff;
+    border-bottom: 1px solid #eceef2;
+    box-shadow: 0 1px 0 rgba(20, 20, 20, .03);
+}
+
+body.theme-php .phpdo-inner-category-bar > div {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    width: min(1180px, calc(100vw - 120px));
+    min-height: 54px;
+    margin: 0 auto;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+body.theme-php .phpdo-inner-category-bar > div::-webkit-scrollbar {
+    display: none;
+}
+
+body.theme-php .phpdo-inner-category-bar a {
+    color: #3c3c3c;
+    font-size: 16px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+body.theme-php .phpdo-inner-category-bar a:hover {
+    color: var(--phpdo-blue);
+}
+
 body.theme-php .phpdo-breadcrumb {
     display: flex;
     align-items: center;
@@ -6097,6 +6130,16 @@ body.theme-php .footer {
     }
 
     body.theme-php .phpdo-category-bar a {
+        font-size: 15px;
+    }
+
+    body.theme-php .phpdo-inner-category-bar > div {
+        gap: 20px;
+        width: calc(100vw - 20px);
+        min-height: 50px;
+    }
+
+    body.theme-php .phpdo-inner-category-bar a {
         font-size: 15px;
     }
 

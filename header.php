@@ -6,6 +6,13 @@ qf_check_copyright();
 $me = current_user();
 $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) : 0;
 $main_navs = qf_main_navs();
+$header_forums = array();
+if (qf_theme() === 'php') {
+    $header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums ORDER BY display_order ASC, id ASC");
+    while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
+        $header_forums[] = $header_forum;
+    }
+}
 $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 $current_path = str_replace('\\', '/', isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 $use_system_page_font = $current_script === 'profile.php' || preg_match('#/admin/settings\.php$#', $current_path);
@@ -131,6 +138,15 @@ if (!$me) {
         </div>
     </div>
 </nav>
+<?php if (qf_theme() === 'php' && $current_script !== 'index.php' && !empty($header_forums)) { ?>
+<nav class="phpdo-inner-category-bar" aria-label="论坛分类">
+    <div>
+        <?php foreach ($header_forums as $header_forum) { ?>
+            <a href="<?php echo h(qf_url_forum($header_forum['id'])); ?>"><?php echo h($header_forum['name']); ?></a>
+        <?php } ?>
+    </div>
+</nav>
+<?php } ?>
 <aside class="side-user-menu" aria-label="用户快捷菜单" data-side-user-menu>
     <button class="side-user-trigger" type="button" aria-expanded="false" aria-haspopup="true" data-side-user-toggle>
         <?php if ($me) { ?>
