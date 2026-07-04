@@ -58,6 +58,10 @@ if (isset($front_routes[$request_path])) {
     require __DIR__ . '/pages/' . $front_routes[$request_path];
     exit;
 }
+if ($request_path !== '') {
+    http_response_code(404);
+    exit('404 Not Found');
+}
 
 $page_title = SITE_NAME . ' - 首页';
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'reply';
