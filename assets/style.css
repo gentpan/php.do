@@ -7224,3 +7224,229 @@ body.theme-php .phpdo-auth-switch a {
         flex-direction: column;
     }
 }
+
+/* php.net component scale pass */
+body.theme-php {
+    --phpdo-font-sans: "Fira Sans", "Source Sans Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --phpdo-font-mono: "Fira Mono", "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --phpdo-card-radius: .25rem;
+    --phpdo-control-radius: .5rem;
+    --phpdo-space-1: .5rem;
+    --phpdo-space-2: .75rem;
+    --phpdo-space-3: 1rem;
+    --phpdo-space-4: 1.5rem;
+    --phpdo-space-5: 2rem;
+    --phpdo-shadow-soft: 0 .125rem .5rem rgba(0, 0, 0, .08);
+    font-family: var(--phpdo-font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+body.theme-php code,
+body.theme-php pre,
+body.theme-php kbd,
+body.theme-php .phpdo-signature span {
+    font-family: var(--phpdo-font-mono);
+}
+
+body.theme-php .phpdo-home-shell,
+body.theme-php.page-forum main.wrap,
+body.theme-php.page-thread main.wrap,
+body.theme-php.page-search main.wrap,
+body.theme-php.page-post main.wrap,
+body.theme-php.page-edit-thread main.wrap,
+body.theme-php.page-tags main.wrap,
+body.theme-php.page-user main.wrap,
+body.theme-php.page-profile main.wrap,
+body.theme-php.page-page main.wrap,
+body.theme-php.page-login main.wrap,
+body.theme-php.page-register main.wrap,
+body.theme-php .footer .wrap,
+body.theme-php .phpdo-inner-category-bar > div {
+    width: min(1200px, calc(100vw - 3rem));
+}
+
+body.theme-php .phpdo-feed-card,
+body.theme-php .phpdo-side-card,
+body.theme-php .phpdo-page-head,
+body.theme-php .phpdo-user-head,
+body.theme-php .post-title-card,
+body.theme-php .post-content-card,
+body.theme-php .replies,
+body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies),
+body.theme-php.page-user main.wrap > .card,
+body.theme-php.page-tags main.wrap > .card,
+body.theme-php.page-profile main.wrap > .card,
+body.theme-php.page-page main.wrap > .card,
+body.theme-php.page-login main.wrap > .card,
+body.theme-php.page-register main.wrap > .card,
+body.theme-php .thread-list,
+body.theme-php.page-search .thread-list,
+body.theme-php .phpdo-category-bar,
+body.theme-php .phpdo-static-page,
+body.theme-php .phpdo-auth-page {
+    border-radius: var(--phpdo-card-radius) !important;
+    box-shadow: var(--phpdo-shadow-soft);
+}
+
+body.theme-php .phpdo-feed-card,
+body.theme-php .phpdo-side-card,
+body.theme-php .phpdo-page-head,
+body.theme-php .page-head,
+body.theme-php .post-title-card,
+body.theme-php .post-content-card,
+body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies),
+body.theme-php .phpdo-static-page,
+body.theme-php .phpdo-auth-page {
+    padding: var(--phpdo-space-4);
+}
+
+body.theme-php .site-nav-bar .nav-link,
+body.theme-php .site-nav-bar .nav-cta,
+body.theme-php .site-nav-bar .nav-more-toggle,
+body.theme-php .phpdo-category-bar a,
+body.theme-php .phpdo-inner-category-bar a {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+body.theme-php .nav-search-form,
+body.theme-php .site-nav-bar .nav-cta,
+body.theme-php .site-nav-bar .nav-more-toggle,
+body.theme-php .phpdo-feed-tabs a,
+body.theme-php .filter-tabs a,
+body.theme-php .page-head .btn,
+body.theme-php.page-thread main.wrap > .card .btn,
+body.theme-php .phpdo-vote-button,
+body.theme-php .phpdo-static-links a,
+body.theme-php .footer-page-nav a,
+body.theme-php .footer-friend-links a {
+    border-radius: var(--phpdo-control-radius) !important;
+}
+
+body.theme-php .phpdo-breadcrumb,
+body.theme-php .phpdo-feed-tabs,
+body.theme-php .filter-tabs {
+    margin-bottom: var(--phpdo-space-3);
+}
+
+body.theme-php .phpdo-home-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: var(--phpdo-space-3);
+}
+
+body.theme-php .phpdo-thread-row,
+body.theme-php .thread-row {
+    min-height: 5.5rem;
+    padding: var(--phpdo-space-3) 0;
+}
+
+body.theme-php .phpdo-thread-main h2,
+body.theme-php .thread-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+body.theme-php .phpdo-thread-main p,
+body.theme-php .thread-main p,
+body.theme-php .post-meta,
+body.theme-php .phpdo-thread-stats,
+body.theme-php .thread-count,
+body.theme-php .phpdo-side-card,
+body.theme-php .phpdo-must-read li {
+    font-size: .875rem;
+}
+
+body.theme-php .page-head h1,
+body.theme-php .post-title-card h1,
+body.theme-php .phpdo-auth-head h1 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+body.theme-php .phpdo-side-card h2,
+body.theme-php .replies > h2,
+body.theme-php .phpdo-list-heading {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+body.theme-php .post-content-box,
+body.theme-php .reply .content,
+body.theme-php .phpdo-static-page p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+body.theme-php .reply {
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+    gap: var(--phpdo-space-3);
+    padding: var(--phpdo-space-4);
+}
+
+body.theme-php .reply .post-meta,
+body.theme-php .reply .post-meta strong,
+body.theme-php .phpdo-reply-author,
+body.theme-php .phpdo-reply-action {
+    font-size: .875rem;
+}
+
+body.theme-php .phpdo-floor-no,
+body.theme-php .phpdo-level {
+    border-radius: var(--phpdo-card-radius);
+}
+
+body.theme-php .floor-replies,
+body.theme-php .floor-reply {
+    border-radius: var(--phpdo-card-radius);
+}
+
+body.theme-php .phpdo-right-toolbar a,
+body.theme-php .phpdo-right-toolbar button {
+    border-radius: var(--phpdo-card-radius) !important;
+    box-shadow: var(--phpdo-shadow-soft);
+}
+
+@media (max-width: 900px) {
+    body.theme-php .phpdo-home-shell,
+    body.theme-php.page-forum main.wrap,
+    body.theme-php.page-thread main.wrap,
+    body.theme-php.page-search main.wrap,
+    body.theme-php.page-post main.wrap,
+    body.theme-php.page-edit-thread main.wrap,
+    body.theme-php.page-tags main.wrap,
+    body.theme-php.page-user main.wrap,
+    body.theme-php.page-profile main.wrap,
+    body.theme-php.page-page main.wrap,
+    body.theme-php.page-login main.wrap,
+    body.theme-php.page-register main.wrap,
+    body.theme-php .footer .wrap,
+    body.theme-php .phpdo-inner-category-bar > div {
+        width: calc(100vw - 1.25rem);
+    }
+
+    body.theme-php .phpdo-feed-card,
+    body.theme-php .phpdo-side-card,
+    body.theme-php .phpdo-page-head,
+    body.theme-php .page-head,
+    body.theme-php .post-title-card,
+    body.theme-php .post-content-card,
+    body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies),
+    body.theme-php .phpdo-static-page,
+    body.theme-php .phpdo-auth-page {
+        padding: var(--phpdo-space-3);
+    }
+
+    body.theme-php .page-head h1,
+    body.theme-php .post-title-card h1,
+    body.theme-php .phpdo-auth-head h1 {
+        font-size: 1.5rem;
+    }
+
+    body.theme-php .phpdo-thread-main h2,
+    body.theme-php .thread-title {
+        font-size: 1rem;
+    }
+}
