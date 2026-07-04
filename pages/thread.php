@@ -81,8 +81,8 @@ if ($me) {
                         </button>
                     </form>
                 <?php } else { ?>
-                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong><?php echo intval(isset($thread['upvotes']) ? $thread['upvotes'] : 0); ?></strong></a>
-                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong><?php echo intval(isset($thread['downvotes']) ? $thread['downvotes'] : 0); ?></strong></a>
+                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong><?php echo intval(isset($thread['upvotes']) ? $thread['upvotes'] : 0); ?></strong></a>
+                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong><?php echo intval(isset($thread['downvotes']) ? $thread['downvotes'] : 0); ?></strong></a>
                 <?php } ?>
             </div>
         </div>
@@ -189,7 +189,7 @@ if ($me) {
                         <?php if (current_user()) { ?>
                             <button class="phpdo-reply-action floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></button>
                         <?php } else { ?>
-                            <a class="phpdo-reply-action" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></a>
+                            <a class="phpdo-reply-action" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></a>
                         <?php } ?>
                     </div>
                     <div>

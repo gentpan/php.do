@@ -5630,22 +5630,77 @@ body.theme-php .site-nav-bar .nav-actions {
     gap: 14px;
 }
 
+body.theme-php .nav-search-form {
+    display: flex;
+    align-items: center;
+    width: 250px;
+    height: 42px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #dfe3e8;
+    border-radius: 5px;
+}
+
+body.theme-php .nav-search-form input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0 12px;
+    color: #333;
+    font-size: 15px;
+    background: transparent;
+    border: 0;
+    border-radius: 0 !important;
+    outline: 0;
+}
+
+body.theme-php .nav-search-form button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    color: #555;
+    background: #fff !important;
+    border: 0;
+    border-left: 1px solid #edf0f3;
+    border-radius: 0 !important;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+body.theme-php .nav-search-form button:hover {
+    color: var(--phpdo-blue);
+    background: #f8f9fb !important;
+}
+
 body.theme-php .site-nav-bar .nav-cta,
 body.theme-php .site-nav-bar .nav-more-toggle {
     height: 46px;
     min-width: 82px;
     padding: 0 18px;
-    color: #fff;
+    color: #333;
     font-size: 17px;
     font-weight: 800;
-    border: 0;
+    border: 1px solid #dfe3e8;
     border-radius: 5px;
-    background: var(--phpdo-blue);
+    background: #fff;
     box-shadow: none;
 }
 
 body.theme-php .site-nav-bar .nav-more-toggle {
-    background: var(--phpdo-red);
+    background: #fff;
+}
+
+body.theme-php .site-nav-bar .nav-cta:hover,
+body.theme-php .site-nav-bar .nav-more-toggle:hover,
+body.theme-php .site-nav-bar .nav-cta.active,
+body.theme-php .site-nav-bar .nav-more-toggle.active {
+    color: var(--phpdo-blue);
+    border-color: #c8d8f7;
+    background: #f7faff;
 }
 
 body.theme-php .site-nav-bar .nav-activity-bars,
@@ -6121,6 +6176,29 @@ body.theme-php .footer {
         font-size: 15px;
     }
 
+    body.theme-php .nav-search-form {
+        width: 44px;
+        background: #f8f9fb;
+    }
+
+    body.theme-php .nav-search-form:focus-within {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        z-index: 10;
+        width: auto;
+    }
+
+    body.theme-php .nav-search-form input {
+        padding: 0;
+        width: 0;
+    }
+
+    body.theme-php .nav-search-form:focus-within input {
+        padding: 0 12px;
+        width: auto;
+    }
+
     body.theme-php .phpdo-home-shell {
         width: calc(100vw - 20px);
     }
@@ -6205,7 +6283,9 @@ body.theme-php.page-edit-thread main.wrap,
 body.theme-php.page-tags main.wrap,
 body.theme-php.page-user main.wrap,
 body.theme-php.page-profile main.wrap,
-body.theme-php.page-page main.wrap {
+body.theme-php.page-page main.wrap,
+body.theme-php.page-login main.wrap,
+body.theme-php.page-register main.wrap {
     width: min(1180px, calc(100vw - 120px));
     max-width: none;
     padding: 24px 0 56px;
@@ -6221,6 +6301,8 @@ body.theme-php.page-user main.wrap > .card,
 body.theme-php.page-tags main.wrap > .card,
 body.theme-php.page-profile main.wrap > .card,
 body.theme-php.page-page main.wrap > .card,
+body.theme-php.page-login main.wrap > .card,
+body.theme-php.page-register main.wrap > .card,
 body.theme-php .thread-list,
 body.theme-php.page-search .thread-list {
     color: var(--phpdo-text);
@@ -6843,6 +6925,63 @@ body.theme-php .phpdo-static-links a.active {
     background: var(--phpdo-blue);
 }
 
+body.theme-php .phpdo-auth-page {
+    width: min(520px, 100%);
+    margin: 32px auto 0;
+    padding: 28px 30px;
+}
+
+body.theme-php .phpdo-auth-head h1 {
+    margin: 0;
+    color: #333;
+    font-size: 28px;
+    font-weight: 950;
+}
+
+body.theme-php .phpdo-auth-head p {
+    margin: 8px 0 20px;
+    color: #85898f;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+body.theme-php .phpdo-auth-page label {
+    display: block;
+    margin: 14px 0 7px;
+    color: #444;
+    font-weight: 850;
+}
+
+body.theme-php .phpdo-auth-page input {
+    width: 100%;
+    height: 42px;
+    border-color: #dfe3e8;
+    border-radius: 5px !important;
+}
+
+body.theme-php .phpdo-auth-page .auth-submit,
+body.theme-php .phpdo-auth-page .auth-passkey {
+    width: 100%;
+    height: 44px;
+    margin: 18px 0 0;
+    border-radius: 5px !important;
+}
+
+body.theme-php .phpdo-auth-page .auth-passkey {
+    margin-top: 10px;
+}
+
+body.theme-php .phpdo-auth-switch {
+    margin: 18px 0 0;
+    color: #85898f;
+    text-align: center;
+}
+
+body.theme-php .phpdo-auth-switch a {
+    color: var(--phpdo-blue);
+    font-weight: 900;
+}
+
 @media (max-width: 900px) {
     body.theme-php.page-forum main.wrap,
     body.theme-php.page-thread main.wrap,
@@ -6852,7 +6991,9 @@ body.theme-php .phpdo-static-links a.active {
     body.theme-php.page-tags main.wrap,
     body.theme-php.page-user main.wrap,
     body.theme-php.page-profile main.wrap,
-    body.theme-php.page-page main.wrap {
+    body.theme-php.page-page main.wrap,
+    body.theme-php.page-login main.wrap,
+    body.theme-php.page-register main.wrap {
         width: calc(100vw - 20px);
         padding-top: 14px;
     }

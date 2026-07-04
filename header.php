@@ -16,23 +16,7 @@ $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAM
 $current_path = str_replace('\\', '/', isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 $use_system_page_font = $current_script === 'profile.php' || preg_match('#/admin/settings\.php$#', $current_path);
 $page_body_class = 'page-' . preg_replace('/[^a-z0-9_-]+/', '-', strtolower(str_replace('.php', '', $current_script)));
-$auth_modal = '';
-$auth_error = '';
-$auth_login_username = '';
-$auth_register_username = '';
-$auth_register_nickname = '';
 $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
-if (!$me) {
-    $auth_modal = isset($_SESSION['auth_modal']) ? (string)$_SESSION['auth_modal'] : '';
-    $auth_error = isset($_SESSION['auth_error']) ? (string)$_SESSION['auth_error'] : '';
-    $auth_login_username = isset($_SESSION['auth_login_username']) ? (string)$_SESSION['auth_login_username'] : '';
-    $auth_register_username = isset($_SESSION['auth_register_username']) ? (string)$_SESSION['auth_register_username'] : '';
-    $auth_register_nickname = isset($_SESSION['auth_register_nickname']) ? (string)$_SESSION['auth_register_nickname'] : '';
-    if (isset($_GET['auth']) && in_array($_GET['auth'], array('login', 'register'))) {
-        $auth_modal = (string)$_GET['auth'];
-    }
-    unset($_SESSION['auth_modal'], $_SESSION['auth_error'], $_SESSION['auth_login_username'], $_SESSION['auth_register_username'], $_SESSION['auth_register_nickname']);
-}
 ?>
 <!doctype html>
 <html lang="zh-CN">
@@ -80,10 +64,6 @@ if (!$me) {
                     <i class="fa-solid fa-house nav-link-icon" aria-hidden="true"></i>
                     <span>首页</span>
                 </a>
-                <a class="nav-link<?php echo $current_script === 'search.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('search.php')); ?>" data-search-open>
-                    <i class="fa-solid fa-magnifying-glass nav-link-icon" aria-hidden="true"></i>
-                    <span>搜索</span>
-                </a>
                 <?php foreach ($main_navs as $nav_item) { ?>
                     <a class="nav-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>>
                         <i class="fa-regular fa-compass nav-link-icon" aria-hidden="true"></i>
@@ -92,9 +72,13 @@ if (!$me) {
                 <?php } ?>
             </div>
             <div class="nav-actions">
+                <form class="nav-search-form" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
+                    <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="Search" autocomplete="search">
+                    <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+                </form>
                 <?php if (!$me) { ?>
-                    <a class="nav-cta nav-login-link" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><span>登录</span></a>
-                    <a class="nav-more-toggle nav-register-link" href="<?php echo h(qf_url_page('register.php')); ?>" data-auth-open="register"><span>注册</span></a>
+                    <a class="nav-cta nav-login-link<?php echo $current_script === 'login.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('login.php')); ?>"><span>登录</span></a>
+                    <a class="nav-more-toggle nav-register-link<?php echo $current_script === 'register.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('register.php')); ?>"><span>注册</span></a>
                 <?php } else { ?>
                     <a class="nav-cta<?php echo $current_script === 'post.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('post.php')); ?>">
                         <i class="fa-solid fa-pen-to-square nav-activity-bars" aria-hidden="true"></i>
@@ -133,8 +117,8 @@ if (!$me) {
                         <?php } ?>
                         <a class="nav-more-item" href="<?php echo h(qf_url_page('logout.php')); ?>" role="menuitem"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>退出</span></a>
                     <?php } else { ?>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login" role="menuitem"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>登录</span></a>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('register.php')); ?>" data-auth-open="register" role="menuitem"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>注册</span></a>
+                        <a class="nav-more-item" href="<?php echo h(qf_url_page('login.php')); ?>" role="menuitem"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>登录</span></a>
+                        <a class="nav-more-item" href="<?php echo h(qf_url_page('register.php')); ?>" role="menuitem"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>注册</span></a>
                     <?php } ?>
                 </div>
             </div>
@@ -176,55 +160,11 @@ if (!$me) {
             <?php } ?>
             <a href="<?php echo h(qf_url_page('logout.php')); ?>" role="menuitem"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>退出</span></a>
         <?php } else { ?>
-            <a href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login" role="menuitem"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>登录</span></a>
-            <a href="<?php echo h(qf_url_page('register.php')); ?>" data-auth-open="register" role="menuitem"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>注册</span></a>
+            <a href="<?php echo h(qf_url_page('login.php')); ?>" role="menuitem"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>登录</span></a>
+            <a href="<?php echo h(qf_url_page('register.php')); ?>" role="menuitem"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>注册</span></a>
         <?php } ?>
     </div>
 </aside>
-<div class="search-modal-overlay" id="qf-search-modal">
-    <div class="search-modal-box" role="dialog" aria-modal="true" aria-labelledby="qf-search-title">
-        <button class="search-modal-close" type="button" data-search-close aria-label="关闭">×</button>
-        <h2 id="qf-search-title">搜索</h2>
-        <form class="search-modal-form" method="get" action="<?php echo h(qf_url_page('search.php')); ?>">
-            <label>关键词</label>
-            <div class="search-modal-row">
-                <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="输入关键词" autocomplete="search">
-                <button class="btn" type="submit">搜索</button>
-            </div>
-        </form>
-    </div>
-</div>
-<?php if (!$me) { ?>
-<div class="auth-modal-overlay<?php echo $auth_modal ? ' is-open' : ''; ?>" id="qf-auth-modal" data-initial-auth="<?php echo h($auth_modal); ?>">
-    <div class="auth-modal-box" role="dialog" aria-modal="true" aria-labelledby="qf-auth-title">
-        <button class="auth-modal-close" type="button" data-auth-close aria-label="关闭">×</button>
-        <div class="auth-tabs" role="tablist">
-            <button class="auth-tab<?php echo $auth_modal !== 'register' ? ' active' : ''; ?>" type="button" data-auth-tab="login">登录</button>
-            <button class="auth-tab<?php echo $auth_modal === 'register' ? ' active' : ''; ?>" type="button" data-auth-tab="register">注册</button>
-        </div>
-        <?php if ($auth_error !== '') { ?><div class="alert auth-alert"><?php echo h($auth_error); ?></div><?php } ?>
-        <section class="auth-panel<?php echo $auth_modal !== 'register' ? ' active' : ''; ?>" data-auth-panel="login">
-            <h2 id="qf-auth-title">登录 Blue</h2>
-            <form method="post" action="<?php echo h(qf_url_page('login.php')); ?>">
-                <label>用户名</label><input name="username" value="<?php echo h($auth_login_username); ?>" required>
-                <label>密码</label><input type="password" name="password" required>
-                <button class="btn auth-submit" type="submit">登录</button>
-                <button class="btn btn-light auth-passkey" type="button" data-passkey-login><i class="fa-solid fa-key" aria-hidden="true"></i> 使用 Passkey 登录</button>
-            </form>
-        </section>
-        <section class="auth-panel<?php echo $auth_modal === 'register' ? ' active' : ''; ?>" data-auth-panel="register">
-            <h2>注册 Blue</h2>
-            <form method="post" action="<?php echo h(qf_url_page('register.php')); ?>">
-                <label>用户名</label><input name="username" value="<?php echo h($auth_register_username); ?>" required>
-                <label>昵称</label><input name="nickname" value="<?php echo h($auth_register_nickname); ?>" required>
-                <label>密码</label><input type="password" name="password" required>
-                <?php if (qf_captcha_required('register')) { echo qf_render_captcha(); } ?>
-                <button class="btn auth-submit" type="submit">注册</button>
-            </form>
-        </section>
-    </div>
-</div>
-<?php } ?>
 <?php if ($unread_notifications > 0 && qf_notification_sound_enabled($me)) { ?>
 <script>
 if (!sessionStorage.getItem('qfNotifySoundPlayed')) {

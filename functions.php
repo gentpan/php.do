@@ -537,9 +537,9 @@ function qf_route_script($script, &$params = array()) {
         'reply.php' => 'api/reply.php',
         'signin.php' => 'api/signin.php',
         'vote.php' => 'api/vote.php',
-        'login.php' => 'api/auth.php',
+        'login.php' => 'pages/login.php',
         'logout.php' => 'api/auth.php',
-        'register.php' => 'api/auth.php',
+        'register.php' => 'pages/register.php',
         'download.php' => 'pages/download.php',
         'edit_thread.php' => 'pages/edit-thread.php',
         'forum.php' => 'pages/forum.php',
@@ -554,12 +554,8 @@ function qf_route_script($script, &$params = array()) {
         'thread.php' => 'pages/thread.php',
         'user.php' => 'pages/user.php',
     );
-    if ($script === 'login.php' && !isset($params['action'])) {
-        $params['action'] = 'login';
-    } elseif ($script === 'logout.php' && !isset($params['action'])) {
+    if ($script === 'logout.php' && !isset($params['action'])) {
         $params['action'] = 'logout';
-    } elseif ($script === 'register.php' && !isset($params['action'])) {
-        $params['action'] = 'register';
     }
     return isset($map[$script]) ? $map[$script] : $script;
 }
@@ -571,9 +567,11 @@ function qf_clean_route_path($script) {
         'pages/forum.php' => 'forum',
         'pages/move-thread.php' => 'move-thread',
         'pages/notifications.php' => 'notifications',
+        'pages/login.php' => 'login',
         'pages/post.php' => 'post',
         'pages/profile.php' => 'settings',
         'pages/rankings.php' => 'rankings',
+        'pages/register.php' => 'register',
         'pages/search.php' => 'search',
         'pages/tags.php' => 'tags',
         'pages/thread.php' => 'thread',
@@ -1751,7 +1749,7 @@ function require_login() {
 
 function qf_handle_login() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        redirect(qf_url_page('index.php', array('auth' => 'login')));
+        redirect(qf_url_page('login.php'));
     }
     $username_raw = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
     $username = esc($username_raw);
@@ -1763,15 +1761,14 @@ function qf_handle_login() {
         $_SESSION['qf_uid'] = intval($u['id']);
         redirect(qf_url_page('index.php'));
     }
-    $_SESSION['auth_modal'] = 'login';
     $_SESSION['auth_error'] = '用户名或密码错误。';
     $_SESSION['auth_login_username'] = $username_raw;
-    redirect(qf_url_page('index.php'));
+    redirect(qf_url_page('login.php'));
 }
 
 function qf_handle_register() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        redirect(qf_url_page('index.php', array('auth' => 'register')));
+        redirect(qf_url_page('register.php'));
     }
     $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
     $nickname = clean_text(isset($_POST['nickname']) ? $_POST['nickname'] : '', 30);
@@ -1812,11 +1809,10 @@ function qf_handle_register() {
             $error = '注册失败，用户名可能已存在。';
         }
     }
-    $_SESSION['auth_modal'] = 'register';
     $_SESSION['auth_error'] = $error;
     $_SESSION['auth_register_username'] = $username;
     $_SESSION['auth_register_nickname'] = $nickname;
-    redirect(qf_url_page('index.php'));
+    redirect(qf_url_page('register.php'));
 }
 
 function qf_handle_logout() {
