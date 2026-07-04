@@ -7449,4 +7449,14 @@ body.theme-php .phpdo-right-toolbar button {
     body.theme-php .thread-title {
         font-size: 1rem;
     }
+
+    body.theme-php .phpdo-home-layout,
+    body.theme-php .phpdo-home-sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    body.theme-php .phpdo-must-read,
+    body.theme-php .phpdo-post-button {
+        grid-column: auto;
+    }
 }
