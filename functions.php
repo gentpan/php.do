@@ -342,7 +342,7 @@ function qf_default_nginx_rewrite_rules() {
         . "rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;\n"
         . "rewrite ^/api/([a-z-]+)$ /api/$1.php last;\n"
         . "rewrite ^/admin/([a-z-]+)$ /admin/$1.php last;\n"
-        . "try_files $uri $uri/ /index.php?$query_string;";
+        . "try_files \$uri \$uri/ /index.php?\$query_string;";
 }
 
 function qf_base_href() {
