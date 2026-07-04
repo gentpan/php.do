@@ -98,7 +98,8 @@ $latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
             <a class="btn btn-small mobile-post-btn" href="<?php echo h(qf_url_page('post.php')); ?>">发帖</a>
         </div>
         <div class="card list latest-list phpnet-news-list">
-            <?php while ($latest && $t = mysqli_fetch_assoc($latest)) { ?>
+            <?php if ($latest && mysqli_num_rows($latest) > 0) { ?>
+            <?php while ($t = mysqli_fetch_assoc($latest)) { ?>
                 <div class="list-row">
                     <div class="list-main">
                         <a href="<?php echo h(qf_url_thread($t['id'])); ?>">
@@ -131,6 +132,16 @@ $latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14a2 2 0 0 1 2 2v6.8a2 2 0 0 1-2 2H9.6L5.4 20v-2.7H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2z"></path></svg>
                             <?php echo intval($t['replies']); ?>
                         </span>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php } else { ?>
+                <div class="list-row phpnet-empty-news">
+                    <div class="list-main">
+                        <a href="<?php echo h(qf_url_page('post.php')); ?>">Welcome to php.do</a>
+                        <p class="list-meta">
+                            <span class="meta-text">这里还没有主题。发布第一篇帖子后，它会以 php.net 新闻条目的样式显示在这里。</span>
+                        </p>
                     </div>
                 </div>
             <?php } ?>

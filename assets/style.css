@@ -5057,6 +5057,31 @@ body.theme-php .site-nav-bar .nav-cta-mobile-icon {
     display: none;
 }
 
+body.theme-php .site-nav-bar .nav-link[href*="search"] {
+    min-width: 298px;
+    height: 40px;
+    min-height: 40px;
+    margin-left: 18px;
+    padding: 0 14px;
+    justify-content: flex-start;
+    color: #C9CDE8;
+    background: rgba(0, 0, 0, .1);
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 6px;
+}
+
+body.theme-php .site-nav-bar .nav-link[href*="search"] .nav-link-icon {
+    display: inline-flex;
+    margin-right: 10px;
+    color: #BFC5EA;
+}
+
+body.theme-php .site-nav-bar .nav-link[href*="search"]:hover {
+    color: #FFFFFF;
+    background: rgba(0, 0, 0, .16);
+    border-color: rgba(255, 255, 255, .28);
+}
+
 body.theme-php .site-nav-bar .nav-cta {
     color: #FFFFFF;
 }
@@ -5199,6 +5224,10 @@ body.theme-php .phpnet-news-list .list-row {
 
 body.theme-php .phpnet-news-list .list-row:last-child {
     border-bottom: 0;
+}
+
+body.theme-php .phpnet-empty-news {
+    min-height: 220px;
 }
 
 body.theme-php .phpnet-news-list .list-main > a {
@@ -5366,6 +5395,19 @@ body.theme-php .side-user-panel {
     body.theme-php .site-nav-bar .nav-link {
         padding: 0 8px;
         font-size: 15px;
+    }
+
+    body.theme-php .site-nav-bar .nav-link[href*="search"] {
+        min-width: 0;
+        width: auto;
+        margin-left: 0;
+        padding: 0 8px;
+        background: transparent;
+        border: 0;
+    }
+
+    body.theme-php .site-nav-bar .nav-link[href*="search"] .nav-link-icon {
+        display: none;
     }
 
     body.theme-php .phpnet-hero {
