@@ -43,7 +43,7 @@ if (!$me) {
     <?php if (!$use_system_page_font) { foreach (qf_selected_font_urls() as $font_url) { ?>
         <link rel="stylesheet" href="<?php echo h($font_url); ?>">
     <?php } } ?>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/style.css?v=<?php echo filemtime(__DIR__ . '/assets/style.css'); ?>">
     <style>
         :root {
             --qf-title-font: <?php echo qf_font_family('title_font'); ?>;
