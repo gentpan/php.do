@@ -465,6 +465,9 @@ function qf_url_page($script, $params = array(), $fragment = '') {
     if ($script === 'index.php' || $script === '') {
         return qf_append_url_parts('/', $params, $fragment);
     }
+    if (strpos($script, 'api/') === 0 || strpos($script, 'admin/') === 0) {
+        return qf_append_url_parts('/' . $script, $params, $fragment);
+    }
     if (($logical_script === 'thread.php' || $script === 'pages/thread.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
@@ -479,9 +482,6 @@ function qf_url_page($script, $params = array(), $fragment = '') {
         $id = intval($params['id']);
         unset($params['id']);
         return qf_append_url_parts('/download/' . $id, $params, $fragment);
-    }
-    if ($script === 'admin/index.php') {
-        return qf_append_url_parts('/admin/index', $params, $fragment);
     }
     $clean = qf_clean_route_path($script);
     if ($clean !== $script) {
