@@ -300,7 +300,9 @@ if ($ok) {
         'rewrite_nginx_rules' => 'rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;
 rewrite ^/forum/([0-9]+)\\.html$ /pages/forum.php?id=$1 last;
 rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;
-try_files $uri $uri.php $uri/ /index.php?$query_string;'
+rewrite ^/api/([a-z-]+)$ /api/$1.php last;
+rewrite ^/admin/([a-z-]+)$ /admin/$1.php last;
+try_files $uri $uri/ /index.php?$query_string;'
     );
     foreach ($settings as $k => $v) {
         $k_sql = mysqli_real_escape_string($conn, $k);

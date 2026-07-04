@@ -340,7 +340,9 @@ function qf_default_nginx_rewrite_rules() {
     return "rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;\n"
         . "rewrite ^/forum/([0-9]+)\\.html$ /pages/forum.php?id=$1 last;\n"
         . "rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;\n"
-        . "try_files $uri $uri.php $uri/ /index.php?$query_string;";
+        . "rewrite ^/api/([a-z-]+)$ /api/$1.php last;\n"
+        . "rewrite ^/admin/([a-z-]+)$ /admin/$1.php last;\n"
+        . "try_files $uri $uri/ /index.php?$query_string;";
 }
 
 function qf_base_href() {
