@@ -156,7 +156,11 @@ $thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['use
             </div>
                 <div class="phpdo-reply-actions">
                     <div>
-                        <?php if (current_user()) { ?><button class="phpdo-reply-action floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></button><?php } ?>
+                        <?php if (current_user()) { ?>
+                            <button class="phpdo-reply-action floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></button>
+                        <?php } else { ?>
+                            <a class="phpdo-reply-action" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></a>
+                        <?php } ?>
                     </div>
                     <div>
                         <?php if (is_admin()) { ?><span class="admin-tools"><span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($p['ip']); ?></span></span><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('del_post', $p['id'], intval($id)))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？"'); ?></span><?php } ?>
