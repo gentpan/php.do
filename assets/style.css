@@ -5568,7 +5568,7 @@ body.theme-php .site-nav-bar .nav-avatar {
 }
 
 body.theme-php .site-nav-bar .php-wordmark {
-    width: 164px;
+    width: 220px;
     max-height: 42px;
     filter: none;
 }
@@ -6236,7 +6236,7 @@ body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
     }
 
     body.theme-php .site-nav-bar .php-wordmark {
-        width: 108px;
+        width: 150px;
     }
 
     body.theme-php .site-nav-bar .nav-main-links {
