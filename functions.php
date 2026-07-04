@@ -338,7 +338,6 @@ function qf_selected_font_urls() {
 
 function qf_default_nginx_rewrite_rules() {
     return "rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;\n"
-        . "rewrite ^/forum/([0-9]+)\\.html$ /pages/forum.php?id=$1 last;\n"
         . "rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;\n"
         . "rewrite ^/api/([a-z-]+)$ /api/$1.php last;\n"
         . "rewrite ^/admin/([a-z-]+)$ /admin/$1.php last;\n"
@@ -393,6 +392,138 @@ function qf_append_url_parts($path, $params = array(), $fragment = '') {
     return $path . ($query !== '' ? '?' . $query : '') . ($fragment !== '' ? '#' . ltrim($fragment, '#') : '');
 }
 
+function qf_forum_slug_map() {
+    return array(
+        '站务公告' => 'announcements',
+        'PHP 技术讨论' => 'develop',
+        '程序发布' => 'release',
+        '框架生态' => 'frameworks',
+        'Composer 与依赖' => 'composer',
+        '扩展与性能' => 'performance',
+        '数据库与缓存' => 'database',
+        '部署与运维' => 'ops',
+        '安全审计' => 'security',
+        '代码求助' => 'support',
+    );
+}
+
+function qf_forum_slug_by_id($id) {
+    static $cache = array();
+    $id = intval($id);
+    if ($id < 1) {
+        return '';
+    }
+    if (isset($cache[$id])) {
+        return $cache[$id];
+    }
+    $rs = mysqli_query(db(), "SELECT name FROM qf_forums WHERE id={$id} LIMIT 1");
+    $row = $rs ? mysqli_fetch_assoc($rs) : null;
+    $map = qf_forum_slug_map();
+    $cache[$id] = ($row && isset($map[$row['name']])) ? $map[$row['name']] : '';
+    return $cache[$id];
+}
+
+function qf_forum_id_by_slug($slug) {
+    static $cache = array();
+    $slug = strtolower(trim((string)$slug, '/'));
+    if ($slug === '') {
+        return 0;
+    }
+    if (isset($cache[$slug])) {
+        return $cache[$slug];
+    }
+    $name = '';
+    foreach (qf_forum_slug_map() as $forum_name => $forum_slug) {
+        if ($forum_slug === $slug) {
+            $name = $forum_name;
+            break;
+        }
+    }
+    if ($name === '') {
+        $cache[$slug] = 0;
+        return 0;
+    }
+    $name_sql = esc($name);
+    $rs = mysqli_query(db(), "SELECT id FROM qf_forums WHERE name='{$name_sql}' LIMIT 1");
+    $row = $rs ? mysqli_fetch_assoc($rs) : null;
+    $cache[$slug] = $row ? intval($row['id']) : 0;
+    return $cache[$slug];
+}
+
+function qf_tag_slug_map() {
+    return array(
+        'PHP 8.x' => 'php-8x',
+        '语法特性' => 'syntax',
+        '错误排查' => 'debugging',
+        '最佳实践' => 'best-practices',
+        '开源项目' => 'open-source',
+        '商业程序' => 'commercial',
+        '插件扩展' => 'plugins',
+        '版本更新' => 'releases',
+        'Laravel' => 'laravel',
+        'Symfony' => 'symfony',
+        'ThinkPHP' => 'thinkphp',
+        'Hyperf' => 'hyperf',
+        '框架选型' => 'framework-choice',
+        'Composer' => 'composer',
+        'Packagist' => 'packagist',
+        '依赖升级' => 'dependency-upgrade',
+        '包开发' => 'package-development',
+        'Opcache' => 'opcache',
+        'Swoole' => 'swoole',
+        'Redis' => 'redis',
+        '性能调优' => 'performance',
+        '扩展开发' => 'extension-development',
+        'MySQL' => 'mysql',
+        'PostgreSQL' => 'postgresql',
+        '队列' => 'queue',
+        '索引优化' => 'indexing',
+        'Nginx' => 'nginx',
+        'PHP-FPM' => 'php-fpm',
+        'Docker' => 'docker',
+        'CI/CD' => 'ci-cd',
+        'HTTPS' => 'https',
+        '认证授权' => 'auth',
+        'XSS' => 'xss',
+        'CSRF' => 'csrf',
+        'SQL 注入' => 'sql-injection',
+        '依赖安全' => 'dependency-security',
+        '报错求助' => 'help',
+        '代码审查' => 'code-review',
+        '环境配置' => 'environment',
+        '疑难杂症' => 'troubleshooting',
+        '公告' => 'announcement',
+        '规则' => 'rules',
+        '反馈' => 'feedback',
+        '更新' => 'updates',
+    );
+}
+
+function qf_tag_slug($name) {
+    $name = trim((string)$name);
+    $map = qf_tag_slug_map();
+    if (isset($map[$name])) {
+        return $map[$name];
+    }
+    $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $name), '-'));
+    return $slug !== '' ? $slug : rawurlencode($name);
+}
+
+function qf_tag_name_from_slug($slug) {
+    $slug = trim((string)$slug, '/');
+    foreach (qf_tag_slug_map() as $name => $known_slug) {
+        if (strtolower($known_slug) === strtolower($slug)) {
+            return $name;
+        }
+    }
+    return rawurldecode($slug);
+}
+
+function qf_url_tag($name) {
+    $slug = qf_tag_slug($name);
+    return qf_rewrite_enabled() ? '/tags/' . $slug : qf_url_page('tags.php', array('tag' => $name));
+}
+
 function qf_route_script($script, &$params = array()) {
     $map = array(
         'ad.php' => 'api/ad.php',
@@ -417,7 +548,9 @@ function qf_route_script($script, &$params = array()) {
         'profile.php' => 'pages/profile.php',
         'rankings.php' => 'pages/rankings.php',
         'search.php' => 'pages/search.php',
+        'tags.php' => 'pages/tags.php',
         'thread.php' => 'pages/thread.php',
+        'user.php' => 'pages/user.php',
     );
     if ($script === 'login.php' && !isset($params['action'])) {
         $params['action'] = 'login';
@@ -440,7 +573,9 @@ function qf_clean_route_path($script) {
         'pages/profile.php' => 'profile',
         'pages/rankings.php' => 'rankings',
         'pages/search.php' => 'search',
+        'pages/tags.php' => 'tags',
         'pages/thread.php' => 'thread',
+        'pages/user.php' => 'user',
         'api/ad.php' => 'api/ad',
         'api/captcha.php' => 'api/captcha',
         'api/upload-attachment.php' => 'api/upload-attachment',
@@ -478,7 +613,18 @@ function qf_url_page($script, $params = array(), $fragment = '') {
     if (($logical_script === 'forum.php' || $script === 'pages/forum.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
-        return qf_append_url_parts('/forum/' . $id . '.html', $params, $fragment);
+        $slug = qf_forum_slug_by_id($id);
+        return qf_append_url_parts('/' . ($slug !== '' ? $slug : 'forum/' . $id), $params, $fragment);
+    }
+    if (($logical_script === 'user.php' || $script === 'pages/user.php') && isset($params['id'])) {
+        $id = intval($params['id']);
+        unset($params['id']);
+        return qf_append_url_parts('/user/' . $id . '.html', $params, $fragment);
+    }
+    if (($logical_script === 'tags.php' || $script === 'pages/tags.php') && isset($params['tag'])) {
+        $tag = $params['tag'];
+        unset($params['tag']);
+        return qf_append_url_parts('/tags/' . qf_tag_slug($tag), $params, $fragment);
     }
     if (($logical_script === 'download.php' || $script === 'pages/download.php') && isset($params['id'])) {
         $id = intval($params['id']);
@@ -523,7 +669,11 @@ function qf_url_thread($id) {
 
 function qf_url_forum($id) {
     $id = intval($id);
-    return qf_rewrite_enabled() ? '/forum/' . $id . '.html' : qf_url_page('forum.php', array('id' => $id));
+    return qf_url_page('forum.php', array('id' => $id));
+}
+
+function qf_url_user($id) {
+    return qf_url_page('user.php', array('id' => intval($id)));
 }
 
 function qf_path_id() {
@@ -535,7 +685,7 @@ function qf_path_id() {
         return intval($m[1]);
     }
     $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-    if (preg_match('/\/(?:thread|forum)\/([0-9]+)/', $uri, $m)) {
+    if (preg_match('/\/(?:thread|user)\/([0-9]+)/', $uri, $m)) {
         return intval($m[1]);
     }
     return 0;

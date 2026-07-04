@@ -76,7 +76,7 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar FROM
                     <?php if ($t['topic_category'] !== '') { ?><span class="category-tag"><?php echo h($t['topic_category']); ?></span><?php } ?>
                     <?php echo h($t['title']); ?>
                 </a>
-                <p><?php echo h($author); ?> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>
+                <p><a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>
             </div>
             <div class="thread-count">
                 <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span>

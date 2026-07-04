@@ -323,11 +323,11 @@ qf_include_header();
 
         <label>伪静态</label>
         <label><input class="inline-check" type="checkbox" name="rewrite_enabled" value="1" <?php if (qf_rewrite_enabled()) echo 'checked'; ?>> 开启伪静态链接</label>
-        <p class="muted">开启后，前台帖子和版块链接会生成类似 thread/1.html、forum/1.html。请先把下面 Nginx 规则复制到虚拟空间的伪静态配置里。</p>
+        <p class="muted">开启后，前台帖子链接会生成 thread/1.html，版块使用 develop、release 等静态路径。请先把下面 Nginx 规则复制到虚拟空间的伪静态配置里。</p>
 
         <label>Nginx伪静态默认配置</label>
         <textarea name="rewrite_nginx_rules" rows="8"><?php echo h(qf_setting('rewrite_nginx_rules', qf_default_nginx_rewrite_rules())); ?></textarea>
-        <p class="muted">先保存上面的规则，确认 thread/1.html 和 forum/1.html 可访问后，再开启伪静态链接。</p>
+        <p class="muted">先保存上面的规则，确认 thread/1.html 和 develop 可访问后，再开启伪静态链接。</p>
 
         <button class="btn" type="submit">保存设置</button>
     </form>

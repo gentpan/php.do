@@ -35,9 +35,9 @@ $thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['use
     <div class="phpdo-thread-title-row">
         <img class="phpdo-author-avatar" src="<?php echo h($thread_avatar); ?>" alt="">
         <div>
-            <h1><?php if ($thread['topic_category'] !== '') { ?><span class="category-tag"><?php echo h($thread['topic_category']); ?></span><?php } ?><?php echo h($thread['title']); ?></h1>
+            <h1><?php if ($thread['topic_category'] !== '') { ?><a class="category-tag" href="<?php echo h(qf_url_tag($thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a><?php } ?><?php echo h($thread['title']); ?></h1>
             <div class="post-meta">
-                <?php echo h($thread_author); ?><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?> · <?php echo intval($thread['views']); ?> 浏览 · <?php echo intval($thread['replies']); ?> 回复
+                <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?> · <?php echo intval($thread['views']); ?> 浏览 · <?php echo intval($thread['replies']); ?> 回复
                 <?php if (is_admin()) { ?>
                     <span class="admin-tools">
                         <span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($thread['ip']); ?></span></span>
@@ -107,7 +107,7 @@ $thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['use
             <div class="phpdo-reply-body">
                 <div class="phpdo-reply-header">
                     <div class="post-meta">
-                        <strong><?php echo h($reply_author); ?></strong>
+                        <a class="phpdo-reply-author" href="<?php echo h(qf_url_user($p['user_id'])); ?>"><?php echo h($reply_author); ?></a>
                         <span class="phpdo-level">Lv.<?php echo intval($reply_level); ?></span>
                         <?php if (intval(isset($p['author_is_moderator']) ? $p['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?>
                         <span>发表于</span>

@@ -5901,6 +5901,18 @@ body.theme-php .phpdo-topic-tag {
     border-radius: 3px;
 }
 
+body.theme-php .phpdo-author-link,
+body.theme-php .phpdo-reply-author {
+    color: inherit;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+body.theme-php .phpdo-author-link:hover,
+body.theme-php .phpdo-reply-author:hover {
+    color: var(--phpdo-blue);
+}
+
 body.theme-php .phpdo-pill-outline {
     margin-right: 8px;
     color: var(--phpdo-red) !important;
@@ -6189,17 +6201,22 @@ body.theme-php.page-forum main.wrap,
 body.theme-php.page-thread main.wrap,
 body.theme-php.page-search main.wrap,
 body.theme-php.page-post main.wrap,
-body.theme-php.page-edit-thread main.wrap {
+body.theme-php.page-edit-thread main.wrap,
+body.theme-php.page-tags main.wrap,
+body.theme-php.page-user main.wrap {
     width: min(1180px, calc(100vw - 120px));
     max-width: none;
     padding: 24px 0 56px;
 }
 
 body.theme-php .phpdo-page-head,
+body.theme-php .phpdo-user-head,
 body.theme-php .post-title-card,
 body.theme-php .post-content-card,
 body.theme-php .replies,
 body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies),
+body.theme-php.page-user main.wrap > .card,
+body.theme-php.page-tags main.wrap > .card,
 body.theme-php .thread-list,
 body.theme-php.page-search .thread-list {
     color: var(--phpdo-text);
@@ -6374,6 +6391,7 @@ body.theme-php .category-tag {
     background: #fff3ef !important;
     border: 1px solid rgba(255, 103, 79, .22);
     border-radius: 3px;
+    text-decoration: none;
 }
 
 body.theme-php .tag.blue {
@@ -6492,7 +6510,8 @@ body.theme-php .reply .post-meta {
     font-size: 16px;
 }
 
-body.theme-php .reply .post-meta strong {
+body.theme-php .reply .post-meta strong,
+body.theme-php .phpdo-reply-author {
     color: #555;
     font-size: 18px;
     font-weight: 900;
@@ -6700,12 +6719,43 @@ body.theme-php.page-edit-thread select {
     border-radius: 5px;
 }
 
+body.theme-php .phpdo-user-head {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: center;
+}
+
+body.theme-php .phpdo-user-head .phpdo-author-avatar {
+    width: 72px;
+    height: 72px;
+}
+
+body.theme-php .phpdo-list-heading {
+    margin: 8px 0 10px;
+    padding-bottom: 14px;
+    color: #333;
+    font-size: 20px;
+    font-weight: 900;
+    border-bottom: 1px solid var(--phpdo-line);
+}
+
+body.theme-php .phpdo-empty {
+    margin: 18px 0;
+    color: #8f9399;
+}
+
+body.theme-php .phpdo-user-replies {
+    margin-top: 14px;
+}
+
 @media (max-width: 900px) {
     body.theme-php.page-forum main.wrap,
     body.theme-php.page-thread main.wrap,
     body.theme-php.page-search main.wrap,
     body.theme-php.page-post main.wrap,
-    body.theme-php.page-edit-thread main.wrap {
+    body.theme-php.page-edit-thread main.wrap,
+    body.theme-php.page-tags main.wrap,
+    body.theme-php.page-user main.wrap {
         width: calc(100vw - 20px);
         padding-top: 14px;
     }
@@ -6714,6 +6764,15 @@ body.theme-php.page-edit-thread select {
         align-items: flex-start;
         flex-direction: column;
         padding: 18px;
+    }
+
+    body.theme-php .phpdo-user-head {
+        grid-template-columns: 52px minmax(0, 1fr);
+    }
+
+    body.theme-php .phpdo-user-head .phpdo-author-avatar {
+        width: 52px;
+        height: 52px;
     }
 
     body.theme-php .thread-list {

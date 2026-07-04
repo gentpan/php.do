@@ -79,7 +79,7 @@ qf_include_header();
             </div>
             <div>
                 <label>导航链接</label>
-                <input type="text" name="url" maxlength="255" placeholder="例如：forum.php?id=3 或 https://example.com" required>
+                <input type="text" name="url" maxlength="255" placeholder="例如：/develop 或 https://example.com" required>
             </div>
             <div>
                 <label>排序</label>

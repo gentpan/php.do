@@ -298,7 +298,6 @@ if ($ok) {
         'friend_links' => '',
         'rewrite_enabled' => '1',
         'rewrite_nginx_rules' => 'rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;
-rewrite ^/forum/([0-9]+)\\.html$ /pages/forum.php?id=$1 last;
 rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;
 rewrite ^/api/([a-z-]+)$ /api/$1.php last;
 rewrite ^/admin/([a-z-]+)$ /admin/$1.php last;

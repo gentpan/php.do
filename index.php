@@ -22,6 +22,25 @@ if (in_array($request_path, $legacy_admin_paths, true) || strpos($request_path, 
     http_response_code(404);
     exit('404 Not Found');
 }
+if (preg_match('#^user/([0-9]+)\.html$#', $request_path, $m)) {
+    $_GET['id'] = intval($m[1]);
+    $_SERVER['SCRIPT_NAME'] = '/user.php';
+    require __DIR__ . '/pages/user.php';
+    exit;
+}
+if (preg_match('#^tags/(.+)$#u', $request_path, $m)) {
+    $_GET['tag'] = qf_tag_name_from_slug($m[1]);
+    $_SERVER['SCRIPT_NAME'] = '/tags.php';
+    require __DIR__ . '/pages/tags.php';
+    exit;
+}
+$forum_slug_id = qf_forum_id_by_slug($request_path);
+if ($forum_slug_id > 0) {
+    $_GET['id'] = $forum_slug_id;
+    $_SERVER['SCRIPT_NAME'] = '/forum.php';
+    require __DIR__ . '/pages/forum.php';
+    exit;
+}
 $front_routes = array(
     'download' => 'download.php',
     'edit-thread' => 'edit-thread.php',
@@ -31,6 +50,8 @@ $front_routes = array(
     'profile' => 'profile.php',
     'rankings' => 'rankings.php',
     'search' => 'search.php',
+    'tags' => 'tags.php',
+    'user' => 'user.php',
 );
 if (isset($front_routes[$request_path])) {
     $_SERVER['SCRIPT_NAME'] = '/' . str_replace('-', '_', $front_routes[$request_path]);
@@ -142,9 +163,9 @@ qf_include_header();
                                     <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
                                 </h2>
                                 <p>
-                                    <span><?php echo h($author); ?></span>
+                                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
                                     <span>发表于 <?php echo h(format_time($t['created_at'])); ?></span>
-                                    <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_page('forum.php', array('id' => intval($t['forum_id']), 'category' => $t['topic_category']))); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
+                                    <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
                                     <?php if (intval($t['is_good'])) { ?><span class="phpdo-topic-tag phpdo-good">精华</span><?php } ?>
                                 </p>
                             </div>
