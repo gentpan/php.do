@@ -5561,16 +5561,16 @@ body.theme-php .site-nav-bar .nav-avatar {
 }
 
 body.theme-php .site-nav-bar .nav-avatar {
-    height: 34px;
-    padding: 0 8px;
-    background: #4f5b93;
-    border-radius: 5px;
+    height: 46px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
 }
 
 body.theme-php .site-nav-bar .php-wordmark {
-    width: 92px;
-    max-height: 24px;
-    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .05));
+    width: 164px;
+    max-height: 42px;
+    filter: none;
 }
 
 body.theme-php .site-nav-bar .nav-avatar-home {
@@ -6103,7 +6103,7 @@ body.theme-php .footer {
     }
 
     body.theme-php .site-nav-bar .php-wordmark {
-        width: 76px;
+        width: 128px;
     }
 
     body.theme-php .site-nav-bar .nav-main-links {
