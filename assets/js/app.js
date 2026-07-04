@@ -398,6 +398,49 @@
         }
     }
 
+    function initThreadVotes() {
+        document.addEventListener('submit', function(e) {
+            var form = e.target.closest('form[data-vote-form]');
+            if (!form || e.defaultPrevented) return;
+            e.preventDefault();
+            var root = form.closest('[data-thread-votes]');
+            var data = new FormData(form);
+            if (!data.get('csrf_token')) data.append('csrf_token', window.qfCsrfToken || '');
+            setLoading(true);
+            fetch(form.action, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: data
+            }).then(function(res) {
+                return res.json().then(function(json) {
+                    if (!res.ok || !json.ok) throw new Error(json.error || '投票失败。');
+                    return json;
+                });
+            }).then(function(json) {
+                if (!root) return;
+                var up = root.querySelector('[data-vote-count="up"]');
+                var down = root.querySelector('[data-vote-count="down"]');
+                var upButton = root.querySelector('[data-vote-button="up"]');
+                var downButton = root.querySelector('[data-vote-button="down"]');
+                if (up) up.textContent = json.upvotes;
+                if (down) down.textContent = json.downvotes;
+                if (upButton) {
+                    upButton.classList.toggle('active', Number(json.vote) === 1);
+                    upButton.setAttribute('aria-pressed', Number(json.vote) === 1 ? 'true' : 'false');
+                }
+                if (downButton) {
+                    downButton.classList.toggle('active', Number(json.vote) === -1);
+                    downButton.setAttribute('aria-pressed', Number(json.vote) === -1 ? 'true' : 'false');
+                }
+            }).catch(function(err) {
+                toast(err.message || '投票失败。', 'error');
+            }).finally(function() {
+                setLoading(false);
+            });
+        });
+    }
+
     function replaceFrom(nextDoc, selectors) {
         selectors.forEach(function(selector) {
             var current = document.querySelector(selector);
@@ -530,6 +573,7 @@
     initAuthModal();
     initPasskeys();
     initSearchModal();
+    initThreadVotes();
     initSigninModal();
     initInlineActions();
     initFormLoading();

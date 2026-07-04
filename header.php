@@ -109,9 +109,13 @@ if (!$me) {
                 <?php } ?>
                 <div class="nav-more-menu" data-nav-more-menu role="menu" aria-label="更多入口">
                     <?php if ($me) { ?>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem">
+                        <a class="nav-more-item" href="<?php echo h(qf_url_user($me['id'])); ?>" role="menuitem">
                             <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
                             <span><?php echo h($me['nickname']); ?></span>
+                        </a>
+                        <a class="nav-more-item" href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem">
+                            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                            <span>个人设置</span>
                         </a>
                         <a class="nav-more-item" href="<?php echo h(qf_url_page('notifications.php')); ?>" role="menuitem">
                             <i class="fa-regular fa-bell" aria-hidden="true"></i>
@@ -163,7 +167,8 @@ if (!$me) {
                     <span><?php echo h($me['username']); ?></span>
                 </div>
             </div>
-            <a href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem"><i class="fa-regular fa-circle-user" aria-hidden="true"></i><span>个人资料</span></a>
+            <a href="<?php echo h(qf_url_user($me['id'])); ?>" role="menuitem"><i class="fa-regular fa-circle-user" aria-hidden="true"></i><span>个人主页</span></a>
+            <a href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>个人设置</span></a>
             <a href="<?php echo h(qf_url_page('notifications.php')); ?>" role="menuitem"><i class="fa-regular fa-bell" aria-hidden="true"></i><span>消息<?php echo $unread_notifications > 0 ? ' · ' . intval($unread_notifications) : ''; ?></span></a>
             <?php if (intval($me['is_admin']) === 1) { ?>
                 <a href="<?php echo h(qf_url_page('admin/settings.php')); ?>" role="menuitem"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>站点设置</span></a>

@@ -27,6 +27,7 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id FROM qf_post
     <h2 class="phpdo-list-heading">TA 发布的主题</h2>
     <?php $count = 0; while ($threads && ($t = mysqli_fetch_assoc($threads))) { $count++; ?>
         <div class="thread-row">
+            <span class="phpdo-avatar" aria-hidden="true"><img src="<?php echo h($avatar); ?>" alt=""></span>
             <div class="thread-main">
                 <a class="thread-title" href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
                 <p><?php echo h($t['forum_name']); ?> · <?php echo h(format_time($t['updated_at'])); ?></p>
@@ -44,6 +45,7 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id FROM qf_post
     <h2 class="phpdo-list-heading">TA 最近的回复</h2>
     <?php $count = 0; while ($posts && ($p = mysqli_fetch_assoc($posts))) { $count++; ?>
         <div class="thread-row">
+            <span class="phpdo-avatar" aria-hidden="true"><img src="<?php echo h($avatar); ?>" alt=""></span>
             <div class="thread-main">
                 <a class="thread-title" href="<?php echo h(qf_url_thread($p['thread_id'])); ?>#replies"><?php echo h($p['title']); ?></a>
                 <?php $excerpt = strip_tags($p['content']); $excerpt = function_exists('mb_substr') ? mb_substr($excerpt, 0, 80, 'UTF-8') : substr($excerpt, 0, 160); ?>

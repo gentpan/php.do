@@ -34,6 +34,12 @@ if (preg_match('#^tags/(.+)$#u', $request_path, $m)) {
     require __DIR__ . '/pages/tags.php';
     exit;
 }
+if (preg_match('#^pages/([a-z0-9-]+)$#', $request_path, $m)) {
+    $_GET['slug'] = $m[1];
+    $_SERVER['SCRIPT_NAME'] = '/page.php';
+    require __DIR__ . '/pages/page.php';
+    exit;
+}
 $forum_slug_id = qf_forum_id_by_slug($request_path);
 if ($forum_slug_id > 0) {
     $_GET['id'] = $forum_slug_id;
@@ -48,6 +54,7 @@ $front_routes = array(
     'notifications' => 'notifications.php',
     'post' => 'post.php',
     'profile' => 'profile.php',
+    'settings' => 'profile.php',
     'rankings' => 'rankings.php',
     'search' => 'search.php',
     'tags' => 'tags.php',

@@ -536,6 +536,7 @@ function qf_route_script($script, &$params = array()) {
         'passkey.php' => 'api/passkey.php',
         'reply.php' => 'api/reply.php',
         'signin.php' => 'api/signin.php',
+        'vote.php' => 'api/vote.php',
         'login.php' => 'api/auth.php',
         'logout.php' => 'api/auth.php',
         'register.php' => 'api/auth.php',
@@ -544,6 +545,7 @@ function qf_route_script($script, &$params = array()) {
         'forum.php' => 'pages/forum.php',
         'move_thread.php' => 'pages/move-thread.php',
         'notifications.php' => 'pages/notifications.php',
+        'page.php' => 'pages/page.php',
         'post.php' => 'pages/post.php',
         'profile.php' => 'pages/profile.php',
         'rankings.php' => 'pages/rankings.php',
@@ -570,12 +572,13 @@ function qf_clean_route_path($script) {
         'pages/move-thread.php' => 'move-thread',
         'pages/notifications.php' => 'notifications',
         'pages/post.php' => 'post',
-        'pages/profile.php' => 'profile',
+        'pages/profile.php' => 'settings',
         'pages/rankings.php' => 'rankings',
         'pages/search.php' => 'search',
         'pages/tags.php' => 'tags',
         'pages/thread.php' => 'thread',
         'pages/user.php' => 'user',
+        'pages/page.php' => 'pages',
         'api/ad.php' => 'api/ad',
         'api/captcha.php' => 'api/captcha',
         'api/upload-attachment.php' => 'api/upload-attachment',
@@ -587,6 +590,7 @@ function qf_clean_route_path($script) {
         'api/passkey.php' => 'api/passkey',
         'api/reply.php' => 'api/reply',
         'api/signin.php' => 'api/signin',
+        'api/vote.php' => 'api/vote',
     );
     return isset($map[$script]) ? $map[$script] : $script;
 }
@@ -625,6 +629,11 @@ function qf_url_page($script, $params = array(), $fragment = '') {
         $tag = $params['tag'];
         unset($params['tag']);
         return qf_append_url_parts('/tags/' . qf_tag_slug($tag), $params, $fragment);
+    }
+    if (($logical_script === 'page.php' || $script === 'pages/page.php') && isset($params['slug'])) {
+        $slug = preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$params['slug']));
+        unset($params['slug']);
+        return qf_append_url_parts('/pages/' . $slug, $params, $fragment);
     }
     if (($logical_script === 'download.php' || $script === 'pages/download.php') && isset($params['id'])) {
         $id = intval($params['id']);
@@ -693,6 +702,74 @@ function qf_path_id() {
 
 function qf_attachment_url($id) {
     return qf_url_page('download.php', array('id' => intval($id)));
+}
+
+function qf_static_pages() {
+    return array(
+        'about' => array(
+            'title' => '关于 php.do',
+            'body' => array(
+                'php.do 是一个面向 PHP 开发者的技术论坛，主要讨论 PHP 版本、框架生态、Composer 依赖、部署运维、性能优化与安全审计。',
+                '这里欢迎程序发布、开源项目更新、线上问题复盘，也欢迎把踩过的坑整理成可复现、可搜索的经验。'
+            ),
+        ),
+        'rules' => array(
+            'title' => '社区规则',
+            'body' => array(
+                '发帖请尽量补充 PHP 版本、运行环境、错误日志、最小复现代码和已经尝试过的方案。',
+                '不要公开真实密钥、Token、个人隐私、生产库信息。程序发布帖请写清安装步骤、许可证和更新记录。'
+            ),
+        ),
+        'help' => array(
+            'title' => '使用帮助',
+            'body' => array(
+                '帖子支持 Markdown、代码块、图片和附件。分类页使用固定英文路径，标签页会优先使用可读英文 slug。',
+                '个人主页展示公开资料、最近主题和回复；个人设置页用于头像、邮箱、签名、密码和 Passkey 管理。'
+            ),
+        ),
+    );
+}
+
+function qf_static_page($slug) {
+    $slug = strtolower(trim((string)$slug, '/'));
+    $pages = qf_static_pages();
+    return isset($pages[$slug]) ? $pages[$slug] : null;
+}
+
+function qf_ensure_thread_vote_schema() {
+    $threads = mysqli_query(db(), "SHOW TABLES LIKE 'qf_threads'");
+    if (!$threads || mysqli_num_rows($threads) == 0) {
+        return;
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_threads LIKE 'upvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_threads ADD upvotes int(11) NOT NULL DEFAULT '0' AFTER replies");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_threads LIKE 'downvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_threads ADD downvotes int(11) NOT NULL DEFAULT '0' AFTER upvotes");
+    }
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_thread_votes (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      thread_id int(11) NOT NULL DEFAULT '0',
+      user_id int(11) NOT NULL DEFAULT '0',
+      vote tinyint(1) NOT NULL DEFAULT '0',
+      created_at datetime NOT NULL,
+      updated_at datetime NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY thread_user (thread_id,user_id),
+      KEY thread_vote (thread_id,vote),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function qf_recount_thread_votes($thread_id) {
+    $thread_id = intval($thread_id);
+    qf_ensure_thread_vote_schema();
+    $up = count_rows("SELECT COUNT(*) FROM qf_thread_votes WHERE thread_id={$thread_id} AND vote=1");
+    $down = count_rows("SELECT COUNT(*) FROM qf_thread_votes WHERE thread_id={$thread_id} AND vote=-1");
+    mysqli_query(db(), "UPDATE qf_threads SET upvotes={$up}, downvotes={$down} WHERE id={$thread_id}");
+    return array('upvotes' => $up, 'downvotes' => $down);
 }
 
 function qf_protected_attachment_dir() {

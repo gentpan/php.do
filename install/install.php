@@ -72,6 +72,8 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_threads (
   content mediumtext NOT NULL,
   views int(11) NOT NULL DEFAULT '0',
   replies int(11) NOT NULL DEFAULT '0',
+  upvotes int(11) NOT NULL DEFAULT '0',
+  downvotes int(11) NOT NULL DEFAULT '0',
   is_top tinyint(1) NOT NULL DEFAULT '0',
   is_good tinyint(1) NOT NULL DEFAULT '0',
   is_deleted tinyint(1) NOT NULL DEFAULT '0',
@@ -82,6 +84,19 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_threads (
   KEY forum_id (forum_id),
   KEY updated_at (updated_at),
   KEY is_top (is_top)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+$sqls[] = "CREATE TABLE IF NOT EXISTS qf_thread_votes (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  thread_id int(11) NOT NULL DEFAULT '0',
+  user_id int(11) NOT NULL DEFAULT '0',
+  vote tinyint(1) NOT NULL DEFAULT '0',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY thread_user (thread_id,user_id),
+  KEY thread_vote (thread_id,vote),
+  KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS qf_posts (

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../functions.php';
+qf_ensure_thread_vote_schema();
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
 $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
@@ -22,6 +23,14 @@ if ($thread_avatar === '') {
     $thread_avatar = 'assets/avatar-default.svg';
 }
 $thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['username'];
+$me = current_user();
+$user_vote = 0;
+if ($me) {
+    $vote_rs = mysqli_query(db(), "SELECT vote FROM qf_thread_votes WHERE thread_id=" . intval($id) . " AND user_id=" . intval($me['id']) . " LIMIT 1");
+    if ($vote_rs && ($vote_row = mysqli_fetch_assoc($vote_rs))) {
+        $user_vote = intval($vote_row['vote']);
+    }
+}
 ?>
 <?php if (!empty($_SESSION['flash'])) { ?>
     <div class="alert"><?php echo nl2br(h($_SESSION['flash'])); unset($_SESSION['flash']); ?></div>
@@ -53,6 +62,27 @@ $thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['use
                     <span class="admin-tools">
                         <?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('mod_del_thread', $thread['id']))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？"'); ?>
                     </span>
+                <?php } ?>
+            </div>
+            <div class="phpdo-thread-votes" data-thread-votes>
+                <?php if ($me) { ?>
+                    <form method="post" action="<?php echo h(qf_url_page('vote.php')); ?>" data-vote-form>
+                        <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
+                        <input type="hidden" name="vote" value="up">
+                        <button class="phpdo-vote-button<?php echo $user_vote === 1 ? ' active' : ''; ?>" type="submit" data-vote-button="up" aria-pressed="<?php echo $user_vote === 1 ? 'true' : 'false'; ?>">
+                            <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong data-vote-count="up"><?php echo intval(isset($thread['upvotes']) ? $thread['upvotes'] : 0); ?></strong>
+                        </button>
+                    </form>
+                    <form method="post" action="<?php echo h(qf_url_page('vote.php')); ?>" data-vote-form>
+                        <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
+                        <input type="hidden" name="vote" value="down">
+                        <button class="phpdo-vote-button<?php echo $user_vote === -1 ? ' active' : ''; ?>" type="submit" data-vote-button="down" aria-pressed="<?php echo $user_vote === -1 ? 'true' : 'false'; ?>">
+                            <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong data-vote-count="down"><?php echo intval(isset($thread['downvotes']) ? $thread['downvotes'] : 0); ?></strong>
+                        </button>
+                    </form>
+                <?php } else { ?>
+                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong><?php echo intval(isset($thread['upvotes']) ? $thread['upvotes'] : 0); ?></strong></a>
+                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong><?php echo intval(isset($thread['downvotes']) ? $thread['downvotes'] : 0); ?></strong></a>
                 <?php } ?>
             </div>
         </div>

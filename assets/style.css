@@ -6203,7 +6203,9 @@ body.theme-php.page-search main.wrap,
 body.theme-php.page-post main.wrap,
 body.theme-php.page-edit-thread main.wrap,
 body.theme-php.page-tags main.wrap,
-body.theme-php.page-user main.wrap {
+body.theme-php.page-user main.wrap,
+body.theme-php.page-profile main.wrap,
+body.theme-php.page-page main.wrap {
     width: min(1180px, calc(100vw - 120px));
     max-width: none;
     padding: 24px 0 56px;
@@ -6217,6 +6219,8 @@ body.theme-php .replies,
 body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies),
 body.theme-php.page-user main.wrap > .card,
 body.theme-php.page-tags main.wrap > .card,
+body.theme-php.page-profile main.wrap > .card,
+body.theme-php.page-page main.wrap > .card,
 body.theme-php .thread-list,
 body.theme-php.page-search .thread-list {
     color: var(--phpdo-text);
@@ -6439,6 +6443,59 @@ body.theme-php .post-meta {
     color: #8d929a;
     font-size: 14px;
     line-height: 1.5;
+}
+
+body.theme-php .phpdo-thread-votes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+body.theme-php .phpdo-thread-votes form {
+    margin: 0;
+}
+
+body.theme-php .phpdo-vote-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 78px;
+    height: 36px;
+    padding: 0 12px;
+    color: #666 !important;
+    font-size: 14px;
+    font-weight: 900;
+    text-decoration: none;
+    background: #f3f4f6 !important;
+    border: 1px solid #e3e6eb;
+    border-radius: 5px !important;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+body.theme-php .phpdo-vote-button i {
+    color: #a2a7af;
+}
+
+body.theme-php .phpdo-vote-button strong {
+    color: #333;
+    font-weight: 950;
+}
+
+body.theme-php .phpdo-vote-button:hover,
+body.theme-php .phpdo-vote-button.active {
+    color: #fff !important;
+    background: var(--phpdo-blue) !important;
+    border-color: var(--phpdo-blue);
+}
+
+body.theme-php .phpdo-vote-button:hover i,
+body.theme-php .phpdo-vote-button:hover strong,
+body.theme-php .phpdo-vote-button.active i,
+body.theme-php .phpdo-vote-button.active strong {
+    color: #fff;
 }
 
 body.theme-php .post-content-card {
@@ -6748,6 +6805,44 @@ body.theme-php .phpdo-user-replies {
     margin-top: 14px;
 }
 
+body.theme-php .phpdo-static-page {
+    padding: 28px 30px;
+}
+
+body.theme-php .phpdo-static-page p {
+    margin: 0 0 14px;
+    color: #444;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+body.theme-php .phpdo-static-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--phpdo-line);
+}
+
+body.theme-php .phpdo-static-links a {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 12px;
+    color: #4d5259;
+    font-size: 14px;
+    font-weight: 850;
+    text-decoration: none;
+    background: #f1f2f4;
+    border-radius: 4px;
+}
+
+body.theme-php .phpdo-static-links a.active {
+    color: #fff;
+    background: var(--phpdo-blue);
+}
+
 @media (max-width: 900px) {
     body.theme-php.page-forum main.wrap,
     body.theme-php.page-thread main.wrap,
@@ -6755,7 +6850,9 @@ body.theme-php .phpdo-user-replies {
     body.theme-php.page-post main.wrap,
     body.theme-php.page-edit-thread main.wrap,
     body.theme-php.page-tags main.wrap,
-    body.theme-php.page-user main.wrap {
+    body.theme-php.page-user main.wrap,
+    body.theme-php.page-profile main.wrap,
+    body.theme-php.page-page main.wrap {
         width: calc(100vw - 20px);
         padding-top: 14px;
     }
@@ -6866,6 +6963,10 @@ body.theme-php .phpdo-user-replies {
 
     body.theme-php .phpdo-reply-actions {
         margin-top: 20px;
+    }
+
+    body.theme-php .phpdo-thread-votes {
+        flex-wrap: wrap;
     }
 
     body.theme-php .phpdo-reply-action {

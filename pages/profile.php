@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (intval($_FILES['avatar']['size']) > 2 * 1024 * 1024) {
                 $error = '头像不能超过 2MB。';
             } else {
-                $dir = __DIR__ . '/uploads/avatar';
+                $dir = __DIR__ . '/../uploads/avatar';
                 if (!is_dir($dir)) {
                     mkdir($dir, 0755, true);
                 }
@@ -83,12 +83,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $passkeys = mysqli_query(db(), "SELECT * FROM qf_passkeys WHERE user_id=" . intval($u['id']) . " ORDER BY id DESC");
-$page_title = '基本资料 - ' . SITE_NAME;
+$page_title = '个人设置 - ' . SITE_NAME;
 qf_include_header();
 ?>
 <section class="card narrow-card">
-    <h1>基本资料</h1>
-    <p><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('rankings.php')); ?>">用户排行榜</a></p>
+    <h1>个人设置</h1>
+    <p>
+        <a class="btn btn-light btn-small" href="<?php echo h(qf_url_user($u['id'])); ?>">查看个人主页</a>
+        <a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('rankings.php')); ?>">用户排行榜</a>
+    </p>
     <?php if ($saved) { ?><div class="alert success">资料已保存。</div><?php } ?>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
     <form method="post" enctype="multipart/form-data">

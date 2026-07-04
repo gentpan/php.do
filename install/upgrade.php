@@ -81,6 +81,31 @@ if ($ok) {
     if ($check && mysqli_num_rows($check) == 0) {
         mysqli_query(db(), "ALTER TABLE qf_threads ADD topic_category varchar(40) NOT NULL DEFAULT '' AFTER user_id");
     }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_threads LIKE 'upvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_threads ADD upvotes int(11) NOT NULL DEFAULT '0' AFTER replies");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_threads LIKE 'downvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_threads ADD downvotes int(11) NOT NULL DEFAULT '0' AFTER upvotes");
+    }
+}
+
+$thread_votes_sql = "CREATE TABLE IF NOT EXISTS qf_thread_votes (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  thread_id int(11) NOT NULL DEFAULT '0',
+  user_id int(11) NOT NULL DEFAULT '0',
+  vote tinyint(1) NOT NULL DEFAULT '0',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY thread_user (thread_id,user_id),
+  KEY thread_vote (thread_id,vote),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+if ($ok) {
+    $ok = mysqli_query(db(), $thread_votes_sql);
 }
 
 if ($ok) {
