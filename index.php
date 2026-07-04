@@ -67,7 +67,7 @@ $latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
 <?php echo qf_render_ad('top'); ?>
 <section class="hero phpnet-hero">
     <div class="phpnet-hero-inner">
-        <img class="phpnet-hero-logo" src="assets/php-logo-white.svg" alt="" aria-hidden="true">
+        <img class="phpnet-hero-logo" src="assets/logo.svg" alt="" aria-hidden="true">
         <p class="phpnet-hero-lead"><?php echo h(qf_site_desc()); ?></p>
         <p class="phpnet-hero-copy">Fast, flexible and pragmatic, php.do is a lightweight community forum for discussion, publishing and everyday web conversations.</p>
         <div class="phpnet-hero-actions">

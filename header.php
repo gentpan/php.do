@@ -65,7 +65,7 @@ if (!$me) {
         <div class="nav-row">
             <div class="nav-identity-orb">
                 <a class="nav-avatar<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
-                    <img class="php-wordmark" src="assets/php-logo-white.svg" alt="" aria-hidden="true">
+                    <img class="php-wordmark" src="assets/logo.svg" alt="" aria-hidden="true">
                     <span class="nav-avatar-home" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
                 </a>
             </div>
