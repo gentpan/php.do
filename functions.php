@@ -263,7 +263,8 @@ function qf_site_keywords() {
 
 function qf_theme_options() {
     return array(
-        'php' => 'PHP 官方风格',
+        'php' => 'PHP 官方风格 · 浅色',
+        'php-dark' => 'PHP 官方风格 · 深色',
     );
 }
 

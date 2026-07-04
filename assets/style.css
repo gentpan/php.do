@@ -7460,3 +7460,359 @@ body.theme-php .phpdo-right-toolbar button {
         grid-column: auto;
     }
 }
+
+/* PHP official dark variant */
+body.theme-php-dark {
+    --phpdo-page: #101217;
+    --phpdo-surface: #181b22;
+    --phpdo-surface-soft: #1f2430;
+    --phpdo-surface-raised: #222734;
+    --phpdo-border: #303643;
+    --phpdo-line: #303643;
+    --phpdo-text: #e6e8ee;
+    --phpdo-muted: #a6adba;
+    --phpdo-faint: #7d8593;
+    --phpdo-blue: #7c86d9;
+    --phpdo-blue-strong: #929bf0;
+    --phpdo-red: #ff8a78;
+    --phpdo-shadow-soft: 0 .125rem .75rem rgba(0, 0, 0, .28);
+    color: var(--phpdo-text);
+    background: var(--phpdo-page);
+}
+
+body.theme-php-dark a {
+    color: var(--phpdo-blue-strong);
+}
+
+body.theme-php-dark .site-nav-bar {
+    background: #151821;
+    border-bottom-color: var(--phpdo-border);
+    box-shadow: 0 .125rem .75rem rgba(0, 0, 0, .26);
+}
+
+body.theme-php-dark .site-nav-bar .nav-avatar {
+    padding: 0 .625rem;
+    background: #fff;
+    border-radius: var(--phpdo-card-radius);
+}
+
+body.theme-php-dark .site-nav-bar .nav-link {
+    color: #cfd4df;
+}
+
+body.theme-php-dark .site-nav-bar .nav-link.active,
+body.theme-php-dark .site-nav-bar .nav-link:hover {
+    color: #fff;
+}
+
+body.theme-php-dark .nav-search-form,
+body.theme-php-dark .site-nav-bar .nav-cta,
+body.theme-php-dark .site-nav-bar .nav-more-toggle,
+body.theme-php-dark .site-nav-bar .nav-more-menu {
+    color: var(--phpdo-text);
+    background: var(--phpdo-surface) !important;
+    border-color: var(--phpdo-border);
+}
+
+body.theme-php-dark .nav-search-form input {
+    color: var(--phpdo-text);
+}
+
+body.theme-php-dark .nav-search-form input::placeholder {
+    color: var(--phpdo-faint);
+}
+
+body.theme-php-dark .nav-search-form button {
+    color: var(--phpdo-muted);
+    background: var(--phpdo-surface) !important;
+    border-left-color: var(--phpdo-border);
+}
+
+body.theme-php-dark .nav-search-form button:hover,
+body.theme-php-dark .site-nav-bar .nav-cta:hover,
+body.theme-php-dark .site-nav-bar .nav-more-toggle:hover,
+body.theme-php-dark .site-nav-bar .nav-cta.active,
+body.theme-php-dark .site-nav-bar .nav-more-toggle.active {
+    color: #fff;
+    background: #252b38 !important;
+    border-color: #444d62;
+}
+
+body.theme-php-dark .phpdo-category-bar,
+body.theme-php-dark .phpdo-inner-category-bar {
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
+    box-shadow: 0 .0625rem 0 rgba(255, 255, 255, .03);
+}
+
+body.theme-php-dark .phpdo-category-bar a,
+body.theme-php-dark .phpdo-inner-category-bar a {
+    color: #d4d8e1;
+}
+
+body.theme-php-dark .phpdo-category-bar a:hover,
+body.theme-php-dark .phpdo-inner-category-bar a:hover {
+    color: #fff;
+}
+
+body.theme-php-dark .phpdo-breadcrumb,
+body.theme-php-dark .phpdo-breadcrumb a,
+body.theme-php-dark .phpdo-breadcrumb strong,
+body.theme-php-dark .post-meta,
+body.theme-php-dark .thread-main p,
+body.theme-php-dark .phpdo-thread-main p,
+body.theme-php-dark .thread-count,
+body.theme-php-dark .phpdo-thread-stats,
+body.theme-php-dark .page-head p,
+body.theme-php-dark .muted {
+    color: var(--phpdo-muted);
+}
+
+body.theme-php-dark .phpdo-feed-card,
+body.theme-php-dark .phpdo-side-card,
+body.theme-php-dark .phpdo-page-head,
+body.theme-php-dark .phpdo-user-head,
+body.theme-php-dark .post-title-card,
+body.theme-php-dark .post-content-card,
+body.theme-php-dark .replies,
+body.theme-php-dark.page-thread main.wrap > .card:not(.post-title-card):not(.post-content-card):not(.replies),
+body.theme-php-dark.page-user main.wrap > .card,
+body.theme-php-dark.page-tags main.wrap > .card,
+body.theme-php-dark.page-profile main.wrap > .card,
+body.theme-php-dark.page-page main.wrap > .card,
+body.theme-php-dark.page-login main.wrap > .card,
+body.theme-php-dark.page-register main.wrap > .card,
+body.theme-php-dark .thread-list,
+body.theme-php-dark.page-search .thread-list,
+body.theme-php-dark .phpdo-category-bar,
+body.theme-php-dark .phpdo-static-page,
+body.theme-php-dark .phpdo-auth-page,
+body.theme-php-dark .card,
+body.theme-php-dark .side-user-panel,
+body.theme-php-dark .signin-modal-box,
+body.theme-php-dark .editor-dialog-box {
+    color: var(--phpdo-text);
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
+    box-shadow: var(--phpdo-shadow-soft);
+}
+
+body.theme-php-dark .phpdo-feed-tabs a,
+body.theme-php-dark .filter-tabs a,
+body.theme-php-dark .phpdo-vote-button,
+body.theme-php-dark .floor-label,
+body.theme-php-dark .btn-light,
+body.theme-php-dark .footer-page-nav a,
+body.theme-php-dark .footer-friend-links a,
+body.theme-php-dark .side-user-panel a,
+body.theme-php-dark .side-user-panel .side-user-card,
+body.theme-php-dark .nav-more-item {
+    color: #d4d8e1 !important;
+    background: var(--phpdo-surface-soft) !important;
+    border-color: var(--phpdo-border);
+}
+
+body.theme-php-dark .phpdo-feed-tabs a.active,
+body.theme-php-dark .filter-tabs a.active,
+body.theme-php-dark .phpdo-post-button,
+body.theme-php-dark .btn,
+body.theme-php-dark .page-head .btn,
+body.theme-php-dark.page-thread main.wrap > .card .btn {
+    color: #fff !important;
+    background: var(--phpdo-blue) !important;
+    border-color: var(--phpdo-blue);
+}
+
+body.theme-php-dark .phpdo-feed-tabs a:hover,
+body.theme-php-dark .filter-tabs a:hover,
+body.theme-php-dark .footer-page-nav a:hover,
+body.theme-php-dark .footer-friend-links a:hover,
+body.theme-php-dark .side-user-panel a:hover,
+body.theme-php-dark .nav-more-item:hover {
+    color: #fff !important;
+    background: var(--phpdo-surface-raised) !important;
+    border-color: #444d62;
+}
+
+body.theme-php-dark .phpdo-feed-tabs .phpdo-rss {
+    color: var(--phpdo-muted) !important;
+    background: transparent !important;
+}
+
+body.theme-php-dark .phpdo-thread-row,
+body.theme-php-dark .thread-row,
+body.theme-php-dark .reply,
+body.theme-php-dark .replies > h2,
+body.theme-php-dark .phpdo-side-card h2 {
+    border-color: var(--phpdo-line);
+}
+
+body.theme-php-dark .phpdo-thread-main h2,
+body.theme-php-dark .phpdo-thread-main h2 a,
+body.theme-php-dark .thread-title,
+body.theme-php-dark .page-head h1,
+body.theme-php-dark .post-title-card h1,
+body.theme-php-dark .phpdo-auth-head h1,
+body.theme-php-dark .phpdo-side-card h2,
+body.theme-php-dark .replies > h2,
+body.theme-php-dark .phpdo-list-heading,
+body.theme-php-dark .post-content-box,
+body.theme-php-dark .reply .content,
+body.theme-php-dark .phpdo-static-page p,
+body.theme-php-dark .phpdo-reply-author,
+body.theme-php-dark .reply .post-meta strong,
+body.theme-php-dark .floor-reply strong,
+body.theme-php-dark h1,
+body.theme-php-dark h2,
+body.theme-php-dark h3,
+body.theme-php-dark label {
+    color: var(--phpdo-text) !important;
+}
+
+body.theme-php-dark .phpdo-thread-main h2 a:hover,
+body.theme-php-dark .thread-title:hover,
+body.theme-php-dark .content a,
+body.theme-php-dark .phpdo-author-link:hover,
+body.theme-php-dark .phpdo-reply-author:hover,
+body.theme-php-dark .phpdo-reply-action:hover,
+body.theme-php-dark .phpdo-reply-action:hover i {
+    color: var(--phpdo-blue-strong) !important;
+}
+
+body.theme-php-dark .phpdo-avatar,
+body.theme-php-dark .phpdo-author-avatar,
+body.theme-php-dark .phpdo-reply-avatar {
+    background: #2a303c;
+}
+
+body.theme-php-dark .phpdo-pill,
+body.theme-php-dark .phpdo-topic-tag,
+body.theme-php-dark .tag,
+body.theme-php-dark .category-tag {
+    color: #ffae9f !important;
+    background: rgba(255, 138, 120, .13) !important;
+    border-color: rgba(255, 138, 120, .28);
+}
+
+body.theme-php-dark .phpdo-pill-outline {
+    background: transparent !important;
+    border-color: rgba(255, 138, 120, .58);
+}
+
+body.theme-php-dark .phpdo-good,
+body.theme-php-dark .tag.blue {
+    color: #c2c6ff !important;
+    background: rgba(124, 134, 217, .18) !important;
+    border-color: rgba(124, 134, 217, .34);
+}
+
+body.theme-php-dark .phpdo-image-icon,
+body.theme-php-dark .phpdo-thread-stats i,
+body.theme-php-dark .thread-count i,
+body.theme-php-dark .phpdo-reply-action,
+body.theme-php-dark .phpdo-reply-action i,
+body.theme-php-dark .phpdo-only-author {
+    color: var(--phpdo-faint);
+}
+
+body.theme-php-dark .phpdo-must-read li {
+    color: #d4d8e1;
+}
+
+body.theme-php-dark .phpdo-must-read li::before {
+    background: #626b7a;
+}
+
+body.theme-php-dark .replies > h2,
+body.theme-php-dark .phpdo-floor-no,
+body.theme-php-dark .floor-replies {
+    background: var(--phpdo-surface-soft);
+}
+
+body.theme-php-dark .phpdo-meta-sep {
+    background: var(--phpdo-border);
+}
+
+body.theme-php-dark .phpdo-floor-no {
+    color: var(--phpdo-muted);
+}
+
+body.theme-php-dark .phpdo-signature {
+    color: var(--phpdo-text);
+    border-top-color: #3a4150;
+}
+
+body.theme-php-dark .phpdo-signature span {
+    color: var(--phpdo-blue-strong);
+    background: var(--phpdo-surface);
+}
+
+body.theme-php-dark .phpdo-signature p,
+body.theme-php-dark .floor-reply {
+    color: #d4d8e1;
+}
+
+body.theme-php-dark .floor-replies,
+body.theme-php-dark .floor-reply {
+    border-color: var(--phpdo-border);
+}
+
+body.theme-php-dark .floor-reply {
+    background: #171a21;
+}
+
+body.theme-php-dark input,
+body.theme-php-dark select,
+body.theme-php-dark textarea,
+body.theme-php-dark .floor-reply-form input {
+    color: var(--phpdo-text);
+    background: #11141a;
+    border-color: #3a4150;
+}
+
+body.theme-php-dark input::placeholder,
+body.theme-php-dark textarea::placeholder {
+    color: var(--phpdo-faint);
+}
+
+body.theme-php-dark .phpdo-vote-button strong,
+body.theme-php-dark .phpdo-vote-button i {
+    color: var(--phpdo-muted);
+}
+
+body.theme-php-dark .phpdo-vote-button:hover,
+body.theme-php-dark .phpdo-vote-button.active {
+    color: #fff !important;
+    background: var(--phpdo-blue) !important;
+    border-color: var(--phpdo-blue);
+}
+
+body.theme-php-dark .phpdo-vote-button:hover strong,
+body.theme-php-dark .phpdo-vote-button:hover i,
+body.theme-php-dark .phpdo-vote-button.active strong,
+body.theme-php-dark .phpdo-vote-button.active i {
+    color: #fff;
+}
+
+body.theme-php-dark .footer {
+    background: transparent;
+}
+
+body.theme-php-dark .footer-links {
+    color: var(--phpdo-faint);
+}
+
+body.theme-php-dark .phpdo-right-toolbar a,
+body.theme-php-dark .phpdo-right-toolbar button {
+    color: #d4d8e1;
+    background: var(--phpdo-surface) !important;
+    border-color: var(--phpdo-border);
+    box-shadow: var(--phpdo-shadow-soft);
+}
+
+body.theme-php-dark .phpdo-right-toolbar a:hover,
+body.theme-php-dark .phpdo-right-toolbar button:hover {
+    color: #fff;
+    background: var(--phpdo-blue) !important;
+    border-color: var(--phpdo-blue);
+}

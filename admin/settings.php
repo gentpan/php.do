@@ -217,7 +217,7 @@ qf_include_header();
                 <option value="<?php echo h($theme_key); ?>" <?php if (qf_theme() === $theme_key) echo 'selected'; ?>><?php echo h($theme_label); ?></option>
             <?php } ?>
         </select>
-        <p class="muted">当前使用 PHP 官方风格：深靛蓝导航、浅色内容区和克制的蓝紫强调色。</p>
+        <p class="muted">PHP 官方风格提供浅色和深色两个版本，组件圆角、间距、字号和字体参考 php.net。</p>
 
         <label>标题字体</label>
         <select name="title_font">

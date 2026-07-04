@@ -5,8 +5,10 @@ if (!isset($page_title)) {
 $me = current_user();
 $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) : 0;
 $main_navs = qf_main_navs();
+$active_theme = qf_theme();
+$is_php_theme = in_array($active_theme, array('php', 'php-dark'), true);
 $header_forums = array();
-if (qf_theme() === 'php') {
+if ($is_php_theme) {
     $header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums ORDER BY display_order ASC, id ASC");
     while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
         $header_forums[] = $header_forum;
@@ -33,11 +35,11 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
     <link rel="manifest" href="assets/site.webmanifest">
-    <meta name="theme-color" content="#4F5B93">
+    <meta name="theme-color" content="<?php echo $active_theme === 'php-dark' ? '#101217' : '#4F5B93'; ?>">
     <meta name="msapplication-TileColor" content="#4F5B93">
     <meta name="msapplication-TileImage" content="assets/mstile-150x150.png">
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
-    <?php if (qf_theme() === 'php') { ?>
+    <?php if ($is_php_theme) { ?>
         <link rel="stylesheet" href="https://www.php.net/cached.php?t=1781787603&amp;f=/fonts/Fira/fira.css">
     <?php } ?>
     <?php if (!$use_system_page_font) { foreach (qf_selected_font_urls() as $font_url) { ?>
@@ -52,7 +54,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     </style>
     <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>;</script>
 </head>
-<body class="theme-<?php echo h(qf_theme()); ?> <?php echo h($page_body_class); ?><?php echo $use_system_page_font ? ' use-system-page-font' : ''; ?>">
+<body class="<?php echo $active_theme === 'php-dark' ? 'theme-php theme-php-dark' : 'theme-' . h($active_theme); ?> <?php echo h($page_body_class); ?><?php echo $use_system_page_font ? ' use-system-page-font' : ''; ?>">
 <nav class="site-nav-bar" aria-label="主导航">
     <div class="nav-pill" data-nav-shell>
         <div class="nav-row">
@@ -128,7 +130,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
         </div>
     </div>
 </nav>
-<?php if (qf_theme() === 'php' && $current_script !== 'index.php' && !empty($header_forums)) { ?>
+<?php if ($is_php_theme && $current_script !== 'index.php' && !empty($header_forums)) { ?>
 <nav class="phpdo-inner-category-bar" aria-label="论坛分类">
     <div>
         <?php foreach ($header_forums as $header_forum) { ?>
