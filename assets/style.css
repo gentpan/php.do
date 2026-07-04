@@ -4953,3 +4953,473 @@ pre {
         padding: 18px;
     }
 }
+
+/* php.net fidelity pass */
+:root {
+    --phpnet-nav: #4F5B93;
+    --phpnet-nav-dark: #3f4b7d;
+    --phpnet-bg: #272727;
+    --phpnet-bg-soft: #333333;
+    --phpnet-text-on-dark: #CCCCCC;
+    --phpnet-white: #F2F2F2;
+    --phpnet-paper: #F7F7F7;
+    --phpnet-paper-border: #D8D8D8;
+    --phpnet-link: #336699;
+    --phpnet-purple: #793862;
+}
+
+body.theme-php {
+    color: var(--phpnet-text-on-dark);
+    background-color: var(--phpnet-bg);
+    background-image:
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, .018) 0, rgba(255, 255, 255, .018) 1px, transparent 1px, transparent 4px),
+        repeating-linear-gradient(-45deg, rgba(0, 0, 0, .09) 0, rgba(0, 0, 0, .09) 1px, transparent 1px, transparent 5px);
+    background-attachment: fixed;
+}
+
+body.theme-php .site-nav-bar {
+    height: 64px;
+    background: var(--phpnet-nav);
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+}
+
+body.theme-php .site-nav-bar .nav-pill {
+    width: 1170px;
+    max-width: calc(100vw - 70px);
+    height: 64px;
+    background: transparent;
+}
+
+body.theme-php .site-nav-bar .nav-row {
+    min-height: 64px;
+    gap: 28px;
+}
+
+body.theme-php .nav-identity-orb {
+    width: auto;
+    min-width: 92px;
+}
+
+body.theme-php .site-nav-bar .nav-avatar {
+    width: auto;
+    min-width: 92px;
+    padding: 0;
+    color: #FFFFFF;
+    background: transparent;
+}
+
+body.theme-php .php-wordmark {
+    display: inline-block;
+    color: #FFFFFF;
+    font-size: 42px;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    text-decoration: none;
+    transform: skew(-10deg);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .25);
+}
+
+body.theme-php .site-nav-bar .nav-avatar-home,
+body.theme-php .site-nav-bar .brand-mark {
+    display: none;
+}
+
+body.theme-php .site-nav-bar .nav-main-links {
+    gap: 12px;
+}
+
+body.theme-php .site-nav-bar .nav-link,
+body.theme-php .site-nav-bar .nav-cta,
+body.theme-php .site-nav-bar .nav-more-toggle {
+    height: 64px;
+    min-height: 64px;
+    padding: 0 10px;
+    color: #D8D8D8;
+    font-size: 17px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .2);
+}
+
+body.theme-php .site-nav-bar .nav-link:hover,
+body.theme-php .site-nav-bar .nav-link.active,
+body.theme-php .site-nav-bar .nav-cta:hover,
+body.theme-php .site-nav-bar .nav-cta.active,
+body.theme-php .site-nav-bar .nav-more-toggle:hover {
+    color: #FFFFFF;
+    background: rgba(0, 0, 0, .12);
+}
+
+body.theme-php .site-nav-bar .nav-link-icon,
+body.theme-php .site-nav-bar .nav-activity-bars,
+body.theme-php .site-nav-bar .nav-cta-mobile-icon {
+    display: none;
+}
+
+body.theme-php .site-nav-bar .nav-cta {
+    color: #FFFFFF;
+}
+
+body.theme-php .site-nav-bar .nav-more-menu {
+    top: 64px;
+    background: var(--phpnet-nav-dark);
+    border: 1px solid rgba(0, 0, 0, .22);
+}
+
+body.theme-php main.wrap,
+body.theme-php .wrap,
+body.theme-php .footer .wrap,
+body.theme-php .site-nav-bar .nav-pill {
+    width: 1170px;
+}
+
+body.theme-php main.wrap {
+    padding-top: 0;
+}
+
+body.theme-php .phpnet-hero {
+    width: 1170px;
+    max-width: 100%;
+    margin: 0 auto 42px;
+    padding: 58px 32px 44px;
+    color: var(--phpnet-text-on-dark);
+    text-align: center;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+body.theme-php .phpnet-hero-logo {
+    margin: 0 auto 18px;
+    color: #FFFFFF;
+    font-size: 126px;
+    font-style: italic;
+    font-weight: 700;
+    line-height: .82;
+    letter-spacing: 0;
+    transform: skew(-10deg);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, .32);
+}
+
+body.theme-php .phpnet-hero-lead {
+    margin: 0;
+    color: #D7D7D7;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.55;
+}
+
+body.theme-php .phpnet-hero-copy {
+    max-width: 900px;
+    margin: 2px auto 28px;
+    color: #D0D0D0;
+    font-size: 18px;
+    line-height: 1.55;
+}
+
+body.theme-php .phpnet-hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 34px;
+}
+
+body.theme-php .phpnet-hero-actions .btn {
+    min-width: 190px;
+    height: 58px;
+    padding: 15px 30px;
+    font-size: 20px;
+    border-radius: 999px;
+}
+
+body.theme-php .phpnet-hero-actions .phpnet-primary {
+    background: var(--phpnet-nav);
+}
+
+body.theme-php .phpnet-hero-actions .phpnet-secondary {
+    color: #D7D9F4 !important;
+    background: transparent;
+    border: 2px solid #5F6BA8;
+}
+
+body.theme-php .phpnet-hero-actions .phpnet-secondary:hover {
+    color: #FFFFFF !important;
+    background: rgba(79, 91, 147, .35);
+}
+
+body.theme-php .phpnet-release-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    color: #989898;
+    font-size: 16px;
+}
+
+body.theme-php .phpnet-release-strip a {
+    color: #E6E6E6;
+    text-decoration: none;
+}
+
+body.theme-php .phpnet-release-strip a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+
+body.theme-php .phpnet-layout {
+    width: 1170px;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 24px;
+    align-items: start;
+}
+
+body.theme-php .latest-title-menu {
+    display: none;
+}
+
+body.theme-php .phpnet-news-list {
+    padding: 0;
+    overflow: hidden;
+    color: #333333;
+    background: var(--phpnet-paper);
+    border: 1px solid var(--phpnet-paper-border);
+    border-right: 4px solid #C8C8C8;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+body.theme-php .phpnet-news-list .list-row {
+    display: block;
+    min-height: 0;
+    padding: 28px 24px 26px;
+    border-bottom: 1px dotted #B7B7B7;
+}
+
+body.theme-php .phpnet-news-list .list-row:last-child {
+    border-bottom: 0;
+}
+
+body.theme-php .phpnet-news-list .list-main > a {
+    display: block;
+    margin: 0 0 18px;
+    color: var(--phpnet-link);
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1.25;
+    text-decoration: none;
+}
+
+body.theme-php .phpnet-news-list .list-main > a::after {
+    content: " »";
+}
+
+body.theme-php .phpnet-news-list .list-main > a:hover {
+    color: #2A4F7F;
+    text-decoration: underline;
+}
+
+body.theme-php .phpnet-news-list .list-meta {
+    display: block;
+    margin: 0;
+    color: #555555;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+body.theme-php .phpnet-news-list .meta-text {
+    display: block;
+    margin-bottom: 10px;
+}
+
+body.theme-php .phpnet-news-list .meta-text::before {
+    content: "发布信息：";
+    color: var(--phpnet-purple);
+}
+
+body.theme-php .phpnet-news-list .meta-metrics,
+body.theme-php .phpnet-news-list .list-metrics {
+    display: inline-flex;
+    gap: 12px;
+}
+
+body.theme-php .metric {
+    color: #666666;
+}
+
+body.theme-php .metric svg {
+    stroke: currentColor;
+}
+
+body.theme-php .tag,
+body.theme-php .category-tag,
+body.theme-php .image-badge {
+    margin-right: 6px;
+    padding: 2px 7px;
+    color: #FFFFFF;
+    font-size: 13px;
+    line-height: 1.4;
+    vertical-align: 3px;
+    background: var(--phpnet-nav);
+    border: 0;
+    border-radius: 0;
+}
+
+body.theme-php .tag.red {
+    background: var(--phpnet-purple);
+}
+
+body.theme-php .phpnet-sidebar {
+    color: #CCCCCC;
+}
+
+body.theme-php .phpnet-sidebar .section-title {
+    margin: 25px 0 18px;
+    padding-bottom: 8px;
+    color: #D8D8D8;
+    font-size: 21px;
+    line-height: 1.2;
+    border-bottom: 1px dotted #555555;
+}
+
+body.theme-php .side-forum-card,
+body.theme-php .forum-card.card.side-forum-card {
+    display: block;
+    margin: 0 0 22px;
+    padding: 0;
+    color: #CCCCCC;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+body.theme-php .side-forum-card h3 {
+    margin: 0 0 8px;
+    color: #D8D8D8;
+    font-size: 19px;
+    font-weight: 400;
+}
+
+body.theme-php .side-forum-card p {
+    margin: 0 0 8px;
+    color: #BBBBBB;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+body.theme-php .side-forum-card .stats {
+    display: flex;
+    gap: 8px;
+    color: #999999;
+    font-size: 14px;
+}
+
+body.theme-php .side-forum-card .stats strong {
+    color: #FFFFFF;
+    font-weight: 400;
+}
+
+body.theme-php .footer,
+body.theme-php .friend-links {
+    color: #BBBBBB;
+    background: transparent;
+    border-color: rgba(255, 255, 255, .12);
+}
+
+body.theme-php .footer a,
+body.theme-php .friend-links a {
+    color: #D8D8D8;
+}
+
+body.theme-php .search-modal-box,
+body.theme-php .auth-modal-box,
+body.theme-php .signin-modal-box,
+body.theme-php .card:not(.phpnet-news-list):not(.side-forum-card) {
+    background: var(--phpnet-paper);
+    border: 1px solid var(--phpnet-paper-border);
+    border-radius: 0;
+}
+
+body.theme-php .side-user-trigger {
+    background: var(--phpnet-nav);
+}
+
+body.theme-php .side-user-panel {
+    background: #F7F7F7;
+}
+
+@media (max-width: 900px) {
+    body.theme-php .site-nav-bar .nav-pill,
+    body.theme-php main.wrap,
+    body.theme-php .wrap,
+    body.theme-php .footer .wrap {
+        max-width: calc(100vw - 24px);
+    }
+
+    body.theme-php .site-nav-bar .nav-main-links {
+        gap: 4px;
+    }
+
+    body.theme-php .site-nav-bar .nav-link {
+        padding: 0 8px;
+        font-size: 15px;
+    }
+
+    body.theme-php .phpnet-hero {
+        padding: 40px 12px 32px;
+    }
+
+    body.theme-php .phpnet-hero-logo {
+        font-size: 88px;
+    }
+
+    body.theme-php .phpnet-layout {
+        display: block;
+    }
+
+    body.theme-php .phpnet-sidebar {
+        margin-top: 28px;
+    }
+}
+
+@media (max-width: 640px) {
+    body.theme-php .site-nav-bar {
+        height: auto;
+    }
+
+    body.theme-php .site-nav-bar .nav-pill,
+    body.theme-php .site-nav-bar .nav-row {
+        min-height: 58px;
+        height: auto;
+    }
+
+    body.theme-php .php-wordmark {
+        font-size: 36px;
+    }
+
+    body.theme-php .phpnet-hero-logo {
+        font-size: 72px;
+        letter-spacing: 0;
+    }
+
+    body.theme-php .phpnet-hero-lead,
+    body.theme-php .phpnet-hero-copy {
+        font-size: 16px;
+    }
+
+    body.theme-php .phpnet-hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    body.theme-php .phpnet-news-list .list-row {
+        padding: 22px 18px;
+    }
+
+    body.theme-php .phpnet-news-list .list-main > a {
+        font-size: 22px;
+    }
+}

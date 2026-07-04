@@ -65,13 +65,27 @@ $latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
     LIMIT " . qf_home_threads_limit());
 ?>
 <?php echo qf_render_ad('top'); ?>
-<section class="hero card">
-    <div>
-        <p><?php echo h(qf_site_desc()); ?></p>
+<section class="hero phpnet-hero">
+    <div class="phpnet-hero-inner">
+        <div class="phpnet-hero-logo" aria-hidden="true">php</div>
+        <p class="phpnet-hero-lead"><?php echo h(qf_site_desc()); ?></p>
+        <p class="phpnet-hero-copy">Fast, flexible and pragmatic, php.do is a lightweight community forum for discussion, publishing and everyday web conversations.</p>
+        <div class="phpnet-hero-actions">
+            <a class="btn phpnet-primary" href="<?php echo h(qf_url_page('index.php', array('filter' => 'latest'))); ?>">最新发布</a>
+            <a class="btn btn-light phpnet-secondary" href="<?php echo h(qf_url_page('post.php')); ?>">发布新帖</a>
+        </div>
+        <div class="phpnet-release-strip" aria-label="快捷入口">
+            <a href="<?php echo h(qf_url_page('index.php')); ?>">首页</a>
+            <span>·</span>
+            <a href="<?php echo h(qf_url_page('index.php', array('filter' => 'good'))); ?>">精华</a>
+            <span>·</span>
+            <a href="<?php echo h(qf_url_page('search.php')); ?>" data-search-open>搜索</a>
+            <span>·</span>
+            <a href="<?php echo h(qf_url_page('rankings.php')); ?>">排行</a>
+        </div>
     </div>
-    <a class="btn" href="<?php echo h(qf_url_page('post.php')); ?>">发布新帖</a>
 </section>
-<div class="grid">
+<div class="grid phpnet-layout">
     <section>
         <div class="latest-title-menu">
             <div class="latest-title-filter">
@@ -83,7 +97,7 @@ $latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
             </div>
             <a class="btn btn-small mobile-post-btn" href="<?php echo h(qf_url_page('post.php')); ?>">发帖</a>
         </div>
-        <div class="card list latest-list">
+        <div class="card list latest-list phpnet-news-list">
             <?php while ($latest && $t = mysqli_fetch_assoc($latest)) { ?>
                 <div class="list-row">
                     <div class="list-main">
@@ -122,7 +136,7 @@ $latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
             <?php } ?>
         </div>
     </section>
-    <aside>
+    <aside class="phpnet-sidebar">
         <h2 class="section-title">论坛版块</h2>
         <?php echo qf_render_ad('sidebar'); ?>
         <?php while ($forums && $f = mysqli_fetch_assoc($forums)) { ?>
