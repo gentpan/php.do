@@ -86,16 +86,21 @@ if (!$me) {
                 <?php } ?>
             </div>
             <div class="nav-actions">
-                <a class="nav-cta<?php echo $current_script === 'post.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('post.php')); ?>">
-                    <i class="fa-solid fa-pen-to-square nav-activity-bars" aria-hidden="true"></i>
-                    <i class="fa-solid fa-plus nav-cta-mobile-icon" aria-hidden="true"></i>
-                    <span>发帖</span>
-                </a>
-                <button type="button" class="nav-more-toggle" data-nav-more aria-label="更多" aria-expanded="false" aria-haspopup="true">
-                    <i class="fa-solid fa-bars nav-more-bars" aria-hidden="true"></i>
-                    <i class="fa-solid fa-circle-xmark nav-more-close" aria-hidden="true"></i>
-                    <span>更多</span>
-                </button>
+                <?php if (!$me) { ?>
+                    <a class="nav-cta nav-login-link" href="<?php echo h(qf_url_page('login.php')); ?>" data-auth-open="login"><span>登录</span></a>
+                    <a class="nav-more-toggle nav-register-link" href="<?php echo h(qf_url_page('register.php')); ?>" data-auth-open="register"><span>注册</span></a>
+                <?php } else { ?>
+                    <a class="nav-cta<?php echo $current_script === 'post.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('post.php')); ?>">
+                        <i class="fa-solid fa-pen-to-square nav-activity-bars" aria-hidden="true"></i>
+                        <i class="fa-solid fa-plus nav-cta-mobile-icon" aria-hidden="true"></i>
+                        <span>发帖</span>
+                    </a>
+                    <button type="button" class="nav-more-toggle" data-nav-more aria-label="更多" aria-expanded="false" aria-haspopup="true">
+                        <i class="fa-solid fa-bars nav-more-bars" aria-hidden="true"></i>
+                        <i class="fa-solid fa-circle-xmark nav-more-close" aria-hidden="true"></i>
+                        <span>更多</span>
+                    </button>
+                <?php } ?>
                 <div class="nav-more-menu" data-nav-more-menu role="menu" aria-label="更多入口">
                     <?php if ($me) { ?>
                         <a class="nav-more-item" href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem">

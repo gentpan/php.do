@@ -37,132 +37,160 @@ if (isset($front_routes[$request_path])) {
     require __DIR__ . '/pages/' . $front_routes[$request_path];
     exit;
 }
+
 $page_title = SITE_NAME . ' - 首页';
-qf_include_header();
-$forums = mysqli_query(db(), "SELECT f.*, 
-    (SELECT COUNT(*) FROM qf_threads t WHERE t.forum_id=f.id AND t.is_deleted=0) AS thread_count,
-    (SELECT COUNT(*) FROM qf_posts p INNER JOIN qf_threads t2 ON p.thread_id=t2.id WHERE t2.forum_id=f.id AND p.is_deleted=0 AND t2.is_deleted=0) AS post_count
-    FROM qf_forums f ORDER BY f.display_order ASC, f.id ASC");
-$filter = isset($_GET['filter']) ? $_GET['filter'] : '';
-$latest_title = '最新帖子';
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'reply';
+$allowed_filters = array('reply', 'latest', 'hot', 'good');
+if (!in_array($filter, $allowed_filters, true)) {
+    $filter = 'reply';
+}
+
+$filter_labels = array(
+    'reply' => '最新回复',
+    'latest' => '最新发表',
+    'hot' => '最新热门',
+    'good' => '最新精华',
+);
 $latest_where = "t.is_deleted=0 AND t.is_top<>2";
 $latest_order = "t.is_top DESC, t.updated_at DESC";
 if ($filter === 'latest') {
-    $latest_title = '最新发帖';
     $latest_order = "t.created_at DESC";
+} elseif ($filter === 'hot') {
+    $latest_order = "(t.views + t.replies * 80) DESC, t.updated_at DESC";
 } elseif ($filter === 'good') {
-    $latest_title = '精华帖子';
-    $latest_where = "t.is_deleted=0 AND t.is_top<>2 AND t.is_good=1";
+    $latest_where .= " AND t.is_good=1";
     $latest_order = "t.updated_at DESC";
 }
-$latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname,
+
+$forums = mysqli_query(db(), "SELECT f.*,
+    (SELECT COUNT(*) FROM qf_threads t WHERE t.forum_id=f.id AND t.is_deleted=0) AS thread_count,
+    (SELECT COUNT(*) FROM qf_posts p INNER JOIN qf_threads t2 ON p.thread_id=t2.id WHERE t2.forum_id=f.id AND p.is_deleted=0 AND t2.is_deleted=0) AS post_count
+    FROM qf_forums f ORDER BY f.display_order ASC, f.id ASC");
+$forum_rows = array();
+while ($forums && ($forum = mysqli_fetch_assoc($forums))) {
+    $forum_rows[] = $forum;
+}
+
+$latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar,
     (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM qf_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image
     FROM qf_threads t
     LEFT JOIN qf_forums f ON t.forum_id=f.id
     LEFT JOIN qf_users u ON t.user_id=u.id
     WHERE {$latest_where}
     ORDER BY {$latest_order}
-    LIMIT " . qf_home_threads_limit());
+    LIMIT " . max(18, qf_home_threads_limit()));
+
+$must_reads = array(
+    'PHP 提问模板：版本、环境、日志、最小复现',
+    '程序发布帖请补齐安装步骤、截图和许可证',
+    'Composer 依赖升级前请先 review lock 文件',
+    '线上排障优先查看 Nginx 与 PHP-FPM 日志',
+    '安全讨论请避免公开真实密钥和隐私数据',
+    '论坛支持 Markdown 格式与图片附件上传',
+    '新用户先阅读社区规则和发帖分类说明',
+    '开源项目更新欢迎同步 changelog 和仓库地址',
+);
+
+qf_include_header();
 ?>
-<?php echo qf_render_ad('top'); ?>
-<section class="hero phpnet-hero">
-    <div class="phpnet-hero-inner">
-        <img class="phpnet-hero-logo" src="assets/logo.svg" alt="" aria-hidden="true">
-        <p class="phpnet-hero-lead"><?php echo h(qf_site_desc()); ?></p>
-        <p class="phpnet-hero-copy">Fast, flexible and pragmatic, php.do is a lightweight community forum for discussion, publishing and everyday web conversations.</p>
-        <div class="phpnet-hero-actions">
-            <a class="btn phpnet-primary" href="<?php echo h(qf_url_page('index.php', array('filter' => 'latest'))); ?>">最新发布</a>
-            <a class="btn btn-light phpnet-secondary" href="<?php echo h(qf_url_page('post.php')); ?>">发布新帖</a>
-        </div>
-        <div class="phpnet-release-strip" aria-label="快捷入口">
-            <a href="<?php echo h(qf_url_page('index.php')); ?>">首页</a>
-            <span>·</span>
-            <a href="<?php echo h(qf_url_page('index.php', array('filter' => 'good'))); ?>">精华</a>
-            <span>·</span>
-            <a href="<?php echo h(qf_url_page('search.php')); ?>" data-search-open>搜索</a>
-            <span>·</span>
-            <a href="<?php echo h(qf_url_page('rankings.php')); ?>">排行</a>
-        </div>
-    </div>
-</section>
-<div class="grid phpnet-layout">
-    <section>
-        <div class="latest-title-menu">
-            <div class="latest-title-filter">
-                <h2 class="section-title latest-title-trigger"><?php echo h($latest_title); ?></h2>
-                <div class="latest-title-dropdown">
-                    <a href="<?php echo h(qf_url_page('index.php', array('filter' => 'latest'))); ?>">最新发帖</a>
-                    <a href="<?php echo h(qf_url_page('index.php', array('filter' => 'good'))); ?>">精华帖子</a>
-                </div>
-            </div>
-            <a class="btn btn-small mobile-post-btn" href="<?php echo h(qf_url_page('post.php')); ?>">发帖</a>
-        </div>
-        <div class="card list latest-list phpnet-news-list">
-            <?php if ($latest && mysqli_num_rows($latest) > 0) { ?>
-            <?php while ($t = mysqli_fetch_assoc($latest)) { ?>
-                <div class="list-row">
-                    <div class="list-main">
-                        <a href="<?php echo h(qf_url_thread($t['id'])); ?>">
-                            <?php if (intval($t['is_top']) === 1) { ?><span class="tag red">置顶</span><?php } ?>
-                            <?php if (intval($t['is_good'])) { ?><span class="tag blue">精华</span><?php } ?>
-                            <?php if ($t['topic_category'] !== '') { ?><span class="category-tag"><?php echo h($t['topic_category']); ?></span><?php } ?>
-                            <?php echo h($t['title']); ?>
-                            <?php if (intval($t['has_image'])) { ?><span class="image-badge">图</span><?php } ?>
-                        </a>
-                        <p class="list-meta">
-                            <span class="meta-text"><?php echo h($t['forum_name']); ?> · <?php echo h($t['nickname']); ?> · <?php echo format_time($t['updated_at']); ?></span>
-                            <span class="meta-metrics">
-                                <span title="浏览数" class="metric metric-view">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 12s3.6-6.2 9.8-6.2S21.8 12 21.8 12s-3.6 6.2-9.8 6.2S2.2 12 2.2 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>
-                                    <?php echo intval($t['views']); ?>
-                                </span>
-                                <span title="回帖数" class="metric metric-reply">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14a2 2 0 0 1 2 2v6.8a2 2 0 0 1-2 2H9.6L5.4 20v-2.7H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2z"></path></svg>
-                                    <?php echo intval($t['replies']); ?>
-                                </span>
-                            </span>
-                        </p>
-                    </div>
-                    <div class="list-metrics">
-                        <span title="浏览数" class="metric metric-view">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 12s3.6-6.2 9.8-6.2S21.8 12 21.8 12s-3.6 6.2-9.8 6.2S2.2 12 2.2 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>
-                            <?php echo intval($t['views']); ?>
-                        </span>
-                        <span title="回帖数" class="metric metric-reply">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14a2 2 0 0 1 2 2v6.8a2 2 0 0 1-2 2H9.6L5.4 20v-2.7H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2z"></path></svg>
-                            <?php echo intval($t['replies']); ?>
-                        </span>
-                    </div>
-                </div>
-            <?php } ?>
-            <?php } else { ?>
-                <div class="list-row phpnet-empty-news">
-                    <div class="list-main">
-                        <a href="<?php echo h(qf_url_page('post.php')); ?>">Welcome to php.do</a>
-                        <p class="list-meta">
-                            <span class="meta-text">这里还没有主题。发布第一篇帖子后，它会以 php.net 新闻条目的样式显示在这里。</span>
-                        </p>
-                    </div>
-                </div>
-            <?php } ?>
-        </div>
-    </section>
-    <aside class="phpnet-sidebar">
-        <h2 class="section-title">论坛版块</h2>
-        <?php echo qf_render_ad('sidebar'); ?>
-        <?php while ($forums && $f = mysqli_fetch_assoc($forums)) { ?>
-            <a class="forum-card card side-forum-card" href="<?php echo h(qf_url_forum($f['id'])); ?>">
-                <div>
-                    <h3><?php echo h($f['name']); ?></h3>
-                    <p><?php echo h($f['description']); ?></p>
-                </div>
-                <div class="stats">
-                    <strong><?php echo intval($f['thread_count']); ?></strong>主题
-                    <strong><?php echo intval($f['post_count']); ?></strong>回复
-                </div>
-            </a>
+<div class="phpdo-home-shell">
+    <nav class="phpdo-category-bar" aria-label="论坛分类">
+        <?php foreach ($forum_rows as $forum) { ?>
+            <a href="<?php echo h(qf_url_forum($forum['id'])); ?>"><?php echo h($forum['name']); ?></a>
         <?php } ?>
-    </aside>
+    </nav>
+
+    <?php echo qf_render_ad('top'); ?>
+
+    <div class="phpdo-breadcrumb">
+        <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
+        <span>»</span>
+        <span>导读</span>
+        <span>›</span>
+        <strong><?php echo h($filter_labels[$filter]); ?></strong>
+    </div>
+
+    <div class="phpdo-home-layout">
+        <section class="phpdo-feed-card" aria-label="帖子列表">
+            <div class="phpdo-feed-tabs">
+                <?php foreach ($filter_labels as $key => $label) { ?>
+                    <a class="<?php echo $filter === $key ? 'active' : ''; ?>" href="<?php echo h($key === 'reply' ? qf_url_page('index.php') : qf_url_page('index.php', array('filter' => $key))); ?>"><?php echo h($label); ?></a>
+                <?php } ?>
+                <a class="phpdo-rss" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="订阅"><i class="fa-solid fa-square-rss" aria-hidden="true"></i><span>订阅</span></a>
+            </div>
+            <div class="phpdo-thread-list latest-list">
+                <?php if ($latest && mysqli_num_rows($latest) > 0) { ?>
+                    <?php while ($t = mysqli_fetch_assoc($latest)) {
+                        $avatar = trim((string)$t['avatar']);
+                        if ($avatar === '') {
+                            $avatar = 'assets/avatar-default.svg';
+                        }
+                        $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
+                        $is_new = strtotime($t['created_at']) >= time() - 86400 * 7;
+                    ?>
+                        <article class="phpdo-thread-row">
+                            <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
+                                <img src="<?php echo h($avatar); ?>" alt="">
+                            </a>
+                            <div class="phpdo-thread-main">
+                                <h2>
+                                    <a href="<?php echo h(qf_url_thread($t['id'])); ?>">
+                                        <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-pill phpdo-pill-outline">置顶</span><?php } ?>
+                                        <?php echo h($t['title']); ?>
+                                    </a>
+                                    <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
+                                    <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
+                                </h2>
+                                <p>
+                                    <span><?php echo h($author); ?></span>
+                                    <span>发表于 <?php echo h(format_time($t['created_at'])); ?></span>
+                                    <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_page('forum.php', array('id' => intval($t['forum_id']), 'category' => $t['topic_category']))); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
+                                    <?php if (intval($t['is_good'])) { ?><span class="phpdo-topic-tag phpdo-good">精华</span><?php } ?>
+                                </p>
+                            </div>
+                            <div class="phpdo-thread-stats" aria-label="帖子统计">
+                                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo intval($t['views']); ?></span>
+                                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span>
+                            </div>
+                        </article>
+                    <?php } ?>
+                <?php } else { ?>
+                    <article class="phpdo-thread-row">
+                        <div class="phpdo-thread-main">
+                            <h2><a href="<?php echo h(qf_url_page('post.php')); ?>">还没有帖子，发布第一篇 PHP 技术讨论</a></h2>
+                            <p><span><?php echo h(qf_site_name()); ?></span><span>等待新的讨论</span></p>
+                        </div>
+                    </article>
+                <?php } ?>
+            </div>
+        </section>
+
+        <aside class="phpdo-home-sidebar" aria-label="侧边栏">
+            <section class="phpdo-side-card phpdo-must-read">
+                <h2><span></span>入站必看</h2>
+                <ul>
+                    <?php foreach ($must_reads as $item) { ?>
+                        <li><?php echo h($item); ?></li>
+                    <?php } ?>
+                </ul>
+            </section>
+            <a class="phpdo-post-button" href="<?php echo h(qf_url_page('post.php')); ?>"><i class="fa-solid fa-plus" aria-hidden="true"></i>我要发帖</a>
+            <section class="phpdo-ad phpdo-ad-warm">
+                <strong>PHP 项目发布</strong>
+                <span>开源程序 / 插件扩展 / 版本更新</span>
+                <em>欢迎展示你的作品</em>
+            </section>
+            <section class="phpdo-ad phpdo-ad-dark">
+                <strong>Composer 包推荐</strong>
+                <span>稳定依赖 · 自动加载 · SDK 设计</span>
+            </section>
+            <section class="phpdo-ad phpdo-ad-cyan">
+                <strong>部署与性能</strong>
+                <span>PHP-FPM / Opcache / Redis / Nginx</span>
+            </section>
+            <?php echo qf_render_ad('sidebar'); ?>
+        </aside>
+    </div>
 </div>
 <?php echo qf_render_ad('footer'); ?>
 <?php qf_include_footer(); ?>
