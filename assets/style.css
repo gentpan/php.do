@@ -5604,28 +5604,6 @@ body.theme-php .site-nav-bar .nav-link-icon {
     display: none;
 }
 
-body.theme-php .site-nav-bar .nav-link[href*="search"] {
-    order: 20;
-    width: 46px;
-    min-width: 46px;
-    height: 46px;
-    margin-left: auto;
-    padding: 0;
-    color: #2f3338;
-    background: #f8f8f8 !important;
-    border-radius: 50%;
-}
-
-body.theme-php .site-nav-bar .nav-link[href*="search"] .nav-link-icon {
-    display: inline-block;
-    margin: 0;
-    font-size: 26px;
-}
-
-body.theme-php .site-nav-bar .nav-link[href*="search"] span {
-    display: none;
-}
-
 body.theme-php .site-nav-bar .nav-actions {
     gap: 14px;
 }
@@ -6150,34 +6128,40 @@ body.theme-php .footer {
 
 @media (max-width: 760px) {
     body.theme-php .site-nav-bar .nav-pill {
-        padding: 0 14px;
+        max-width: 100vw;
+        padding: 0 8px;
     }
 
     body.theme-php .site-nav-bar .nav-row {
-        gap: 12px;
+        gap: 8px;
     }
 
     body.theme-php .site-nav-bar .php-wordmark {
-        width: 128px;
+        width: 108px;
     }
 
     body.theme-php .site-nav-bar .nav-main-links {
-        gap: 10px;
+        display: none;
     }
 
-    body.theme-php .site-nav-bar .nav-link:not([href*="search"]):not(.active) {
-        display: none;
+    body.theme-php .site-nav-bar .nav-actions {
+        flex: 1;
+        justify-content: flex-end;
+        gap: 6px;
     }
 
     body.theme-php .site-nav-bar .nav-cta,
     body.theme-php .site-nav-bar .nav-more-toggle {
-        min-width: 58px;
-        padding: 0 12px;
-        font-size: 15px;
+        min-width: 48px;
+        height: 40px;
+        padding: 0 9px;
+        font-size: 14px;
     }
 
     body.theme-php .nav-search-form {
-        width: 44px;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
         background: #f8f9fb;
     }
 
@@ -6190,8 +6174,15 @@ body.theme-php .footer {
     }
 
     body.theme-php .nav-search-form input {
+        flex: 0 1 0;
         padding: 0;
         width: 0;
+    }
+
+    body.theme-php .nav-search-form button {
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
     }
 
     body.theme-php .nav-search-form:focus-within input {
