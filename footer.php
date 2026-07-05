@@ -99,11 +99,22 @@ $footer_icp = trim(qf_setting('icp_code', ''));
         var a = e.target.closest ? e.target.closest('a[href]') : null;
         if (!a) return;
         if (a.getAttribute('target') === '_blank' || a.hasAttribute('download')) return;
+        if (a.hasAttribute('data-no-global-loading')) return;
         var href = a.getAttribute('href') || '';
         if (href === '' || href.charAt(0) === '#' || /^(javascript|mailto|tel):/i.test(href)) return;
         try { if (a.origin && a.origin !== location.origin) return; } catch (err) { return; }
-        if (typeof window.qfSetLoading === 'function') window.qfSetLoading(true);
-    }, true);
+        // 延后一拍：若点击被页面内的 JS（AJAX 筛选/翻页等）接管并取消了跳转，
+        // e.defaultPrevented 会变为 true，这时不显示加载层，避免模糊层卡死。
+        window.setTimeout(function () {
+            if (e.defaultPrevented) return;
+            if (typeof window.qfSetLoading !== 'function') return;
+            window.qfSetLoading(true);
+            // 兜底：万一跳转最终没有发生，10 秒后自动清除加载层。
+            window.setTimeout(function () {
+                if (typeof window.qfSetLoading === 'function') window.qfSetLoading(false);
+            }, 10000);
+        }, 0);
+    });
 })();
 </script>
 <?php echo qf_setting('stats_code', ''); ?>
