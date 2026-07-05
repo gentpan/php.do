@@ -22,6 +22,16 @@ if (in_array($request_path, $legacy_admin_paths, true) || strpos($request_path, 
     http_response_code(404);
     exit('404 Not Found');
 }
+
+function qf_front_redirect($url) {
+    $query = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_QUERY);
+    if ($query !== null && $query !== '') {
+        $url .= (strpos($url, '?') === false ? '?' : '&') . $query;
+    }
+    header('Location: ' . $url, true, 301);
+    exit;
+}
+
 if (preg_match('#^user/([0-9]+)\.html$#', $request_path, $m)) {
     $_GET['id'] = intval($m[1]);
     $_SERVER['SCRIPT_NAME'] = '/user.php';
@@ -35,10 +45,16 @@ if (preg_match('#^tags/(.+)$#u', $request_path, $m)) {
     exit;
 }
 if (preg_match('#^pages/([a-z0-9-]+)$#', $request_path, $m)) {
-    $_GET['slug'] = $m[1];
-    $_SERVER['SCRIPT_NAME'] = '/page.php';
-    require __DIR__ . '/pages/page.php';
-    exit;
+    qf_front_redirect(qf_url_page('page.php', array('slug' => $m[1])));
+}
+if (preg_match('#^([a-z0-9-]+)\.php$#', $request_path, $m)) {
+    $static_pages = qf_static_pages();
+    if (isset($static_pages[$m[1]])) {
+        $_GET['slug'] = $m[1];
+        $_SERVER['SCRIPT_NAME'] = '/page.php';
+        require __DIR__ . '/pages/page.php';
+        exit;
+    }
 }
 $forum_slug_id = qf_forum_id_by_slug($request_path);
 if ($forum_slug_id > 0) {
@@ -62,7 +78,13 @@ $front_routes = array(
     'tags' => 'tags.php',
     'user' => 'user.php',
 );
+foreach ($front_routes as $front_path => $front_script) {
+    $front_routes[$front_path . '.php'] = $front_script;
+}
 if (isset($front_routes[$request_path])) {
+    if (substr($request_path, -4) !== '.php') {
+        qf_front_redirect(qf_url_page($front_routes[$request_path]));
+    }
     $_SERVER['SCRIPT_NAME'] = '/' . str_replace('-', '_', $front_routes[$request_path]);
     require __DIR__ . '/pages/' . $front_routes[$request_path];
     exit;

@@ -564,21 +564,21 @@ function qf_route_script($script, &$params = array()) {
 
 function qf_clean_route_path($script) {
     $map = array(
-        'pages/download.php' => 'download',
-        'pages/edit-thread.php' => 'edit-thread',
-        'pages/forum.php' => 'forum',
-        'pages/move-thread.php' => 'move-thread',
-        'pages/notifications.php' => 'notifications',
-        'pages/login.php' => 'login',
-        'pages/post.php' => 'post',
-        'pages/profile.php' => 'settings',
-        'pages/rankings.php' => 'rankings',
-        'pages/register.php' => 'register',
-        'pages/search.php' => 'search',
-        'pages/tags.php' => 'tags',
-        'pages/thread.php' => 'thread',
-        'pages/user.php' => 'user',
-        'pages/page.php' => 'pages',
+        'pages/download.php' => 'download.php',
+        'pages/edit-thread.php' => 'edit-thread.php',
+        'pages/forum.php' => 'forum.php',
+        'pages/move-thread.php' => 'move-thread.php',
+        'pages/notifications.php' => 'notifications.php',
+        'pages/login.php' => 'login.php',
+        'pages/post.php' => 'post.php',
+        'pages/profile.php' => 'settings.php',
+        'pages/rankings.php' => 'rankings.php',
+        'pages/register.php' => 'register.php',
+        'pages/search.php' => 'search.php',
+        'pages/tags.php' => 'tags.php',
+        'pages/thread.php' => 'thread.php',
+        'pages/user.php' => 'user.php',
+        'pages/page.php' => 'pages.php',
         'api/ad.php' => 'api/ad',
         'api/captcha.php' => 'api/captcha',
         'api/upload-attachment.php' => 'api/upload-attachment',
@@ -633,7 +633,7 @@ function qf_url_page($script, $params = array(), $fragment = '') {
     if (($logical_script === 'page.php' || $script === 'pages/page.php') && isset($params['slug'])) {
         $slug = preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$params['slug']));
         unset($params['slug']);
-        return qf_append_url_parts('/pages/' . $slug, $params, $fragment);
+        return qf_append_url_parts('/' . $slug . '.php', $params, $fragment);
     }
     if (($logical_script === 'download.php' || $script === 'pages/download.php') && isset($params['id'])) {
         $id = intval($params['id']);
