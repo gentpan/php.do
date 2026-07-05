@@ -183,8 +183,8 @@ qf_include_header();
                                 </p>
                             </div>
                             <div class="phpdo-thread-stats" aria-label="帖子统计">
-                                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo intval($t['views']); ?></span>
-                                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span>
+                                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
+                                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
                             </div>
                         </article>
                     <?php } ?>

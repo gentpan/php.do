@@ -45,8 +45,8 @@ $threads = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.u
                 <p><a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · <?php echo h($t['forum_name']); ?> · <?php echo h(format_time($t['updated_at'])); ?></p>
             </div>
             <div class="thread-count">
-                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span>
-                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo intval($t['views']); ?></span>
+                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
             </div>
         </div>
     <?php } ?>

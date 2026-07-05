@@ -43,7 +43,7 @@ qf_include_header();
                     <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
                 </p>
             </div>
-            <div class="thread-count"><span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo intval($t['views']); ?></span><span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span></div>
+            <div class="thread-count"><span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span><span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span></div>
         </div>
     <?php } ?>
 </section>

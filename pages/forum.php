@@ -79,8 +79,8 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar FROM
                 <p><a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>
             </div>
             <div class="thread-count">
-                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span>
-                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo intval($t['views']); ?></span>
+                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
             </div>
         </div>
     <?php } ?>

@@ -684,6 +684,19 @@ function qf_url_user($id) {
     return qf_url_page('user.php', array('id' => intval($id)));
 }
 
+function qf_format_compact_number($number) {
+    $number = max(0, intval($number));
+    if ($number < 1000) {
+        return (string)$number;
+    }
+    $value = $number / 1000;
+    $formatted = $value >= 10 ? number_format($value, 0, '.', '') : number_format($value, 1, '.', '');
+    if (strpos($formatted, '.') !== false) {
+        $formatted = rtrim(rtrim($formatted, '0'), '.');
+    }
+    return $formatted . 'k';
+}
+
 function qf_path_id() {
     if (isset($_GET['id'])) {
         return intval($_GET['id']);

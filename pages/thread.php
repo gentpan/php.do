@@ -46,7 +46,7 @@ if ($me) {
         <div>
             <h1><?php if ($thread['topic_category'] !== '') { ?><a class="category-tag" href="<?php echo h(qf_url_tag($thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a><?php } ?><?php echo h($thread['title']); ?></h1>
             <div class="post-meta">
-                <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?> · <?php echo intval($thread['views']); ?> 浏览 · <?php echo intval($thread['replies']); ?> 回复
+                <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?> · <?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复
                 <?php if (is_admin()) { ?>
                     <span class="admin-tools">
                         <span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($thread['ip']); ?></span></span>
@@ -118,7 +118,7 @@ if ($me) {
     <?php } ?>
 </article>
 <section class="card replies" id="replies">
-    <h2>回复 <?php echo intval($thread['replies']); ?></h2>
+    <h2>回复 <?php echo qf_format_compact_number($thread['replies']); ?></h2>
     <?php $floor_no = 0; ?>
     <?php while ($posts && $p = mysqli_fetch_assoc($posts)) { ?>
         <?php $floor_no++; ?>

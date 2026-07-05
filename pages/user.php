@@ -33,8 +33,8 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id FROM qf_post
                 <p><?php echo h($t['forum_name']); ?> · <?php echo h(format_time($t['updated_at'])); ?></p>
             </div>
             <div class="thread-count">
-                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo intval($t['replies']); ?></span>
-                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo intval($t['views']); ?></span>
+                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
             </div>
         </div>
     <?php } ?>
