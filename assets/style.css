@@ -3475,14 +3475,12 @@ body {
 }
 
 .site-nav-bar .nav-identity-orb,
-.site-nav-bar .nav-main-links,
 .site-nav-bar .nav-actions {
     display: flex;
     align-items: center;
     min-width: 0;
 }
 
-.site-nav-bar .nav-main-links,
 .site-nav-bar .nav-actions {
     gap: 4px;
 }
@@ -3708,7 +3706,6 @@ body.theme-dark .site-nav-bar .nav-more-menu {
         flex: 1 1 0;
     }
 
-    .site-nav-bar .nav-main-links {
         flex: 2 1 0;
         justify-content: space-between;
         gap: 0;
@@ -3720,7 +3717,6 @@ body.theme-dark .site-nav-bar .nav-more-menu {
         gap: 0;
     }
 
-    .site-nav-bar .nav-main-links .nav-link:nth-child(n+3) {
         display: none;
     }
 
@@ -5011,7 +5007,6 @@ body.theme-php .site-nav-bar .brand-mark {
     display: none;
 }
 
-body.theme-php .site-nav-bar .nav-main-links {
     gap: 12px;
 }
 
@@ -5368,7 +5363,6 @@ body.theme-php .side-user-panel {
         max-width: calc(100vw - 24px);
     }
 
-    body.theme-php .site-nav-bar .nav-main-links {
         gap: 4px;
     }
 
@@ -5577,7 +5571,6 @@ body.theme-php .site-nav-bar .nav-avatar-home {
     display: none;
 }
 
-body.theme-php .site-nav-bar .nav-main-links {
     flex: 1;
     justify-content: flex-start;
     gap: 22px;
@@ -6347,7 +6340,6 @@ body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
         width: 150px;
     }
 
-    body.theme-php .site-nav-bar .nav-main-links {
         display: none;
     }
 
