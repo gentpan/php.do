@@ -55,6 +55,17 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>;</script>
 </head>
 <body class="<?php echo $active_theme === 'php-dark' ? 'theme-php theme-php-dark' : 'theme-' . h($active_theme); ?> <?php echo h($page_body_class); ?><?php echo $use_system_page_font ? ' use-system-page-font' : ''; ?>">
+<?php if ($is_php_theme) { ?>
+<script>
+(function () {
+    try {
+        var pref = localStorage.getItem('qfThemeMode');
+        if (pref === 'dark') document.body.classList.add('theme-php-dark');
+        else if (pref === 'light') document.body.classList.remove('theme-php-dark');
+    } catch (e) {}
+})();
+</script>
+<?php } ?>
 <nav class="site-nav-bar" aria-label="主导航">
     <div class="nav-pill" data-nav-shell>
         <div class="nav-row">
@@ -64,23 +75,15 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
                     <span class="nav-avatar-home" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
                 </a>
             </div>
-            <div class="nav-main-links">
-                <a class="nav-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>">
-                    <i class="fa-solid fa-house nav-link-icon" aria-hidden="true"></i>
-                    <span>首页</span>
-                </a>
-                <?php foreach ($main_navs as $nav_item) { ?>
-                    <a class="nav-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>>
-                        <i class="fa-regular fa-compass nav-link-icon" aria-hidden="true"></i>
-                        <span><?php echo h($nav_item['title']); ?></span>
-                    </a>
-                <?php } ?>
-            </div>
             <div class="nav-actions">
                 <form class="nav-search-form" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
                     <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="Search" autocomplete="search">
                     <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
                 </form>
+                <button type="button" class="nav-theme-toggle" data-theme-toggle aria-label="切换深色/浅色">
+                    <i class="fa-solid fa-sun nav-theme-sun" aria-hidden="true"></i>
+                    <i class="fa-solid fa-moon nav-theme-moon" aria-hidden="true"></i>
+                </button>
                 <?php if (!$me) { ?>
                     <a class="nav-cta nav-login-link<?php echo $current_script === 'login.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('login.php')); ?>"><span>登录</span></a>
                     <a class="nav-more-toggle nav-register-link<?php echo $current_script === 'register.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('register.php')); ?>"><span>注册</span></a>
@@ -130,6 +133,22 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
         </div>
     </div>
 </nav>
+<?php if (!empty($main_navs)) { ?>
+<nav class="qf-category-nav" aria-label="分类导航">
+    <div class="qf-category-nav-inner">
+        <a class="qf-category-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>">
+            <i class="qf-cat-icon fa-solid fa-house" aria-hidden="true"></i>
+            <span>首页</span>
+        </a>
+        <?php foreach ($main_navs as $nav_item) { ?>
+            <a class="qf-category-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>>
+                <?php echo qf_nav_icon_html($nav_item); ?>
+                <span><?php echo h($nav_item['title']); ?></span>
+            </a>
+        <?php } ?>
+    </div>
+</nav>
+<?php } ?>
 <?php if ($is_php_theme && $current_script !== 'index.php' && !empty($header_forums)) { ?>
 <nav class="phpdo-inner-category-bar" aria-label="论坛分类">
     <div>

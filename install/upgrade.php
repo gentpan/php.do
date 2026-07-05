@@ -350,6 +350,8 @@ $navs_sql = "CREATE TABLE IF NOT EXISTS qf_navs (
   id int(11) NOT NULL AUTO_INCREMENT,
   title varchar(40) NOT NULL DEFAULT '',
   url varchar(255) NOT NULL DEFAULT '',
+  icon_type varchar(10) NOT NULL DEFAULT '',
+  icon_value text,
   display_order int(11) NOT NULL DEFAULT '0',
   is_enabled tinyint(1) NOT NULL DEFAULT '1',
   created_at datetime NOT NULL,
@@ -359,6 +361,17 @@ $navs_sql = "CREATE TABLE IF NOT EXISTS qf_navs (
 
 if ($ok) {
     $ok = mysqli_query(db(), $navs_sql);
+}
+
+if ($ok) {
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_navs LIKE 'icon_type'");
+    if ($check && mysqli_num_rows($check) === 0) {
+        mysqli_query(db(), "ALTER TABLE qf_navs ADD icon_type varchar(10) NOT NULL DEFAULT '' AFTER url");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_navs LIKE 'icon_value'");
+    if ($check && mysqli_num_rows($check) === 0) {
+        mysqli_query(db(), "ALTER TABLE qf_navs ADD icon_value text AFTER icon_type");
+    }
 }
 
 if ($ok) {

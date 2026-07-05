@@ -973,6 +973,61 @@ function qf_main_navs() {
     return $rows;
 }
 
+function qf_table_has_column($table, $column) {
+    $table = preg_replace('/[^a-z0-9_]/i', '', (string)$table);
+    $column_sql = esc((string)$column);
+    $rs = mysqli_query(db(), "SHOW COLUMNS FROM {$table} LIKE '{$column_sql}'");
+    return $rs && mysqli_num_rows($rs) > 0;
+}
+
+function qf_nav_icon_columns_ready() {
+    static $ready = null;
+    if ($ready === null) {
+        $ready = qf_nav_table_ready() && qf_table_has_column('qf_navs', 'icon_type');
+    }
+    return $ready;
+}
+
+function qf_nav_icon_types() {
+    return array(
+        'fa' => 'Font Awesome 图标类名',
+        'svg' => 'SVG 代码',
+        'img' => '上传图片',
+    );
+}
+
+function qf_sanitize_nav_svg($svg) {
+    $svg = trim((string)$svg);
+    if ($svg === '' || stripos($svg, '<svg') === false) {
+        return '';
+    }
+    // Admin-only input, but strip the obviously dangerous bits.
+    $svg = preg_replace('#<script[\s\S]*?</script>#i', '', $svg);
+    $svg = preg_replace('#\son[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', '', $svg);
+    return $svg;
+}
+
+function qf_nav_icon_html($nav) {
+    $type = isset($nav['icon_type']) ? $nav['icon_type'] : '';
+    $value = isset($nav['icon_value']) ? trim((string)$nav['icon_value']) : '';
+    if ($type === 'img' && $value !== '') {
+        return '<img class="qf-cat-icon qf-cat-icon-img" src="' . h($value) . '" alt="" aria-hidden="true">';
+    }
+    if ($type === 'svg') {
+        $clean = qf_sanitize_nav_svg($value);
+        if ($clean !== '') {
+            return '<span class="qf-cat-icon qf-cat-icon-svg" aria-hidden="true">' . $clean . '</span>';
+        }
+    }
+    if ($type === 'fa' && $value !== '') {
+        $cls = trim(preg_replace('/[^a-z0-9 _-]/i', '', $value));
+        if ($cls !== '') {
+            return '<i class="qf-cat-icon ' . h($cls) . '" aria-hidden="true"></i>';
+        }
+    }
+    return '<i class="qf-cat-icon fa-regular fa-compass" aria-hidden="true"></i>';
+}
+
 function qf_delete_attachment_file($path) {
     if ($path === '' || preg_match('/^https?:\/\//i', $path)) {
         return true;

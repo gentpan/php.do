@@ -7991,3 +7991,228 @@ body.theme-php-dark .phpdo-right-toolbar button:hover {
     background: var(--phpdo-accent) !important;
     border-color: var(--phpdo-accent);
 }
+
+/* ==========================================================================
+   分类导航行 · 深色/浅色切换按钮 · 顶部加载指示（新增）
+   ========================================================================== */
+
+/* 3) 菜单栏与分类导航之间留出一点空隙 */
+.qf-category-nav {
+    margin-top: 10px;
+}
+
+.qf-category-nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    max-width: 1580px;
+    margin: 0 auto;
+    padding: 8px 34px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.qf-category-nav-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.qf-category-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    color: #3c3c3c;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.qf-category-link:hover,
+.qf-category-link.active {
+    color: var(--phpdo-accent);
+}
+
+.qf-cat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.qf-cat-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.qf-cat-icon-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.qf-cat-icon-svg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 分类导航：浅色主题 */
+body.theme-php .qf-category-nav {
+    background: #fff;
+    border-top: 1px solid #eceef2;
+    border-bottom: 1px solid #eceef2;
+    box-shadow: 0 1px 4px rgba(20, 20, 20, .03);
+}
+
+/* 分类导航：深色主题 */
+body.theme-php-dark .qf-category-nav {
+    background: var(--phpdo-surface);
+    border-top: 1px solid var(--phpdo-border);
+    border-bottom: 1px solid var(--phpdo-border);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .03);
+}
+
+body.theme-php-dark .qf-category-link {
+    color: #d4d8e1;
+}
+
+body.theme-php-dark .qf-category-link:hover,
+body.theme-php-dark .qf-category-link.active {
+    color: #fff;
+}
+
+/* 移除主导航后，让搜索/按钮组靠右对齐 */
+.site-nav-bar .nav-actions {
+    margin-left: auto;
+}
+
+/* 1) 顶部菜单栏的深色/浅色切换按钮 */
+.nav-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    color: #333;
+    font-size: 17px;
+    background: #fff;
+    border: 1px solid #dfe3e8;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.nav-theme-toggle:hover {
+    color: var(--phpdo-accent);
+    border-color: #d8ceff;
+    background: #faf9ff;
+}
+
+/* 浅色模式显示月亮（点击切换到深色） */
+.nav-theme-toggle .nav-theme-sun {
+    display: none;
+}
+
+.nav-theme-toggle .nav-theme-moon {
+    display: inline-block;
+}
+
+/* 深色模式下显示太阳（点击切回浅色） */
+body.theme-php-dark .nav-theme-toggle {
+    color: var(--phpdo-text);
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
+}
+
+body.theme-php-dark .nav-theme-toggle:hover {
+    color: #fff;
+    background: #252b38;
+    border-color: #444d62;
+}
+
+body.theme-php-dark .nav-theme-toggle .nav-theme-sun {
+    display: inline-block;
+}
+
+body.theme-php-dark .nav-theme-toggle .nav-theme-moon {
+    display: none;
+}
+
+/* 4) 加载指示移到菜单栏右上角，并在切换时给内容加模糊层 */
+.qf-loading-indicator {
+    top: 14px;
+    left: auto;
+    right: 24px;
+    transform: translateY(-8px);
+}
+
+body.qf-is-loading .qf-loading-indicator {
+    transform: translateY(0);
+}
+
+body.qf-is-loading main.wrap {
+    filter: blur(2px);
+    opacity: .7;
+    pointer-events: none;
+    transition: filter 160ms ease, opacity 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.qf-is-loading main.wrap {
+        transition: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .qf-category-nav-inner {
+        gap: 16px;
+        padding: 6px 16px;
+    }
+
+    .qf-category-link {
+        font-size: 15px;
+    }
+
+    .qf-loading-indicator {
+        right: 14px;
+    }
+}
+
+/* 后台主导航图标编辑区 */
+.nav-icon-grid select,
+.nav-icon-cell select,
+.nav-icon-cell textarea,
+.nav-icon-cell input[type="text"] {
+    width: 100%;
+}
+
+.nav-icon-cell {
+    min-width: 220px;
+}
+
+.nav-icon-cell > * + * {
+    margin-top: 6px;
+}
+
+.nav-icon-preview {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    color: var(--phpdo-accent);
+}
+
+.nav-icon-preview .qf-cat-icon-img,
+.nav-icon-preview .qf-cat-icon-svg {
+    width: 24px;
+    height: 24px;
+}

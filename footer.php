@@ -84,6 +84,28 @@ $footer_icp = trim(qf_setting('icp_code', ''));
 </aside>
 <script src="assets/litezoom.min.js"></script>
 <script src="<?php echo h(qf_asset_js('app')); ?>"></script>
+<script>
+(function () {
+    var toggle = document.querySelector('[data-theme-toggle]');
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            var dark = document.body.classList.toggle('theme-php-dark');
+            try { localStorage.setItem('qfThemeMode', dark ? 'dark' : 'light'); } catch (e) {}
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a) return;
+        if (a.getAttribute('target') === '_blank' || a.hasAttribute('download')) return;
+        var href = a.getAttribute('href') || '';
+        if (href === '' || href.charAt(0) === '#' || /^(javascript|mailto|tel):/i.test(href)) return;
+        try { if (a.origin && a.origin !== location.origin) return; } catch (err) { return; }
+        if (typeof window.qfSetLoading === 'function') window.qfSetLoading(true);
+    }, true);
+})();
+</script>
 <?php echo qf_setting('stats_code', ''); ?>
 </body>
 </html>

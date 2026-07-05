@@ -235,6 +235,8 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_navs (
   id int(11) NOT NULL AUTO_INCREMENT,
   title varchar(40) NOT NULL DEFAULT '',
   url varchar(255) NOT NULL DEFAULT '',
+  icon_type varchar(10) NOT NULL DEFAULT '',
+  icon_value text,
   display_order int(11) NOT NULL DEFAULT '0',
   is_enabled tinyint(1) NOT NULL DEFAULT '1',
   created_at datetime NOT NULL,
