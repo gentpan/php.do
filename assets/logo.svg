@@ -2,18 +2,18 @@
   <title id="phpdo-logo-title">php.do</title>
   <defs>
     <linearGradient id="phpdo-badge-purple" x1="282" y1="9" x2="346" y2="73" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#7463dc"/>
-      <stop offset="1" stop-color="#5e4cca"/>
+      <stop offset="0" stop-color="#6f45f5"/>
+      <stop offset="1" stop-color="#5d29f0"/>
     </linearGradient>
     <filter id="phpdo-badge-shadow" x="-12%" y="-12%" width="124%" height="124%">
-      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#4f3fb5" flood-opacity=".16"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#5d29f0" flood-opacity=".16"/>
     </filter>
   </defs>
 
-  <g fill="none" stroke="#6454d3" stroke-width="10.5" stroke-linecap="square" stroke-linejoin="miter">
+  <g fill="none" stroke="#5d29f0" stroke-width="10.5" stroke-linecap="square" stroke-linejoin="miter">
     <path d="M47 21 13 41 47 61"/>
   </g>
-  <g fill="#6454d3" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900">
+  <g fill="#5d29f0" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900">
     <text x="52" y="61" font-size="58">?</text>
   </g>
 

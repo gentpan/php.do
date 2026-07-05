@@ -72,7 +72,7 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar FROM
                 <a class="thread-title" href="<?php echo h(qf_url_thread($t['id'])); ?>">
                     <?php if (intval($t['is_top']) === 1) { ?><span class="tag red">置顶</span><?php } ?>
                     <?php if (intval($t['is_top']) === 2) { ?><span class="tag red">置顶</span><?php } ?>
-                    <?php if (intval($t['is_good'])) { ?><span class="tag blue">精华</span><?php } ?>
+                    <?php if (intval($t['is_good'])) { ?><span class="tag good">精华</span><?php } ?>
                     <?php if ($t['topic_category'] !== '') { ?><span class="category-tag"><?php echo h($t['topic_category']); ?></span><?php } ?>
                     <?php echo h($t['title']); ?>
                 </a>

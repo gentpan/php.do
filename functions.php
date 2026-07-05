@@ -88,10 +88,10 @@ function qf_pick_avatar_part($items, $hash, $shift = 0) {
 
 function qf_cartoon_default_avatar_svg($user_id, $username, $nickname) {
     $hash = crc32($user_id . '|' . $username . '|' . $nickname);
-    $backgrounds = array('#ff4f9a', '#5668f5', '#65d3e7', '#d9d1ff', '#ffd34f', '#ff8da3', '#8ed9ff', '#b990ff');
+    $backgrounds = array('#ff4f9a', '#5d29f0', '#bfaaff', '#d9d1ff', '#ffd34f', '#ff8da3', '#cbbcff', '#b990ff');
     $skins = array('#ffd2ba', '#f2b893', '#e9a978', '#ffe0c9', '#d8986d');
-    $hair_colors = array('#1f2430', '#4159f2', '#ffe67a', '#a868ff', '#f05b6a', '#6b3c23');
-    $shirt_colors = array('#f5d7e9', '#ffd7c5', '#d8e0ff', '#ffe47a', '#c6f3ff', '#e9ddff');
+    $hair_colors = array('#1f2430', '#5d29f0', '#ffe67a', '#a868ff', '#f05b6a', '#6b3c23');
+    $shirt_colors = array('#f5d7e9', '#ffd7c5', '#e4dcff', '#ffe47a', '#e4dcff', '#e9ddff');
     $bg = qf_pick_avatar_part($backgrounds, $hash, 0);
     $skin = qf_pick_avatar_part($skins, $hash, 3);
     $hair = qf_pick_avatar_part($hair_colors, $hash, 6);
