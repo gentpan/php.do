@@ -451,6 +451,37 @@
 
     function initAjaxFilters() {
         document.addEventListener('click', function(e) {
+            var feedLink = e.target.closest('.phpdo-feed-tabs a[data-feed-filter]');
+            if (feedLink && !feedLink.target && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                var feedFilter = feedLink.getAttribute('data-feed-filter') || 'reply';
+                var feedUrl = new URL(window.location.origin + window.location.pathname);
+                if (feedFilter !== 'reply') {
+                    feedUrl.searchParams.set('filter', feedFilter);
+                }
+
+                e.preventDefault();
+                setLoading(true);
+                document.body.classList.add('qf-ajax-loading');
+                fetch(feedUrl.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function(res) {
+                        return res.text();
+                    })
+                    .then(function(html) {
+                        var nextDoc = new DOMParser().parseFromString(html, 'text/html');
+                        replaceFrom(nextDoc, ['.phpdo-feed-tabs', '.latest-list', '.phpdo-breadcrumb']);
+                        document.title = nextDoc.title || document.title;
+                        enhanceMedia(document);
+                    })
+                    .catch(function() {
+                        window.location.href = feedLink.href;
+                    })
+                    .finally(function() {
+                        document.body.classList.remove('qf-ajax-loading');
+                        setLoading(false);
+                    });
+                return;
+            }
+
             var link = e.target.closest('.filter-tabs a, .latest-title-dropdown a');
             if (!link || link.target || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 

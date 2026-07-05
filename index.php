@@ -148,7 +148,7 @@ qf_include_header();
         <section class="phpdo-feed-card" aria-label="帖子列表">
             <div class="phpdo-feed-tabs">
                 <?php foreach ($filter_labels as $key => $label) { ?>
-                    <a class="<?php echo $filter === $key ? 'active' : ''; ?>" href="<?php echo h($key === 'reply' ? qf_url_page('index.php') : qf_url_page('index.php', array('filter' => $key))); ?>"><?php echo h($label); ?></a>
+                    <a class="<?php echo $filter === $key ? 'active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>" data-feed-filter="<?php echo h($key); ?>"><?php echo h($label); ?></a>
                 <?php } ?>
                 <a class="phpdo-rss" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="订阅"><i class="fa-solid fa-square-rss" aria-hidden="true"></i><span>订阅</span></a>
             </div>
