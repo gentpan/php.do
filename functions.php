@@ -28,6 +28,7 @@ function db() {
         header('Content-Type: text/html; charset=utf-8');
         exit('数据库连接失败：' . mysqli_connect_error());
     }
+    qf_assert_mysql_runtime($conn);
     mysqli_set_charset($conn, DB_CHARSET);
     return $conn;
 }

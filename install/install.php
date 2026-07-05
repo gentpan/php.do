@@ -5,6 +5,7 @@ $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
 if (!$conn) {
     exit('数据库连接失败：' . mysqli_connect_error());
 }
+qf_assert_mysql_runtime($conn);
 mysqli_query($conn, "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
 mysqli_select_db($conn, DB_NAME);
 mysqli_set_charset($conn, DB_CHARSET);

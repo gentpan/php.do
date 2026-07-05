@@ -1,13 +1,15 @@
-清简论坛
+php.do
 
-环境建议：
-PHP 8.4-8.5
-MySQL 5.7+ 或 MariaDB 10.3+
+环境要求：
+PHP 8.5+
+MySQL 8.x 或 MySQL 9.x beta
 必须开启 mysqli、json 扩展
 建议开启 mbstring 扩展；使用 S3/R2 上传时需要 curl 扩展
 
+不再支持 PHP 8.4 及以下版本，不支持 MySQL 5.7 / MariaDB。安装和运行时都会检查环境版本。
+
 安装：
-1. 上传 qing_forum 整个目录到网站。
+1. 上传 php.do 整个目录到网站。
 2. 修改 config.php 的数据库信息。
 3. 访问 install/install.php 自动建表。
 4. 默认管理员：admin
