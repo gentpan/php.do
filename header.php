@@ -40,7 +40,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <meta name="msapplication-TileImage" content="assets/mstile-150x150.png">
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
     <?php if ($is_php_theme) { ?>
-        <link rel="stylesheet" href="https://www.php.net/cached.php?t=1781787603&amp;f=/fonts/Fira/fira.css">
+        <link rel="stylesheet" href="https://www.php.net/cached.php?t=1781787603&amp;f=/fonts/Fira/fira.css" media="print" onload="this.onload=null;this.media='all'">
     <?php } ?>
     <?php if (!$use_system_page_font) { foreach (qf_selected_font_urls() as $font_url) { ?>
         <link rel="stylesheet" href="<?php echo h($font_url); ?>">
