@@ -8993,7 +8993,7 @@ body.theme-php .qf-page-frame .phpdo-home-shell,
 body.theme-php-dark .qf-page-frame .phpdo-home-shell {
     width: 100%;
     max-width: none;
-    margin: 0;
+    margin: 22px 0 0;
 }
 
 /* 面包屑行右端搜索框：宽度与首页侧栏一致（25%），右对齐 */
