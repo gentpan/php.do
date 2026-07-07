@@ -6967,7 +6967,9 @@ body.theme-php .phpdo-thread-main-card .ad-box.ad-thread a {
 body.theme-php .phpdo-thread-breadcrumb {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
     margin: 18px 0 12px;
     padding: 9px 16px;
     color: #8a9099;
@@ -6976,6 +6978,22 @@ body.theme-php .phpdo-thread-breadcrumb {
     border: 1px solid #eceef2;
     border-radius: 8px;
     box-shadow: 0 1px 0 rgba(20, 20, 20, .02);
+}
+
+/* 面包屑左侧链接组：可收缩，标题过长时省略号 */
+body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-trail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+/* 面包屑右侧管理工具组：不收缩，靠右 */
+body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-tools {
+    float: none;
+    flex: 0 0 auto;
+    margin: 0;
 }
 
 body.theme-php .phpdo-thread-breadcrumb a {

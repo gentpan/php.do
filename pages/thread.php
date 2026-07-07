@@ -42,15 +42,33 @@ if ($me) {
     <div class="alert"><?php echo nl2br(h($_SESSION['flash'])); unset($_SESSION['flash']); ?></div>
 <?php } ?>
 <nav class="phpdo-thread-breadcrumb" aria-label="面包屑导航">
-    <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
-    <span class="phpdo-crumb-sep">›</span>
-    <a href="<?php echo h(qf_url_forum($thread['forum_id'])); ?>"><?php echo h($thread['forum_name']); ?></a>
-    <?php if ($thread['topic_category'] !== '') { ?>
+    <div class="phpdo-crumb-trail">
+        <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
         <span class="phpdo-crumb-sep">›</span>
-        <a href="<?php echo h(qf_url_category(intval($thread['forum_id']), $thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a>
+        <a href="<?php echo h(qf_url_forum($thread['forum_id'])); ?>"><?php echo h($thread['forum_name']); ?></a>
+        <?php if ($thread['topic_category'] !== '') { ?>
+            <span class="phpdo-crumb-sep">›</span>
+            <a href="<?php echo h(qf_url_category(intval($thread['forum_id']), $thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a>
+        <?php } ?>
+        <span class="phpdo-crumb-sep">›</span>
+        <span class="phpdo-crumb-current" title="<?php echo h($thread['title']); ?>"><?php echo h($thread['title']); ?></span>
+    </div>
+    <?php if (is_admin()) { ?>
+        <span class="admin-tools phpdo-crumb-tools">
+            <span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($thread['ip']); ?></span></span>
+            <?php echo qf_action_badge(qf_url_page('edit_thread.php', array('id' => intval($thread['id']))), '编辑', 'fa-solid fa-pen-to-square', 'action-badge-edit'); ?>
+            <?php echo qf_action_badge(qf_url_page('move_thread.php', array('id' => intval($thread['id']))), '移动', 'fa-solid fa-arrow-right-arrow-left', 'action-badge-move'); ?>
+            <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_board', 'id' => intval($thread['id']), 'token' => qf_action_token('top_board', $thread['id']))), '本版块置顶', 'fa-solid fa-thumbtack', 'action-badge-pin'); ?>
+            <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_global', 'id' => intval($thread['id']), 'token' => qf_action_token('top_global', $thread['id']))), '全站置顶', 'fa-solid fa-up-long', 'action-badge-pin'); ?>
+            <?php if (intval($thread['is_top']) > 0) { ?><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'cancel_top', 'id' => intval($thread['id']), 'token' => qf_action_token('cancel_top', $thread['id']))), '取消置顶', 'fa-solid fa-ban', 'action-badge-muted'); ?><?php } ?>
+            <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'good', 'id' => intval($thread['id']), 'token' => qf_action_token('good', $thread['id']))), intval($thread['is_good']) ? '取消加精' : '加精', 'fa-solid fa-star', 'action-badge-feature'); ?>
+            <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('del_thread', $thread['id']))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？"'); ?>
+        </span>
+    <?php } elseif (qf_can_moderator_delete_thread(current_user(), $thread)) { ?>
+        <span class="admin-tools phpdo-crumb-tools">
+            <?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('mod_del_thread', $thread['id']))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？"'); ?>
+        </span>
     <?php } ?>
-    <span class="phpdo-crumb-sep">›</span>
-    <span class="phpdo-crumb-current" title="<?php echo h($thread['title']); ?>"><?php echo h($thread['title']); ?></span>
 </nav>
 <article class="card post-title-card post-content-card phpdo-thread-title-card phpdo-thread-main-card">
     <div class="phpdo-thread-title-row">
@@ -59,22 +77,6 @@ if ($me) {
             <h1><?php if ($thread['topic_category'] !== '') { ?><a class="category-tag" href="<?php echo h(qf_url_category(intval($thread['forum_id']), $thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a><?php } ?><?php echo h($thread['title']); ?></h1>
             <div class="post-meta">
                 <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?> · <?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复
-                <?php if (is_admin()) { ?>
-                    <span class="admin-tools">
-                        <span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($thread['ip']); ?></span></span>
-                        <?php echo qf_action_badge(qf_url_page('edit_thread.php', array('id' => intval($thread['id']))), '编辑', 'fa-solid fa-pen-to-square', 'action-badge-edit'); ?>
-                        <?php echo qf_action_badge(qf_url_page('move_thread.php', array('id' => intval($thread['id']))), '移动', 'fa-solid fa-arrow-right-arrow-left', 'action-badge-move'); ?>
-                        <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_board', 'id' => intval($thread['id']), 'token' => qf_action_token('top_board', $thread['id']))), '本版块置顶', 'fa-solid fa-thumbtack', 'action-badge-pin'); ?>
-                        <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_global', 'id' => intval($thread['id']), 'token' => qf_action_token('top_global', $thread['id']))), '全站置顶', 'fa-solid fa-up-long', 'action-badge-pin'); ?>
-                        <?php if (intval($thread['is_top']) > 0) { ?><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'cancel_top', 'id' => intval($thread['id']), 'token' => qf_action_token('cancel_top', $thread['id']))), '取消置顶', 'fa-solid fa-ban', 'action-badge-muted'); ?><?php } ?>
-                        <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'good', 'id' => intval($thread['id']), 'token' => qf_action_token('good', $thread['id']))), intval($thread['is_good']) ? '取消加精' : '加精', 'fa-solid fa-star', 'action-badge-feature'); ?>
-                        <?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('del_thread', $thread['id']))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？"'); ?>
-                    </span>
-                <?php } elseif (qf_can_moderator_delete_thread(current_user(), $thread)) { ?>
-                    <span class="admin-tools">
-                        <?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('mod_del_thread', $thread['id']))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？"'); ?>
-                    </span>
-                <?php } ?>
             </div>
         </div>
     </div>
