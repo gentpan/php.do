@@ -108,6 +108,23 @@ if ($ok) {
     $ok = mysqli_query(db(), $thread_votes_sql);
 }
 
+$thread_reactions_sql = "CREATE TABLE IF NOT EXISTS qf_thread_reactions (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  thread_id int(11) NOT NULL DEFAULT '0',
+  user_id int(11) NOT NULL DEFAULT '0',
+  reaction varchar(20) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY thread_user (thread_id,user_id),
+  KEY thread_reaction (thread_id,reaction),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+if ($ok) {
+    $ok = mysqli_query(db(), $thread_reactions_sql);
+}
+
 if ($ok) {
     $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_forums LIKE 'topic_category_enabled'");
     if ($check && mysqli_num_rows($check) == 0) {

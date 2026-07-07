@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 qf_ensure_thread_vote_schema();
+qf_ensure_thread_reaction_schema();
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
 $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
@@ -113,6 +114,19 @@ if ($me) {
             <?php } ?>
         </div>
     <?php } ?>
+    <?php
+    $reaction_types = qf_reaction_types();
+    $reaction_counts = qf_thread_reaction_counts($id);
+    $user_reaction = $me ? qf_user_thread_reaction($id, intval($me['id'])) : '';
+    ?>
+    <div class="phpdo-reactions" data-reactions data-thread-id="<?php echo intval($id); ?>" data-logged-in="<?php echo $me ? '1' : '0'; ?>" data-login-url="<?php echo h(qf_url_page('login.php')); ?>" aria-label="表情反应">
+        <?php foreach ($reaction_types as $rkey => $rinfo) { ?>
+            <button type="button" class="phpdo-reaction<?php echo $user_reaction === $rkey ? ' is-active' : ''; ?>" data-reaction="<?php echo h($rkey); ?>" data-label="<?php echo h($rinfo['label']); ?>" aria-pressed="<?php echo $user_reaction === $rkey ? 'true' : 'false'; ?>" title="<?php echo h($rinfo['label']); ?>">
+                <span class="phpdo-reaction-emoji"><?php echo $rinfo['emoji']; ?></span>
+                <span class="phpdo-reaction-count" data-reaction-count="<?php echo h($rkey); ?>"><?php echo intval($reaction_counts[$rkey]) > 0 ? intval($reaction_counts[$rkey]) : ''; ?></span>
+            </button>
+        <?php } ?>
+    </div>
 </article>
 <section class="card replies" id="replies">
     <h2>回复 <?php echo qf_format_compact_number($thread['replies']); ?></h2>

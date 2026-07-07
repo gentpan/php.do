@@ -101,6 +101,19 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_thread_votes (
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
+$sqls[] = "CREATE TABLE IF NOT EXISTS qf_thread_reactions (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  thread_id int(11) NOT NULL DEFAULT '0',
+  user_id int(11) NOT NULL DEFAULT '0',
+  reaction varchar(20) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY thread_user (thread_id,user_id),
+  KEY thread_reaction (thread_id,reaction),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
 $sqls[] = "CREATE TABLE IF NOT EXISTS qf_posts (
   id int(11) NOT NULL AUTO_INCREMENT,
   thread_id int(11) NOT NULL DEFAULT '0',

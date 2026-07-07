@@ -632,6 +632,7 @@ function qf_route_script($script, &$params = array()) {
         'reply.php' => 'api/reply.php',
         'signin.php' => 'api/signin.php',
         'vote.php' => 'api/vote.php',
+        'react.php' => 'api/react.php',
         'login.php' => 'pages/login.php',
         'logout.php' => 'api/auth.php',
         'register.php' => 'pages/register.php',
@@ -684,6 +685,7 @@ function qf_clean_route_path($script) {
         'api/reply.php' => 'api/reply',
         'api/signin.php' => 'api/signin',
         'api/vote.php' => 'api/vote',
+        'api/react.php' => 'api/react',
     );
     return isset($map[$script]) ? $map[$script] : $script;
 }
@@ -1002,6 +1004,66 @@ function qf_recount_thread_votes($thread_id) {
     $down = count_rows("SELECT COUNT(*) FROM qf_thread_votes WHERE thread_id={$thread_id} AND vote=-1");
     mysqli_query(db(), "UPDATE qf_threads SET upvotes={$up}, downvotes={$down} WHERE id={$thread_id}");
     return array('upvotes' => $up, 'downvotes' => $down);
+}
+
+// 帖子表情反应：5 种类型（key => emoji + 标签）。每人每帖只能选 1 种。
+function qf_reaction_types() {
+    return array(
+        'like'       => array('emoji' => '👍',   'label' => 'Like'),
+        'cheer'      => array('emoji' => '👏🏻', 'label' => 'Cheer'),
+        'celebrate'  => array('emoji' => '🎉',   'label' => 'Celebrate'),
+        'appreciate' => array('emoji' => '✨',   'label' => 'Appreciate'),
+        'smile'      => array('emoji' => '🙂',   'label' => 'Smile'),
+    );
+}
+
+function qf_ensure_thread_reaction_schema() {
+    $threads = mysqli_query(db(), "SHOW TABLES LIKE 'qf_threads'");
+    if (!$threads || mysqli_num_rows($threads) == 0) {
+        return;
+    }
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_thread_reactions (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      thread_id int(11) NOT NULL DEFAULT '0',
+      user_id int(11) NOT NULL DEFAULT '0',
+      reaction varchar(20) NOT NULL DEFAULT '',
+      created_at datetime NOT NULL,
+      updated_at datetime NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY thread_user (thread_id,user_id),
+      KEY thread_reaction (thread_id,reaction),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function qf_thread_reaction_counts($thread_id) {
+    $thread_id = intval($thread_id);
+    qf_ensure_thread_reaction_schema();
+    $counts = array();
+    foreach (qf_reaction_types() as $key => $info) {
+        $counts[$key] = 0;
+    }
+    $rs = mysqli_query(db(), "SELECT reaction, COUNT(*) AS c FROM qf_thread_reactions WHERE thread_id={$thread_id} GROUP BY reaction");
+    while ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        $k = (string)$row['reaction'];
+        if (array_key_exists($k, $counts)) {
+            $counts[$k] = intval($row['c']);
+        }
+    }
+    return $counts;
+}
+
+function qf_user_thread_reaction($thread_id, $user_id) {
+    $thread_id = intval($thread_id);
+    $user_id = intval($user_id);
+    if ($user_id <= 0) {
+        return '';
+    }
+    $rs = mysqli_query(db(), "SELECT reaction FROM qf_thread_reactions WHERE thread_id={$thread_id} AND user_id={$user_id} LIMIT 1");
+    if ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        return (string)$row['reaction'];
+    }
+    return '';
 }
 
 function qf_protected_attachment_dir() {

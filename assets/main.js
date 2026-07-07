@@ -920,6 +920,64 @@
         });
     }
 
+    function initReactions() {
+        var box = document.querySelector('[data-reactions]');
+        if (!box) return;
+        var loggedIn = box.getAttribute('data-logged-in') === '1';
+        var loginUrl = box.getAttribute('data-login-url') || '';
+        var threadId = box.getAttribute('data-thread-id') || '';
+        box.addEventListener('click', function(e) {
+            var btn = e.target.closest ? e.target.closest('.phpdo-reaction') : null;
+            if (!btn || !box.contains(btn)) return;
+            if (!loggedIn) {
+                if (loginUrl) window.location.href = loginUrl;
+                return;
+            }
+            var reaction = btn.getAttribute('data-reaction') || '';
+            if (!reaction || btn.disabled) return;
+            var buttons = box.querySelectorAll('.phpdo-reaction');
+            var i;
+            for (i = 0; i < buttons.length; i++) buttons[i].disabled = true;
+            var data = new FormData();
+            data.append('thread_id', threadId);
+            data.append('reaction', reaction);
+            data.append('csrf_token', window.qfCsrfToken || '');
+            fetch('api/react.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: data
+            }).then(function(res) {
+                return res.json().then(function(json) {
+                    if (!res.ok || !json.ok) throw new Error(json.error || '操作失败。');
+                    return json;
+                });
+            }).then(function(json) {
+                var b, key, active;
+                for (b = 0; b < buttons.length; b++) {
+                    key = buttons[b].getAttribute('data-reaction');
+                    active = json.active === key;
+                    buttons[b].classList.toggle('is-active', active);
+                    buttons[b].setAttribute('aria-pressed', active ? 'true' : 'false');
+                }
+                if (json.counts) {
+                    Object.keys(json.counts).forEach(function(k) {
+                        var el = box.querySelector('[data-reaction-count="' + k + '"]');
+                        if (el) {
+                            var n = parseInt(json.counts[k], 10) || 0;
+                            el.textContent = n > 0 ? n : '';
+                        }
+                    });
+                }
+            }).catch(function(err) {
+                toast(err.message || '操作失败。', 'error');
+            }).finally(function() {
+                var j;
+                for (j = 0; j < buttons.length; j++) buttons[j].disabled = false;
+            });
+        });
+    }
+
     window.qfEnhanceMedia = enhanceMedia;
     window.qfSetLoading = setLoading;
     initNavMore();
@@ -937,6 +995,7 @@
     initAjaxFilters();
     initFeedStream();
     initRssCopy();
+    initReactions();
 
     requestAnimationFrame(function() {
         document.body.classList.add('qf-page-ready');
