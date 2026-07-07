@@ -9291,9 +9291,21 @@ body.theme-php .phpdo-right-toolbar {
     font-size: 17px;
     transition: color .12s ease;
 }
-.qf-navbar-rss:hover { color: #ff9800; }
+.qf-navbar-rss i {
+    display: inline-block;
+    transform: scale(1.2);
+    transform-origin: center;
+    transition: transform .16s cubic-bezier(.34, 1.56, .64, 1);
+}
+.qf-navbar-rss:hover { color: #ffc107; }
+.qf-navbar-rss:hover i { transform: scale(1.45); }
+.qf-navbar-rss.is-copied,
+.qf-navbar-rss.is-copied:hover { color: #22c55e; }
+.qf-navbar-rss.is-copied i { transform: scale(1.3); }
 .qf-topbar-hasbg .qf-navbar-rss { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 4px rgba(0, 0, 0, .55); }
-.qf-topbar-hasbg .qf-navbar-rss:hover { color: #ffb14d; }
+.qf-topbar-hasbg .qf-navbar-rss:hover { color: #ffd43b; }
+.qf-topbar-hasbg .qf-navbar-rss.is-copied,
+.qf-topbar-hasbg .qf-navbar-rss.is-copied:hover { color: #34d399; }
 
 /* 顶部加载彩色进度条（页面加载/切换时显示） */
 .qf-topload {

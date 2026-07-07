@@ -903,7 +903,14 @@
             e.preventDefault();
             var url = btn.getAttribute('data-rss-url') || '';
             if (!url) return;
-            var done = function() { if (window.qfToast) window.qfToast('复制 RSS 成功'); };
+            var done = function() {
+                if (window.qfToast) window.qfToast('复制 RSS 成功');
+                btn.classList.add('is-copied');
+                window.clearTimeout(btn._rssCopiedTimer);
+                btn._rssCopiedTimer = window.setTimeout(function() {
+                    btn.classList.remove('is-copied');
+                }, 2000);
+            };
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(url).then(done, function() { fallbackCopy(url); done(); });
             } else {
