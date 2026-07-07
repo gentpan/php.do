@@ -1789,7 +1789,7 @@ button.action-badge {
     width: 16px;
     height: 16px;
     object-fit: cover;
-    border-radius: 3px;
+    border-radius: 0;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .1);
     flex: 0 0 auto;
 }
