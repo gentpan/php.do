@@ -9076,6 +9076,41 @@ body.theme-php-dark .phpdo-about-metric span { color: #e6e6e6; }
 body.theme-php-dark .phpdo-about-text,
 body.theme-php-dark .phpdo-about-contact p { color: #c2c2c2; }
 
+/* 首页侧栏「关于社区」卡片 */
+body.theme-php .phpdo-community-slogan {
+    margin: 0 0 12px;
+    color: #8a8f98;
+    font-size: 13px;
+    line-height: 1.6;
+}
+body.theme-php .phpdo-community-stats {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+body.theme-php .phpdo-community-stats > div {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    padding: 10px 4px;
+    background: #f6f7fb;
+    border-radius: 8px;
+}
+body.theme-php .phpdo-community-stats b { display: block; font-size: 18px; font-weight: 800; color: var(--phpdo-accent); }
+body.theme-php .phpdo-community-stats span { display: block; margin-top: 2px; font-size: 11px; color: #8a8f98; }
+body.theme-php .phpdo-community-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--phpdo-accent);
+    text-decoration: none;
+    transition: gap .15s ease;
+}
+body.theme-php .phpdo-community-link:hover { gap: 10px; }
+body.theme-php-dark .phpdo-community-stats > div { background: #23262e; }
+
 @media (max-width: 640px) {
     .site-footer-top { gap: 24px; }
     .site-footer-inner { padding: 0 18px; }

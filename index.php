@@ -233,6 +233,8 @@ $must_reads = array(
     '开源项目更新欢迎同步 changelog 和仓库地址',
 );
 
+$community_stats = qf_community_stats();
+
 qf_include_header();
 ?>
 <div class="phpdo-home-shell">
@@ -292,6 +294,16 @@ qf_include_header();
                         <li><?php echo h($item); ?></li>
                     <?php } ?>
                 </ul>
+            </section>
+            <section class="phpdo-side-card phpdo-community-card">
+                <h2><span></span>关于社区</h2>
+                <p class="phpdo-community-slogan"><?php echo h(qf_site_slogan()); ?></p>
+                <div class="phpdo-community-stats">
+                    <div><b><?php echo qf_format_compact_number($community_stats['members']); ?></b><span>成员</span></div>
+                    <div><b><?php echo qf_format_compact_number($community_stats['topics_7d']); ?></b><span>近7天话题</span></div>
+                    <div><b><?php echo qf_format_compact_number($community_stats['active_7d']); ?></b><span>近7天活跃</span></div>
+                </div>
+                <a class="phpdo-community-link" href="<?php echo h(qf_url_page('about.php')); ?>">了解本站 <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></a>
             </section>
             <section class="phpdo-ad phpdo-ad-warm">
                 <strong>PHP 项目发布</strong>
