@@ -6418,8 +6418,14 @@ body.theme-php .phpdo-right-toolbar {
     right: 22px;
     bottom: 92px;
     z-index: 80;
-    display: grid;
-    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(30, 42, 60, .10);
 }
 
 body.theme-php .phpdo-right-toolbar a,
@@ -6430,20 +6436,26 @@ body.theme-php .phpdo-right-toolbar button {
     width: 46px;
     height: 46px;
     padding: 0;
-    color: #6d737c;
+    font-size: 18px;
+    color: #4b5563;
     text-decoration: none;
-    background: #fff !important;
-    border: 1px solid #e3e6eb;
-    border-radius: 6px !important;
-    box-shadow: 0 8px 22px rgba(30, 42, 60, .08);
+    background: transparent !important;
+    border: 0;
+    border-radius: 0 !important;
+    box-shadow: none;
     cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+/* 竖排连体：相邻按钮之间用分隔线（等价 Tailwind divide-y） */
+body.theme-php .phpdo-right-toolbar > * + * {
+    border-top: 1px solid #e5e7eb;
 }
 
 body.theme-php .phpdo-right-toolbar a:hover,
 body.theme-php .phpdo-right-toolbar button:hover {
-    color: #fff;
-    background: var(--phpdo-accent) !important;
-    border-color: var(--phpdo-accent);
+    color: #4b5563;
+    background: #f3f4f6 !important;
 }
 
 body.theme-php .phpdo-right-toolbar [data-scroll-top] {
@@ -6656,7 +6668,7 @@ body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
     body.theme-php .phpdo-right-toolbar {
         right: 10px;
         bottom: 16px;
-        gap: 7px;
+        gap: 0;
     }
 
     body.theme-php .phpdo-right-toolbar a,
@@ -7689,10 +7701,13 @@ body.theme-php .floor-reply {
     border-radius: var(--phpdo-card-radius);
 }
 
+body.theme-php .phpdo-right-toolbar {
+    box-shadow: var(--phpdo-shadow-soft);
+}
 body.theme-php .phpdo-right-toolbar a,
 body.theme-php .phpdo-right-toolbar button {
-    border-radius: var(--phpdo-card-radius) !important;
-    box-shadow: var(--phpdo-shadow-soft);
+    border-radius: 0 !important;
+    box-shadow: none;
 }
 
 @media (max-width: 900px) {
@@ -8131,19 +8146,26 @@ body.theme-php-dark .footer-qr span {
     border-color: var(--phpdo-border);
 }
 
+body.theme-php-dark .phpdo-right-toolbar {
+    background: #111827;
+    border-color: #374151;
+    box-shadow: var(--phpdo-shadow-soft);
+}
+
+body.theme-php-dark .phpdo-right-toolbar > * + * {
+    border-top-color: #374151;
+}
+
 body.theme-php-dark .phpdo-right-toolbar a,
 body.theme-php-dark .phpdo-right-toolbar button {
-    color: #d4d8e1;
-    background: var(--phpdo-surface) !important;
-    border-color: var(--phpdo-border);
-    box-shadow: var(--phpdo-shadow-soft);
+    color: #d1d5db;
+    background: transparent !important;
 }
 
 body.theme-php-dark .phpdo-right-toolbar a:hover,
 body.theme-php-dark .phpdo-right-toolbar button:hover {
-    color: #fff;
-    background: var(--phpdo-accent) !important;
-    border-color: var(--phpdo-accent);
+    color: #d1d5db;
+    background: #1f2937 !important;
 }
 
 /* ==========================================================================
