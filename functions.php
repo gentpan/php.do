@@ -1061,6 +1061,43 @@ function qf_recount_thread_votes($thread_id) {
     return array('upvotes' => $up, 'downvotes' => $down);
 }
 
+// 评论（楼层回复）顶/踩：qf_posts 增加 upvotes/downvotes 列 + qf_post_votes 记录每人每评论投票。
+function qf_ensure_post_vote_schema() {
+    $posts = mysqli_query(db(), "SHOW TABLES LIKE 'qf_posts'");
+    if (!$posts || mysqli_num_rows($posts) == 0) {
+        return;
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_posts LIKE 'upvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_posts ADD upvotes int(11) NOT NULL DEFAULT '0'");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_posts LIKE 'downvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_posts ADD downvotes int(11) NOT NULL DEFAULT '0'");
+    }
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_post_votes (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      post_id int(11) NOT NULL DEFAULT '0',
+      user_id int(11) NOT NULL DEFAULT '0',
+      vote tinyint(1) NOT NULL DEFAULT '0',
+      created_at datetime NOT NULL,
+      updated_at datetime NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY post_user (post_id,user_id),
+      KEY post_vote (post_id,vote),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function qf_recount_post_votes($post_id) {
+    $post_id = intval($post_id);
+    qf_ensure_post_vote_schema();
+    $up = count_rows("SELECT COUNT(*) FROM qf_post_votes WHERE post_id={$post_id} AND vote=1");
+    $down = count_rows("SELECT COUNT(*) FROM qf_post_votes WHERE post_id={$post_id} AND vote=-1");
+    mysqli_query(db(), "UPDATE qf_posts SET upvotes={$up}, downvotes={$down} WHERE id={$post_id}");
+    return array('upvotes' => $up, 'downvotes' => $down);
+}
+
 // 帖子表情反应：5 种类型（key => emoji + 标签）。每人每帖只能选 1 种。
 function qf_reaction_types() {
     return array(

@@ -428,7 +428,7 @@
             var form = e.target.closest('form[data-vote-form]');
             if (!form || e.defaultPrevented) return;
             e.preventDefault();
-            var root = form.closest('[data-thread-votes]');
+            var root = form.closest('[data-thread-votes], [data-post-votes]');
             var data = new FormData(form);
             if (!data.get('csrf_token')) data.append('csrf_token', window.qfCsrfToken || '');
             setLoading(true);

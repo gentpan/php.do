@@ -121,11 +121,26 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_posts (
   user_id int(11) NOT NULL DEFAULT '0',
   content mediumtext NOT NULL,
   is_deleted tinyint(1) NOT NULL DEFAULT '0',
+  upvotes int(11) NOT NULL DEFAULT '0',
+  downvotes int(11) NOT NULL DEFAULT '0',
   ip varchar(45) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,
   PRIMARY KEY (id),
   KEY thread_id (thread_id),
   KEY created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+$sqls[] = "CREATE TABLE IF NOT EXISTS qf_post_votes (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  post_id int(11) NOT NULL DEFAULT '0',
+  user_id int(11) NOT NULL DEFAULT '0',
+  vote tinyint(1) NOT NULL DEFAULT '0',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY post_user (post_id,user_id),
+  KEY post_vote (post_id,vote),
+  KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS qf_bans (

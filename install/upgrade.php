@@ -131,6 +131,31 @@ if ($ok) {
     $ok = mysqli_query(db(), $thread_reactions_sql);
 }
 
+$post_votes_sql = "CREATE TABLE IF NOT EXISTS qf_post_votes (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  post_id int(11) NOT NULL DEFAULT '0',
+  user_id int(11) NOT NULL DEFAULT '0',
+  vote tinyint(1) NOT NULL DEFAULT '0',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY post_user (post_id,user_id),
+  KEY post_vote (post_id,vote),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+if ($ok) {
+    $ok = mysqli_query(db(), $post_votes_sql);
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_posts LIKE 'upvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_posts ADD upvotes int(11) NOT NULL DEFAULT '0'");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_posts LIKE 'downvotes'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_posts ADD downvotes int(11) NOT NULL DEFAULT '0'");
+    }
+}
+
 if ($ok) {
     $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_forums LIKE 'topic_category_enabled'");
     if ($check && mysqli_num_rows($check) == 0) {

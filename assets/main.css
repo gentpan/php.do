@@ -7303,6 +7303,31 @@ body.theme-php .phpdo-reply-actions > div {
     gap: 18px;
 }
 
+body.theme-php .phpdo-reply-actions-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+body.theme-php .phpdo-post-votes {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.theme-php .phpdo-post-votes form {
+    margin: 0;
+}
+
+body.theme-php .phpdo-vote-button-sm {
+    min-width: 64px;
+    height: 32px;
+    padding: 0 10px;
+    font-size: 13px;
+    gap: 5px;
+}
+
 body.theme-php .phpdo-reply-action {
     display: inline-flex;
     align-items: center;

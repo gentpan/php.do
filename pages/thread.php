@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../functions.php';
-qf_ensure_thread_vote_schema();
 qf_ensure_thread_reaction_schema();
+qf_ensure_post_vote_schema();
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
 $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
@@ -30,11 +30,11 @@ $compressed_exts = array('zip', 'rar');
 $thread_avatar = qf_user_avatar($thread, 160);
 $thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['username'];
 $me = current_user();
-$user_vote = 0;
+$user_post_votes = array();
 if ($me) {
-    $vote_rs = mysqli_query(db(), "SELECT vote FROM qf_thread_votes WHERE thread_id=" . intval($id) . " AND user_id=" . intval($me['id']) . " LIMIT 1");
-    if ($vote_rs && ($vote_row = mysqli_fetch_assoc($vote_rs))) {
-        $user_vote = intval($vote_row['vote']);
+    $vote_rs = mysqli_query(db(), "SELECT pv.post_id, pv.vote FROM qf_post_votes pv INNER JOIN qf_posts p ON p.id=pv.post_id WHERE p.thread_id=" . intval($id) . " AND p.is_deleted=0 AND pv.user_id=" . intval($me['id']));
+    while ($vote_rs && ($vote_row = mysqli_fetch_assoc($vote_rs))) {
+        $user_post_votes[intval($vote_row['post_id'])] = intval($vote_row['vote']);
     }
 }
 ?>
@@ -74,27 +74,6 @@ if ($me) {
                     <span class="admin-tools">
                         <?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => intval($thread['id']), 'token' => qf_action_token('mod_del_thread', $thread['id']))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？"'); ?>
                     </span>
-                <?php } ?>
-            </div>
-            <div class="phpdo-thread-votes" data-thread-votes>
-                <?php if ($me) { ?>
-                    <form method="post" action="<?php echo h(qf_url_page('react.php')); ?>" data-vote-form>
-                        <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
-                        <input type="hidden" name="vote" value="up">
-                        <button class="phpdo-vote-button<?php echo $user_vote === 1 ? ' active' : ''; ?>" type="submit" data-vote-button="up" aria-pressed="<?php echo $user_vote === 1 ? 'true' : 'false'; ?>">
-                            <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong data-vote-count="up"><?php echo intval(isset($thread['upvotes']) ? $thread['upvotes'] : 0); ?></strong>
-                        </button>
-                    </form>
-                    <form method="post" action="<?php echo h(qf_url_page('react.php')); ?>" data-vote-form>
-                        <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
-                        <input type="hidden" name="vote" value="down">
-                        <button class="phpdo-vote-button<?php echo $user_vote === -1 ? ' active' : ''; ?>" type="submit" data-vote-button="down" aria-pressed="<?php echo $user_vote === -1 ? 'true' : 'false'; ?>">
-                            <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong data-vote-count="down"><?php echo intval(isset($thread['downvotes']) ? $thread['downvotes'] : 0); ?></strong>
-                        </button>
-                    </form>
-                <?php } else { ?>
-                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong><?php echo intval(isset($thread['upvotes']) ? $thread['upvotes'] : 0); ?></strong></a>
-                    <a class="phpdo-vote-button" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong><?php echo intval(isset($thread['downvotes']) ? $thread['downvotes'] : 0); ?></strong></a>
                 <?php } ?>
             </div>
         </div>
@@ -152,6 +131,9 @@ if ($me) {
         $reply_author = $p['nickname'] !== '' ? $p['nickname'] : $p['username'];
         $reply_level = qf_user_level(intval(isset($p['points']) ? $p['points'] : 0));
         $reply_signature = trim((string)$p['signature']);
+        $post_user_vote = isset($user_post_votes[intval($p['id'])]) ? $user_post_votes[intval($p['id'])] : 0;
+        $post_upvotes = intval(isset($p['upvotes']) ? $p['upvotes'] : 0);
+        $post_downvotes = intval(isset($p['downvotes']) ? $p['downvotes'] : 0);
         ?>
         <div class="reply">
             <img class="phpdo-reply-avatar" src="<?php echo h($reply_avatar); ?>" alt="">
@@ -206,12 +188,35 @@ if ($me) {
                 <?php } ?>
             </div>
                 <div class="phpdo-reply-actions">
-                    <div>
+                    <div class="phpdo-reply-actions-main">
                         <?php if (current_user()) { ?>
                             <button class="phpdo-reply-action floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></button>
                         <?php } else { ?>
                             <a class="phpdo-reply-action" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></a>
                         <?php } ?>
+                        <div class="phpdo-post-votes" data-post-votes>
+                            <?php if ($me) { ?>
+                                <form method="post" action="<?php echo h(qf_url_page('react.php')); ?>" data-vote-form>
+                                    <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
+                                    <input type="hidden" name="post_id" value="<?php echo intval($p['id']); ?>">
+                                    <input type="hidden" name="vote" value="up">
+                                    <button class="phpdo-vote-button phpdo-vote-button-sm<?php echo $post_user_vote === 1 ? ' active' : ''; ?>" type="submit" data-vote-button="up" aria-pressed="<?php echo $post_user_vote === 1 ? 'true' : 'false'; ?>">
+                                        <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong data-vote-count="up"><?php echo $post_upvotes; ?></strong>
+                                    </button>
+                                </form>
+                                <form method="post" action="<?php echo h(qf_url_page('react.php')); ?>" data-vote-form>
+                                    <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
+                                    <input type="hidden" name="post_id" value="<?php echo intval($p['id']); ?>">
+                                    <input type="hidden" name="vote" value="down">
+                                    <button class="phpdo-vote-button phpdo-vote-button-sm<?php echo $post_user_vote === -1 ? ' active' : ''; ?>" type="submit" data-vote-button="down" aria-pressed="<?php echo $post_user_vote === -1 ? 'true' : 'false'; ?>">
+                                        <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong data-vote-count="down"><?php echo $post_downvotes; ?></strong>
+                                    </button>
+                                </form>
+                            <?php } else { ?>
+                                <a class="phpdo-vote-button phpdo-vote-button-sm" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong><?php echo $post_upvotes; ?></strong></a>
+                                <a class="phpdo-vote-button phpdo-vote-button-sm" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>踩</span><strong><?php echo $post_downvotes; ?></strong></a>
+                            <?php } ?>
+                        </div>
                     </div>
                     <div>
                         <?php if (is_admin()) { ?><span class="admin-tools"><span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: <?php echo h($p['ip']); ?></span></span><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('del_post', $p['id'], intval($id)))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？"'); ?></span><?php } ?>
