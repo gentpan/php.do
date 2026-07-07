@@ -9698,38 +9698,43 @@ body.theme-php .phpdo-thread-meta > .phpdo-thread-stats {
     margin: 0;
 }
 
-/* 首页帖子 meta 里的版块（类别）名称徽章：紧跟时间之后 */
+/* 首页帖子 meta 里的版块（类别）名称徽章：直角，不同板块不同颜色 */
 body.theme-php .phpdo-forum-tag {
     display: inline-flex;
     align-items: center;
     margin-left: 10px;
     padding: 2px 9px;
-    color: #5a6499;
     font-size: 12px;
     font-weight: 600;
     line-height: 1.4;
     text-decoration: none;
     white-space: nowrap;
-    background: #eef0fb;
-    border: 1px solid #e0e3f5;
-    border-radius: 999px;
-    transition: background .15s ease, color .15s ease;
+    border: 1px solid transparent;
+    border-radius: 0;
+    transition: filter .15s ease;
 }
 body.theme-php .phpdo-forum-tag:hover {
-    color: #fff;
-    background: var(--phpdo-accent);
-    border-color: var(--phpdo-accent);
+    filter: brightness(.96);
 }
-body.theme-php-dark .phpdo-forum-tag {
-    color: #c8ccff;
-    background: rgba(80, 91, 147, .22);
-    border-color: rgba(80, 91, 147, .35);
-}
-body.theme-php-dark .phpdo-forum-tag:hover {
-    color: #fff;
-    background: var(--phpdo-accent);
-    border-color: var(--phpdo-accent);
-}
+/* 8 色板：柔和底 + 同色系文字/边框 */
+body.theme-php .phpdo-forum-tag-0 { color: #1d6fb8; background: #e8f2fc; border-color: #cfe4f7; }
+body.theme-php .phpdo-forum-tag-1 { color: #2f8f4e; background: #e7f6ec; border-color: #cdeed7; }
+body.theme-php .phpdo-forum-tag-2 { color: #b7791f; background: #fdf3e0; border-color: #f6e3bf; }
+body.theme-php .phpdo-forum-tag-3 { color: #d1495b; background: #fdeaec; border-color: #f7ced4; }
+body.theme-php .phpdo-forum-tag-4 { color: #6b4bd6; background: #f0ecfd; border-color: #ddd3f7; }
+body.theme-php .phpdo-forum-tag-5 { color: #1a8a9d; background: #e4f6f8; border-color: #c4ebef; }
+body.theme-php .phpdo-forum-tag-6 { color: #c2410c; background: #fdece2; border-color: #f7d4c0; }
+body.theme-php .phpdo-forum-tag-7 { color: #5a6270; background: #eef0f3; border-color: #dde1e8; }
+
+body.theme-php-dark .phpdo-forum-tag { border-color: transparent; }
+body.theme-php-dark .phpdo-forum-tag-0 { color: #7fc0f5; background: rgba(29,111,184,.18); }
+body.theme-php-dark .phpdo-forum-tag-1 { color: #7fd6a0; background: rgba(47,143,78,.18); }
+body.theme-php-dark .phpdo-forum-tag-2 { color: #f0c778; background: rgba(183,121,31,.20); }
+body.theme-php-dark .phpdo-forum-tag-3 { color: #f39aa6; background: rgba(209,73,91,.18); }
+body.theme-php-dark .phpdo-forum-tag-4 { color: #b7a4f5; background: rgba(107,75,214,.20); }
+body.theme-php-dark .phpdo-forum-tag-5 { color: #7fd4de; background: rgba(26,138,157,.18); }
+body.theme-php-dark .phpdo-forum-tag-6 { color: #f0a878; background: rgba(194,65,12,.20); }
+body.theme-php-dark .phpdo-forum-tag-7 { color: #b7bdc8; background: rgba(90,98,112,.22); }
 
 /* ===== 手写工具类（替代已移除的 Tailwind，仅覆盖 header.php 实际用到的类） ===== */
 .mx-auto { margin-left: auto; margin-right: auto; }
