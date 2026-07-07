@@ -117,7 +117,7 @@ function phpdo_render_thread_row($t) {
                 <a href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
                 <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
                 <?php if (!empty($t['has_attachment'])) { ?><i class="fa-solid fa-paperclip phpdo-attach-icon" title="含附件" aria-label="含附件"></i><?php } ?>
-                <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
+                <?php if ($is_new) { ?><i class="fa-solid fa-rectangle-new phpdo-new" title="新帖" aria-label="新帖"></i><?php } ?>
             </h2>
             <div class="phpdo-thread-meta">
                 <p>

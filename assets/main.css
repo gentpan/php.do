@@ -6039,35 +6039,24 @@ body.theme-php .phpdo-thread-main p {
     line-height: 1.35;
 }
 
-/* 动态「New」小旗徽章：燕尾旗面 + 飘动 */
+/* 「New」标记：FontAwesome rectangle-new 图标 + 轻微呼吸动画 */
 body.theme-php .phpdo-new {
-    display: inline-flex;
-    align-items: center;
-    height: 17px;
     margin-left: 5px;
-    padding: 0 12px 0 8px;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: .4px;
+    color: var(--phpdo-red);
+    font-size: 16px;
     line-height: 1;
-    text-transform: uppercase;
     vertical-align: middle;
-    background: linear-gradient(135deg, #ff8a3d 0%, #ff4d4f 100%);
-    clip-path: polygon(0 0, 100% 0, 82% 50%, 100% 100%, 0 100%);
-    transform-origin: left center;
-    animation: phpdoNewWave 1.9s ease-in-out infinite;
+    animation: phpdoNewPulse 1.8s ease-in-out infinite;
 }
-@keyframes phpdoNewWave {
-    0%, 100% { transform: skewX(0deg) rotate(0deg); }
-    30% { transform: skewX(-4deg) rotate(-1deg); }
-    70% { transform: skewX(4deg) rotate(1deg); }
+@keyframes phpdoNewPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .72; transform: scale(1.08); }
 }
 @media (prefers-reduced-motion: reduce) {
     body.theme-php .phpdo-new { animation: none; }
 }
 body.theme-php-dark .phpdo-new {
-    background: linear-gradient(135deg, #ff9f52 0%, #ff5a5c 100%);
+    color: #ff7a5c;
 }
 
 body.theme-php .phpdo-pill,
