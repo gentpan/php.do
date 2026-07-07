@@ -244,6 +244,31 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_navs (
   KEY enabled_order (is_enabled, display_order, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
+$sqls[] = "CREATE TABLE IF NOT EXISTS qf_invites (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  code varchar(32) NOT NULL,
+  created_by int(11) NOT NULL DEFAULT '0',
+  used_by int(11) NOT NULL DEFAULT '0',
+  used_at datetime DEFAULT NULL,
+  expires_at datetime DEFAULT NULL,
+  note varchar(100) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY code (code),
+  KEY used_by (used_by)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+$sqls[] = "CREATE TABLE IF NOT EXISTS qf_oauth (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) NOT NULL,
+  provider varchar(20) NOT NULL,
+  provider_uid varchar(191) NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY provider_uid (provider, provider_uid),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
 $ok = true;
 $errors = array();
 foreach ($sqls as $sql) {

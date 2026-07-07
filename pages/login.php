@@ -23,6 +23,16 @@ qf_include_header();
         <button class="btn auth-submit" type="submit">登录</button>
         <button class="btn btn-light auth-passkey" type="button" data-passkey-login><i class="fa-solid fa-key" aria-hidden="true"></i> 使用 Passkey 登录</button>
     </form>
+    <?php if (qf_oauth_any_enabled()) { ?>
+    <div class="phpdo-oauth-divider"><span>或使用第三方账号</span></div>
+    <div class="phpdo-oauth-buttons">
+        <?php foreach (qf_oauth_providers() as $key => $info) { if (!qf_oauth_enabled($key)) continue; ?>
+            <a class="btn btn-light phpdo-oauth-btn phpdo-oauth-<?php echo $key; ?>" href="<?php echo h(qf_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
+                <i class="<?php echo h($info['icon']); ?>" aria-hidden="true"></i> 使用 <?php echo h($info['label']); ?> 登录
+            </a>
+        <?php } ?>
+    </div>
+    <?php } ?>
     <p class="phpdo-auth-switch">还没有账号？<a href="<?php echo h(qf_url_page('register.php')); ?>">注册</a></p>
 </section>
 <?php qf_include_footer(); ?>

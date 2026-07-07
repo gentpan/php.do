@@ -1817,6 +1817,305 @@ function require_login() {
     return $u;
 }
 
+function qf_invite_table_ready() {
+    $t = mysqli_query(db(), "SHOW TABLES LIKE 'qf_invites'");
+    return $t && mysqli_num_rows($t) > 0;
+}
+
+function qf_require_invite() {
+    return qf_invite_table_ready() && intval(qf_setting('require_invite', '0')) === 1;
+}
+
+function qf_generate_invite_code() {
+    $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    $max = strlen($chars) - 1;
+    $code = '';
+    for ($i = 0; $i < 10; $i++) {
+        $code .= $chars[random_int(0, $max)];
+    }
+    return $code;
+}
+
+function qf_invite_valid($code) {
+    if (!qf_invite_table_ready()) {
+        return null;
+    }
+    $code = trim((string)$code);
+    if ($code === '') {
+        return null;
+    }
+    $code_sql = esc($code);
+    $rs = mysqli_query(db(), "SELECT * FROM qf_invites WHERE code='{$code_sql}' AND used_by=0 AND (expires_at IS NULL OR expires_at > NOW()) LIMIT 1");
+    return $rs ? mysqli_fetch_assoc($rs) : null;
+}
+
+function qf_consume_invite($code, $user_id) {
+    if (!qf_invite_table_ready()) {
+        return false;
+    }
+    $code_sql = esc(trim((string)$code));
+    $uid = intval($user_id);
+    mysqli_query(db(), "UPDATE qf_invites SET used_by={$uid}, used_at=NOW() WHERE code='{$code_sql}' AND used_by=0 AND (expires_at IS NULL OR expires_at > NOW())");
+    return mysqli_affected_rows(db()) > 0;
+}
+
+function qf_oauth_table_ready() {
+    $t = mysqli_query(db(), "SHOW TABLES LIKE 'qf_oauth'");
+    return $t && mysqli_num_rows($t) > 0;
+}
+
+function qf_oauth_providers() {
+    return array(
+        'github' => array(
+            'label' => 'GitHub',
+            'authorize' => 'https://github.com/login/oauth/authorize',
+            'token' => 'https://github.com/login/oauth/access_token',
+            'scope' => 'read:user user:email',
+            'icon' => 'fa-brands fa-github',
+        ),
+        'google' => array(
+            'label' => 'Google',
+            'authorize' => 'https://accounts.google.com/o/oauth2/v2/auth',
+            'token' => 'https://oauth2.googleapis.com/token',
+            'scope' => 'openid email profile',
+            'icon' => 'fa-brands fa-google',
+        ),
+    );
+}
+
+function qf_oauth_enabled($provider) {
+    $providers = qf_oauth_providers();
+    if (!isset($providers[$provider])) {
+        return false;
+    }
+    return intval(qf_setting('oauth_' . $provider . '_enabled', '0')) === 1
+        && trim(qf_setting('oauth_' . $provider . '_client_id', '')) !== ''
+        && trim(qf_setting('oauth_' . $provider . '_client_secret', '')) !== '';
+}
+
+function qf_oauth_any_enabled() {
+    foreach (array_keys(qf_oauth_providers()) as $p) {
+        if (qf_oauth_enabled($p)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function qf_oauth_redirect_uri($provider) {
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+    $scheme = $https ? 'https' : 'http';
+    $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'php.do';
+    return $scheme . '://' . $host . qf_url_page('api/oauth.php', array('provider' => $provider, 'action' => 'callback'));
+}
+
+function qf_http_request($method, $url, $data = null, $headers = array()) {
+    $method = strtoupper($method);
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($data) ? http_build_query($data) : $data);
+        }
+        if (!empty($headers)) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+        $body = curl_exec($ch);
+        $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+        curl_close($ch);
+        return array('code' => $code, 'body' => $body === false ? '' : $body);
+    }
+    $opts = array('http' => array('method' => $method, 'timeout' => 15, 'ignore_errors' => true));
+    if (!empty($headers)) {
+        $opts['http']['header'] = implode("\r\n", $headers);
+    }
+    if ($data !== null) {
+        $opts['http']['content'] = is_array($data) ? http_build_query($data) : $data;
+    }
+    $body = @file_get_contents($url, false, stream_context_create($opts));
+    return array('code' => 200, 'body' => $body === false ? '' : $body);
+}
+
+function qf_oauth_login_or_register($provider, $provider_uid, $login, $name, $email) {
+    if (!qf_oauth_table_ready() || $provider_uid === '') {
+        return 0;
+    }
+    $p_sql = esc($provider);
+    $uid_sql = esc($provider_uid);
+    $rs = mysqli_query(db(), "SELECT user_id FROM qf_oauth WHERE provider='{$p_sql}' AND provider_uid='{$uid_sql}' LIMIT 1");
+    if ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        $uid = intval($row['user_id']);
+        $ur = mysqli_query(db(), "SELECT id FROM qf_users WHERE id={$uid} AND status=1 LIMIT 1");
+        return ($ur && mysqli_num_rows($ur) > 0) ? $uid : 0;
+    }
+    $base = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$login);
+    if (strlen($base) < 3) {
+        $base = $provider . preg_replace('/[^0-9a-zA-Z]/', '', $provider_uid);
+    }
+    $base = substr($base, 0, 24);
+    $username = $base;
+    $n = 0;
+    while (true) {
+        $u_sql = esc($username);
+        $chk = mysqli_query(db(), "SELECT id FROM qf_users WHERE username='{$u_sql}' LIMIT 1");
+        if (!$chk || mysqli_num_rows($chk) === 0) {
+            break;
+        }
+        $n++;
+        if ($n > 9999) {
+            return 0;
+        }
+        $username = substr($base, 0, 20) . $n;
+    }
+    $nickname = clean_text($name !== '' ? $name : $username, 30);
+    if ($nickname === '') {
+        $nickname = $username;
+    }
+    $u_sql = esc($username);
+    $n_sql = esc($nickname);
+    $ip = esc(client_ip());
+    $random_pw = qf_password_hash(bin2hex(random_bytes(18)));
+    if (qf_table_has_column('qf_users', 'email') && $email !== '') {
+        $email_sql = esc(clean_text($email, 190));
+        $ok = mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,email,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$email_sql}','{$ip}',NOW())");
+    } else {
+        $ok = mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$ip}',NOW())");
+    }
+    if (!$ok) {
+        return 0;
+    }
+    $new_id = intval(mysqli_insert_id(db()));
+    $avatar = qf_generate_default_avatar($new_id, $username, $nickname);
+    if ($avatar !== '') {
+        $a_sql = esc($avatar);
+        mysqli_query(db(), "UPDATE qf_users SET avatar='{$a_sql}' WHERE id={$new_id}");
+    }
+    mysqli_query(db(), "INSERT INTO qf_oauth (user_id,provider,provider_uid,created_at) VALUES ({$new_id},'{$p_sql}','{$uid_sql}',NOW())");
+    return $new_id;
+}
+
+function qf_handle_oauth_action() {
+    $provider = isset($_GET['provider']) ? preg_replace('/[^a-z]/', '', $_GET['provider']) : '';
+    $action = isset($_GET['action']) ? clean_text($_GET['action'], 20) : 'start';
+    $providers = qf_oauth_providers();
+    if (!isset($providers[$provider]) || !qf_oauth_enabled($provider)) {
+        $_SESSION['auth_error'] = '该第三方登录未启用。';
+        redirect(qf_url_page('login.php'));
+    }
+    $client_id = trim(qf_setting('oauth_' . $provider . '_client_id', ''));
+    $client_secret = trim(qf_setting('oauth_' . $provider . '_client_secret', ''));
+
+    if ($action === 'start') {
+        $state = bin2hex(random_bytes(16));
+        $_SESSION['oauth_state'] = $state;
+        $params = array(
+            'client_id' => $client_id,
+            'redirect_uri' => qf_oauth_redirect_uri($provider),
+            'scope' => $providers[$provider]['scope'],
+            'state' => $state,
+            'response_type' => 'code',
+        );
+        if ($provider === 'google') {
+            $params['access_type'] = 'online';
+            $params['prompt'] = 'select_account';
+        }
+        redirect($providers[$provider]['authorize'] . '?' . http_build_query($params));
+    }
+
+    $state = isset($_GET['state']) ? (string)$_GET['state'] : '';
+    if (empty($_SESSION['oauth_state']) || !hash_equals((string)$_SESSION['oauth_state'], $state)) {
+        unset($_SESSION['oauth_state']);
+        $_SESSION['auth_error'] = '登录校验失败（state 不匹配），请重试。';
+        redirect(qf_url_page('login.php'));
+    }
+    unset($_SESSION['oauth_state']);
+
+    $code = isset($_GET['code']) ? (string)$_GET['code'] : '';
+    if ($code === '') {
+        $_SESSION['auth_error'] = '第三方未返回授权码，登录取消。';
+        redirect(qf_url_page('login.php'));
+    }
+
+    $token_resp = qf_http_request('POST', $providers[$provider]['token'], array(
+        'client_id' => $client_id,
+        'client_secret' => $client_secret,
+        'code' => $code,
+        'redirect_uri' => qf_oauth_redirect_uri($provider),
+        'grant_type' => 'authorization_code',
+    ), array('Accept: application/json'));
+    $token_data = json_decode($token_resp['body'], true);
+    $access_token = is_array($token_data) && isset($token_data['access_token']) ? $token_data['access_token'] : '';
+    if ($access_token === '') {
+        $_SESSION['auth_error'] = '获取访问令牌失败，请检查后台的 Client ID/Secret。';
+        redirect(qf_url_page('login.php'));
+    }
+
+    $provider_uid = '';
+    $login = '';
+    $name = '';
+    $email = '';
+    if ($provider === 'github') {
+        $ures = qf_http_request('GET', 'https://api.github.com/user', null, array(
+            'Authorization: Bearer ' . $access_token,
+            'User-Agent: php.do',
+            'Accept: application/json',
+        ));
+        $profile = json_decode($ures['body'], true);
+        if (is_array($profile) && isset($profile['id'])) {
+            $provider_uid = (string)$profile['id'];
+            $login = isset($profile['login']) ? $profile['login'] : '';
+            $name = isset($profile['name']) && $profile['name'] !== '' ? $profile['name'] : $login;
+            $email = isset($profile['email']) && $profile['email'] !== null ? $profile['email'] : '';
+        }
+        if ($provider_uid !== '' && $email === '') {
+            $eres = qf_http_request('GET', 'https://api.github.com/user/emails', null, array(
+                'Authorization: Bearer ' . $access_token,
+                'User-Agent: php.do',
+                'Accept: application/json',
+            ));
+            $emails = json_decode($eres['body'], true);
+            if (is_array($emails)) {
+                foreach ($emails as $em) {
+                    if (!empty($em['primary']) && !empty($em['email'])) {
+                        $email = $em['email'];
+                        break;
+                    }
+                }
+            }
+        }
+    } elseif ($provider === 'google') {
+        $ures = qf_http_request('GET', 'https://openidconnect.googleapis.com/v1/userinfo', null, array(
+            'Authorization: Bearer ' . $access_token,
+        ));
+        $profile = json_decode($ures['body'], true);
+        if (is_array($profile) && isset($profile['sub'])) {
+            $provider_uid = (string)$profile['sub'];
+            $name = isset($profile['name']) ? $profile['name'] : '';
+            $email = isset($profile['email']) ? $profile['email'] : '';
+            $login = $email !== '' ? explode('@', $email)[0] : ('g' . $provider_uid);
+        }
+    }
+
+    if ($provider_uid === '') {
+        $_SESSION['auth_error'] = '读取第三方账号信息失败，请重试。';
+        redirect(qf_url_page('login.php'));
+    }
+
+    $user_id = qf_oauth_login_or_register($provider, $provider_uid, $login, $name, $email);
+    if ($user_id > 0) {
+        session_regenerate_id(true);
+        $_SESSION['qf_uid'] = $user_id;
+        redirect(qf_url_page('index.php'));
+    }
+    $_SESSION['auth_error'] = '第三方登录失败，请稍后重试。';
+    redirect(qf_url_page('login.php'));
+}
+
 function qf_handle_login() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         redirect(qf_url_page('login.php'));
@@ -1843,6 +2142,7 @@ function qf_handle_register() {
     $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
     $nickname = clean_text(isset($_POST['nickname']) ? $_POST['nickname'] : '', 30);
     $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
+    $invite_code = clean_text(isset($_POST['invite_code']) ? $_POST['invite_code'] : '', 32);
     $error = '';
     if (qf_captcha_required('register') && !qf_verify_captcha()) {
         $error = '验证码错误，请重新输入。';
@@ -1850,6 +2150,8 @@ function qf_handle_register() {
         $error = '用户名只能使用字母、数字、下划线，长度 3-30。';
     } elseif ($nickname === '' || strlen($password) < 6) {
         $error = '昵称不能为空，密码至少 6 位。';
+    } elseif (qf_require_invite() && !qf_invite_valid($invite_code)) {
+        $error = '邀请码无效或已被使用，请检查后重试。';
     } else {
         $daily_limit = intval(qf_setting('register_ip_daily_limit', '5'));
         if ($daily_limit < 1) {
@@ -1871,6 +2173,9 @@ function qf_handle_register() {
                 if ($avatar !== '') {
                     $avatar_sql = esc($avatar);
                     mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$new_user_id}");
+                }
+                if (qf_require_invite()) {
+                    qf_consume_invite($invite_code, $new_user_id);
                 }
                 session_regenerate_id(true);
                 $_SESSION['qf_uid'] = $new_user_id;
