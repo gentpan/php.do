@@ -35,8 +35,8 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
     <link rel="manifest" href="assets/site.webmanifest">
-    <meta name="theme-color" content="<?php echo $active_theme === 'php-dark' ? '#101217' : '#5d29f0'; ?>">
-    <meta name="msapplication-TileColor" content="#5d29f0">
+    <meta name="theme-color" content="<?php echo $active_theme === 'php-dark' ? '#101217' : '#505b93'; ?>">
+    <meta name="msapplication-TileColor" content="#505b93">
     <meta name="msapplication-TileImage" content="assets/mstile-150x150.png">
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
     <?php if ($is_php_theme) { ?>
