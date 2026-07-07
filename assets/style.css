@@ -8324,15 +8324,15 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 }
 .qf-banner-btn:hover { background: rgba(255,255,255,.3); }
 
-.qf-navbar { background: #3f4874; padding: 0 28px; box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+.qf-navbar { background: #4f5b93; padding: 0 28px; box-shadow: 0 2px 4px rgba(0,0,0,.2); }
 .qf-menu { display: flex; }
 .qf-menu-link {
     display: inline-flex; align-items: center; gap: 7px;
-    padding: 13px 15px; color: #dfe3f2; font-size: 15px; font-weight: 600;
+    padding: 13px 15px; color: rgba(255,255,255,.82); font-size: 15px; font-weight: 600;
     transition: background .12s ease, color .12s ease;
 }
-.qf-menu-link:hover { color: #fff; background: rgba(255,255,255,.08); }
-.qf-menu-link.active { color: #fff; background: rgba(255,255,255,.18); }
+.qf-menu-link:hover { color: #fff; background: rgba(0,0,0,.06); }
+.qf-menu-link.active { color: #fff; background: rgba(0,0,0,.1); }
 .qf-menu-link i, .qf-menu-link .qf-cat-icon { font-size: 14px; }
 .qf-menu-link .qf-cat-icon-img { width: 16px; height: 16px; filter: brightness(0) invert(1); }
 .qf-menu-link .qf-cat-icon-svg svg { fill: currentColor; }
