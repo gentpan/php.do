@@ -8120,11 +8120,11 @@ body.theme-php-dark .qf-category-link.active {
 }
 
 /* 浅色模式显示月亮（点击切换到深色） */
-.nav-theme-toggle .nav-theme-sun {
+[data-theme-toggle] .nav-theme-sun {
     display: none;
 }
 
-.nav-theme-toggle .nav-theme-moon {
+[data-theme-toggle] .nav-theme-moon {
     display: inline-block;
 }
 
@@ -8141,11 +8141,11 @@ body.theme-php-dark .nav-theme-toggle:hover {
     border-color: #444d62;
 }
 
-body.theme-php-dark .nav-theme-toggle .nav-theme-sun {
+body.theme-php-dark [data-theme-toggle] .nav-theme-sun {
     display: inline-block;
 }
 
-body.theme-php-dark .nav-theme-toggle .nav-theme-moon {
+body.theme-php-dark [data-theme-toggle] .nav-theme-moon {
     display: none;
 }
 

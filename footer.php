@@ -80,6 +80,10 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     <a href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="首页" title="首页"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
     <a href="<?php echo h(qf_url_page('search.php')); ?>" aria-label="搜索" title="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
     <a href="<?php echo h($footer_user ? qf_url_page('post.php') : qf_url_page('login.php')); ?>" aria-label="发帖" title="发帖"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
+    <button type="button" data-theme-toggle aria-label="切换深色/浅色" title="深色/浅色">
+        <i class="fa-solid fa-sun nav-theme-sun" aria-hidden="true"></i>
+        <i class="fa-solid fa-moon nav-theme-moon" aria-hidden="true"></i>
+    </button>
     <button type="button" data-scroll-top aria-label="返回顶部" title="返回顶部"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
     <button type="button" data-scroll-bottom aria-label="到底部" title="到底部"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
 </aside>

@@ -98,7 +98,7 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
 <div class="qf-page-frame">
 <header class="qf-topbar">
     <div class="qf-topbar-inner mx-auto px-3 sm:px-4">
-        <div class="qf-banner relative w-full overflow-hidden rounded-t-xl">
+        <div class="qf-banner relative w-full rounded-t-xl">
             <?php if ($qf_page_banner !== '') { ?>
                 <img class="absolute inset-0 h-full w-full object-cover" src="<?php echo h($qf_page_banner); ?>" alt="">
                 <span class="absolute inset-0 bg-black/25"></span>
@@ -107,30 +107,10 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
                 <img class="w-auto" src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>">
             </a>
             <div class="absolute right-4 top-4 z-10 flex items-center gap-2">
-                <button type="button" class="nav-theme-toggle qf-banner-btn" data-theme-toggle aria-label="切换深色/浅色">
-                    <i class="fa-solid fa-sun nav-theme-sun" aria-hidden="true"></i>
-                    <i class="fa-solid fa-moon nav-theme-moon" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
-        <nav class="qf-navbar flex flex-wrap items-center" aria-label="主导航" x-data="{ open: false }">
-            <button type="button" class="qf-burger sm:hidden" @click="open = !open" aria-label="展开菜单"><i class="fa-solid fa-bars"></i></button>
-            <ul class="qf-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
-                <li><a class="qf-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house"></i><span>首页</span></a></li>
-                <?php foreach ($main_navs as $nav_item) { ?>
-                    <li><a class="qf-menu-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>><?php echo qf_nav_icon_html($nav_item); ?><span><?php echo h($nav_item['title']); ?></span></a></li>
-                <?php } ?>
-            </ul>
-            <div class="qf-navbar-right ml-auto flex items-center gap-2">
-                <form class="qf-search flex items-center" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
-                    <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="搜索" autocomplete="search">
-                    <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </form>
                 <?php if (!$me) { ?>
                     <a class="qf-btn qf-btn-ghost<?php echo $current_script === 'login.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('login.php')); ?>">登录</a>
                     <a class="qf-btn qf-btn-solid<?php echo $current_script === 'register.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('register.php')); ?>">注册</a>
                 <?php } else { ?>
-                    <a class="qf-btn qf-btn-solid" href="<?php echo h(qf_url_page('post.php')); ?>"><i class="fa-solid fa-pen-to-square"></i><span class="hidden sm:inline">发帖</span></a>
                     <div class="hs-dropdown relative inline-flex">
                         <button id="qf-user-dd" type="button" class="hs-dropdown-toggle qf-user-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="用户菜单">
                             <img src="<?php echo h($me['avatar'] !== '' ? $me['avatar'] : 'assets/avatar-default.svg'); ?>" alt="">
@@ -138,6 +118,7 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
                             <i class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
                         <div class="hs-dropdown-menu qf-user-menu hidden" role="menu" aria-labelledby="qf-user-dd">
+                            <a href="<?php echo h(qf_url_page('post.php')); ?>"><i class="fa-solid fa-pen-to-square"></i><span>发帖</span></a>
                             <a href="<?php echo h(qf_url_user($me['id'])); ?>"><i class="fa-regular fa-circle-user"></i><span><?php echo h($me['nickname']); ?></span></a>
                             <a href="<?php echo h(qf_url_page('profile.php')); ?>"><i class="fa-solid fa-sliders"></i><span>个人设置</span></a>
                             <a href="<?php echo h(qf_url_page('notifications.php')); ?>"><i class="fa-regular fa-bell"></i><span>消息<?php echo $unread_notifications > 0 ? ' · ' . intval($unread_notifications) : ''; ?></span></a>
@@ -154,6 +135,15 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
                     </div>
                 <?php } ?>
             </div>
+        </div>
+        <nav class="qf-navbar flex flex-wrap items-center" aria-label="主导航" x-data="{ open: false }">
+            <button type="button" class="qf-burger sm:hidden" @click="open = !open" aria-label="展开菜单"><i class="fa-solid fa-bars"></i></button>
+            <ul class="qf-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
+                <li><a class="qf-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house"></i><span>首页</span></a></li>
+                <?php foreach ($main_navs as $nav_item) { ?>
+                    <li><a class="qf-menu-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>><?php echo qf_nav_icon_html($nav_item); ?><span><?php echo h($nav_item['title']); ?></span></a></li>
+                <?php } ?>
+            </ul>
         </nav>
     </div>
 </header>
