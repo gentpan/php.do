@@ -6894,6 +6894,34 @@ body.theme-php .phpdo-thread-title-card {
     padding: 22px 26px 24px;
 }
 
+/* 帖子主卡片：标题 + 正文 + 底部广告合并一体 */
+body.theme-php .phpdo-thread-main-card.post-content-card {
+    margin-top: 0;
+}
+body.theme-php .phpdo-thread-main-card .post-content-box {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eceef2;
+}
+body.theme-php .phpdo-thread-main-card .phpdo-reactions {
+    margin-top: 18px;
+}
+body.theme-php .phpdo-thread-main-card .ad-box.ad-thread {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #eceef2;
+    text-align: center;
+}
+body.theme-php .phpdo-thread-main-card .ad-box.ad-thread img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+body.theme-php .phpdo-thread-main-card .ad-box.ad-thread a {
+    display: block;
+}
+
 body.theme-php .phpdo-thread-breadcrumb {
     display: flex;
     align-items: center;
@@ -7065,6 +7093,55 @@ body.theme-php .replies > h2 {
     font-weight: 900;
     background: #fbfbfc;
     border-bottom: 1px solid var(--phpdo-line);
+}
+
+body.theme-php .phpdo-reply-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--phpdo-line);
+}
+body.theme-php .phpdo-reply-pagination a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #d8e6ef;
+    border-radius: 8px;
+    background: #fff;
+    color: #505b93;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+body.theme-php .phpdo-reply-pagination a:hover {
+    background: #f2f4f8;
+    border-color: #c5cad4;
+}
+body.theme-php .phpdo-reply-pagination a.active {
+    color: #fff;
+    border-color: #505b93;
+    background: #505b93;
+}
+body.theme-php-dark .phpdo-reply-pagination {
+    border-top-color: var(--phpdo-border);
+}
+body.theme-php-dark .phpdo-reply-pagination a {
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
+    color: #a8b0d4;
+}
+body.theme-php-dark .phpdo-reply-pagination a.active {
+    background: var(--phpdo-accent);
+    border-color: var(--phpdo-accent);
+    color: #fff;
 }
 
 body.theme-php .reply {
@@ -7499,6 +7576,7 @@ body.theme-php .phpdo-auth-switch a {
     }
 
     body.theme-php .phpdo-thread-title-card,
+    body.theme-php .phpdo-thread-main-card,
     body.theme-php .post-content-card {
         padding: 18px;
     }

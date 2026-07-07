@@ -14,8 +14,16 @@ $content_page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $paged_content = qf_paginate_content($thread['content'], qf_thread_page_chars(), $content_page);
 $page_title = $thread['title'] . ' - ' . SITE_NAME;
 qf_include_header();
+// 评论分页
+$replies_per_page = qf_replies_per_page();
+$total_replies = count_rows("SELECT COUNT(*) FROM qf_posts WHERE thread_id={$id} AND is_deleted=0");
+$reply_pages = max(1, (int)ceil($total_replies / $replies_per_page));
+$reply_page = isset($_GET['rp']) ? intval($_GET['rp']) : 1;
+if ($reply_page < 1) $reply_page = 1;
+if ($reply_page > $reply_pages) $reply_page = $reply_pages;
+$reply_offset = ($reply_page - 1) * $replies_per_page;
 $posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
-    WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT 200");
+    WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT {$reply_offset}, {$replies_per_page}");
 $attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
 $guest_zip_download_blocked = !current_user() && !qf_guest_download_allowed();
 $compressed_exts = array('zip', 'rar');
@@ -44,7 +52,7 @@ if ($me) {
     <span class="phpdo-crumb-sep">›</span>
     <span class="phpdo-crumb-current" title="<?php echo h($thread['title']); ?>"><?php echo h($thread['title']); ?></span>
 </nav>
-<section class="card post-title-card phpdo-thread-title-card">
+<article class="card post-title-card post-content-card phpdo-thread-title-card phpdo-thread-main-card">
     <div class="phpdo-thread-title-row">
         <img class="phpdo-author-avatar" src="<?php echo h($thread_avatar); ?>" alt="">
         <div>
@@ -91,8 +99,6 @@ if ($me) {
             </div>
         </div>
     </div>
-</section>
-<article class="card post-content-card">
     <div class="content post-content-box"><?php echo qf_render_content($paged_content['content']); ?></div>
     <?php if (intval($paged_content['total']) > 1) { ?>
         <div class="content-page-nav">
@@ -133,10 +139,11 @@ if ($me) {
             </button>
         <?php } ?>
     </div>
+    <?php echo qf_render_ad('thread'); ?>
 </article>
 <section class="card replies" id="replies">
     <h2>回复 <?php echo qf_format_compact_number($thread['replies']); ?></h2>
-    <?php $floor_no = 0; ?>
+    <?php $floor_no = $reply_offset; ?>
     <?php while ($posts && $p = mysqli_fetch_assoc($posts)) { ?>
         <?php $floor_no++; ?>
         <?php $reply_attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE post_id=" . intval($p['id']) . " ORDER BY id ASC"); ?>
@@ -214,6 +221,19 @@ if ($me) {
                 </div>
             </div>
         </div>
+    <?php } ?>
+    <?php if ($reply_pages > 1) { ?>
+        <nav class="phpdo-reply-pagination" aria-label="回复分页">
+            <?php if ($reply_page > 1) { ?>
+                <a href="<?php echo h(qf_url_thread($id)); ?>?rp=<?php echo $reply_page - 1; ?>#replies">上一页</a>
+            <?php } ?>
+            <?php for ($rp = 1; $rp <= $reply_pages; $rp++) { ?>
+                <a class="<?php echo $rp === $reply_page ? 'active' : ''; ?>" href="<?php echo h(qf_url_thread($id)); ?>?rp=<?php echo $rp; ?>#replies"><?php echo $rp; ?></a>
+            <?php } ?>
+            <?php if ($reply_page < $reply_pages) { ?>
+                <a href="<?php echo h(qf_url_thread($id)); ?>?rp=<?php echo $reply_page + 1; ?>#replies">下一页</a>
+            <?php } ?>
+        </nav>
     <?php } ?>
 </section>
 <?php if (current_user()) { ?>

@@ -1455,6 +1455,17 @@ function qf_reply_max_chars() {
     return $limit;
 }
 
+function qf_replies_per_page() {
+    $limit = intval(qf_setting('replies_per_page', '20'));
+    if ($limit < 5) {
+        $limit = 5;
+    }
+    if ($limit > 100) {
+        $limit = 100;
+    }
+    return $limit;
+}
+
 function qf_friend_links_enabled() {
     return intval(qf_setting('friend_links_enabled', '0')) === 1;
 }

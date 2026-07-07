@@ -6,6 +6,7 @@ $message = '';
 $positions = array(
     'top' => '顶部广告',
     'sidebar' => '右侧板块上方广告',
+    'thread' => '帖子底部广告',
     'footer' => '底部广告'
 );
 
@@ -73,7 +74,7 @@ qf_include_header();
     </div>
     <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php if ($message !== '') { ?><div class="alert success"><?php echo h($message); ?></div><?php } ?>
-    <p class="muted">可以分别管理顶部广告、右侧板块上方广告、底部广告。关闭后前台不显示。</p>
+    <p class="muted">可以分别管理顶部广告、右侧板块上方广告、帖子底部广告、底部广告。关闭后前台不显示。</p>
 </section>
 
 <?php foreach ($positions as $pos => $label) { $ad = isset($ads[$pos]) ? $ads[$pos] : array('title' => $label, 'image_path' => '', 'link_url' => '', 'width' => '', 'height' => '', 'is_enabled' => 0); ?>
