@@ -6052,7 +6052,7 @@ body.theme-php .phpdo-topic-tag { font-weight: 400; font-size: 13px; }
 body.theme-php .phpdo-author-link,
 body.theme-php .phpdo-reply-author {
     color: inherit;
-    font-weight: 900;
+    font-weight: 400;
     text-decoration: none;
 }
 
@@ -6137,7 +6137,7 @@ body.theme-php .phpdo-thread-stats span {
 
 body.theme-php .phpdo-thread-stats i {
     color: #aeb1b7;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 body.theme-php .phpdo-home-sidebar {

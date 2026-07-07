@@ -2595,6 +2595,37 @@ function format_time($time) {
     return date('Y-m-d H:i', $ts);
 }
 
+// 全站数据按服务器时区 UTC+8 存储；输出 ISO 8601(带 +08:00)供前端转成访客本地时间
+function qf_iso8601($dt) {
+    $dt = trim((string)$dt);
+    if ($dt === '' || strpos($dt, '0000-00-00') === 0) {
+        return '';
+    }
+    return str_replace(' ', 'T', $dt) . '+08:00';
+}
+
+// 相对时间：刚刚 / N 分钟前 / N 小时前 / N 天前 / N 个月前 / N 年前
+function qf_time_ago($dt) {
+    $iso = qf_iso8601($dt);
+    if ($iso === '') {
+        return '';
+    }
+    $ts = strtotime($iso);
+    if ($ts === false) {
+        return '';
+    }
+    $diff = time() - $ts;
+    if ($diff < 0) {
+        $diff = 0;
+    }
+    if ($diff < 60) return '刚刚';
+    if ($diff < 3600) return floor($diff / 60) . ' 分钟前';
+    if ($diff < 86400) return floor($diff / 3600) . ' 小时前';
+    if ($diff < 2592000) return floor($diff / 86400) . ' 天前';
+    if ($diff < 31536000) return floor($diff / 2592000) . ' 个月前';
+    return floor($diff / 31536000) . ' 年前';
+}
+
 function qf_render_content($content) {
     $html = nl2br(h($content));
     $html = preg_replace_callback('/\[file url=&quot;([^&]+)&quot; name=&quot;([^&]*)&quot; desc=&quot;([^&]*)&quot;\](.*?)\[\/file\]/is', function($m) {

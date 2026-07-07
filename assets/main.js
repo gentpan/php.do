@@ -397,6 +397,30 @@
         if (window.LiteZoom && typeof window.LiteZoom.refresh === 'function') {
             window.LiteZoom.refresh(root);
         }
+
+        enhanceTimes(root);
+    }
+
+    function timeAgo(d) {
+        var diff = Math.floor((Date.now() - d.getTime()) / 1000);
+        if (diff < 0) diff = 0;
+        if (diff < 60) return '刚刚';
+        if (diff < 3600) return Math.floor(diff / 60) + ' 分钟前';
+        if (diff < 86400) return Math.floor(diff / 3600) + ' 小时前';
+        if (diff < 2592000) return Math.floor(diff / 86400) + ' 天前';
+        if (diff < 31536000) return Math.floor(diff / 2592000) + ' 个月前';
+        return Math.floor(diff / 31536000) + ' 年前';
+    }
+
+    function enhanceTimes(root) {
+        (root || document).querySelectorAll('.phpdo-time[datetime]').forEach(function(el) {
+            var iso = el.getAttribute('datetime');
+            if (!iso) return;
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return;
+            el.textContent = timeAgo(d);
+            el.setAttribute('title', d.toLocaleString());
+        });
     }
 
     function initThreadVotes() {

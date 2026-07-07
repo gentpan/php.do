@@ -128,7 +128,7 @@ function phpdo_render_thread_row($t) {
             <div class="phpdo-thread-meta">
                 <p>
                     <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
-                    <span>发表于 <?php echo h(format_time($t['created_at'])); ?></span>
+                    <time class="phpdo-time" datetime="<?php echo h(qf_iso8601($t['created_at'])); ?>" title="<?php echo h($t['created_at']); ?>"><?php echo h(qf_time_ago($t['created_at'])); ?></time>
                     <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag <?php echo h(qf_topic_tag_class($t['topic_category'])); ?>" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
                 </p>
                 <div class="phpdo-thread-stats" aria-label="帖子统计">
