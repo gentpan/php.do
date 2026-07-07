@@ -64,14 +64,14 @@ if ($me) {
             </div>
             <div class="phpdo-thread-votes" data-thread-votes>
                 <?php if ($me) { ?>
-                    <form method="post" action="<?php echo h(qf_url_page('vote.php')); ?>" data-vote-form>
+                    <form method="post" action="<?php echo h(qf_url_page('react.php')); ?>" data-vote-form>
                         <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
                         <input type="hidden" name="vote" value="up">
                         <button class="phpdo-vote-button<?php echo $user_vote === 1 ? ' active' : ''; ?>" type="submit" data-vote-button="up" aria-pressed="<?php echo $user_vote === 1 ? 'true' : 'false'; ?>">
                             <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>顶</span><strong data-vote-count="up"><?php echo intval(isset($thread['upvotes']) ? $thread['upvotes'] : 0); ?></strong>
                         </button>
                     </form>
-                    <form method="post" action="<?php echo h(qf_url_page('vote.php')); ?>" data-vote-form>
+                    <form method="post" action="<?php echo h(qf_url_page('react.php')); ?>" data-vote-form>
                         <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
                         <input type="hidden" name="vote" value="down">
                         <button class="phpdo-vote-button<?php echo $user_vote === -1 ? ' active' : ''; ?>" type="submit" data-vote-button="down" aria-pressed="<?php echo $user_vote === -1 ? 'true' : 'false'; ?>">

@@ -631,7 +631,6 @@ function qf_route_script($script, &$params = array()) {
         'passkey.php' => 'api/passkey.php',
         'reply.php' => 'api/reply.php',
         'signin.php' => 'api/signin.php',
-        'vote.php' => 'api/vote.php',
         'react.php' => 'api/react.php',
         'login.php' => 'pages/login.php',
         'logout.php' => 'api/auth.php',
@@ -684,7 +683,6 @@ function qf_clean_route_path($script) {
         'api/passkey.php' => 'api/passkey',
         'api/reply.php' => 'api/reply',
         'api/signin.php' => 'api/signin',
-        'api/vote.php' => 'api/vote',
         'api/react.php' => 'api/react',
     );
     return isset($map[$script]) ? $map[$script] : $script;
