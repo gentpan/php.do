@@ -19,15 +19,6 @@ if ($filter === 'good') {
     $where_extra = " AND t.is_good=1";
     $order_sql = "(t.is_top>0) DESC, t.updated_at DESC";
 }
-$category = '';
-if (qf_topic_category_enabled($fid)) {
-    $candidate = clean_text(isset($_GET['category']) ? $_GET['category'] : '', 40);
-    if (in_array($candidate, qf_topic_categories($fid))) {
-        $category = $candidate;
-        $category_sql = esc($category);
-        $where_extra .= " AND topic_category='{$category_sql}'";
-    }
-}
 $page_title = $forum['name'] . ' - ' . SITE_NAME;
 qf_include_header();
 $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.email FROM qf_threads t LEFT JOIN qf_users u ON t.user_id=u.id
@@ -47,14 +38,6 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.e
     <a class="<?php if ($filter === 'new') echo 'active'; ?>" href="<?php echo h(qf_url_page('forum.php', array('id' => intval($fid), 'filter' => 'new'))); ?>">新帖</a>
     <a class="<?php if ($filter === 'good') echo 'active'; ?>" href="<?php echo h(qf_url_page('forum.php', array('id' => intval($fid), 'filter' => 'good'))); ?>">精帖</a>
 </nav>
-<?php if (qf_topic_category_enabled($fid)) { ?>
-    <nav class="filter-tabs category-tabs">
-        <a class="<?php if ($category === '') echo 'active'; ?>" href="<?php echo h(qf_url_page('forum.php', array('id' => intval($fid), 'filter' => $filter))); ?>">全部分类</a>
-        <?php foreach (qf_topic_categories($fid) as $cat) { ?>
-            <a class="<?php if ($category === $cat) echo 'active'; ?>" href="<?php echo h(qf_url_page('forum.php', array('id' => intval($fid), 'filter' => $filter, 'category' => $cat))); ?>"><?php echo h($cat); ?></a>
-        <?php } ?>
-    </nav>
-<?php } ?>
 <section class="card thread-list phpdo-forum-thread-list">
     <?php while ($threads && $t = mysqli_fetch_assoc($threads)) { ?>
         <?php
@@ -70,7 +53,6 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.e
                     <?php if (intval($t['is_top']) === 1) { ?><span class="tag red">置顶</span><?php } ?>
                     <?php if (intval($t['is_top']) === 2) { ?><span class="tag red">置顶</span><?php } ?>
                     <?php if (intval($t['is_good'])) { ?><span class="tag good">精华</span><?php } ?>
-                    <?php if ($t['topic_category'] !== '') { ?><span class="category-tag"><?php echo h($t['topic_category']); ?></span><?php } ?>
                     <?php echo h($t['title']); ?>
                 </a>
                 <p><a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>

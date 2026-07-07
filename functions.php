@@ -604,16 +604,6 @@ function qf_forum_id_by_slug($slug) {
     return $cache[$slug];
 }
 
-// 版块内分类筛选页 URL（替代已移除的全局 tags 页）
-function qf_url_category($forum_id, $category) {
-    $forum_id = intval($forum_id);
-    $category = trim((string)$category);
-    if ($forum_id <= 0 || $category === '') {
-        return '';
-    }
-    return qf_url_page('forum.php', array('id' => $forum_id, 'category' => $category));
-}
-
 function qf_route_script($script, &$params = array()) {
     $map = array(
         'ad.php' => 'api/ad.php',
