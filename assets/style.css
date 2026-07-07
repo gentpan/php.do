@@ -8324,7 +8324,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 }
 .qf-banner-btn:hover { background: rgba(255,255,255,.3); }
 
-.qf-navbar { background: #3f4874; padding: 0 6px; box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+.qf-navbar { background: #3f4874; padding: 0 28px; box-shadow: 0 1px 0 rgba(0,0,0,.15); }
 .qf-menu { display: flex; }
 .qf-menu-link {
     display: inline-flex; align-items: center; gap: 7px;
@@ -8479,7 +8479,7 @@ body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); borde
     display: flex;
     align-items: center;
     height: 36px;
-    margin: 6px 4px 6px 10px;
+    margin: 6px 0 6px 10px;
     background: #fff;
     border-radius: 6px;
     overflow: hidden;
@@ -8512,4 +8512,16 @@ body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); borde
 body.theme-php .phpdo-must-read li,
 body.theme-php-dark .phpdo-must-read li {
     font-weight: 400;
+}
+
+/* 白框内正文区左右内边距（提高专属性以盖过基础 main.wrap 规则），并让 home-shell 填满 */
+body.theme-php .qf-page-frame main.wrap,
+body.theme-php-dark .qf-page-frame main.wrap {
+    padding: 0 28px 42px;
+}
+body.theme-php .qf-page-frame .phpdo-home-shell,
+body.theme-php-dark .qf-page-frame .phpdo-home-shell {
+    width: 100%;
+    max-width: none;
+    margin: 0;
 }
