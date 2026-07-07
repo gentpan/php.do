@@ -63,6 +63,11 @@ if ($forum_slug_id > 0) {
     require __DIR__ . '/pages/forum.php';
     exit;
 }
+if ($request_path === 'rss' || $request_path === 'rss.php') {
+    $_SERVER['SCRIPT_NAME'] = '/rss.php';
+    require __DIR__ . '/pages/rss.php';
+    exit;
+}
 if ($request_path === 'about' || $request_path === 'about.php') {
     if ($request_path === 'about.php' && qf_rewrite_enabled()) {
         qf_front_redirect(qf_url_page('about.php'));
@@ -259,7 +264,6 @@ qf_include_header();
                 <?php foreach ($filter_labels as $key => $label) { ?>
                     <a class="<?php echo $filter === $key ? 'active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>" data-feed-filter="<?php echo h($key); ?>"><?php echo h($label); ?></a>
                 <?php } ?>
-                <a class="phpdo-rss" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="订阅"><i class="fa-solid fa-square-rss" aria-hidden="true"></i><span>订阅</span></a>
             </div>
             <button type="button" class="phpdo-new-topics" data-new-topics hidden>
                 <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>

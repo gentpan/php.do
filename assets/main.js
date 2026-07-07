@@ -774,6 +774,35 @@
         setState();
     }
 
+    function initRssCopy() {
+        function fallbackCopy(text) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.top = '-1000px';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+        }
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest ? e.target.closest('[data-rss-copy]') : null;
+            if (!btn) return;
+            e.preventDefault();
+            var url = btn.getAttribute('data-rss-url') || '';
+            if (!url) return;
+            var done = function() { if (window.qfToast) window.qfToast('复制 RSS 成功'); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(done, function() { fallbackCopy(url); done(); });
+            } else {
+                fallbackCopy(url);
+                done();
+            }
+        });
+    }
+
     window.qfEnhanceMedia = enhanceMedia;
     window.qfSetLoading = setLoading;
     initNavMore();
@@ -790,6 +819,7 @@
     enhanceMedia(document);
     initAjaxFilters();
     initFeedStream();
+    initRssCopy();
 
     requestAnimationFrame(function() {
         document.body.classList.add('qf-page-ready');

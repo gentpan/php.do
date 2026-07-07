@@ -9289,3 +9289,23 @@ body.theme-php .phpdo-right-toolbar {
         transform: none;
     }
 }
+
+/* 导航栏最右侧 RSS 订阅按钮（图标,点击复制地址） */
+.qf-navbar-rss {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, .85);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 17px;
+    transition: color .12s ease;
+}
+.qf-navbar-rss:hover { color: #ff9800; }
+.qf-topbar-hasbg .qf-navbar-rss { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 4px rgba(0, 0, 0, .55); }
+.qf-topbar-hasbg .qf-navbar-rss:hover { color: #ffb14d; }

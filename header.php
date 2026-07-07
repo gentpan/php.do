@@ -13,6 +13,7 @@ $header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums{$nav_hidden
 while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
     $header_forums[] = $header_forum;
 }
+$qf_rss_url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . (isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : '') . '/rss';
 $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 $page_body_class = 'page-' . preg_replace('/[^a-z0-9_-]+/', '-', strtolower(str_replace('.php', '', $current_script)));
 $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
@@ -135,6 +136,7 @@ if (strpos($qf_page_banner, '{r}') !== false) {
                     <li><a class="qf-menu-link<?php echo ($qf_current_forum && intval($qf_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(qf_url_forum($forum['id'])); ?>"><span><?php echo h($forum['name']); ?></span></a></li>
                 <?php } ?>
             </ul>
+            <button type="button" class="qf-navbar-rss" data-rss-copy data-rss-url="<?php echo h($qf_rss_url); ?>" aria-label="复制 RSS 订阅地址" title="复制 RSS 订阅地址"><i class="fa-solid fa-square-rss" aria-hidden="true"></i></button>
         </nav>
     </div>
 </header>
