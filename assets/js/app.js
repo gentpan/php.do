@@ -469,7 +469,15 @@
                     .then(function(html) {
                         var nextDoc = new DOMParser().parseFromString(html, 'text/html');
                         replaceFrom(nextDoc, ['.phpdo-feed-tabs', '.latest-list', '.phpdo-breadcrumb']);
+                        var curList = document.querySelector('[data-feed-list]');
+                        var nextList = nextDoc.querySelector('[data-feed-list]');
+                        if (curList && nextList) {
+                            curList.setAttribute('data-has-more', nextList.getAttribute('data-has-more') || '0');
+                            curList.setAttribute('data-latest-ts', nextList.getAttribute('data-latest-ts') || '');
+                            curList.setAttribute('data-filter', nextList.getAttribute('data-filter') || feedFilter);
+                        }
                         document.title = nextDoc.title || document.title;
+                        if (typeof window.qfFeedSync === 'function') window.qfFeedSync();
                         enhanceMedia(document);
                     })
                     .catch(function() {
@@ -521,6 +529,147 @@
         window.addEventListener('popstate', function() {
             window.location.reload();
         });
+    }
+
+    function initFeedStream() {
+        var list = document.querySelector('[data-feed-list]');
+        if (!list) return;
+
+        var moreWrap = document.querySelector('[data-feed-more]');
+        var moreBtn = moreWrap ? moreWrap.querySelector('[data-load-more]') : null;
+        var endEl = moreWrap ? moreWrap.querySelector('[data-feed-end]') : null;
+        var newBtn = document.querySelector('[data-new-topics]');
+        var newCount = newBtn ? newBtn.querySelector('[data-new-count]') : null;
+
+        var state = { page: 1, loading: false, hasMore: false, autoUsed: false, filter: 'reply', latestTs: '' };
+
+        function buildUrl(params) {
+            var url = new URL(window.location.origin + window.location.pathname);
+            Object.keys(params).forEach(function(k) { url.searchParams.set(k, params[k]); });
+            return url.href;
+        }
+
+        function renderMoreUi() {
+            if (moreBtn) moreBtn.hidden = !state.hasMore;
+            if (endEl) endEl.hidden = state.hasMore || !list.querySelector('.phpdo-thread-row');
+        }
+
+        function hideNewTopics() { if (newBtn) newBtn.hidden = true; }
+
+        function showNewTopics(n) {
+            if (!newBtn) return;
+            if (newCount) newCount.textContent = n;
+            newBtn.hidden = false;
+        }
+
+        function syncFromList() {
+            state.page = 1;
+            state.loading = false;
+            state.autoUsed = false;
+            state.filter = list.getAttribute('data-filter') || 'reply';
+            state.hasMore = list.getAttribute('data-has-more') === '1';
+            state.latestTs = list.getAttribute('data-latest-ts') || '';
+            renderMoreUi();
+            hideNewTopics();
+        }
+
+        function loadNext() {
+            if (state.loading || !state.hasMore) return;
+            state.loading = true;
+            if (moreBtn) moreBtn.classList.add('is-loading');
+            var next = state.page + 1;
+            var params = { ajax: 'rows', page: next };
+            if (state.filter !== 'reply') params.filter = state.filter;
+            fetch(buildUrl(params), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function(res) {
+                    state.hasMore = res.headers.get('X-Has-More') === '1';
+                    return res.text();
+                })
+                .then(function(html) {
+                    var tmp = document.createElement('div');
+                    tmp.innerHTML = html;
+                    var added = tmp.querySelectorAll('.phpdo-thread-row').length;
+                    if (added) {
+                        var frag = document.createDocumentFragment();
+                        while (tmp.firstChild) frag.appendChild(tmp.firstChild);
+                        list.appendChild(frag);
+                        state.page = next;
+                        enhanceMedia(list);
+                    } else {
+                        state.hasMore = false;
+                    }
+                    list.setAttribute('data-has-more', state.hasMore ? '1' : '0');
+                    renderMoreUi();
+                })
+                .catch(function() {})
+                .finally(function() {
+                    state.loading = false;
+                    if (moreBtn) moreBtn.classList.remove('is-loading');
+                });
+        }
+
+        if ('IntersectionObserver' in window && moreWrap) {
+            var io = new IntersectionObserver(function(entries) {
+                entries.forEach(function(en) {
+                    if (en.isIntersecting && state.hasMore && !state.loading && !state.autoUsed) {
+                        state.autoUsed = true;
+                        loadNext();
+                    }
+                });
+            }, { rootMargin: '240px 0px' });
+            io.observe(moreWrap);
+        }
+
+        if (moreBtn) {
+            moreBtn.addEventListener('click', function() { state.autoUsed = true; loadNext(); });
+        }
+
+        function poll() {
+            if (!state.latestTs) return;
+            var params = { ajax: 'check', since: state.latestTs };
+            if (state.filter !== 'reply') params.filter = state.filter;
+            fetch(buildUrl(params), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function(res) { return res.json(); })
+                .then(function(data) { if (data && data.count > 0) showNewTopics(data.count); })
+                .catch(function() {});
+        }
+        window.setInterval(poll, 45000);
+
+        if (newBtn) {
+            newBtn.addEventListener('click', function() {
+                if (state.loading) return;
+                state.loading = true;
+                newBtn.classList.add('is-loading');
+                var params = {};
+                if (state.filter !== 'reply') params.filter = state.filter;
+                setLoading(true);
+                fetch(buildUrl(params), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function(res) { return res.text(); })
+                    .then(function(html) {
+                        var nextDoc = new DOMParser().parseFromString(html, 'text/html');
+                        var nextList = nextDoc.querySelector('[data-feed-list]');
+                        if (nextList) {
+                            list.innerHTML = nextList.innerHTML;
+                            list.setAttribute('data-has-more', nextList.getAttribute('data-has-more') || '0');
+                            list.setAttribute('data-latest-ts', nextList.getAttribute('data-latest-ts') || '');
+                            list.setAttribute('data-filter', nextList.getAttribute('data-filter') || state.filter);
+                            enhanceMedia(list);
+                        }
+                        syncFromList();
+                        var top = list.getBoundingClientRect().top + window.pageYOffset - 90;
+                        window.scrollTo({ top: top < 0 ? 0 : top, behavior: 'smooth' });
+                    })
+                    .catch(function() {})
+                    .finally(function() {
+                        state.loading = false;
+                        newBtn.classList.remove('is-loading');
+                        setLoading(false);
+                    });
+            });
+        }
+
+        window.qfFeedSync = syncFromList;
+        syncFromList();
     }
 
     function ensureLoadingIndicator() {
@@ -640,6 +789,7 @@
     initToast();
     enhanceMedia(document);
     initAjaxFilters();
+    initFeedStream();
 
     requestAnimationFrame(function() {
         document.body.classList.add('qf-page-ready');

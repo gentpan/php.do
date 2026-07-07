@@ -94,6 +94,41 @@ if ($request_path !== '') {
     exit('404 Not Found');
 }
 
+function phpdo_render_thread_row($t) {
+    $avatar = qf_user_avatar($t, 80);
+    $author = ($t['nickname'] !== null && $t['nickname'] !== '') ? $t['nickname'] : $t['username'];
+    $is_new = strtotime($t['created_at']) >= time() - 86400 * 7;
+    ob_start();
+    ?>
+    <article class="phpdo-thread-row">
+        <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
+            <img src="<?php echo h($avatar); ?>" alt="">
+        </a>
+        <div class="phpdo-thread-main">
+            <h2>
+                <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-pill phpdo-pill-outline">置顶</span><?php } ?>
+                <?php if (intval($t['is_good'])) { ?><span class="phpdo-pill phpdo-good">精华</span><?php } ?>
+                <a href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
+                <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
+                <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
+            </h2>
+            <div class="phpdo-thread-meta">
+                <p>
+                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
+                    <span>发表于 <?php echo h(format_time($t['created_at'])); ?></span>
+                    <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
+                </p>
+                <div class="phpdo-thread-stats" aria-label="帖子统计">
+                    <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
+                    <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                </div>
+            </div>
+        </div>
+    </article>
+    <?php
+    return ob_get_clean();
+}
+
 $page_title = SITE_NAME . ' - 首页';
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'reply';
 $allowed_filters = array('reply', 'latest', 'hot', 'good');
@@ -109,13 +144,56 @@ $filter_labels = array(
 );
 $latest_where = "t.is_deleted=0 AND t.is_top<>2";
 $latest_order = "t.is_top DESC, t.updated_at DESC";
+$latest_ts_col = "t.updated_at";
 if ($filter === 'latest') {
     $latest_order = "t.created_at DESC";
+    $latest_ts_col = "t.created_at";
 } elseif ($filter === 'hot') {
     $latest_order = "(t.views + t.replies * 80) DESC, t.updated_at DESC";
 } elseif ($filter === 'good') {
     $latest_where .= " AND t.is_good=1";
     $latest_order = "t.updated_at DESC";
+}
+
+$phpdo_per_page = 20;
+$phpdo_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$phpdo_ajax = isset($_GET['ajax']) ? $_GET['ajax'] : '';
+
+$phpdo_thread_select = "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email,
+    (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM qf_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image
+    FROM qf_threads t
+    LEFT JOIN qf_forums f ON t.forum_id=f.id
+    LEFT JOIN qf_users u ON t.user_id=u.id
+    WHERE {$latest_where}
+    ORDER BY {$latest_order}";
+
+// AJAX：轮询是否有新增/更新的话题
+if ($phpdo_ajax === 'check') {
+    $since = isset($_GET['since']) ? trim((string)$_GET['since']) : '';
+    $count = 0;
+    if ($since !== '' && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $since)) {
+        $since_sql = esc($since);
+        $cr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_threads t WHERE {$latest_where} AND {$latest_ts_col} > '{$since_sql}'");
+        $crow = $cr ? mysqli_fetch_assoc($cr) : null;
+        $count = $crow ? intval($crow['c']) : 0;
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(array('count' => $count));
+    exit;
+}
+
+// AJAX：分页加载更多帖子行
+if ($phpdo_ajax === 'rows') {
+    $offset = ($phpdo_page - 1) * $phpdo_per_page;
+    $rs = mysqli_query(db(), $phpdo_thread_select . " LIMIT " . ($phpdo_per_page + 1) . " OFFSET " . intval($offset));
+    $rows = array();
+    while ($rs && ($t = mysqli_fetch_assoc($rs))) { $rows[] = $t; }
+    $has_more = count($rows) > $phpdo_per_page;
+    if ($has_more) { array_pop($rows); }
+    header('Content-Type: text/html; charset=utf-8');
+    header('X-Has-More: ' . ($has_more ? '1' : '0'));
+    foreach ($rows as $t) { echo phpdo_render_thread_row($t); }
+    exit;
 }
 
 $forums = mysqli_query(db(), "SELECT f.*,
@@ -127,14 +205,14 @@ while ($forums && ($forum = mysqli_fetch_assoc($forums))) {
     $forum_rows[] = $forum;
 }
 
-$latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email,
-    (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM qf_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image
-    FROM qf_threads t
-    LEFT JOIN qf_forums f ON t.forum_id=f.id
-    LEFT JOIN qf_users u ON t.user_id=u.id
-    WHERE {$latest_where}
-    ORDER BY {$latest_order}
-    LIMIT " . max(18, qf_home_threads_limit()));
+$latest_rs = mysqli_query(db(), $phpdo_thread_select . " LIMIT " . ($phpdo_per_page + 1));
+$latest_rows = array();
+while ($latest_rs && ($t = mysqli_fetch_assoc($latest_rs))) { $latest_rows[] = $t; }
+$phpdo_has_more = count($latest_rows) > $phpdo_per_page;
+if ($phpdo_has_more) { array_pop($latest_rows); }
+
+$maxr = mysqli_query(db(), "SELECT MAX({$latest_ts_col}) AS m FROM qf_threads t WHERE {$latest_where}");
+$phpdo_latest_ts = ($maxr && ($mr = mysqli_fetch_assoc($maxr))) ? (string)$mr['m'] : '';
 
 $must_reads = array(
     'PHP 提问模板：版本、环境、日志、最小复现',
@@ -172,39 +250,13 @@ qf_include_header();
                 <?php } ?>
                 <a class="phpdo-rss" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="订阅"><i class="fa-solid fa-square-rss" aria-hidden="true"></i><span>订阅</span></a>
             </div>
-            <div class="phpdo-thread-list latest-list">
-                <?php if ($latest && mysqli_num_rows($latest) > 0) { ?>
-                    <?php while ($t = mysqli_fetch_assoc($latest)) {
-                        $avatar = qf_user_avatar($t, 80);
-                        $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
-                        $is_new = strtotime($t['created_at']) >= time() - 86400 * 7;
-                    ?>
-                        <article class="phpdo-thread-row">
-                            <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
-                                <img src="<?php echo h($avatar); ?>" alt="">
-                            </a>
-                            <div class="phpdo-thread-main">
-                                <h2>
-                                    <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-pill phpdo-pill-outline">置顶</span><?php } ?>
-                                    <?php if (intval($t['is_good'])) { ?><span class="phpdo-pill phpdo-good">精华</span><?php } ?>
-                                    <a href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
-                                    <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
-                                    <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
-                                </h2>
-                                <div class="phpdo-thread-meta">
-                                    <p>
-                                        <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
-                                        <span>发表于 <?php echo h(format_time($t['created_at'])); ?></span>
-                                        <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
-                                    </p>
-                                    <div class="phpdo-thread-stats" aria-label="帖子统计">
-                                        <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
-                                        <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    <?php } ?>
+            <button type="button" class="phpdo-new-topics" data-new-topics hidden>
+                <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
+                查看 <b data-new-count>0</b> 个新的或更新的话题
+            </button>
+            <div class="phpdo-thread-list latest-list" data-feed-list data-filter="<?php echo h($filter); ?>" data-per-page="<?php echo intval($phpdo_per_page); ?>" data-has-more="<?php echo $phpdo_has_more ? '1' : '0'; ?>" data-latest-ts="<?php echo h($phpdo_latest_ts); ?>">
+                <?php if (!empty($latest_rows)) { ?>
+                    <?php foreach ($latest_rows as $t) { echo phpdo_render_thread_row($t); } ?>
                 <?php } else { ?>
                     <article class="phpdo-thread-row">
                         <div class="phpdo-thread-main">
@@ -213,6 +265,13 @@ qf_include_header();
                         </div>
                     </article>
                 <?php } ?>
+            </div>
+            <div class="phpdo-feed-more" data-feed-more>
+                <button type="button" class="phpdo-more-btn" data-load-more<?php echo $phpdo_has_more ? '' : ' hidden'; ?>>
+                    <span class="phpdo-more-label">加载更多</span>
+                    <span class="phpdo-more-spin" aria-hidden="true"></span>
+                </button>
+                <div class="phpdo-feed-end" data-feed-end<?php echo (!empty($latest_rows) && !$phpdo_has_more) ? '' : ' hidden'; ?>>没有更多话题了</div>
             </div>
         </section>
 

@@ -5835,6 +5835,83 @@ body.theme-php .phpdo-thread-list {
     display: grid;
 }
 
+/* 新话题提示条 */
+body.theme-php .phpdo-new-topics {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: center;
+    margin: 0 auto 16px;
+    padding: 9px 20px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    background: var(--phpdo-accent);
+    border: 0;
+    border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(80, 91, 147, .28);
+    cursor: pointer;
+    animation: phpdoNewTopics .28s ease;
+}
+body.theme-php .phpdo-new-topics[hidden] { display: none; }
+body.theme-php .phpdo-new-topics b { font-weight: 800; }
+body.theme-php .phpdo-new-topics:hover { filter: brightness(1.06); }
+body.theme-php .phpdo-new-topics.is-loading { opacity: .7; pointer-events: none; }
+@keyframes phpdoNewTopics {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 加载更多 */
+body.theme-php .phpdo-feed-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 18px;
+}
+body.theme-php .phpdo-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 168px;
+    height: 44px;
+    padding: 0 26px;
+    color: var(--phpdo-accent);
+    font-size: 15px;
+    font-weight: 700;
+    background: #f4f5f9;
+    border: 1px solid #e3e5ee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .16s, color .16s;
+}
+body.theme-php .phpdo-more-btn[hidden] { display: none; }
+body.theme-php .phpdo-more-btn:hover { color: #fff; background: var(--phpdo-accent); border-color: var(--phpdo-accent); }
+body.theme-php .phpdo-more-btn .phpdo-more-spin {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: phpdoSpin .7s linear infinite;
+}
+body.theme-php .phpdo-more-btn.is-loading .phpdo-more-spin { display: inline-block; }
+body.theme-php .phpdo-more-btn.is-loading .phpdo-more-label { opacity: .7; }
+@keyframes phpdoSpin { to { transform: rotate(360deg); } }
+body.theme-php .phpdo-feed-end {
+    padding: 6px 0 2px;
+    color: #9aa0a6;
+    font-size: 13px;
+}
+body.theme-php .phpdo-feed-end[hidden] { display: none; }
+
+/* 深色适配 */
+body.theme-php-dark .phpdo-more-btn { background: #23262e; border-color: #333844; color: #c8ccff; }
+body.theme-php-dark .phpdo-more-btn:hover { background: var(--phpdo-accent); border-color: var(--phpdo-accent); color: #fff; }
+body.theme-php-dark .phpdo-feed-end { color: #6b7280; }
+
 body.theme-php .phpdo-thread-row {
     display: grid;
     grid-template-columns: 58px minmax(0, 1fr);
