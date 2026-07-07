@@ -6436,6 +6436,7 @@ body.theme-php .phpdo-right-toolbar > *:last-child {
 
 body.theme-php .phpdo-right-toolbar a,
 body.theme-php .phpdo-right-toolbar button {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -6447,7 +6448,7 @@ body.theme-php .phpdo-right-toolbar button {
     text-decoration: none;
     background: #fff !important;
     border: 1px solid #e5e7eb;
-    border-radius: 10px !important;
+    border-radius: 2px !important;
     box-shadow: 0 6px 18px rgba(30, 42, 60, .12);
     cursor: pointer;
     transition: background-color .2s ease, color .2s ease, transform .2s ease, border-color .2s ease;
@@ -6461,25 +6462,43 @@ body.theme-php .phpdo-right-toolbar button:hover {
     transform: translateY(-2px);
 }
 
-/* 回到顶部：默认隐藏且不占位，滚过半页后带回弹动画出现 */
-body.theme-php .phpdo-right-toolbar [data-scroll-top] {
-    height: 0;
-    margin-bottom: 0;
-    padding: 0;
-    border-width: 0;
+/* 悬浮显示按钮说明（tooltip，显示在按钮左侧） */
+body.theme-php .phpdo-right-toolbar [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 10px);
+    transform: translateY(-50%) translateX(6px);
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    background: rgba(23, 32, 46, .92);
+    border-radius: 4px;
     opacity: 0;
-    transform: translateY(14px) scale(.5);
     pointer-events: none;
-    overflow: hidden;
+    transition: opacity .16s ease, transform .16s ease;
+}
+body.theme-php .phpdo-right-toolbar [data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* 回到顶部：始终保持 46×46 正方形，默认不占位（负 margin 抵消），滚过半页后带回弹动画出现 */
+body.theme-php .phpdo-right-toolbar [data-scroll-top] {
+    margin-bottom: -46px;
+    opacity: 0;
+    transform: translateY(12px) scale(.6);
+    pointer-events: none;
     box-shadow: none;
-    transition: height .28s ease, margin .28s ease, opacity .26s ease,
+    transition: margin-bottom .3s ease, opacity .26s ease,
                 transform .34s cubic-bezier(.34, 1.56, .64, 1),
                 background-color .2s ease, color .2s ease, border-color .2s ease;
 }
 body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
-    height: 46px;
     margin-bottom: 10px;
-    border-width: 1px;
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: auto;
@@ -7886,7 +7905,7 @@ body.theme-php .phpdo-right-toolbar {
 }
 body.theme-php .phpdo-right-toolbar a,
 body.theme-php .phpdo-right-toolbar button {
-    border-radius: 10px !important;
+    border-radius: 2px !important;
 }
 
 @media (max-width: 900px) {
