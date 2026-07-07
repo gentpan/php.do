@@ -498,7 +498,7 @@ function qf_forum_slug_map() {
         '作品展示' => 'showcase',
         '综合交流' => 'community',
         '灌水闲聊' => 'chat',
-        '个人博客' => 'blog',
+        '个站展示' => 'sites',
     );
 }
 

@@ -8553,7 +8553,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
     background: rgba(0, 0, 0, .30);
     -webkit-backdrop-filter: blur(12px) saturate(135%);
     backdrop-filter: blur(12px) saturate(135%);
-    border-radius: 8px;
+    border-radius: 0;
     text-shadow: 0 1px 6px rgba(0, 0, 0, .65);
 }
 .qf-menu { display: flex; }
