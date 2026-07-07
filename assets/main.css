@@ -1675,6 +1675,11 @@ body.theme-php-dark .admin-user-avatar { background: #23262e; }
     border-color: var(--badge-hover-border, var(--badge-color, #505b93));
 }
 
+.action-badge.is-loading {
+    opacity: .55;
+    pointer-events: none;
+}
+
 .action-badge-edit {
     --badge-color: #505b93;
     --badge-bg: #eef1f7;

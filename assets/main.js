@@ -354,7 +354,7 @@
             }
 
             var confirmed = e.target.closest('[data-confirm]');
-            if (confirmed && !confirm(confirmed.getAttribute('data-confirm'))) {
+            if (confirmed && !confirmed.hasAttribute('data-ajax') && !confirm(confirmed.getAttribute('data-confirm'))) {
                 e.preventDefault();
             }
         });
@@ -364,6 +364,52 @@
             if (form && !confirm(form.getAttribute('data-confirm'))) {
                 e.preventDefault();
             }
+        });
+    }
+
+    // 帖子管理工具栏（置顶/加精/删除等）走 AJAX，不刷新页面
+    function initThreadAdminAjax() {
+        document.addEventListener('click', function(e) {
+            var badge = e.target.closest('.action-badge[data-ajax]');
+            if (!badge) return;
+            e.preventDefault();
+            if (badge.classList.contains('is-loading')) return;
+            var confirmMsg = badge.getAttribute('data-confirm');
+            if (confirmMsg && !confirm(confirmMsg)) return;
+            var href = badge.getAttribute('href');
+            if (!href) return;
+            var url = href + (href.indexOf('?') >= 0 ? '&' : '?') + 'ajax=1';
+            badge.classList.add('is-loading');
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            }).then(function(r) {
+                return r.json();
+            }).then(function(data) {
+                badge.classList.remove('is-loading');
+                if (!data || !data.ok) {
+                    if (window.qfToast) window.qfToast((data && data.msg) ? data.msg : '操作失败');
+                    return;
+                }
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                if (data.removed) {
+                    var reply = badge.closest('.reply');
+                    if (reply && reply.parentNode) reply.parentNode.removeChild(reply);
+                    if (window.qfToast && data.msg) window.qfToast(data.msg);
+                    return;
+                }
+                if (typeof data.tools === 'string') {
+                    var tools = badge.closest('[data-thread-tools]');
+                    if (tools) tools.innerHTML = data.tools;
+                    if (window.qfToast && data.msg) window.qfToast(data.msg);
+                }
+            }).catch(function() {
+                badge.classList.remove('is-loading');
+                if (window.qfToast) window.qfToast('网络错误，请重试');
+            });
         });
     }
 
@@ -984,6 +1030,7 @@
     initThreadVotes();
     initSigninModal();
     initInlineActions();
+    initThreadAdminAjax();
     initRightToolbar();
     initFormLoading();
     initToast();

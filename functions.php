@@ -1248,6 +1248,41 @@ function qf_action_badge($href, $label, $icon, $extra_class = '', $attrs = '') {
     return '<a class="' . h($class) . '" href="' . h($href) . '" title="' . h($label) . '" aria-label="' . h($label) . '" data-tooltip="' . h($label) . '" ' . trim($attrs) . '><i class="' . h($icon) . '" aria-hidden="true"></i><span>' . h($label) . '</span></a>';
 }
 
+function qf_is_ajax_request() {
+    if (isset($_GET['ajax']) && $_GET['ajax'] !== '') {
+        return true;
+    }
+    if (isset($_POST['ajax']) && $_POST['ajax'] !== '') {
+        return true;
+    }
+    return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
+
+// 生成帖子面包屑右侧的管理/版主工具栏内层 HTML（供 thread.php 首次渲染与 AJAX 局部刷新复用）
+function qf_thread_admin_tools_html($thread) {
+    $tid = intval($thread['id']);
+    $out = '';
+    if (is_admin()) {
+        $ip = h(isset($thread['ip']) ? $thread['ip'] : '');
+        $is_top = intval(isset($thread['is_top']) ? $thread['is_top'] : 0);
+        $is_good = intval(isset($thread['is_good']) ? $thread['is_good'] : 0);
+        $out .= '<span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: ' . $ip . '</span></span>';
+        $out .= qf_action_badge(qf_url_page('edit_thread.php', array('id' => $tid)), '编辑', 'fa-solid fa-pen-to-square', 'action-badge-edit');
+        $out .= qf_action_badge(qf_url_page('move_thread.php', array('id' => $tid)), '移动', 'fa-solid fa-arrow-right-arrow-left', 'action-badge-move');
+        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_board', 'id' => $tid, 'token' => qf_action_token('top_board', $tid))), '本版块置顶', 'fa-solid fa-thumbtack', 'action-badge-pin' . ($is_top === 2 ? ' is-active' : ''), 'data-ajax="1"');
+        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_global', 'id' => $tid, 'token' => qf_action_token('top_global', $tid))), '全站置顶', 'fa-solid fa-up-long', 'action-badge-pin' . ($is_top === 1 ? ' is-active' : ''), 'data-ajax="1"');
+        if ($is_top > 0) {
+            $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'cancel_top', 'id' => $tid, 'token' => qf_action_token('cancel_top', $tid))), '取消置顶', 'fa-solid fa-ban', 'action-badge-muted', 'data-ajax="1"');
+        }
+        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'good', 'id' => $tid, 'token' => qf_action_token('good', $tid))), $is_good ? '取消加精' : '加精', $is_good ? 'fa-solid fa-star' : 'fa-regular fa-star', 'action-badge-feature' . ($is_good ? ' is-active' : ''), 'data-ajax="1"');
+        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_thread', 'id' => $tid, 'token' => qf_action_token('del_thread', $tid))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？" data-ajax="1"');
+    } elseif (qf_can_moderator_delete_thread(current_user(), $thread)) {
+        $out .= qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => $tid, 'token' => qf_action_token('mod_del_thread', $tid))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？" data-ajax="1"');
+    }
+    return $out;
+}
+
 function qf_guest_download_confirm_onclick() {
     return 'data-login-required="1" data-login-url="' . h(qf_url_page('register.php')) . '"';
 }

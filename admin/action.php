@@ -3,6 +3,11 @@ require_once __DIR__ . '/../functions.php';
 require_admin();
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
+function qf_action_thread_row($id) {
+    $r = mysqli_query(db(), "SELECT id, ip, is_top, is_good FROM qf_threads WHERE id=" . intval($id) . " LIMIT 1");
+    return $r ? mysqli_fetch_assoc($r) : array('id' => intval($id));
+}
+
 if ($action === 'add_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = esc(clean_text($_POST['name'], 60));
     $desc = esc(clean_text($_POST['description'], 255));
@@ -189,6 +194,9 @@ if ($action === 'top_board') {
     $id = intval($_GET['id']);
     qf_require_action_token('top_board', $id);
     mysqli_query(db(), "UPDATE qf_threads SET is_top=2 WHERE id={$id}");
+    if (qf_is_ajax_request()) {
+        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html(qf_action_thread_row($id)), 'msg' => '已本版块置顶'));
+    }
     redirect(qf_url_thread($id));
 }
 
@@ -196,6 +204,9 @@ if ($action === 'top_global') {
     $id = intval($_GET['id']);
     qf_require_action_token('top_global', $id);
     mysqli_query(db(), "UPDATE qf_threads SET is_top=1 WHERE id={$id}");
+    if (qf_is_ajax_request()) {
+        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html(qf_action_thread_row($id)), 'msg' => '已全站置顶'));
+    }
     redirect(qf_url_thread($id));
 }
 
@@ -203,6 +214,9 @@ if ($action === 'cancel_top') {
     $id = intval($_GET['id']);
     qf_require_action_token('cancel_top', $id);
     mysqli_query(db(), "UPDATE qf_threads SET is_top=0 WHERE id={$id}");
+    if (qf_is_ajax_request()) {
+        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html(qf_action_thread_row($id)), 'msg' => '已取消置顶'));
+    }
     redirect(qf_url_thread($id));
 }
 
@@ -219,6 +233,10 @@ if ($action === 'good') {
     $id = intval($_GET['id']);
     qf_require_action_token('good', $id);
     mysqli_query(db(), "UPDATE qf_threads SET is_good=IF(is_good=1,0,1) WHERE id={$id}");
+    if (qf_is_ajax_request()) {
+        $row = qf_action_thread_row($id);
+        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html($row), 'msg' => intval(isset($row['is_good']) ? $row['is_good'] : 0) ? '已加精' : '已取消加精'));
+    }
     redirect(qf_url_thread($id));
 }
 
@@ -226,6 +244,9 @@ if ($action === 'del_thread') {
     $id = intval($_GET['id']);
     qf_require_action_token('del_thread', $id);
     mysqli_query(db(), "UPDATE qf_threads SET is_deleted=1 WHERE id={$id}");
+    if (qf_is_ajax_request()) {
+        qf_json_response(array('ok' => 1, 'redirect' => qf_url_page('index.php'), 'msg' => '已删除该主题'));
+    }
     redirect(qf_url_page('index.php'));
 }
 
@@ -235,6 +256,9 @@ if ($action === 'del_post') {
     qf_require_action_token('del_post', $id, $tid);
     mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE id={$id}");
     mysqli_query(db(), "UPDATE qf_threads SET replies=GREATEST(replies-1,0) WHERE id={$tid}");
+    if (qf_is_ajax_request()) {
+        qf_json_response(array('ok' => 1, 'removed' => 1, 'post_id' => $id, 'msg' => '已删除该回复'));
+    }
     redirect(qf_url_thread($tid));
 }
 
