@@ -6139,7 +6139,7 @@ body.theme-php .phpdo-badge-top {
     background: var(--phpdo-red);
 }
 body.theme-php .phpdo-badge-good {
-    background: #6b5bd6;
+    background: #f5a623;
 }
 
 /* 徽章/按钮样式变体：柔和底色系（可用于置顶/精华/分类等各种标签） */
@@ -8305,7 +8305,7 @@ body.theme-php-dark .tag.good {
 
 body.theme-php-dark .phpdo-badge-sq { color: #fff !important; }
 body.theme-php-dark .phpdo-badge-top { background: #d1495b; }
-body.theme-php-dark .phpdo-badge-good { background: #7161d8; }
+body.theme-php-dark .phpdo-badge-good { background: #f7b733; }
 
 body.theme-php-dark .phpdo-image-icon,
 body.theme-php-dark .phpdo-attach-icon,
