@@ -8026,6 +8026,18 @@ body.theme-php-dark .phpdo-right-toolbar button:hover {
     color: var(--phpdo-accent);
 }
 
+/* 菜单栏与分类导航内的链接一律不加下划线（盖过全局 a{underline}） */
+body.theme-php .site-nav-bar a,
+body.theme-php-dark .site-nav-bar a,
+body.theme-php .qf-category-nav a,
+body.theme-php-dark .qf-category-nav a,
+body.theme-php .site-nav-bar a:hover,
+body.theme-php-dark .site-nav-bar a:hover,
+body.theme-php .qf-category-nav a:hover,
+body.theme-php-dark .qf-category-nav a:hover {
+    text-decoration: none;
+}
+
 .qf-cat-icon {
     display: inline-flex;
     align-items: center;
