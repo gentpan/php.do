@@ -8414,3 +8414,12 @@ body.theme-php-dark .qf-page-frame {
 /* 正文区在白框内留出内边距（灰褐底只在框外显示） */
 .qf-page-frame main.wrap { padding-bottom: 42px; }
 body.theme-php .qf-page-frame main.wrap { background: transparent; }
+
+/* PHP 官网风：#262626 / #333333 交叉格子（棋盘）背景 */
+body.theme-php,
+body.theme-php-dark {
+    background-color: #262626 !important;
+    background-image: repeating-conic-gradient(#262626 0 25%, #333333 0 50%) !important;
+    background-size: 48px 48px !important;
+    background-attachment: fixed !important;
+}
