@@ -6905,6 +6905,9 @@ body.theme-php .phpdo-thread-breadcrumb {
 }
 
 body.theme-php .phpdo-thread-breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     color: #7d838c;
     font-weight: 750;
     text-decoration: none;

@@ -34,7 +34,7 @@ if ($me) {
     <div class="alert"><?php echo nl2br(h($_SESSION['flash'])); unset($_SESSION['flash']); ?></div>
 <?php } ?>
 <nav class="phpdo-thread-breadcrumb" aria-label="面包屑导航">
-    <a href="<?php echo h(qf_url_page('index.php')); ?>">首页</a>
+    <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
     <span>›</span>
     <a href="<?php echo h(qf_url_forum($thread['forum_id'])); ?>"><?php echo h($thread['forum_name']); ?></a>
 </nav>
