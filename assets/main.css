@@ -6026,14 +6026,13 @@ body.theme-php .phpdo-thread-main p {
     line-height: 1.35;
 }
 
-/* 动态「New」徽章：橙红渐变胶囊 + 呼吸光晕 + 高光扫过 */
+/* 动态「New」小旗徽章：燕尾旗面 + 飘动 */
 body.theme-php .phpdo-new {
-    position: relative;
     display: inline-flex;
     align-items: center;
-    height: 18px;
-    margin-left: 4px;
-    padding: 0 8px;
+    height: 17px;
+    margin-left: 5px;
+    padding: 0 12px 0 8px;
     color: #fff;
     font-size: 11px;
     font-weight: 800;
@@ -6041,38 +6040,21 @@ body.theme-php .phpdo-new {
     line-height: 1;
     text-transform: uppercase;
     vertical-align: middle;
-    border-radius: 999px;
     background: linear-gradient(135deg, #ff8a3d 0%, #ff4d4f 100%);
-    box-shadow: 0 1px 3px rgba(255, 77, 79, .35);
-    overflow: hidden;
-    animation: phpdoNewPulse 1.9s ease-in-out infinite;
+    clip-path: polygon(0 0, 100% 0, 82% 50%, 100% 100%, 0 100%);
+    transform-origin: left center;
+    animation: phpdoNewWave 1.9s ease-in-out infinite;
 }
-body.theme-php .phpdo-new::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -140%;
-    width: 55%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, .6) 50%, transparent 100%);
-    transform: skewX(-20deg);
-    animation: phpdoNewShine 2.8s ease-in-out infinite;
-}
-@keyframes phpdoNewPulse {
-    0%, 100% { box-shadow: 0 1px 3px rgba(255, 77, 79, .35), 0 0 0 0 rgba(255, 77, 79, .0); }
-    50% { box-shadow: 0 1px 3px rgba(255, 77, 79, .35), 0 0 9px 1px rgba(255, 77, 79, .55); }
-}
-@keyframes phpdoNewShine {
-    0% { left: -140%; }
-    55%, 100% { left: 150%; }
+@keyframes phpdoNewWave {
+    0%, 100% { transform: skewX(0deg) rotate(0deg); }
+    30% { transform: skewX(-4deg) rotate(-1deg); }
+    70% { transform: skewX(4deg) rotate(1deg); }
 }
 @media (prefers-reduced-motion: reduce) {
     body.theme-php .phpdo-new { animation: none; }
-    body.theme-php .phpdo-new::after { display: none; }
 }
 body.theme-php-dark .phpdo-new {
     background: linear-gradient(135deg, #ff9f52 0%, #ff5a5c 100%);
-    box-shadow: 0 1px 3px rgba(255, 90, 92, .4);
 }
 
 body.theme-php .phpdo-pill,
