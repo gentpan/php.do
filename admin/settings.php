@@ -36,9 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $site_name = clean_text($_POST['site_name'], 80);
     $site_desc = clean_text($_POST['site_desc'], 180);
     $site_keywords = clean_text($_POST['site_keywords'], 160);
-    $theme_name = clean_text(isset($_POST['theme_name']) ? $_POST['theme_name'] : 'php', 40);
-    $title_font = clean_text(isset($_POST['title_font']) ? $_POST['title_font'] : 'system', 60);
-    $content_font = clean_text(isset($_POST['content_font']) ? $_POST['content_font'] : 'system', 60);
     $icp_code = trim((string)$_POST['icp_code']);
     $stats_code = trim((string)$_POST['stats_code']);
     $upload_max_mb = intval($_POST['upload_max_mb']);
@@ -74,17 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($site_desc === '') {
         $site_desc = SITE_DESC;
-    }
-    $theme_options = qf_theme_options();
-    if (!isset($theme_options[$theme_name])) {
-        $theme_name = 'php';
-    }
-    $font_options = qf_font_options();
-    if (!isset($font_options[$title_font])) {
-        $title_font = 'system';
-    }
-    if (!isset($font_options[$content_font])) {
-        $content_font = 'system';
     }
     $upload_allowed_exts = preg_replace('/[^a-z0-9,，\.\s|]/', '', $upload_allowed_exts);
     if ($upload_allowed_exts === '') {
@@ -153,9 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     qf_update_setting('site_name', $site_name);
     qf_update_setting('site_desc', $site_desc);
     qf_update_setting('site_keywords', $site_keywords);
-    qf_update_setting('theme_name', $theme_name);
-    qf_update_setting('title_font', $title_font);
-    qf_update_setting('content_font', $content_font);
     qf_update_setting('icp_code', $icp_code);
     qf_update_setting('stats_code', $stats_code);
     qf_update_setting('upload_max_mb', strval($upload_max_mb));
@@ -196,138 +179,144 @@ qf_include_header();
     <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php if ($saved) { ?><div class="alert success">设置已保存。</div><?php } ?>
     <?php if ($s3_test_message !== '') { ?><div class="alert <?php echo $s3_test_ok ? 'success' : ''; ?>"><?php echo h($s3_test_message); ?></div><?php } ?>
-    <form method="post">
-        <label>站点名称（浏览器里显示的）</label>
-        <input type="text" name="site_title" value="<?php echo h(qf_setting('site_title', SITE_NAME)); ?>" maxlength="80">
+    <form method="post" class="settings-form" x-data="{ tab: 'basic' }">
+        <nav class="settings-tabs">
+            <button type="button" :class="tab==='basic' ? 'active' : ''" @click="tab='basic'"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> 基本信息</button>
+            <button type="button" :class="tab==='upload' ? 'active' : ''" @click="tab='upload'"><i class="fa-solid fa-paperclip" aria-hidden="true"></i> 上传附件</button>
+            <button type="button" :class="tab==='forum' ? 'active' : ''" @click="tab='forum'"><i class="fa-solid fa-comments" aria-hidden="true"></i> 论坛发帖</button>
+            <button type="button" :class="tab==='coins' ? 'active' : ''" @click="tab='coins'"><i class="fa-solid fa-coins" aria-hidden="true"></i> 金币签到</button>
+            <button type="button" :class="tab==='security' ? 'active' : ''" @click="tab='security'"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 注册验证</button>
+            <button type="button" :class="tab==='storage' ? 'active' : ''" @click="tab='storage'"><i class="fa-solid fa-cloud" aria-hidden="true"></i> 对象存储</button>
+            <button type="button" :class="tab==='links' ? 'active' : ''" @click="tab='links'"><i class="fa-solid fa-link" aria-hidden="true"></i> 友链伪静态</button>
+        </nav>
 
-        <label>网站名称（网站内部的）</label>
-        <input type="text" name="site_name" value="<?php echo h(qf_setting('site_name', SITE_NAME)); ?>" maxlength="80">
+        <div class="settings-panel" x-show="tab==='basic'">
+            <h2><i class="fa-solid fa-circle-info" aria-hidden="true"></i> 基本信息</h2>
+            <label>站点名称（浏览器里显示的）</label>
+            <input type="text" name="site_title" value="<?php echo h(qf_setting('site_title', SITE_NAME)); ?>" maxlength="80">
 
-        <label>网站简介</label>
-        <textarea name="site_desc" rows="3" maxlength="180"><?php echo h(qf_setting('site_desc', SITE_DESC)); ?></textarea>
-        <p class="muted">显示在首页顶部网站名称下面，也会作为页面描述。</p>
+            <label>网站名称（网站内部的）</label>
+            <input type="text" name="site_name" value="<?php echo h(qf_setting('site_name', SITE_NAME)); ?>" maxlength="80">
 
-        <label>关键词（KeyWords）</label>
-        <input type="text" name="site_keywords" value="<?php echo h(qf_setting('site_keywords', '')); ?>" maxlength="160" placeholder="例如：Lume,轻论坛,本地论坛,同城交流">
-        <p class="muted">多个关键词建议用英文逗号分隔，例如：Lume,轻论坛,本地论坛。</p>
+            <label>网站简介</label>
+            <textarea name="site_desc" rows="3" maxlength="180"><?php echo h(qf_setting('site_desc', SITE_DESC)); ?></textarea>
+            <p class="muted">显示在首页顶部网站名称下面，也会作为页面描述。</p>
 
-        <label>网站配色风格</label>
-        <select name="theme_name">
-            <?php foreach (qf_theme_options() as $theme_key => $theme_label) { ?>
-                <option value="<?php echo h($theme_key); ?>" <?php if (qf_theme() === $theme_key) echo 'selected'; ?>><?php echo h($theme_label); ?></option>
-            <?php } ?>
-        </select>
-        <p class="muted">PHP 官方风格提供浅色和深色两个版本，组件圆角、间距、字号和字体参考 php.net。</p>
+            <label>关键词（KeyWords）</label>
+            <input type="text" name="site_keywords" value="<?php echo h(qf_setting('site_keywords', '')); ?>" maxlength="160" placeholder="例如：Lume,轻论坛,本地论坛,同城交流">
+            <p class="muted">多个关键词建议用英文逗号分隔，例如：Lume,轻论坛,本地论坛。</p>
 
-        <label>标题字体</label>
-        <select name="title_font">
-            <?php foreach (qf_font_options() as $font_key => $font_item) { ?>
-                <option value="<?php echo h($font_key); ?>" <?php if (qf_font_key('title_font') === $font_key) echo 'selected'; ?>><?php echo h($font_item['label']); ?></option>
-            <?php } ?>
-        </select>
-        <p class="muted">用于站点名、标题、卡片标题等。只加载当前选择的字体。</p>
+            <label>网站备案信息代码</label>
+            <textarea name="icp_code" rows="3" placeholder="例如：蜀ICP备xxxx号"><?php echo h(qf_setting('icp_code', '')); ?></textarea>
+            <p class="muted">会显示在页面底部，可填写文字或备案链接代码。</p>
 
-        <label>内容字体</label>
-        <select name="content_font">
-            <?php foreach (qf_font_options() as $font_key => $font_item) { ?>
-                <option value="<?php echo h($font_key); ?>" <?php if (qf_font_key('content_font') === $font_key) echo 'selected'; ?>><?php echo h($font_item['label']); ?></option>
-            <?php } ?>
-        </select>
-        <p class="muted">用于正文、表单、列表内容等。标题和内容相同字体时只加载一次。</p>
+            <label>第三方统计代码</label>
+            <textarea name="stats_code" rows="6" placeholder="例如百度统计、CNZZ等统计代码"><?php echo h(qf_setting('stats_code', '')); ?></textarea>
+            <p class="muted">会输出在页面底部，保存前请确认代码来源可信。</p>
+        </div>
 
-        <label>网站备案信息代码</label>
-        <textarea name="icp_code" rows="3" placeholder="例如：蜀ICP备xxxx号"><?php echo h(qf_setting('icp_code', '')); ?></textarea>
-        <p class="muted">会显示在页面底部，可填写文字或备案链接代码。</p>
+        <div class="settings-panel" x-show="tab==='upload'">
+            <h2><i class="fa-solid fa-paperclip" aria-hidden="true"></i> 上传与附件</h2>
+            <label>附件上传大小设置（MB）</label>
+            <input type="number" name="upload_max_mb" min="1" max="50" value="<?php echo h(qf_setting('upload_max_mb', '5')); ?>">
 
-        <label>第三方统计代码</label>
-        <textarea name="stats_code" rows="6" placeholder="例如百度统计、CNZZ等统计代码"><?php echo h(qf_setting('stats_code', '')); ?></textarea>
-        <p class="muted">会输出在页面底部，保存前请确认代码来源可信。</p>
+            <label>允许上传附件后缀</label>
+            <input type="text" name="upload_allowed_exts" value="<?php echo h(qf_setting('upload_allowed_exts', 'jpg,jpeg,png,gif,webp,zip,rar')); ?>">
+            <p class="muted">多个后缀用英文逗号分隔，例如：jpg,png,zip,rar。不要填写点号也可以。</p>
 
-        <label>附件上传大小设置（MB）</label>
-        <input type="number" name="upload_max_mb" min="1" max="50" value="<?php echo h(qf_setting('upload_max_mb', '5')); ?>">
+            <label>是否允许游客下载附件</label>
+            <label><input class="inline-check" type="checkbox" name="guest_download_enabled" value="1" <?php if (qf_guest_download_allowed()) echo 'checked'; ?>> 允许游客下载 zip、rar 压缩附件</label>
+            <p class="muted">关闭后，图片仍可直接查看；未登录游客点击 zip、rar 压缩附件时会提示“需要登录才能进行该操作”。</p>
+        </div>
 
-        <label>允许上传附件后缀</label>
-        <input type="text" name="upload_allowed_exts" value="<?php echo h(qf_setting('upload_allowed_exts', 'jpg,jpeg,png,gif,webp,zip,rar')); ?>">
-        <p class="muted">多个后缀用英文逗号分隔，例如：jpg,png,zip,rar。不要填写点号也可以。</p>
+        <div class="settings-panel" x-show="tab==='forum'">
+            <h2><i class="fa-solid fa-comments" aria-hidden="true"></i> 论坛与发帖</h2>
+            <label>首页每页显示帖子数</label>
+            <input type="number" name="home_threads_per_page" min="1" max="100" value="<?php echo h(qf_setting('home_threads_per_page', '12')); ?>">
+            <p class="muted">控制首页“最新帖子”列表显示多少条。</p>
 
-        <label>是否允许游客下载附件</label>
-        <label><input class="inline-check" type="checkbox" name="guest_download_enabled" value="1" <?php if (qf_guest_download_allowed()) echo 'checked'; ?>> 允许游客下载 zip、rar 压缩附件</label>
-        <p class="muted">关闭后，图片仍可直接查看；未登录游客点击 zip、rar 压缩附件时会提示“需要登录才能进行该操作”。</p>
+            <label>板块每页显示帖子数</label>
+            <input type="number" name="forum_threads_per_page" min="1" max="200" value="<?php echo h(qf_setting('forum_threads_per_page', '60')); ?>">
+            <p class="muted">控制每个板块页显示多少条主题帖。</p>
 
-        <label>首页每页显示帖子数</label>
-        <input type="number" name="home_threads_per_page" min="1" max="100" value="<?php echo h(qf_setting('home_threads_per_page', '12')); ?>">
-        <p class="muted">控制首页“最新帖子”列表显示多少条。</p>
+            <label>帖子内容分页字数</label>
+            <input type="number" name="thread_page_chars" min="500" max="50000" value="<?php echo h(qf_setting('thread_page_chars', '4000')); ?>">
+            <p class="muted">例如设置 4000，主题内容超过 4000 字会显示第 2 页、第 3 页。</p>
 
-        <label>板块每页显示帖子数</label>
-        <input type="number" name="forum_threads_per_page" min="1" max="200" value="<?php echo h(qf_setting('forum_threads_per_page', '60')); ?>">
-        <p class="muted">控制每个板块页显示多少条主题帖。</p>
+            <label>回帖字数限制</label>
+            <input type="number" name="reply_max_chars" min="100" max="50000" value="<?php echo h(qf_setting('reply_max_chars', '1000')); ?>">
+            <p class="muted">用户每次回帖最多允许输入的字数。</p>
+        </div>
 
-        <label>帖子内容分页字数</label>
-        <input type="number" name="thread_page_chars" min="500" max="50000" value="<?php echo h(qf_setting('thread_page_chars', '4000')); ?>">
-        <p class="muted">例如设置 4000，主题内容超过 4000 字会显示第 2 页、第 3 页。</p>
+        <div class="settings-panel" x-show="tab==='coins'">
+            <h2><i class="fa-solid fa-coins" aria-hidden="true"></i> 金币与签到</h2>
+            <label>签到一次获得金币</label>
+            <input type="number" name="signin_base_coins" min="0" max="100000" value="<?php echo h(qf_setting('signin_base_coins', '5')); ?>">
 
-        <label>回帖字数限制</label>
-        <input type="number" name="reply_max_chars" min="100" max="50000" value="<?php echo h(qf_setting('reply_max_chars', '1000')); ?>">
-        <p class="muted">用户每次回帖最多允许输入的字数。</p>
+            <label>连续签到额外奖励金币</label>
+            <input type="number" name="signin_streak_bonus" min="0" max="100000" value="<?php echo h(qf_setting('signin_streak_bonus', '2')); ?>">
+            <p class="muted">用户连续签到第 2 天起，除了基础金币外，再额外奖励这里设置的金币。</p>
+        </div>
 
-        <label>签到一次获得金币</label>
-        <input type="number" name="signin_base_coins" min="0" max="100000" value="<?php echo h(qf_setting('signin_base_coins', '5')); ?>">
+        <div class="settings-panel" x-show="tab==='security'">
+            <h2><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 注册与验证码</h2>
+            <label>单个IP一天内注册次数设置</label>
+            <input type="number" name="register_ip_daily_limit" min="1" max="100" value="<?php echo h(qf_setting('register_ip_daily_limit', '5')); ?>">
 
-        <label>连续签到额外奖励金币</label>
-        <input type="number" name="signin_streak_bonus" min="0" max="100000" value="<?php echo h(qf_setting('signin_streak_bonus', '2')); ?>">
-        <p class="muted">用户连续签到第 2 天起，除了基础金币外，再额外奖励这里设置的金币。</p>
+            <label>验证码</label>
+            <label><input class="inline-check" type="checkbox" name="captcha_enabled" value="1" <?php if (qf_captcha_enabled()) echo 'checked'; ?>> 开启验证码</label>
+            <p class="muted">开启后，注册、发帖、回帖页面会显示高级图片验证码，并启用蜜罐和提交时间校验。</p>
 
-        <label>单个IP一天内注册次数设置</label>
-        <input type="number" name="register_ip_daily_limit" min="1" max="100" value="<?php echo h(qf_setting('register_ip_daily_limit', '5')); ?>">
+            <label>回帖满多少次后免验证码</label>
+            <input type="number" name="captcha_reply_free_count" min="0" max="10000" value="<?php echo h(qf_setting('captcha_reply_free_count', '10')); ?>">
+            <p class="muted">例如填 10，用户累计回帖满 10 次后，发帖和回帖不再需要验证码；注册仍需要验证码。</p>
+        </div>
 
-        <label>验证码</label>
-        <label><input class="inline-check" type="checkbox" name="captcha_enabled" value="1" <?php if (qf_captcha_enabled()) echo 'checked'; ?>> 开启验证码</label>
-        <p class="muted">开启后，注册、发帖、回帖页面会显示高级图片验证码，并启用蜜罐和提交时间校验。</p>
+        <div class="settings-panel" x-show="tab==='storage'">
+            <h2><i class="fa-solid fa-cloud" aria-hidden="true"></i> S3 / Cloudflare R2 对象存储</h2>
+            <label><input class="inline-check" type="checkbox" name="s3_enabled" value="1" <?php if (qf_s3_enabled()) echo 'checked'; ?>> 开启 S3/R2 上传</label>
+            <p class="muted">开启后，发帖、回帖和编辑帖子上传的图片/附件会上传到 S3/R2；未开启时继续保存到本地 uploads 目录。R2 Endpoint 示例：https://账号ID.r2.cloudflarestorage.com。</p>
 
-        <label>回帖满多少次后免验证码</label>
-        <input type="number" name="captcha_reply_free_count" min="0" max="10000" value="<?php echo h(qf_setting('captcha_reply_free_count', '10')); ?>">
-        <p class="muted">例如填 10，用户累计回帖满 10 次后，发帖和回帖不再需要验证码；注册仍需要验证码。</p>
+            <label>S3/R2 Endpoint</label>
+            <input type="text" name="s3_endpoint" value="<?php echo h(qf_setting('s3_endpoint', '')); ?>" placeholder="例如：https://xxxx.r2.cloudflarestorage.com">
 
-        <h2>S3 / Cloudflare R2 对象存储</h2>
-        <label><input class="inline-check" type="checkbox" name="s3_enabled" value="1" <?php if (qf_s3_enabled()) echo 'checked'; ?>> 开启 S3/R2 上传</label>
-        <p class="muted">开启后，发帖、回帖和编辑帖子上传的图片/附件会上传到 S3/R2；未开启时继续保存到本地 uploads 目录。R2 Endpoint 示例：https://账号ID.r2.cloudflarestorage.com。</p>
+            <label>S3/R2 Region</label>
+            <input type="text" name="s3_region" value="<?php echo h(qf_setting('s3_region', 'auto')); ?>" placeholder="R2 通常填写 auto">
 
-        <label>S3/R2 Endpoint</label>
-        <input type="text" name="s3_endpoint" value="<?php echo h(qf_setting('s3_endpoint', '')); ?>" placeholder="例如：https://xxxx.r2.cloudflarestorage.com">
+            <label>S3/R2 Bucket</label>
+            <input type="text" name="s3_bucket" value="<?php echo h(qf_setting('s3_bucket', '')); ?>">
 
-        <label>S3/R2 Region</label>
-        <input type="text" name="s3_region" value="<?php echo h(qf_setting('s3_region', 'auto')); ?>" placeholder="R2 通常填写 auto">
+            <label>S3/R2 Access Key ID</label>
+            <input type="text" name="s3_access_key" value="<?php echo h(qf_setting('s3_access_key', '')); ?>">
 
-        <label>S3/R2 Bucket</label>
-        <input type="text" name="s3_bucket" value="<?php echo h(qf_setting('s3_bucket', '')); ?>">
+            <label>S3/R2 Secret Access Key</label>
+            <input type="password" name="s3_secret_key" value="<?php echo h(qf_setting('s3_secret_key', '')); ?>">
 
-        <label>S3/R2 Access Key ID</label>
-        <input type="text" name="s3_access_key" value="<?php echo h(qf_setting('s3_access_key', '')); ?>">
+            <label>CDN 访问域名</label>
+            <input type="text" name="s3_cdn_domain" value="<?php echo h(qf_setting('s3_cdn_domain', '')); ?>" placeholder="例如：https://cdn.example.com">
+            <p class="muted">前台图片和附件会使用这个域名生成访问地址。留空时使用 Endpoint/Bucket 拼接地址。</p>
 
-        <label>S3/R2 Secret Access Key</label>
-        <input type="password" name="s3_secret_key" value="<?php echo h(qf_setting('s3_secret_key', '')); ?>">
+            <label>存储路径前缀</label>
+            <input type="text" name="s3_path_prefix" value="<?php echo h(qf_setting('s3_path_prefix', 'lume')); ?>" placeholder="例如：lume">
+            <p class="muted">实际对象路径会形如：lume/年/月/日/文件名。</p>
+            <p><button class="btn btn-light btn-small" type="submit" name="action" value="s3_test">测试 S3/R2 上传</button></p>
+        </div>
 
-        <label>CDN 访问域名</label>
-        <input type="text" name="s3_cdn_domain" value="<?php echo h(qf_setting('s3_cdn_domain', '')); ?>" placeholder="例如：https://cdn.example.com">
-        <p class="muted">前台图片和附件会使用这个域名生成访问地址。留空时使用 Endpoint/Bucket 拼接地址。</p>
+        <div class="settings-panel" x-show="tab==='links'">
+            <h2><i class="fa-solid fa-link" aria-hidden="true"></i> 友情链接与伪静态</h2>
+            <label>友情链接</label>
+            <label><input class="inline-check" type="checkbox" name="friend_links_enabled" value="1" <?php if (qf_friend_links_enabled()) echo 'checked'; ?>> 开启友情链接</label>
+            <textarea name="friend_links" rows="5" placeholder="例如：Lume官网|https://lume.0816y.com"><?php echo h(qf_setting('friend_links', '')); ?></textarea>
+            <p class="muted">每行一个友情链接，格式：网站名称|网站地址。例如：朋友论坛|https://example.com。</p>
 
-        <label>存储路径前缀</label>
-        <input type="text" name="s3_path_prefix" value="<?php echo h(qf_setting('s3_path_prefix', 'lume')); ?>" placeholder="例如：lume">
-        <p class="muted">实际对象路径会形如：lume/年/月/日/文件名。</p>
-        <p><button class="btn btn-light btn-small" type="submit" name="action" value="s3_test">测试 S3/R2 上传</button></p>
+            <label>伪静态</label>
+            <label><input class="inline-check" type="checkbox" name="rewrite_enabled" value="1" <?php if (qf_rewrite_enabled()) echo 'checked'; ?>> 开启伪静态链接</label>
+            <p class="muted">开启后，前台帖子链接会生成 thread/1.html，版块使用 develop、release 等静态路径。请先把下面 Nginx 规则复制到虚拟空间的伪静态配置里。</p>
 
-        <label>友情链接</label>
-        <label><input class="inline-check" type="checkbox" name="friend_links_enabled" value="1" <?php if (qf_friend_links_enabled()) echo 'checked'; ?>> 开启友情链接</label>
-        <textarea name="friend_links" rows="5" placeholder="例如：Lume官网|https://lume.0816y.com"><?php echo h(qf_setting('friend_links', '')); ?></textarea>
-        <p class="muted">每行一个友情链接，格式：网站名称|网站地址。例如：朋友论坛|https://example.com。</p>
-
-        <label>伪静态</label>
-        <label><input class="inline-check" type="checkbox" name="rewrite_enabled" value="1" <?php if (qf_rewrite_enabled()) echo 'checked'; ?>> 开启伪静态链接</label>
-        <p class="muted">开启后，前台帖子链接会生成 thread/1.html，版块使用 develop、release 等静态路径。请先把下面 Nginx 规则复制到虚拟空间的伪静态配置里。</p>
-
-        <label>Nginx伪静态默认配置</label>
-        <textarea name="rewrite_nginx_rules" rows="8"><?php echo h(qf_setting('rewrite_nginx_rules', qf_default_nginx_rewrite_rules())); ?></textarea>
-        <p class="muted">先保存上面的规则，确认 thread/1.html 和 develop 可访问后，再开启伪静态链接。</p>
+            <label>Nginx伪静态默认配置</label>
+            <textarea name="rewrite_nginx_rules" rows="8"><?php echo h(qf_setting('rewrite_nginx_rules', qf_default_nginx_rewrite_rules())); ?></textarea>
+            <p class="muted">先保存上面的规则，确认 thread/1.html 和 develop 可访问后，再开启伪静态链接。</p>
+        </div>
 
         <button class="btn" type="submit">保存设置</button>
     </form>

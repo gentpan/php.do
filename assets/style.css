@@ -8590,3 +8590,34 @@ body {
 @media (max-width: 640px) {
     .qf-burger { display: inline-flex; align-items: center; }
 }
+
+/* 后台设置页 tabs */
+.settings-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 4px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e6e8ee;
+}
+.settings-tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 15px;
+    border: 1px solid #e0e3ea;
+    border-radius: 8px;
+    background: #f6f7fa;
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.settings-tabs button:hover { color: #505b93; border-color: #cfd6e8; }
+.settings-tabs button.active { color: #fff; background: #505b93; border-color: #505b93; }
+.settings-panel h2 { display: flex; align-items: center; gap: 9px; margin-top: 0; }
+.settings-panel h2 i { color: #505b93; }
+body.theme-php-dark .settings-tabs { border-bottom-color: var(--phpdo-border); }
+body.theme-php-dark .settings-tabs button { background: var(--phpdo-surface); border-color: var(--phpdo-border); color: var(--phpdo-muted); }
+body.theme-php-dark .settings-tabs button.active { background: #505b93; color: #fff; border-color: #505b93; }
+body.theme-php-dark .settings-panel h2 i { color: #8791c4; }

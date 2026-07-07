@@ -5,18 +5,13 @@ if (!isset($page_title)) {
 $me = current_user();
 $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) : 0;
 $main_navs = qf_main_navs();
-$active_theme = qf_theme();
-$is_php_theme = in_array($active_theme, array('php', 'php-dark'), true);
+$is_php_theme = true;
 $header_forums = array();
-if ($is_php_theme) {
-    $header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums ORDER BY display_order ASC, id ASC");
-    while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
-        $header_forums[] = $header_forum;
-    }
+$header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums ORDER BY display_order ASC, id ASC");
+while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
+    $header_forums[] = $header_forum;
 }
 $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
-$current_path = str_replace('\\', '/', isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
-$use_system_page_font = $current_script === 'profile.php' || preg_match('#/admin/settings\.php$#', $current_path);
 $page_body_class = 'page-' . preg_replace('/[^a-z0-9_-]+/', '-', strtolower(str_replace('.php', '', $current_script)));
 $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
 ?>
@@ -35,47 +30,38 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
     <link rel="manifest" href="assets/site.webmanifest">
-    <meta name="theme-color" content="<?php echo $active_theme === 'php-dark' ? '#101217' : '#505b93'; ?>">
+    <meta name="theme-color" content="#262626">
     <meta name="msapplication-TileColor" content="#505b93">
     <meta name="msapplication-TileImage" content="assets/mstile-150x150.png">
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
-    <?php if ($is_php_theme) { ?>
-        <link rel="stylesheet" href="https://www.php.net/cached.php?t=1781787603&amp;f=/fonts/Fira/fira.css" media="print" onload="this.onload=null;this.media='all'">
-    <?php } ?>
-    <?php if (!$use_system_page_font) { foreach (qf_selected_font_urls() as $font_url) { ?>
-        <link rel="stylesheet" href="<?php echo h($font_url); ?>">
-    <?php } } ?>
+    <link rel="stylesheet" href="assets/fonts/fira.css?v=<?php echo filemtime(__DIR__ . '/assets/fonts/fira.css'); ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?php echo filemtime(__DIR__ . '/assets/style.css'); ?>">
     <style>
         :root {
-            --qf-title-font: <?php echo qf_font_family('title_font'); ?>;
-            --qf-content-font: <?php echo qf_font_family('content_font'); ?>;
+            --qf-title-font: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            --qf-content-font: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
         }
     </style>
     <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>;</script>
-    <!-- 全局前端栈：Tailwind（关闭 preflight 以免冲突现有样式）+ Preline UI + Alpine.js -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 全局前端栈（本地托管）：Tailwind（关闭 preflight）+ Preline UI + Alpine.js -->
+    <script src="assets/lib/tailwind.js"></script>
     <script>
-        tailwind.config = {
-            corePlugins: { preflight: false },
-            darkMode: 'class'
-        };
+        tailwind.config = { corePlugins: { preflight: false }, darkMode: 'class' };
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="assets/lib/preline.min.js"></script>
+    <script defer src="assets/lib/alpine.min.js"></script>
 </head>
-<body class="<?php echo $active_theme === 'php-dark' ? 'theme-php theme-php-dark' : 'theme-' . h($active_theme); ?> <?php echo h($page_body_class); ?><?php echo $use_system_page_font ? ' use-system-page-font' : ''; ?>">
-<?php if ($is_php_theme) { ?>
+<body class="theme-php <?php echo h($page_body_class); ?>">
 <script>
 (function () {
+    // 深浅色三态：light / dark / system（默认跟随系统）
     try {
-        var pref = localStorage.getItem('qfThemeMode');
-        if (pref === 'dark') document.body.classList.add('theme-php-dark');
-        else if (pref === 'light') document.body.classList.remove('theme-php-dark');
+        var pref = localStorage.getItem('qfThemeMode') || 'system';
+        var dark = pref === 'dark' || (pref === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.body.classList.toggle('theme-php-dark', dark);
     } catch (e) {}
 })();
 </script>
-<?php } ?>
 <?php
 $qf_current_forum = null;
 if ($current_script === 'forum.php' && function_exists('qf_path_id') && qf_table_has_column('qf_forums', 'banner')) {

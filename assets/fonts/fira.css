@@ -1,0 +1,43 @@
+/* Fira Sans / Fira Mono — 本地化自 php.net，仅保留 woff2 */
+@font-face {
+    font-family: 'Fira Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url('fira/FiraSans-Book.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Fira Sans';
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+    src: url('fira/FiraSans-BookItalic.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Fira Sans';
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+    src: url('fira/FiraSans-Medium.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Fira Sans';
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+    src: url('fira/FiraSans-MediumItalic.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Fira Mono';
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url('fira/FiraMono-Regular.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Fira Mono';
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url('fira/FiraMono-Bold.woff2') format('woff2');
+}

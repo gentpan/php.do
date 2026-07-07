@@ -80,10 +80,7 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     <a href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="首页" title="首页"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
     <a href="<?php echo h(qf_url_page('search.php')); ?>" aria-label="搜索" title="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
     <a href="<?php echo h($footer_user ? qf_url_page('post.php') : qf_url_page('login.php')); ?>" aria-label="发帖" title="发帖"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
-    <button type="button" data-theme-toggle aria-label="切换深色/浅色" title="深色/浅色">
-        <i class="fa-solid fa-sun nav-theme-sun" aria-hidden="true"></i>
-        <i class="fa-solid fa-moon nav-theme-moon" aria-hidden="true"></i>
-    </button>
+    <button type="button" data-theme-toggle aria-label="主题" title="主题"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></button>
     <button type="button" data-scroll-top aria-label="返回顶部" title="返回顶部"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
     <button type="button" data-scroll-bottom aria-label="到底部" title="到底部"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
 </aside>
@@ -101,13 +98,41 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     window.addEventListener('load', qfPrelineInit);
     window.qfPrelineInit = qfPrelineInit;
 
-    var toggle = document.querySelector('[data-theme-toggle]');
-    if (toggle) {
-        toggle.addEventListener('click', function () {
-            var dark = document.body.classList.toggle('theme-php-dark');
-            try { localStorage.setItem('qfThemeMode', dark ? 'dark' : 'light'); } catch (e) {}
-        });
-    }
+    // 深浅色三态切换：跟随系统 → 浅色 → 深色 → 跟随系统
+    (function () {
+        var order = ['system', 'light', 'dark'];
+        var icons = { system: 'fa-circle-half-stroke', light: 'fa-sun', dark: 'fa-moon' };
+        var labels = { system: '跟随系统', light: '浅色', dark: '深色' };
+        function pref() { try { return localStorage.getItem('qfThemeMode') || 'system'; } catch (e) { return 'system'; } }
+        function systemDark() { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); }
+        function apply(p) { document.body.classList.toggle('theme-php-dark', p === 'dark' || (p === 'system' && systemDark())); }
+        function refresh(p) {
+            var btns = document.querySelectorAll('[data-theme-toggle]');
+            for (var i = 0; i < btns.length; i++) {
+                var ic = btns[i].querySelector('i');
+                if (ic) ic.className = 'fa-solid ' + icons[p];
+                btns[i].setAttribute('title', '主题：' + labels[p] + '（点击切换）');
+                btns[i].setAttribute('aria-label', '主题：' + labels[p]);
+            }
+        }
+        var cur = pref();
+        apply(cur); refresh(cur);
+        if (window.matchMedia) {
+            try {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+                    if (pref() === 'system') apply('system');
+                });
+            } catch (e) {}
+        }
+        var btns = document.querySelectorAll('[data-theme-toggle]');
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].addEventListener('click', function () {
+                var next = order[(order.indexOf(pref()) + 1) % order.length];
+                try { localStorage.setItem('qfThemeMode', next); } catch (e) {}
+                apply(next); refresh(next);
+            });
+        }
+    })();
 
     document.addEventListener('click', function (e) {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;

@@ -270,9 +270,8 @@ function qf_theme_options() {
 }
 
 function qf_theme() {
-    $theme = qf_setting('theme_name', 'php');
-    $options = qf_theme_options();
-    return isset($options[$theme]) ? $theme : 'php';
+    // 深浅色改为客户端三态（light/dark/system），服务端固定 php 基础主题
+    return 'php';
 }
 
 function qf_font_options() {
