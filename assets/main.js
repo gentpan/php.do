@@ -1,5 +1,6 @@
 (function() {
     var loadingCount = 0;
+    var loadProgress = { value: 0, timer: null };
 
     function initNavMore() {
         var toggle = document.querySelector('[data-nav-more]');
@@ -678,18 +679,49 @@
         var loader = document.createElement('div');
         loader.className = 'qf-topload';
         loader.setAttribute('aria-hidden', 'true');
-        loader.innerHTML = '<div class="progress-container"><div class="progress-bar"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
+        loader.innerHTML = '<div class="progress-container"><div class="progress-bar"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div><span class="qf-topload-pct">0%</span>';
         document.body.appendChild(loader);
+    }
+
+    function loadbarSet(pct) {
+        var el = document.querySelector('.qf-topload');
+        if (!el) return;
+        pct = Math.max(0, Math.min(100, pct));
+        var bar = el.querySelector('.progress-bar');
+        var txt = el.querySelector('.qf-topload-pct');
+        if (bar) bar.style.width = pct + '%';
+        if (txt) txt.textContent = Math.round(pct) + '%';
+    }
+
+    function loadbarStart() {
+        loadProgress.value = 8;
+        loadbarSet(8);
+        if (loadProgress.timer) clearInterval(loadProgress.timer);
+        loadProgress.timer = window.setInterval(function() {
+            if (loadProgress.value < 90) {
+                loadProgress.value = Math.min(90, loadProgress.value + (90 - loadProgress.value) * 0.09 + 0.3);
+                loadbarSet(loadProgress.value);
+            }
+        }, 220);
+    }
+
+    function loadbarDone() {
+        if (loadProgress.timer) { clearInterval(loadProgress.timer); loadProgress.timer = null; }
+        loadProgress.value = 100;
+        loadbarSet(100);
+        window.setTimeout(function() { loadProgress.value = 0; loadbarSet(0); }, 320);
     }
 
     function setLoading(active) {
         ensureLoadingIndicator();
+        var wasOn = loadingCount > 0;
         loadingCount += active ? 1 : -1;
         if (loadingCount < 0) loadingCount = 0;
         var on = loadingCount > 0;
-        if (on) {
-            var bar = document.querySelector('.qf-topload .progress-bar');
-            if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; }
+        if (on && !wasOn) {
+            loadbarStart();
+        } else if (!on && wasOn) {
+            loadbarDone();
         }
         document.body.classList.toggle('qf-is-loading', on);
     }

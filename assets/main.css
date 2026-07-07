@@ -9304,11 +9304,21 @@ body.theme-php .phpdo-right-toolbar {
     z-index: 3000;
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 9px;
     opacity: 0;
     pointer-events: none;
     transition: opacity .18s ease;
 }
 body.qf-is-loading .qf-topload { opacity: 1; }
+.qf-topload-pct {
+    min-width: 34px;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #cfe3ff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+}
 .qf-topload .progress-container {
     position: relative;
     width: 60%;
@@ -9326,10 +9336,10 @@ body.qf-is-loading .qf-topload { opacity: 1; }
     top: 0;
     left: 0;
     height: 100%;
-    width: 40%;
+    width: 0;
     background: linear-gradient(90deg, #00f260, #0575e6);
     border-radius: 30px;
-    animation: qf-grow 3s ease-in-out forwards;
+    transition: width .25s ease;
     box-shadow: 0 0 15px #00f260, 0 0 30px #0575e6;
 }
 .qf-topload .progress-bar::before {
