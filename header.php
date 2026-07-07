@@ -137,7 +137,13 @@ if (strpos($qf_page_banner, '{r}') !== false) {
                     <li><a class="qf-menu-link<?php echo ($qf_current_forum && intval($qf_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(qf_url_forum($forum['id'])); ?>"><span><?php echo h($forum['name']); ?></span></a></li>
                 <?php } ?>
             </ul>
-            <button type="button" class="qf-navbar-rss" data-rss-copy data-rss-url="<?php echo h($qf_rss_url); ?>" aria-label="复制 RSS 订阅地址" title="复制 RSS 订阅地址"><i class="fa-solid fa-square-rss" aria-hidden="true"></i></button>
+            <div class="qf-navbar-tools">
+                <form class="qf-navbar-search" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search" data-navbar-search>
+                    <button type="submit" class="qf-navbar-search-btn" aria-label="搜索" title="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+                    <input type="search" name="q" class="qf-navbar-search-input" placeholder="搜索帖子…" autocomplete="off" aria-label="搜索帖子" value="<?php echo h($search_query); ?>">
+                </form>
+                <button type="button" class="qf-navbar-rss" data-rss-copy data-rss-url="<?php echo h($qf_rss_url); ?>" aria-label="复制 RSS 订阅地址" title="复制 RSS 订阅地址"><i class="fa-solid fa-square-rss" aria-hidden="true"></i></button>
+            </div>
         </nav>
     </div>
 </header>

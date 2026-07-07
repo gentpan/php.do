@@ -860,11 +860,13 @@
         var toolbar = document.querySelector('.phpdo-right-toolbar');
         if (!toolbar) return;
         var topButton = toolbar.querySelector('[data-scroll-top]');
-        var bottomButton = toolbar.querySelector('[data-scroll-bottom]');
 
         function setState() {
             var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-            toolbar.classList.toggle('is-scrolled', y > 160);
+            var docH = (document.documentElement.scrollHeight || 0) - window.innerHeight;
+            // 滚过半页才显示回到顶部：长页面按滚动进度过半，短页面按滚过半屏
+            var pastHalf = docH > 120 ? (y / docH) > 0.5 : (y > window.innerHeight * 0.5);
+            toolbar.classList.toggle('is-scrolled', pastHalf);
         }
 
         if (topButton) {
@@ -873,14 +875,8 @@
             });
         }
 
-        if (bottomButton) {
-            bottomButton.addEventListener('click', function() {
-                var bottom = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-                window.scrollTo({ top: bottom, behavior: 'smooth' });
-            });
-        }
-
         window.addEventListener('scroll', setState, { passive: true });
+        window.addEventListener('resize', setState, { passive: true });
         setState();
     }
 

@@ -77,11 +77,9 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     </div>
 </div>
 <aside class="phpdo-right-toolbar" aria-label="页面工具栏">
-    <a href="<?php echo h(qf_url_page('search.php')); ?>" aria-label="搜索" title="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
+    <button type="button" data-scroll-top aria-label="返回顶部" title="返回顶部"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
     <a href="<?php echo h($footer_user ? qf_url_page('post.php') : qf_url_page('login.php')); ?>" aria-label="发帖" title="发帖"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
     <button type="button" data-theme-toggle aria-label="主题" title="主题"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></button>
-    <button type="button" data-scroll-top aria-label="返回顶部" title="返回顶部"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
-    <button type="button" data-scroll-bottom aria-label="到底部" title="到底部"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
 </aside>
 <script src="assets/lib/litezoom.min.js"></script>
 <script src="<?php echo h(qf_asset_js('main', 'assets/')); ?>"></script>

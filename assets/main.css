@@ -6421,11 +6421,17 @@ body.theme-php .phpdo-right-toolbar {
     display: flex;
     flex-direction: column;
     gap: 0;
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    box-shadow: 0 8px 22px rgba(30, 42, 60, .10);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+/* 独立圆角按钮（不再连体），彼此间距 10px */
+body.theme-php .phpdo-right-toolbar > * {
+    margin-bottom: 10px;
+}
+body.theme-php .phpdo-right-toolbar > *:last-child {
+    margin-bottom: 0;
 }
 
 body.theme-php .phpdo-right-toolbar a,
@@ -6439,31 +6445,48 @@ body.theme-php .phpdo-right-toolbar button {
     font-size: 18px;
     color: #4b5563;
     text-decoration: none;
-    background: transparent !important;
-    border: 0;
-    border-radius: 0 !important;
-    box-shadow: none;
+    background: #fff !important;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px !important;
+    box-shadow: 0 6px 18px rgba(30, 42, 60, .12);
     cursor: pointer;
-    transition: background-color .2s ease, color .2s ease;
-}
-
-/* 竖排连体：相邻按钮之间用分隔线（等价 Tailwind divide-y） */
-body.theme-php .phpdo-right-toolbar > * + * {
-    border-top: 1px solid #e5e7eb;
+    transition: background-color .2s ease, color .2s ease, transform .2s ease, border-color .2s ease;
 }
 
 body.theme-php .phpdo-right-toolbar a:hover,
 body.theme-php .phpdo-right-toolbar button:hover {
-    color: #4b5563;
-    background: #f3f4f6 !important;
+    color: #fff;
+    background: var(--phpdo-accent) !important;
+    border-color: var(--phpdo-accent);
+    transform: translateY(-2px);
 }
 
+/* 回到顶部：默认隐藏且不占位，滚过半页后带回弹动画出现 */
 body.theme-php .phpdo-right-toolbar [data-scroll-top] {
-    opacity: .58;
+    height: 0;
+    margin-bottom: 0;
+    padding: 0;
+    border-width: 0;
+    opacity: 0;
+    transform: translateY(14px) scale(.5);
+    pointer-events: none;
+    overflow: hidden;
+    box-shadow: none;
+    transition: height .28s ease, margin .28s ease, opacity .26s ease,
+                transform .34s cubic-bezier(.34, 1.56, .64, 1),
+                background-color .2s ease, color .2s ease, border-color .2s ease;
 }
-
 body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
+    height: 46px;
+    margin-bottom: 10px;
+    border-width: 1px;
     opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    box-shadow: 0 6px 18px rgba(30, 42, 60, .12);
+}
+body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top]:hover {
+    transform: translateY(-2px) scale(1);
 }
 
 @media (max-width: 1180px) {
@@ -7830,12 +7853,11 @@ body.theme-php .floor-reply {
 }
 
 body.theme-php .phpdo-right-toolbar {
-    box-shadow: var(--phpdo-shadow-soft);
+    box-shadow: none;
 }
 body.theme-php .phpdo-right-toolbar a,
 body.theme-php .phpdo-right-toolbar button {
-    border-radius: 0 !important;
-    box-shadow: none;
+    border-radius: 10px !important;
 }
 
 @media (max-width: 900px) {
@@ -8275,25 +8297,23 @@ body.theme-php-dark .footer-qr span {
 }
 
 body.theme-php-dark .phpdo-right-toolbar {
-    background: #111827;
-    border-color: #374151;
-    box-shadow: var(--phpdo-shadow-soft);
-}
-
-body.theme-php-dark .phpdo-right-toolbar > * + * {
-    border-top-color: #374151;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
 }
 
 body.theme-php-dark .phpdo-right-toolbar a,
 body.theme-php-dark .phpdo-right-toolbar button {
     color: #d1d5db;
-    background: transparent !important;
+    background: #111827 !important;
+    border-color: #374151;
 }
 
 body.theme-php-dark .phpdo-right-toolbar a:hover,
 body.theme-php-dark .phpdo-right-toolbar button:hover {
-    color: #d1d5db;
-    background: #1f2937 !important;
+    color: #fff;
+    background: var(--phpdo-accent) !important;
+    border-color: var(--phpdo-accent);
 }
 
 /* ==========================================================================
@@ -8839,39 +8859,74 @@ body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); borde
 }
 
 /* 导航栏右侧搜索框：宽度与首页侧栏一致（25%） */
-.qf-navbar-search {
-    flex: 0 0 var(--phpdo-home-side);
-    max-width: 42vw;
-    display: flex;
+/* 导航栏右侧工具组：搜索 + RSS */
+.qf-navbar-tools {
+    margin-left: auto;
+    display: inline-flex;
     align-items: center;
-    height: 36px;
-    margin: 6px 0 6px 10px;
-    background: #fff;
-    border-radius: 6px;
-    overflow: hidden;
+    gap: 4px;
+    flex: 0 0 auto;
 }
-.qf-navbar-search input {
-    flex: 1;
+.qf-navbar-tools .qf-navbar-rss { margin-left: 0; }
+
+/* 导航栏搜索：默认只显示放大镜，悬浮/聚焦时向左展开搜索框 */
+.qf-navbar-search {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    overflow: hidden;
+    transition: background-color .2s ease, border-color .2s ease;
+}
+.qf-navbar-search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 34px;
+    flex: 0 0 auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, .85);
+    font-size: 15px;
+    cursor: pointer;
+    transition: color .12s ease;
+}
+.qf-topbar-hasbg .qf-navbar-search-btn { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 4px rgba(0, 0, 0, .55); }
+.qf-navbar-search-input {
+    width: 0;
     min-width: 0;
     height: 100%;
-    padding: 0 12px;
+    padding: 0;
     border: 0;
     outline: 0;
     background: transparent;
     font-size: 14px;
     color: #333;
+    opacity: 0;
+    transition: width .24s ease, opacity .2s ease, padding .24s ease;
 }
-.qf-navbar-search button {
-    height: 100%;
-    width: 42px;
-    border: 0;
-    background: transparent;
-    color: #666;
-    cursor: pointer;
+/* 展开态：悬浮整块、或聚焦输入框、或输入框已有内容 */
+.qf-navbar-search:hover,
+.qf-navbar-search:focus-within {
+    background: #fff;
+    border-color: #e5e7eb;
 }
-.qf-navbar-search button:hover { color: #505b93; }
+.qf-navbar-search:hover .qf-navbar-search-input,
+.qf-navbar-search:focus-within .qf-navbar-search-input {
+    width: 168px;
+    padding: 0 12px 0 4px;
+    opacity: 1;
+}
+.qf-navbar-search:hover .qf-navbar-search-btn,
+.qf-navbar-search:focus-within .qf-navbar-search-btn { color: #505b93; text-shadow: none; }
 @media (max-width: 640px) {
-    .qf-navbar-search { flex: 1 1 100%; max-width: none; margin: 6px 4px 8px; }
+    .qf-navbar-search:hover .qf-navbar-search-input,
+    .qf-navbar-search:focus-within .qf-navbar-search-input { width: 128px; }
 }
 
 /* 入站必看条目：取消加粗，用常规 400 字重 */
