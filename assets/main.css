@@ -1698,6 +1698,12 @@ body.theme-php-dark .admin-user-avatar { background: #23262e; }
     --badge-bg: #fffbeb;
     --badge-border: #fde68a;
 }
+/* 加精按钮已选中（已加精）：实心星 + 填充底色 */
+.action-badge-feature.is-active {
+    --badge-color: #b45309;
+    --badge-bg: #fef3c7;
+    --badge-border: #fcd34d;
+}
 
 .action-badge-reply {
     --badge-color: #505b93;
