@@ -64,6 +64,7 @@ if ($forum_slug_id > 0) {
     exit;
 }
 $front_routes = array(
+    'about' => 'about.php',
     'download' => 'download.php',
     'edit-thread' => 'edit-thread.php',
     'login' => 'login.php',

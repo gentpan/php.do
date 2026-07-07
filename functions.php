@@ -810,13 +810,6 @@ function qf_attachment_url($id) {
 
 function qf_static_pages() {
     return array(
-        'about' => array(
-            'title' => '关于 php.do',
-            'body' => array(
-                'php.do 是一个面向 PHP 开发者的技术论坛，主要讨论 PHP 版本、框架生态、Composer 依赖、部署运维、性能优化与安全审计。',
-                '这里欢迎程序发布、开源项目更新、线上问题复盘，也欢迎把踩过的坑整理成可复现、可搜索的经验。'
-            ),
-        ),
         'rules' => array(
             'title' => '社区规则',
             'body' => array(
@@ -838,6 +831,82 @@ function qf_static_page($slug) {
     $slug = strtolower(trim((string)$slug, '/'));
     $pages = qf_static_pages();
     return isset($pages[$slug]) ? $pages[$slug] : null;
+}
+
+// ===== 社区“关于”页数据 =====
+function qf_site_slogan() {
+    return qf_setting('site_slogan', 'where possible begins · 让分享回到互联网');
+}
+
+function qf_site_about_text() {
+    $default = "行色匆匆的旅人啊，你是否还记得十多年前互联网的模样？\n那时候的人们乐于分享自己的见识，不以有钱为成功标准。\n来这里，拓一方净土，重现互联网精神，这里什么都可能。";
+    return qf_setting('site_about', $default);
+}
+
+function qf_site_founded_text() {
+    $set = trim((string)qf_setting('site_founded', ''));
+    $ts = 0;
+    if ($set !== '' && ($t = strtotime($set)) !== false) {
+        $ts = $t;
+    } else {
+        $r = mysqli_query(db(), "SELECT MIN(created_at) AS m FROM qf_users");
+        $row = $r ? mysqli_fetch_assoc($r) : null;
+        if ($row && $row['m']) {
+            $ts = strtotime($row['m']);
+        }
+    }
+    if ($ts <= 0) {
+        return '—';
+    }
+    $diff = time() - $ts;
+    $years = (int)floor($diff / (86400 * 365));
+    $months = (int)floor($diff / (86400 * 30));
+    if ($years >= 1) {
+        return $years . ' 年前';
+    }
+    if ($months >= 1) {
+        return $months . ' 个月前';
+    }
+    return '不到 1 个月';
+}
+
+function qf_contact_email() {
+    $e = trim((string)qf_setting('contact_email', ''));
+    if ($e !== '') {
+        return $e;
+    }
+    $r = mysqli_query(db(), "SELECT email FROM qf_users WHERE is_admin=1 AND email<>'' ORDER BY id ASC LIMIT 1");
+    $row = $r ? mysqli_fetch_assoc($r) : null;
+    return ($row && $row['email']) ? $row['email'] : '';
+}
+
+function qf_community_stats() {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $cache = array(
+        'members'      => count_rows("SELECT COUNT(*) FROM qf_users"),
+        'admins'       => count_rows("SELECT COUNT(*) FROM qf_users WHERE is_admin=1"),
+        'moderators'   => count_rows("SELECT COUNT(*) FROM qf_users WHERE is_moderator=1 AND is_admin=0"),
+        'topics_7d'    => count_rows("SELECT COUNT(*) FROM qf_threads WHERE is_deleted=0 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
+        'posts_today'  => count_rows("SELECT COUNT(*) FROM qf_posts WHERE is_deleted=0 AND created_at >= CURDATE()"),
+        'active_7d'    => count_rows("SELECT COUNT(DISTINCT user_id) FROM (SELECT user_id, created_at FROM qf_threads WHERE is_deleted=0 UNION ALL SELECT user_id, created_at FROM qf_posts WHERE is_deleted=0) x WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
+        'registers_7d' => count_rows("SELECT COUNT(*) FROM qf_users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
+        'likes_total'  => count_rows("SELECT COALESCE(SUM(upvotes),0) FROM qf_threads WHERE is_deleted=0"),
+        'posts_total'  => count_rows("SELECT COUNT(*) FROM qf_posts WHERE is_deleted=0"),
+    );
+    return $cache;
+}
+
+function qf_staff_list($role) {
+    $where = ($role === 'admin') ? 'is_admin=1' : 'is_moderator=1 AND is_admin=0';
+    $rs = mysqli_query(db(), "SELECT id, username, nickname, avatar, email, signature FROM qf_users WHERE {$where} ORDER BY id ASC LIMIT 60");
+    $out = array();
+    while ($rs && ($r = mysqli_fetch_assoc($rs))) {
+        $out[] = $r;
+    }
+    return $out;
 }
 
 function qf_ensure_thread_vote_schema() {

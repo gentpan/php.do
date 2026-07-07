@@ -8949,6 +8949,133 @@ body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
 .sh-badge-orange { background: #fe7d37; }
 .sh-badge-red { background: #e05d44; }
 
+/* ===== 关于 / 社区页 ===== */
+body.theme-php .phpdo-about {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 4px 0 10px;
+}
+body.theme-php .phpdo-about-hero {
+    text-align: center;
+    padding: 34px 24px 30px;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+}
+body.theme-php .phpdo-about-hero h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--phpdo-accent);
+    letter-spacing: .5px;
+}
+body.theme-php .phpdo-about-slogan {
+    margin: 8px 0 0;
+    color: #8a8f98;
+    font-size: 15px;
+}
+body.theme-php .phpdo-about-topstats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px 34px;
+    margin-top: 22px;
+}
+body.theme-php .phpdo-about-topstat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 72px;
+}
+body.theme-php .phpdo-about-topstat b { font-size: 22px; font-weight: 800; color: #222; }
+body.theme-php .phpdo-about-topstat span { margin-top: 2px; font-size: 13px; color: #8a8f98; }
+
+body.theme-php .phpdo-about-block { margin-top: 30px; }
+body.theme-php .phpdo-about-block > h2 {
+    margin: 0 0 14px;
+    padding-left: 11px;
+    font-size: 19px;
+    font-weight: 800;
+    color: #333;
+    border-left: 4px solid var(--phpdo-accent);
+    line-height: 1.1;
+}
+body.theme-php .phpdo-about-text { color: #555; font-size: 15px; line-height: 1.9; }
+
+body.theme-php .phpdo-staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+}
+body.theme-php .phpdo-staff-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: border-color .15s, transform .12s;
+}
+body.theme-php .phpdo-staff-card:hover { border-color: var(--phpdo-accent); transform: translateY(-1px); }
+body.theme-php .phpdo-staff-avatar {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 auto;
+    object-fit: cover;
+    background: #f1f1f1;
+    border-radius: 0;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c9.601 0 12 2.399 12 12 0 9.601-2.399 12-12 12-9.601 0-12-2.399-12-12C0 2.399 2.399 0 12 0z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c9.601 0 12 2.399 12 12 0 9.601-2.399 12-12 12-9.601 0-12-2.399-12-12C0 2.399 2.399 0 12 0z'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+body.theme-php .phpdo-staff-meta { display: flex; flex-direction: column; min-width: 0; }
+body.theme-php .phpdo-staff-name {
+    font-size: 15px; font-weight: 700; color: #333;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+body.theme-php .phpdo-staff-title {
+    margin-top: 2px; font-size: 12px; color: #9298a6;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+body.theme-php .phpdo-about-contact p { margin: 0 0 8px; color: #555; font-size: 14px; line-height: 1.8; }
+body.theme-php .phpdo-about-contact p.muted { color: #9298a6; }
+body.theme-php .phpdo-about-contact a { color: var(--phpdo-accent); font-weight: 700; }
+
+body.theme-php .phpdo-about-activity {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+body.theme-php .phpdo-about-metric {
+    padding: 16px 18px;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+}
+body.theme-php .phpdo-about-metric b { display: block; font-size: 26px; font-weight: 800; color: var(--phpdo-accent); }
+body.theme-php .phpdo-about-metric span { display: block; margin-top: 4px; font-size: 14px; color: #333; }
+body.theme-php .phpdo-about-metric em { display: block; margin-top: 2px; font-size: 12px; color: #9298a6; font-style: normal; }
+
+@media (max-width: 640px) {
+    body.theme-php .phpdo-about-activity { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+body.theme-php-dark .phpdo-about-hero,
+body.theme-php-dark .phpdo-staff-card,
+body.theme-php-dark .phpdo-about-metric { background: #2b2b2b; border-color: #3a3a3a; }
+body.theme-php-dark .phpdo-about-topstat b,
+body.theme-php-dark .phpdo-about-block > h2,
+body.theme-php-dark .phpdo-staff-name,
+body.theme-php-dark .phpdo-about-metric span { color: #e6e6e6; }
+body.theme-php-dark .phpdo-about-text,
+body.theme-php-dark .phpdo-about-contact p { color: #c2c2c2; }
+
 @media (max-width: 640px) {
     .site-footer-top { gap: 24px; }
     .site-footer-inner { padding: 0 18px; }

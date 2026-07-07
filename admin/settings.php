@@ -65,6 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $avatar_upload_enabled = !empty($_POST['avatar_upload_enabled']) ? '1' : '0';
     $avatar_gravatar_enabled = !empty($_POST['avatar_gravatar_enabled']) ? '1' : '0';
     $avatar_cartoon_enabled = !empty($_POST['avatar_cartoon_enabled']) ? '1' : '0';
+    $site_slogan = clean_text(isset($_POST['site_slogan']) ? $_POST['site_slogan'] : '', 120);
+    $site_about = trim((string)(isset($_POST['site_about']) ? $_POST['site_about'] : ''));
+    $site_founded = clean_text(isset($_POST['site_founded']) ? $_POST['site_founded'] : '', 20);
+    $contact_email = clean_text(isset($_POST['contact_email']) ? $_POST['contact_email'] : '', 190);
 
     if ($site_title === '') {
         $site_title = SITE_NAME;
@@ -171,6 +175,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     qf_update_setting('avatar_upload_enabled', $avatar_upload_enabled);
     qf_update_setting('avatar_gravatar_enabled', $avatar_gravatar_enabled);
     qf_update_setting('avatar_cartoon_enabled', $avatar_cartoon_enabled);
+    qf_update_setting('site_slogan', $site_slogan);
+    qf_update_setting('site_about', $site_about);
+    qf_update_setting('site_founded', $site_founded);
+    qf_update_setting('contact_email', $contact_email);
     $saved = true;
     }
 }
@@ -191,6 +199,7 @@ qf_include_header();
             <button type="button" :class="tab==='upload' ? 'active' : ''" @click="tab='upload'"><i class="fa-solid fa-paperclip" aria-hidden="true"></i> 上传附件</button>
             <button type="button" :class="tab==='forum' ? 'active' : ''" @click="tab='forum'"><i class="fa-solid fa-comments" aria-hidden="true"></i> 论坛发帖</button>
             <button type="button" :class="tab==='avatar' ? 'active' : ''" @click="tab='avatar'"><i class="fa-solid fa-user-circle" aria-hidden="true"></i> 头像</button>
+            <button type="button" :class="tab==='community' ? 'active' : ''" @click="tab='community'"><i class="fa-solid fa-people-group" aria-hidden="true"></i> 社区</button>
             <button type="button" :class="tab==='coins' ? 'active' : ''" @click="tab='coins'"><i class="fa-solid fa-coins" aria-hidden="true"></i> 金币签到</button>
             <button type="button" :class="tab==='security' ? 'active' : ''" @click="tab='security'"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 注册验证</button>
             <button type="button" :class="tab==='storage' ? 'active' : ''" @click="tab='storage'"><i class="fa-solid fa-cloud" aria-hidden="true"></i> 对象存储</button>
@@ -253,6 +262,26 @@ qf_include_header();
             <label>回帖字数限制</label>
             <input type="number" name="reply_max_chars" min="100" max="50000" value="<?php echo h(qf_setting('reply_max_chars', '1000')); ?>">
             <p class="muted">用户每次回帖最多允许输入的字数。</p>
+        </div>
+
+        <div class="settings-panel" x-show="tab==='community'" style="display:none">
+            <h2><i class="fa-solid fa-people-group" aria-hidden="true"></i> 社区关于页</h2>
+            <p class="muted">这些内容显示在「关于」页面（<?php echo h(qf_url_page('about.php')); ?>），成员/版主/活动等数字实时统计，无需填写。</p>
+            <label>站点标语（Slogan）</label>
+            <input type="text" name="site_slogan" maxlength="120" value="<?php echo h(qf_setting('site_slogan', 'where possible begins · 让分享回到互联网')); ?>">
+            <p class="muted">显示在关于页顶部站点名下方。</p>
+
+            <label>关于（长文案）</label>
+            <textarea name="site_about" rows="5" placeholder="介绍社区的由来与愿景，可多段换行"><?php echo h(qf_site_about_text()); ?></textarea>
+            <p class="muted">支持换行，会显示在关于页「关于」段落。</p>
+
+            <label>建站日期</label>
+            <input type="text" name="site_founded" maxlength="20" value="<?php echo h(qf_setting('site_founded', '')); ?>" placeholder="例如 2023-06-01，留空则自动取最早注册时间">
+            <p class="muted">用于「X 年前创建」。留空则自动按最早注册用户时间推算。</p>
+
+            <label>联系邮箱</label>
+            <input type="email" name="contact_email" maxlength="190" value="<?php echo h(qf_setting('contact_email', '')); ?>" placeholder="admin@php.do，留空则用管理员邮箱">
+            <p class="muted">显示在关于页「联系我们」。留空则自动使用第一个绑定邮箱的管理员账号。</p>
         </div>
 
         <div class="settings-panel" x-show="tab==='avatar'" style="display:none">
