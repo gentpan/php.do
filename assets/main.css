@@ -1768,6 +1768,32 @@ button.action-badge {
     transform: none;
 }
 
+/* IP 徽章：异步加载国旗 + 地理位置 */
+.action-badge-static.phpdo-ip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.phpdo-ip-geo {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.phpdo-ip-flag {
+    width: 16px;
+    height: 12px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .08);
+    flex: 0 0 auto;
+}
+.phpdo-ip-place {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
 .move-thread-form {
     display: inline-block;
     margin-left: 8px;

@@ -367,6 +367,66 @@
         });
     }
 
+    // IP 地理位置异步查询（管理员可见的 IP 徽章）
+    function loadIpGeo(root) {
+        root = root || document;
+        var badges = root.querySelectorAll('[data-ip-geo]:not([data-ip-loaded])');
+        if (!badges.length) return;
+        var ips = [];
+        badges.forEach(function(el) {
+            var ip = (el.getAttribute('data-ip-geo') || '').trim();
+            if (ip && ips.indexOf(ip) < 0) ips.push(ip);
+        });
+        if (!ips.length) return;
+        var url = 'api/geoip?ips=' + encodeURIComponent(ips.join(','));
+        fetch(url, { credentials: 'same-origin' }).then(function(r) {
+            return r.json();
+        }).then(function(res) {
+            if (!res || !res.ok || !res.data) return;
+            badges.forEach(function(el) {
+                var ip = (el.getAttribute('data-ip-geo') || '').trim();
+                var info = res.data[ip];
+                if (!info) {
+                    el.setAttribute('data-ip-loaded', '1');
+                    return;
+                }
+                var geoEl = el.querySelector('.phpdo-ip-geo');
+                if (!geoEl) {
+                    el.setAttribute('data-ip-loaded', '1');
+                    return;
+                }
+                var parts = [];
+                if (info.country) parts.push(info.country);
+                if (info.region && info.region !== info.country) parts.push(info.region);
+                else if (info.city && info.city !== info.country) parts.push(info.city);
+                var label = parts.join(' · ');
+                var html = '';
+                if (info.flag) {
+                    html += '<img class="phpdo-ip-flag" src="' + info.flag + '" alt="" width="16" height="12" loading="lazy" decoding="async">';
+                }
+                if (label) {
+                    html += '<span class="phpdo-ip-place">' + label + '</span>';
+                }
+                if (html) {
+                    geoEl.innerHTML = html;
+                    geoEl.hidden = false;
+                    if (label) el.setAttribute('title', 'IP: ' + ip + ' · ' + label + (info.isp ? ' · ' + info.isp : ''));
+                }
+                el.setAttribute('data-ip-loaded', '1');
+            });
+        }).catch(function() {});
+    }
+
+    function initIpGeo() {
+        window.qfLoadIpGeo = loadIpGeo;
+        var run = function() { loadIpGeo(document); };
+        if (window.requestIdleCallback) {
+            requestIdleCallback(run, { timeout: 2000 });
+        } else {
+            setTimeout(run, 300);
+        }
+    }
+
     // 帖子管理工具栏（置顶/加精/删除等）走 AJAX，不刷新页面
     function initThreadAdminAjax() {
         document.addEventListener('click', function(e) {
@@ -403,7 +463,10 @@
                 }
                 if (typeof data.tools === 'string') {
                     var tools = badge.closest('[data-thread-tools]');
-                    if (tools) tools.innerHTML = data.tools;
+                    if (tools) {
+                        tools.innerHTML = data.tools;
+                        if (window.qfLoadIpGeo) window.qfLoadIpGeo(tools);
+                    }
                     if (window.qfToast && data.msg) window.qfToast(data.msg);
                 }
             }).catch(function() {
@@ -1031,6 +1094,7 @@
     initSigninModal();
     initInlineActions();
     initThreadAdminAjax();
+    initIpGeo();
     initRightToolbar();
     initFormLoading();
     initToast();

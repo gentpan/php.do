@@ -625,6 +625,7 @@ function qf_route_script($script, &$params = array()) {
         'reply.php' => 'api/reply.php',
         'signin.php' => 'api/signin.php',
         'react.php' => 'api/react.php',
+        'geoip.php' => 'api/geoip.php',
         'login.php' => 'pages/login.php',
         'logout.php' => 'api/auth.php',
         'register.php' => 'pages/register.php',
@@ -675,6 +676,7 @@ function qf_clean_route_path($script) {
         'api/reply.php' => 'api/reply',
         'api/signin.php' => 'api/signin',
         'api/react.php' => 'api/react',
+        'api/geoip.php' => 'api/geoip',
     );
     return isset($map[$script]) ? $map[$script] : $script;
 }
@@ -1248,6 +1250,50 @@ function qf_action_badge($href, $label, $icon, $extra_class = '', $attrs = '') {
     return '<a class="' . h($class) . '" href="' . h($href) . '" title="' . h($label) . '" aria-label="' . h($label) . '" data-tooltip="' . h($label) . '" ' . trim($attrs) . '><i class="' . h($icon) . '" aria-hidden="true"></i><span>' . h($label) . '</span></a>';
 }
 
+// IP 徽章 HTML（带 data-ip-geo，供前端异步查询地理位置与国旗）
+function qf_ip_badge_html($ip) {
+    $ip = trim((string)$ip);
+    if ($ip === '') {
+        return '';
+    }
+    return '<span class="action-badge action-badge-static phpdo-ip-badge" data-ip-geo="' . h($ip) . '"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span class="phpdo-ip-text">IP: ' . h($ip) . '</span><span class="phpdo-ip-geo" hidden></span></span>';
+}
+
+function qf_geoip_lookup($ip) {
+    static $cache = array();
+    $ip = trim((string)$ip);
+    if ($ip === '' || !filter_var($ip, FILTER_VALIDATE_IP)) {
+        return array('ip' => $ip, 'country' => '', 'flag' => '');
+    }
+    if (isset($cache[$ip])) {
+        return $cache[$ip];
+    }
+    $url = 'https://api.cnip.io/geoip/' . rawurlencode($ip);
+    $ctx = stream_context_create(array('http' => array('timeout' => 4, 'ignore_errors' => true)));
+    $raw = @file_get_contents($url, false, $ctx);
+    $json = $raw ? json_decode($raw, true) : null;
+    if (!is_array($json)) {
+        $cache[$ip] = array('ip' => $ip, 'country' => '', 'flag' => '');
+        return $cache[$ip];
+    }
+    $country = trim((string)(isset($json['country']) ? $json['country'] : ''));
+    if ($country === '保留' || $country === '') {
+        $country = '';
+    }
+    $cache[$ip] = array(
+        'ip' => $ip,
+        'country' => $country,
+        'country_code' => strtoupper(trim((string)(isset($json['country_code']) ? $json['country_code'] : ''))),
+        'region' => trim((string)(isset($json['region']) ? $json['region'] : '')),
+        'city' => trim((string)(isset($json['city']) ? $json['city'] : '')),
+        'isp' => trim((string)(isset($json['isp']) ? $json['isp'] : '')),
+        'flag' => trim((string)(isset($json['flag']) ? $json['flag'] : '')),
+    );
+    if ($cache[$ip]['region'] === '保留') $cache[$ip]['region'] = '';
+    if ($cache[$ip]['city'] === '保留') $cache[$ip]['city'] = '';
+    return $cache[$ip];
+}
+
 function qf_is_ajax_request() {
     if (isset($_GET['ajax']) && $_GET['ajax'] !== '') {
         return true;
@@ -1264,10 +1310,9 @@ function qf_thread_admin_tools_html($thread) {
     $tid = intval($thread['id']);
     $out = '';
     if (is_admin()) {
-        $ip = h(isset($thread['ip']) ? $thread['ip'] : '');
         $is_top = intval(isset($thread['is_top']) ? $thread['is_top'] : 0);
         $is_good = intval(isset($thread['is_good']) ? $thread['is_good'] : 0);
-        $out .= '<span class="action-badge action-badge-static"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span>IP: ' . $ip . '</span></span>';
+        $out .= qf_ip_badge_html(isset($thread['ip']) ? $thread['ip'] : '');
         $out .= qf_action_badge(qf_url_page('edit_thread.php', array('id' => $tid)), '编辑', 'fa-solid fa-pen-to-square', 'action-badge-edit');
         $out .= qf_action_badge(qf_url_page('move_thread.php', array('id' => $tid)), '移动', 'fa-solid fa-arrow-right-arrow-left', 'action-badge-move');
         $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_board', 'id' => $tid, 'token' => qf_action_token('top_board', $tid))), '本版块置顶', 'fa-solid fa-thumbtack', 'action-badge-pin' . ($is_top === 2 ? ' is-active' : ''), 'data-ajax="1"');
