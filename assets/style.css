@@ -8471,3 +8471,45 @@ body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); borde
 @media (max-width: 640px) {
     .qf-menu { flex: none; overflow-x: visible; }
 }
+
+/* 导航栏右侧搜索框：宽度与侧边栏一致（380px），菜单自动收缩横向滚动 */
+.qf-navbar-search {
+    flex: 0 0 380px;
+    max-width: 42vw;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    margin: 6px 4px 6px 10px;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.qf-navbar-search input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 12px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+}
+.qf-navbar-search button {
+    height: 100%;
+    width: 42px;
+    border: 0;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+}
+.qf-navbar-search button:hover { color: #505b93; }
+@media (max-width: 640px) {
+    .qf-navbar-search { flex: 1 1 100%; max-width: none; margin: 6px 4px 8px; }
+}
+
+/* 入站必看条目：取消加粗，用常规 400 字重 */
+body.theme-php .phpdo-must-read li,
+body.theme-php-dark .phpdo-must-read li {
+    font-weight: 400;
+}

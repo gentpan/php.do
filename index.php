@@ -216,10 +216,6 @@ qf_include_header();
         </section>
 
         <aside class="phpdo-home-sidebar" aria-label="侧边栏">
-            <form class="phpdo-side-search" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
-                <input name="q" placeholder="搜索帖子…" autocomplete="search">
-                <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
-            </form>
             <a class="phpdo-post-button" href="<?php echo h(qf_url_page('post.php')); ?>"><i class="fa-solid fa-plus" aria-hidden="true"></i>我要发帖</a>
             <section class="phpdo-side-card phpdo-must-read">
                 <h2><span></span>入站必看</h2>
