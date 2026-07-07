@@ -1786,10 +1786,10 @@ button.action-badge {
     line-height: 0;
 }
 .phpdo-ip-flag {
-    width: 18px;
-    height: 13px;
+    width: 16px;
+    height: 16px;
     object-fit: cover;
-    border-radius: 2px;
+    border-radius: 3px;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .1);
     flex: 0 0 auto;
 }

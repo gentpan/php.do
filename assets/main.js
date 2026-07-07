@@ -396,15 +396,17 @@
                 var label = parts.join(' · ');
                 var flagWrap = el.querySelector('.phpdo-ip-flag-wrap');
                 var detail = el.querySelector('.phpdo-ip-detail');
-                if (info.flag && flagWrap) {
-                    flagWrap.innerHTML = '<img class="phpdo-ip-flag" src="' + info.flag + '" alt="" width="18" height="13" loading="lazy" decoding="async">';
+                var code = (info.country_code || '').toLowerCase();
+                if (code && flagWrap) {
+                    var flagUrl = 'https://flagcdn.io/flags/1x1/' + code + '.svg';
+                    flagWrap.innerHTML = '<img class="phpdo-ip-flag" src="' + flagUrl + '" alt="" width="16" height="16" loading="lazy" decoding="async">';
                     flagWrap.hidden = false;
                     el.classList.add('has-flag');
                 }
                 if (detail) {
                     detail.textContent = 'IP: ' + ip + (label ? ' · ' + label : '');
                 }
-                el.setAttribute('title', 'IP: ' + ip + (label ? ' · ' + label : '') + (info.isp ? ' · ' + info.isp : ''));
+                el.setAttribute('title', 'IP: ' + ip + (label ? ' · ' + label : ''));
             });
         }).catch(function() {});
     }
