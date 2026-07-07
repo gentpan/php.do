@@ -8525,3 +8525,44 @@ body.theme-php-dark .qf-page-frame .phpdo-home-shell {
     max-width: none;
     margin: 0;
 }
+
+/* 面包屑行右端搜索框：宽度与侧边栏一致（380px），右对齐 */
+.phpdo-crumb-search {
+    margin-left: auto;
+    flex: 0 0 380px;
+    max-width: 46vw;
+    display: flex;
+    align-items: center;
+    height: 38px;
+    background: #fff;
+    border: 1px solid #dfe3e8;
+    border-radius: 7px;
+    overflow: hidden;
+}
+.phpdo-crumb-search input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 12px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+}
+.phpdo-crumb-search button {
+    height: 100%;
+    width: 44px;
+    border: 0;
+    border-left: 1px solid #eef0f3;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+}
+.phpdo-crumb-search button:hover { color: #505b93; background: #f7f8fb; }
+body.theme-php-dark .phpdo-crumb-search { background: var(--phpdo-surface); border-color: var(--phpdo-border); }
+body.theme-php-dark .phpdo-crumb-search input { color: var(--phpdo-text); }
+body.theme-php-dark .phpdo-crumb-search button { color: var(--phpdo-muted); border-left-color: var(--phpdo-border); }
+@media (max-width: 640px) {
+    .phpdo-crumb-search { flex: 1 1 100%; margin-left: 0; max-width: none; }
+}

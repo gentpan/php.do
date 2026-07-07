@@ -158,6 +158,10 @@ qf_include_header();
         <span>导读</span>
         <span>›</span>
         <strong><?php echo h($filter_labels[$filter]); ?></strong>
+        <form class="phpdo-crumb-search" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
+            <input name="q" placeholder="搜索帖子…" autocomplete="search">
+            <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        </form>
     </div>
 
     <div class="phpdo-home-layout">

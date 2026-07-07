@@ -144,10 +144,6 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
                     <li><a class="qf-menu-link<?php echo ($qf_current_forum && intval($qf_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(qf_url_forum($forum['id'])); ?>"><span><?php echo h($forum['name']); ?></span></a></li>
                 <?php } ?>
             </ul>
-            <form class="qf-navbar-search" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
-                <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="搜索帖子…" autocomplete="search">
-                <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
         </nav>
     </div>
 </header>
