@@ -8519,9 +8519,9 @@ body.theme-php-dark .phpdo-oauth-google:hover {
     z-index: 0;
     background: linear-gradient(180deg,
         rgba(0, 0, 0, .30) 0%,
-        rgba(0, 0, 0, .10) 30%,
-        rgba(0, 0, 0, .10) 52%,
-        rgba(0, 0, 0, .58) 100%);
+        rgba(0, 0, 0, .08) 32%,
+        rgba(0, 0, 0, .06) 70%,
+        rgba(0, 0, 0, .14) 100%);
 }
 .qf-topbar-hasbg .qf-banner {
     position: relative;
@@ -8532,9 +8532,15 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-topbar-hasbg .qf-navbar {
     position: relative;
     z-index: 1;
-    background: transparent;
+    background: rgba(0, 0, 0, .42);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    backdrop-filter: blur(12px) saturate(130%);
+    border-top: 1px solid rgba(255, 255, 255, .10);
     box-shadow: none;
 }
+.qf-topbar-hasbg .qf-navbar .qf-menu-link { color: rgba(255, 255, 255, .88); }
+.qf-topbar-hasbg .qf-navbar .qf-menu-link:hover { color: #fff; background: rgba(255, 255, 255, .12); }
+.qf-topbar-hasbg .qf-navbar .qf-menu-link.active { color: #fff; background: rgba(255, 255, 255, .18); }
 .qf-menu { display: flex; }
 .qf-navbar .qf-menu-link {
     display: inline-flex; align-items: center; gap: 7px;
