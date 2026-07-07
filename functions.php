@@ -901,7 +901,7 @@ function qf_community_stats() {
     return $cache;
 }
 
-// 头部 banner：每个页面固定用对应图，首页在 about1/2/3 间随机；优先 webp。返回本地路径或 ''。
+// 头部 banner：每个页面固定用对应图，首页在 1/2/3.png 间随机切换；优先 webp。返回本地路径或 ''。
 function qf_header_banner_src($script, $slug = '') {
     $dir = 'assets/banner/';
     $base = __DIR__ . '/' . $dir;
@@ -924,9 +924,12 @@ function qf_header_banner_src($script, $slug = '') {
     }
     if ($script === 'index.php') {
         $pool = array();
-        foreach (array('about1phpdo.webp', 'about2phpdo.webp', 'about3phpdo.webp') as $f) {
-            if (file_exists($base . $f)) {
-                $pool[] = $dir . $f;
+        foreach (array(array('1.webp', '1.png'), array('2.webp', '2.png'), array('3.webp', '3.png')) as $variants) {
+            foreach ($variants as $f) {
+                if (file_exists($base . $f)) {
+                    $pool[] = $dir . $f;
+                    break;
+                }
             }
         }
         if (empty($pool)) {
