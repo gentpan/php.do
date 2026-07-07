@@ -7,7 +7,9 @@ $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) :
 $main_navs = qf_main_navs();
 $is_php_theme = true;
 $header_forums = array();
-$header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums ORDER BY display_order ASC, id ASC");
+$nav_hidden_ids = array_filter(array_map('intval', explode(',', qf_setting('nav_hidden_forums', ''))));
+$nav_hidden_sql = !empty($nav_hidden_ids) ? ' WHERE id NOT IN (' . implode(',', $nav_hidden_ids) . ')' : '';
+$header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums{$nav_hidden_sql} ORDER BY display_order ASC, id ASC");
 while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
     $header_forums[] = $header_forum;
 }
