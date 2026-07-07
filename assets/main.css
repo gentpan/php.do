@@ -7223,14 +7223,27 @@ body.theme-php .phpdo-thread-title-meta .phpdo-meta-time {
 body.theme-php-dark .phpdo-thread-title-meta .phpdo-author-link { color: #e6e6e6; }
 body.theme-php-dark .phpdo-thread-title-meta .phpdo-meta-time { color: #9a9a9a; }
 
-/* 帖子正文底部右侧：浏览 · 回复 统计 */
+/* 帖子正文底部右侧：昵称 · 等级 · 浏览 · 回复 */
 body.theme-php .phpdo-thread-foot-stats {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-top: 16px;
-    text-align: right;
     color: #9298a1;
     font-size: 13px;
 }
+body.theme-php .phpdo-thread-foot-stats .phpdo-author-link {
+    color: #3a3f47;
+    font-weight: 600;
+    text-decoration: none;
+}
+body.theme-php .phpdo-thread-foot-stats .phpdo-foot-nums {
+    color: #9298a1;
+}
 body.theme-php-dark .phpdo-thread-foot-stats { color: #9a9a9a; }
+body.theme-php-dark .phpdo-thread-foot-stats .phpdo-author-link { color: #e6e6e6; }
 
 body.theme-php .phpdo-thread-votes {
     display: flex;

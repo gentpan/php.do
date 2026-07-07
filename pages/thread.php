@@ -61,9 +61,6 @@ if ($me) {
             <h1><?php echo h($thread['title']); ?></h1>
             <?php $thread_author_points = intval(isset($thread['author_points']) ? $thread['author_points'] : 0); ?>
             <div class="post-meta phpdo-thread-title-meta">
-                <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a>
-                <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($thread_author_points)); ?></span>
-                <?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?><span class="moderator-badge">版主</span><?php } ?>
                 <span class="phpdo-meta-time"><?php echo format_time($thread['created_at']); ?></span>
             </div>
         </div>
@@ -76,7 +73,12 @@ if ($me) {
             <?php } ?>
         </div>
     <?php } ?>
-    <div class="phpdo-thread-foot-stats"><?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复</div>
+    <div class="phpdo-thread-foot-stats">
+        <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a>
+        <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($thread_author_points)); ?></span>
+        <?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?><span class="moderator-badge">版主</span><?php } ?>
+        <span class="phpdo-foot-nums"><?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复</span>
+    </div>
     <?php if ($attachments && mysqli_num_rows($attachments) > 0) { ?>
         <div class="attachment-list">
             <h3>附件</h3>
