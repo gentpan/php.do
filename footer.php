@@ -69,6 +69,16 @@ $footer_icp = trim(qf_setting('icp_code', ''));
         </div>
     </div>
 </footer>
+<div class="qf-search-window" id="qf-search-modal" data-search-close>
+    <div class="qf-search-window-box">
+        <form method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input name="q" placeholder="搜索帖子、版块、标签…" autocomplete="off" aria-label="搜索">
+            <kbd>Esc</kbd>
+        </form>
+        <div class="qf-search-window-hint">回车搜索 · <kbd>Esc</kbd> 关闭 · <kbd>⌘/Ctrl</kbd>&nbsp;<kbd>K</kbd> 或 <kbd>/</kbd> 打开</div>
+    </div>
+</div>
 <aside class="phpdo-right-toolbar" aria-label="页面工具栏">
     <a href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="首页" title="首页"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
     <a href="<?php echo h(qf_url_page('search.php')); ?>" aria-label="搜索" title="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
@@ -90,6 +100,26 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     if (document.readyState !== 'loading') { qfPrelineInit(); }
     window.addEventListener('load', qfPrelineInit);
     window.qfPrelineInit = qfPrelineInit;
+
+    // 搜索模态窗：⌘/Ctrl+K 或 / 打开，Esc / 点击遮罩关闭
+    (function () {
+        var modal = document.getElementById('qf-search-modal');
+        if (!modal) return;
+        var input = modal.querySelector('input[name="q"]');
+        function openWin() {
+            modal.classList.add('is-open');
+            if (input) window.setTimeout(function () { input.focus(); input.select(); }, 30);
+        }
+        function closeWin() { modal.classList.remove('is-open'); }
+        modal.addEventListener('click', function (e) { if (e.target === modal) closeWin(); });
+        document.addEventListener('keydown', function (e) {
+            var t = e.target || {};
+            var typing = /^(input|textarea|select)$/i.test(t.tagName || '') || t.isContentEditable;
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openWin(); return; }
+            if (e.key === '/' && !typing && !modal.classList.contains('is-open')) { e.preventDefault(); openWin(); return; }
+            if (e.key === 'Escape' && modal.classList.contains('is-open')) { closeWin(); }
+        });
+    })();
 
     // 深浅色三态切换：跟随系统 → 浅色 → 深色 → 跟随系统
     (function () {

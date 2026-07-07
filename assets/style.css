@@ -8536,36 +8536,112 @@ body.theme-php-dark .qf-page-frame .phpdo-home-shell {
     height: 38px;
     background: #fff;
     border: 1px solid #dfe3e8;
-    border-radius: 7px;
+    border-radius: 8px;
     overflow: hidden;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+/* 点击/聚焦：外框变主题淡紫 + 淡紫光晕 */
+.phpdo-crumb-search:focus-within {
+    border-color: #505b93;
+    box-shadow: 0 0 0 3px rgba(80, 91, 147, .18);
 }
 .phpdo-crumb-search input {
     flex: 1;
     min-width: 0;
     height: 100%;
-    padding: 0 12px;
+    padding: 0 4px 0 12px;
     border: 0;
     outline: 0;
     background: transparent;
     font-size: 14px;
     color: #333;
 }
+/* 按钮只保留放大镜图标，无边框/无底色 */
 .phpdo-crumb-search button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     height: 100%;
-    width: 44px;
+    width: 40px;
     border: 0;
-    border-left: 1px solid #eef0f3;
     background: transparent;
-    color: #666;
+    color: #8a8f99;
     cursor: pointer;
+    transition: color .12s ease;
 }
-.phpdo-crumb-search button:hover { color: #505b93; background: #f7f8fb; }
+.phpdo-crumb-search button:hover { color: #505b93; }
 body.theme-php-dark .phpdo-crumb-search { background: var(--phpdo-surface); border-color: var(--phpdo-border); }
+body.theme-php-dark .phpdo-crumb-search:focus-within { border-color: #8791c4; box-shadow: 0 0 0 3px rgba(135, 145, 196, .22); }
 body.theme-php-dark .phpdo-crumb-search input { color: var(--phpdo-text); }
-body.theme-php-dark .phpdo-crumb-search button { color: var(--phpdo-muted); border-left-color: var(--phpdo-border); }
+body.theme-php-dark .phpdo-crumb-search button { color: var(--phpdo-muted); }
 @media (max-width: 640px) {
     .phpdo-crumb-search { flex: 1 1 100%; margin-left: 0; max-width: none; }
 }
+
+/* ===== 搜索模态窗（快捷键 ⌘/Ctrl+K 或 / 打开） ===== */
+.qf-search-window {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12vh 16px 16px;
+    background: rgba(15, 17, 22, .55);
+    backdrop-filter: blur(3px);
+}
+.qf-search-window.is-open { display: flex; }
+.qf-search-window-box {
+    width: 100%;
+    max-width: 560px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .4);
+    overflow: hidden;
+}
+.qf-search-window form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 18px;
+    height: 60px;
+    border-bottom: 1px solid #eef0f3;
+}
+.qf-search-window form > i { color: #8a8f99; font-size: 18px; }
+.qf-search-window input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 17px;
+    color: #222;
+}
+.qf-search-window kbd {
+    padding: 3px 7px;
+    border: 1px solid #dfe3e8;
+    border-radius: 5px;
+    background: #f6f7fa;
+    color: #888;
+    font-size: 12px;
+    font-family: inherit;
+}
+.qf-search-window-hint {
+    padding: 11px 18px;
+    color: #9aa0ac;
+    font-size: 12.5px;
+    background: #fafbfc;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+body.theme-php-dark .qf-search-window-box { background: #1a1e28; }
+body.theme-php-dark .qf-search-window form { border-bottom-color: #2a3040; }
+body.theme-php-dark .qf-search-window input { color: #e6e8ee; }
+body.theme-php-dark .qf-search-window kbd { background: #232a38; border-color: #333c4e; color: #aeb4c0; }
+body.theme-php-dark .qf-search-window-hint { background: #161a22; color: #8b93a3; }
 
 /* ============================================================
    修复"加载时发暗/像没样式"：内容显示不再依赖 JS(qf-page-ready)
