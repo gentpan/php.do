@@ -61,7 +61,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
             darkMode: 'class'
         };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="<?php echo $active_theme === 'php-dark' ? 'theme-php theme-php-dark' : 'theme-' . h($active_theme); ?> <?php echo h($page_body_class); ?><?php echo $use_system_page_font ? ' use-system-page-font' : ''; ?>">
