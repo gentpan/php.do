@@ -4998,7 +4998,7 @@ pre {
     --phpnet-bg-soft: #333333;
     --phpnet-text-on-dark: #CCCCCC;
     --phpnet-white: #F2F2F2;
-    --phpnet-paper: #F7F7F7;
+    --phpnet-paper: #FFFFFF;
     --phpnet-paper-border: #D8D8D8;
     --phpnet-link: #505b93;
     --phpnet-purple: #793862;
@@ -5402,7 +5402,7 @@ body.theme-php .side-user-trigger {
 }
 
 body.theme-php .side-user-panel {
-    background: #F7F7F7;
+    background: #FFFFFF;
 }
 
 @media (max-width: 900px) {
