@@ -35,8 +35,14 @@ if ($me) {
 <?php } ?>
 <nav class="phpdo-thread-breadcrumb" aria-label="面包屑导航">
     <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
-    <span>›</span>
+    <span class="phpdo-crumb-sep">›</span>
     <a href="<?php echo h(qf_url_forum($thread['forum_id'])); ?>"><?php echo h($thread['forum_name']); ?></a>
+    <?php if ($thread['topic_category'] !== '') { ?>
+        <span class="phpdo-crumb-sep">›</span>
+        <a href="<?php echo h(qf_url_tag($thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a>
+    <?php } ?>
+    <span class="phpdo-crumb-sep">›</span>
+    <span class="phpdo-crumb-current" title="<?php echo h($thread['title']); ?>"><?php echo h($thread['title']); ?></span>
 </nav>
 <section class="card post-title-card phpdo-thread-title-card">
     <div class="phpdo-thread-title-row">

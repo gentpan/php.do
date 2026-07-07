@@ -6895,11 +6895,11 @@ body.theme-php .phpdo-thread-title-card {
 }
 
 body.theme-php .phpdo-thread-breadcrumb {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0 0 12px;
-    padding: 8px 14px;
+    margin: 18px 0 12px;
+    padding: 9px 16px;
     color: #8a9099;
     font-size: 13px;
     background: #fff;
@@ -6912,6 +6912,7 @@ body.theme-php .phpdo-thread-breadcrumb a {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    flex: 0 0 auto;
     color: #505b93;
     font-weight: 600;
     text-decoration: none;
@@ -6924,10 +6925,20 @@ body.theme-php .phpdo-thread-breadcrumb a i {
     font-size: 12px;
     opacity: .85;
 }
-body.theme-php .phpdo-thread-breadcrumb > span {
+body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-sep {
+    flex: 0 0 auto;
     color: #c0c4cc;
     font-size: 12px;
     user-select: none;
+}
+body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-current {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #6a7078;
+    font-weight: 500;
 }
 
 body.theme-php-dark .phpdo-thread-breadcrumb {
@@ -6942,8 +6953,11 @@ body.theme-php-dark .phpdo-thread-breadcrumb a {
 body.theme-php-dark .phpdo-thread-breadcrumb a:hover {
     color: #c5cae8;
 }
-body.theme-php-dark .phpdo-thread-breadcrumb > span {
+body.theme-php-dark .phpdo-thread-breadcrumb .phpdo-crumb-sep {
     color: #4a5060;
+}
+body.theme-php-dark .phpdo-thread-breadcrumb .phpdo-crumb-current {
+    color: #b6bcc8;
 }
 
 body.theme-php .phpdo-thread-title-row {
