@@ -8415,12 +8415,12 @@ body.theme-php-dark .qf-page-frame {
 .qf-page-frame main.wrap { padding-bottom: 42px; }
 body.theme-php .qf-page-frame main.wrap { background: transparent; }
 
-/* PHP 官网风：#262626 / #333333 交叉格子（棋盘）背景 */
+/* PHP 官网风背景：深底 + 4px 极细斜纹纹理（复刻 php.net bg-texture） */
 body.theme-php,
 body.theme-php-dark {
     background-color: #262626 !important;
-    background-image: repeating-conic-gradient(#262626 0 25%, #333333 0 50%) !important;
-    background-size: 48px 48px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath d='M0 0L4 4M0 4L4 0' stroke='%23000000' stroke-width='.5' stroke-opacity='.28'/%3E%3C/svg%3E") !important;
+    background-size: 4px 4px !important;
     background-attachment: fixed !important;
 }
 
