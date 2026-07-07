@@ -8526,7 +8526,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-topbar-hasbg .qf-banner {
     position: relative;
     z-index: 1;
-    min-height: 150px;
+    min-height: 191px;
     background: transparent;
 }
 .qf-topbar-hasbg .qf-navbar {
