@@ -6073,6 +6073,32 @@ body.theme-php .phpdo-good {
     background: #f0edff;
 }
 
+/* 置顶/精华：正方形实心图标徽章 */
+body.theme-php .phpdo-badge-sq {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-right: 6px;
+    padding: 0;
+    font-size: 12px;
+    line-height: 1;
+    color: #fff !important;
+    border-radius: 4px;
+    vertical-align: middle;
+    flex: 0 0 auto;
+}
+body.theme-php .phpdo-badge-sq i {
+    color: #fff;
+}
+body.theme-php .phpdo-badge-top {
+    background: var(--phpdo-red);
+}
+body.theme-php .phpdo-badge-good {
+    background: #6b5bd6;
+}
+
 /* 徽章/按钮样式变体：柔和底色系（可用于置顶/精华/分类等各种标签） */
 body.theme-php .phpdo-pill-blue    { color: #1d6fb8 !important; background: #e8f2fc; }
 body.theme-php .phpdo-pill-green   { color: #2f8f4e !important; background: #e7f6ec; }
@@ -8222,6 +8248,10 @@ body.theme-php-dark .tag.good {
     background: rgba(135, 145, 196, .18) !important;
     border-color: rgba(135, 145, 196, .34);
 }
+
+body.theme-php-dark .phpdo-badge-sq { color: #fff !important; }
+body.theme-php-dark .phpdo-badge-top { background: #d1495b; }
+body.theme-php-dark .phpdo-badge-good { background: #7161d8; }
 
 body.theme-php-dark .phpdo-image-icon,
 body.theme-php-dark .phpdo-thread-stats i,

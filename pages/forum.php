@@ -50,9 +50,8 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.e
             </a>
             <div class="thread-main">
                 <a class="thread-title" href="<?php echo h(qf_url_thread($t['id'])); ?>">
-                    <?php if (intval($t['is_top']) === 1) { ?><span class="tag red">置顶</span><?php } ?>
-                    <?php if (intval($t['is_top']) === 2) { ?><span class="tag red">置顶</span><?php } ?>
-                    <?php if (intval($t['is_good'])) { ?><span class="tag good">精华</span><?php } ?>
+                    <?php if (intval($t['is_top']) > 0) { ?><span class="phpdo-badge-sq phpdo-badge-top" title="置顶" aria-label="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span><?php } ?>
+                    <?php if (intval($t['is_good'])) { ?><span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span><?php } ?>
                     <?php echo h($t['title']); ?>
                 </a>
                 <p><a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>

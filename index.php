@@ -112,8 +112,8 @@ function phpdo_render_thread_row($t) {
         </a>
         <div class="phpdo-thread-main">
             <h2>
-                <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-pill phpdo-pill-outline">置顶</span><?php } ?>
-                <?php if (intval($t['is_good'])) { ?><span class="phpdo-pill phpdo-good">精华</span><?php } ?>
+                <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-badge-sq phpdo-badge-top" title="置顶" aria-label="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span><?php } ?>
+                <?php if (intval($t['is_good'])) { ?><span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span><?php } ?>
                 <a href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
                 <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
                 <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
