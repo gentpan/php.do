@@ -53,6 +53,16 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
         }
     </style>
     <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>;</script>
+    <!-- 全局前端栈：Tailwind（关闭 preflight 以免冲突现有样式）+ Preline UI + Alpine.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: { preflight: false },
+            darkMode: 'class'
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="<?php echo $active_theme === 'php-dark' ? 'theme-php theme-php-dark' : 'theme-' . h($active_theme); ?> <?php echo h($page_body_class); ?><?php echo $use_system_page_font ? ' use-system-page-font' : ''; ?>">
 <?php if ($is_php_theme) { ?>
@@ -66,98 +76,90 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
 })();
 </script>
 <?php } ?>
-<nav class="site-nav-bar" aria-label="主导航">
-    <div class="nav-pill" data-nav-shell>
-        <div class="nav-row">
-            <div class="nav-identity-orb">
-                <a class="nav-avatar<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
-                    <img class="php-wordmark" src="assets/logo.svg" alt="" aria-hidden="true">
-                    <span class="nav-avatar-home" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
-                </a>
-            </div>
-            <div class="nav-actions">
-                <form class="nav-search-form" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
-                    <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="Search" autocomplete="search">
-                    <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
-                </form>
-                <button type="button" class="nav-theme-toggle" data-theme-toggle aria-label="切换深色/浅色">
+<?php
+$qf_current_forum = null;
+if ($current_script === 'forum.php' && function_exists('qf_path_id') && qf_table_has_column('qf_forums', 'banner')) {
+    $cf_id = qf_path_id();
+    if ($cf_id > 0) {
+        $cf_rs = mysqli_query(db(), "SELECT id,name,banner FROM qf_forums WHERE id={$cf_id} LIMIT 1");
+        $qf_current_forum = $cf_rs ? mysqli_fetch_assoc($cf_rs) : null;
+    }
+}
+$qf_page_banner = ($qf_current_forum && !empty($qf_current_forum['banner'])) ? $qf_current_forum['banner'] : qf_setting('default_banner', '');
+?>
+<header class="qf-topbar">
+    <div class="qf-topbar-inner mx-auto px-3 sm:px-4">
+        <div class="qf-banner relative w-full overflow-hidden rounded-t-xl">
+            <?php if ($qf_page_banner !== '') { ?>
+                <img class="absolute inset-0 h-full w-full object-cover" src="<?php echo h($qf_page_banner); ?>" alt="">
+                <span class="absolute inset-0 bg-black/25"></span>
+            <?php } ?>
+            <a class="qf-banner-logo relative z-10 inline-flex items-center" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
+                <img class="w-auto" src="assets/logo.svg" alt="<?php echo h(qf_site_name()); ?>">
+            </a>
+            <div class="absolute right-4 top-4 z-10 flex items-center gap-2">
+                <button type="button" class="nav-theme-toggle qf-banner-btn" data-theme-toggle aria-label="切换深色/浅色">
                     <i class="fa-solid fa-sun nav-theme-sun" aria-hidden="true"></i>
                     <i class="fa-solid fa-moon nav-theme-moon" aria-hidden="true"></i>
                 </button>
-                <?php if (!$me) { ?>
-                    <a class="nav-cta nav-login-link<?php echo $current_script === 'login.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('login.php')); ?>"><span>登录</span></a>
-                    <a class="nav-more-toggle nav-register-link<?php echo $current_script === 'register.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('register.php')); ?>"><span>注册</span></a>
-                <?php } else { ?>
-                    <a class="nav-cta<?php echo $current_script === 'post.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('post.php')); ?>">
-                        <i class="fa-solid fa-pen-to-square nav-activity-bars" aria-hidden="true"></i>
-                        <i class="fa-solid fa-plus nav-cta-mobile-icon" aria-hidden="true"></i>
-                        <span>发帖</span>
-                    </a>
-                    <button type="button" class="nav-more-toggle" data-nav-more aria-label="更多" aria-expanded="false" aria-haspopup="true">
-                        <i class="fa-solid fa-bars nav-more-bars" aria-hidden="true"></i>
-                        <i class="fa-solid fa-circle-xmark nav-more-close" aria-hidden="true"></i>
-                        <span>更多</span>
-                    </button>
-                <?php } ?>
-                <div class="nav-more-menu" data-nav-more-menu role="menu" aria-label="更多入口">
-                    <?php if ($me) { ?>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_user($me['id'])); ?>" role="menuitem">
-                            <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
-                            <span><?php echo h($me['nickname']); ?></span>
-                        </a>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem">
-                            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                            <span>个人设置</span>
-                        </a>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('notifications.php')); ?>" role="menuitem">
-                            <i class="fa-regular fa-bell" aria-hidden="true"></i>
-                            <span>消息<?php echo $unread_notifications > 0 ? ' · ' . intval($unread_notifications) : ''; ?></span>
-                        </a>
-                        <?php if (qf_user_signed_today($me['id'])) { ?>
-                            <span class="nav-more-item is-static" role="menuitem"><i class="fa-solid fa-check" aria-hidden="true"></i><span>已签到</span></span>
-                        <?php } else { ?>
-                            <form class="nav-more-form signin-form" method="post" action="<?php echo h(qf_url_page('signin.php')); ?>" role="none">
-                                <button class="nav-more-item" type="submit" role="menuitem"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i><span>签到</span></button>
-                            </form>
-                        <?php } ?>
-                        <?php if (intval($me['is_admin']) === 1) { ?>
-                            <a class="nav-more-item" href="<?php echo h(qf_url_page('admin/index.php')); ?>" role="menuitem"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>后台</span></a>
-                        <?php } ?>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('logout.php')); ?>" role="menuitem"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>退出</span></a>
-                    <?php } else { ?>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('login.php')); ?>" role="menuitem"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>登录</span></a>
-                        <a class="nav-more-item" href="<?php echo h(qf_url_page('register.php')); ?>" role="menuitem"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>注册</span></a>
-                    <?php } ?>
-                </div>
             </div>
         </div>
+        <nav class="qf-navbar flex flex-wrap items-center" aria-label="主导航" x-data="{ open: false }">
+            <button type="button" class="qf-burger sm:hidden" @click="open = !open" aria-label="展开菜单"><i class="fa-solid fa-bars"></i></button>
+            <ul class="qf-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
+                <li>
+                    <a class="qf-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>">
+                        <i class="fa-solid fa-house"></i><span>首页</span>
+                    </a>
+                </li>
+                <?php foreach ($main_navs as $nav_item) { ?>
+                    <li>
+                        <a class="qf-menu-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>>
+                            <?php echo qf_nav_icon_html($nav_item); ?><span><?php echo h($nav_item['title']); ?></span>
+                        </a>
+                    </li>
+                <?php } ?>
+            </ul>
+            <div class="qf-navbar-right ml-auto flex items-center gap-2">
+                <form class="qf-search flex items-center" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
+                    <input name="q" value="<?php echo h($current_script === 'search.php' ? $search_query : ''); ?>" placeholder="搜索" autocomplete="search">
+                    <button type="submit" aria-label="搜索"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
+                <?php if (!$me) { ?>
+                    <a class="qf-btn qf-btn-ghost<?php echo $current_script === 'login.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('login.php')); ?>">登录</a>
+                    <a class="qf-btn qf-btn-solid<?php echo $current_script === 'register.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('register.php')); ?>">注册</a>
+                <?php } else { ?>
+                    <a class="qf-btn qf-btn-solid" href="<?php echo h(qf_url_page('post.php')); ?>"><i class="fa-solid fa-pen-to-square"></i><span class="hidden sm:inline">发帖</span></a>
+                    <div class="hs-dropdown relative inline-flex">
+                        <button id="qf-user-dd" type="button" class="hs-dropdown-toggle qf-user-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="用户菜单">
+                            <img src="<?php echo h($me['avatar'] !== '' ? $me['avatar'] : 'assets/avatar-default.svg'); ?>" alt="">
+                            <span class="hidden sm:inline"><?php echo h($me['nickname']); ?></span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="hs-dropdown-menu qf-user-menu hidden" role="menu" aria-labelledby="qf-user-dd">
+                            <a href="<?php echo h(qf_url_user($me['id'])); ?>"><i class="fa-regular fa-circle-user"></i><span><?php echo h($me['nickname']); ?></span></a>
+                            <a href="<?php echo h(qf_url_page('profile.php')); ?>"><i class="fa-solid fa-sliders"></i><span>个人设置</span></a>
+                            <a href="<?php echo h(qf_url_page('notifications.php')); ?>"><i class="fa-regular fa-bell"></i><span>消息<?php echo $unread_notifications > 0 ? ' · ' . intval($unread_notifications) : ''; ?></span></a>
+                            <?php if (qf_user_signed_today($me['id'])) { ?>
+                                <span class="qf-user-static"><i class="fa-solid fa-check"></i><span>已签到</span></span>
+                            <?php } else { ?>
+                                <form method="post" action="<?php echo h(qf_url_page('signin.php')); ?>"><button type="submit"><i class="fa-solid fa-calendar-check"></i><span>签到</span></button></form>
+                            <?php } ?>
+                            <?php if (intval($me['is_admin']) === 1) { ?>
+                                <a href="<?php echo h(qf_url_page('admin/index.php')); ?>"><i class="fa-solid fa-gauge-high"></i><span>后台</span></a>
+                            <?php } ?>
+                            <a href="<?php echo h(qf_url_page('logout.php')); ?>"><i class="fa-solid fa-right-from-bracket"></i><span>退出</span></a>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+        </nav>
+        <div class="qf-breadcrumb">
+            <a href="<?php echo h(qf_url_page('index.php')); ?>">首页</a>
+            <?php if ($qf_current_forum) { ?><span class="qf-crumb-sep">‹</span><span class="qf-crumb-cur"><?php echo h($qf_current_forum['name']); ?></span><?php } ?>
+        </div>
     </div>
-</nav>
-<?php if (!empty($main_navs)) { ?>
-<nav class="qf-category-nav" aria-label="分类导航">
-    <div class="qf-category-nav-inner">
-        <a class="qf-category-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>">
-            <i class="qf-cat-icon fa-solid fa-house" aria-hidden="true"></i>
-            <span>首页</span>
-        </a>
-        <?php foreach ($main_navs as $nav_item) { ?>
-            <a class="qf-category-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>>
-                <?php echo qf_nav_icon_html($nav_item); ?>
-                <span><?php echo h($nav_item['title']); ?></span>
-            </a>
-        <?php } ?>
-    </div>
-</nav>
-<?php } ?>
-<?php if ($is_php_theme && $current_script !== 'index.php' && !empty($header_forums)) { ?>
-<nav class="phpdo-inner-category-bar" aria-label="论坛分类">
-    <div>
-        <?php foreach ($header_forums as $header_forum) { ?>
-            <a href="<?php echo h(qf_url_forum($header_forum['id'])); ?>"><?php echo h($header_forum['name']); ?></a>
-        <?php } ?>
-    </div>
-</nav>
-<?php } ?>
+</header>
 <aside class="side-user-menu" aria-label="用户快捷菜单" data-side-user-menu>
     <button class="side-user-trigger" type="button" aria-expanded="false" aria-haspopup="true" data-side-user-toggle>
         <?php if ($me) { ?>

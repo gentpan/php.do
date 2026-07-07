@@ -8298,3 +8298,83 @@ body.theme-php-dark .phpdo-oauth-google {
 body.theme-php-dark .phpdo-oauth-google:hover {
     background: #323847 !important;
 }
+
+/* ============================================================
+   phpBB 式页头（banner + 导航栏 + 面包屑）
+   Tailwind preflight 已关闭，这里给页头做作用域内 reset + 组件样式
+   ============================================================ */
+.qf-topbar { width: 100%; padding-top: 14px; }
+.qf-topbar-inner { max-width: 1200px; margin: 0 auto; }
+.qf-topbar a { text-decoration: none !important; }
+.qf-topbar ul, .qf-topbar li { list-style: none; margin: 0; padding: 0; }
+
+.qf-banner {
+    display: flex;
+    align-items: center;
+    min-height: 150px;
+    padding: 0 28px;
+    background: linear-gradient(120deg, #5a6aa8 0%, #505b93 58%, #3f4874 100%);
+}
+.qf-banner-logo img { height: 52px; filter: brightness(0) invert(1); }
+.qf-banner-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 8px;
+    color: #fff; background: rgba(255,255,255,.16); border: 0; cursor: pointer;
+    transition: background .15s ease;
+}
+.qf-banner-btn:hover { background: rgba(255,255,255,.3); }
+
+.qf-navbar { background: #3f4874; padding: 0 6px; box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+.qf-menu { display: flex; }
+.qf-menu-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 13px 15px; color: #dfe3f2; font-size: 15px; font-weight: 600;
+    transition: background .12s ease, color .12s ease;
+}
+.qf-menu-link:hover { color: #fff; background: rgba(255,255,255,.08); }
+.qf-menu-link.active { color: #fff; background: rgba(255,255,255,.18); }
+.qf-menu-link i, .qf-menu-link .qf-cat-icon { font-size: 14px; }
+.qf-menu-link .qf-cat-icon-img { width: 16px; height: 16px; filter: brightness(0) invert(1); }
+.qf-menu-link .qf-cat-icon-svg svg { fill: currentColor; }
+
+.qf-navbar-right { padding: 6px 4px; }
+.qf-search { height: 34px; background: #fff; border-radius: 6px; overflow: hidden; }
+.qf-search input { border: 0; outline: 0; height: 34px; padding: 0 10px; width: 140px; max-width: 40vw; background: transparent; font-size: 14px; color: #333; }
+.qf-search button { border: 0; background: transparent; padding: 0 10px; color: #666; cursor: pointer; height: 34px; }
+
+.qf-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.qf-btn-ghost { color: #fff; background: rgba(255,255,255,.12); }
+.qf-btn-ghost:hover, .qf-btn-ghost.active { background: rgba(255,255,255,.24); }
+.qf-btn-solid { color: #3f4874; background: #fff; }
+.qf-btn-solid:hover, .qf-btn-solid.active { background: #eef1f7; }
+
+.qf-user-trigger { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 6px; color: #fff; background: rgba(255,255,255,.12); border: 0; cursor: pointer; font-weight: 600; font-size: 14px; }
+.qf-user-trigger:hover { background: rgba(255,255,255,.24); }
+.qf-user-trigger img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+.qf-user-menu { min-width: 194px; padding: 6px; margin-top: 6px; background: #fff; border: 1px solid #e6e8ee; border-radius: 10px; box-shadow: 0 12px 30px rgba(20,20,20,.14); z-index: 60; }
+.qf-user-menu a, .qf-user-menu button, .qf-user-static { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 11px; border-radius: 7px; color: #333; font-size: 14px; background: transparent; border: 0; cursor: pointer; text-align: left; }
+.qf-user-menu a:hover, .qf-user-menu button:hover { background: #f2f4f8; color: #505b93; }
+.qf-user-menu form { margin: 0; }
+.qf-user-static { color: #8a8f99; }
+
+.qf-breadcrumb { padding: 9px 6px; font-size: 13px; color: #7a7f8a; display: flex; align-items: center; gap: 8px; }
+.qf-breadcrumb a { color: #505b93; }
+.qf-crumb-sep { color: #b6bcc8; }
+.qf-crumb-cur { color: #444; font-weight: 600; }
+
+.qf-burger { color: #fff; background: transparent; border: 0; font-size: 18px; padding: 11px 12px; cursor: pointer; }
+
+@media (max-width: 640px) {
+    .qf-menu { flex-direction: column; width: 100%; align-items: stretch; }
+    .qf-menu-link { padding: 12px 14px; }
+    .qf-navbar-right { width: 100%; padding: 8px 4px; }
+    .qf-search input { width: 100%; max-width: none; flex: 1; }
+    .qf-search { flex: 1; }
+}
+
+/* 深色主题下页头保持石板蓝（banner/navbar 不反色） */
+body.theme-php-dark .qf-user-menu { background: #1c2130; border-color: #2b3242; box-shadow: 0 12px 30px rgba(0,0,0,.5); }
+body.theme-php-dark .qf-user-menu a, body.theme-php-dark .qf-user-menu button { color: #d4d8e1; }
+body.theme-php-dark .qf-user-menu a:hover, body.theme-php-dark .qf-user-menu button:hover { background: #262d3c; color: #fff; }
+body.theme-php-dark .qf-breadcrumb { color: #8b93a3; }
+body.theme-php-dark .qf-crumb-cur { color: #cfd4df; }

@@ -86,6 +86,16 @@ $footer_icp = trim(qf_setting('icp_code', ''));
 <script src="<?php echo h(qf_asset_js('app')); ?>"></script>
 <script>
 (function () {
+    // Preline UI 初始化（页面加载 + AJAX 局部替换后）
+    function qfPrelineInit() {
+        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+            window.HSStaticMethods.autoInit();
+        }
+    }
+    if (document.readyState !== 'loading') { qfPrelineInit(); }
+    window.addEventListener('load', qfPrelineInit);
+    window.qfPrelineInit = qfPrelineInit;
+
     var toggle = document.querySelector('[data-theme-toggle]');
     if (toggle) {
         toggle.addEventListener('click', function () {
