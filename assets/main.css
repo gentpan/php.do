@@ -5806,8 +5806,8 @@ body.theme-php .phpdo-breadcrumb strong {
 
 body.theme-php .phpdo-home-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 380px;
-    gap: 18px;
+    grid-template-columns: var(--phpdo-home-cols);
+    gap: var(--phpdo-home-gap);
     align-items: start;
 }
 
@@ -7535,6 +7535,10 @@ body.theme-php {
     --phpdo-space-4: 1.5rem;
     --phpdo-space-5: 2rem;
     --phpdo-shadow-soft: 0 .125rem .5rem rgba(0, 0, 0, .08);
+    /* 首页两栏：左 75% / 右 25% */
+    --phpdo-home-gap: var(--phpdo-space-3);
+    --phpdo-home-cols: minmax(0, 3fr) minmax(0, 1fr);
+    --phpdo-home-side: calc((100% - var(--phpdo-home-gap)) * 0.25);
     font-family: var(--phpdo-font-sans);
     font-size: 16px;
     line-height: 1.5;
@@ -7626,11 +7630,6 @@ body.theme-php .phpdo-breadcrumb,
 body.theme-php .phpdo-feed-tabs,
 body.theme-php .filter-tabs {
     margin-bottom: var(--phpdo-space-3);
-}
-
-body.theme-php .phpdo-home-layout {
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: var(--phpdo-space-3);
 }
 
 body.theme-php .phpdo-thread-row,
@@ -8710,9 +8709,9 @@ body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); borde
     .qf-menu { flex: none; overflow-x: visible; }
 }
 
-/* 导航栏右侧搜索框：宽度与侧边栏一致（380px），菜单自动收缩横向滚动 */
+/* 导航栏右侧搜索框：宽度与首页侧栏一致（25%） */
 .qf-navbar-search {
-    flex: 0 0 380px;
+    flex: 0 0 var(--phpdo-home-side);
     max-width: 42vw;
     display: flex;
     align-items: center;
@@ -8764,10 +8763,10 @@ body.theme-php-dark .qf-page-frame .phpdo-home-shell {
     margin: 0;
 }
 
-/* 面包屑行右端搜索框：宽度与侧边栏一致（340px），右对齐 */
+/* 面包屑行右端搜索框：宽度与首页侧栏一致（25%），右对齐 */
 .phpdo-crumb-search {
     margin-left: auto;
-    flex: 0 0 340px;
+    flex: 0 0 var(--phpdo-home-side);
     max-width: 46vw;
     display: flex;
     align-items: center;
