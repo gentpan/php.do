@@ -679,7 +679,7 @@
         var loader = document.createElement('div');
         loader.className = 'qf-topload';
         loader.setAttribute('aria-hidden', 'true');
-        loader.innerHTML = '<div class="progress-container"><div class="progress-bar"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div><span class="qf-topload-pct">0%</span>';
+        loader.innerHTML = '<div class="progress-container"><div class="progress-bar"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div><div class="progress-text">0%</div></div>';
         document.body.appendChild(loader);
     }
 
@@ -688,7 +688,7 @@
         if (!el) return;
         pct = Math.max(0, Math.min(100, pct));
         var bar = el.querySelector('.progress-bar');
-        var txt = el.querySelector('.qf-topload-pct');
+        var txt = el.querySelector('.progress-text');
         if (bar) bar.style.width = pct + '%';
         if (txt) txt.textContent = Math.round(pct) + '%';
     }
