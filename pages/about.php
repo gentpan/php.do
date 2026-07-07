@@ -26,7 +26,7 @@ function phpdo_staff_card($u) {
 qf_include_header();
 ?>
 <div class="phpdo-about">
-    <?php qf_render_page_banner('about'); ?>
+    <?php qf_render_page_banner('about', qf_site_name(), qf_site_slogan()); ?>
     <div class="phpdo-breadcrumb">
         <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
         <span>»</span>
@@ -34,8 +34,6 @@ qf_include_header();
     </div>
 
     <section class="phpdo-about-hero">
-        <h1><?php echo h(qf_site_name()); ?></h1>
-        <p class="phpdo-about-slogan"><?php echo h(qf_site_slogan()); ?></p>
         <div class="phpdo-about-topstats">
             <div class="phpdo-about-topstat"><b><?php echo qf_format_compact_number($stats['members']); ?></b><span>位成员</span></div>
             <div class="phpdo-about-topstat"><b><?php echo intval($stats['admins']); ?></b><span>位管理员</span></div>

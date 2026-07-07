@@ -939,12 +939,25 @@ function qf_page_banner_src($page) {
     return '';
 }
 
-function qf_render_page_banner($page) {
+function qf_render_page_banner($page, $overlay_title = '', $overlay_sub = '') {
     $src = qf_page_banner_src($page);
     if ($src === '') {
         return;
     }
-    echo '<div class="phpdo-page-banner"><img src="' . h($src) . '" alt="" loading="lazy"></div>';
+    $has_overlay = ($overlay_title !== '' || $overlay_sub !== '');
+    echo '<div class="phpdo-page-banner' . ($has_overlay ? ' has-overlay' : '') . '">';
+    echo '<img src="' . h($src) . '" alt="" loading="lazy">';
+    if ($has_overlay) {
+        echo '<div class="phpdo-page-banner-text">';
+        if ($overlay_title !== '') {
+            echo '<span class="phpdo-page-banner-title">' . h($overlay_title) . '</span>';
+        }
+        if ($overlay_sub !== '') {
+            echo '<span class="phpdo-page-banner-sub">' . h($overlay_sub) . '</span>';
+        }
+        echo '</div>';
+    }
+    echo '</div>';
 }
 
 function qf_member_noun() {
