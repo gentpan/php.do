@@ -10,11 +10,11 @@
     </filter>
   </defs>
 
-  <g fill="none" stroke="#5d29f0" stroke-width="10.5" stroke-linecap="square" stroke-linejoin="miter">
+  <g fill="none" stroke="#5d29f0" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
     <path d="M47 21 13 41 47 61"/>
   </g>
-  <g fill="#5d29f0" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900">
-    <text x="52" y="61" font-size="58">?</text>
+  <g fill="#5d29f0" font-family="Arial, Helvetica, sans-serif" font-weight="600">
+    <text x="52" y="60" font-size="54">?</text>
   </g>
 
   <g transform="translate(91 9) scale(1.32)" fill="#0d0d11">
