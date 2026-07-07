@@ -8423,3 +8423,27 @@ body.theme-php-dark {
     background-size: 48px 48px !important;
     background-attachment: fixed !important;
 }
+
+/* 侧边栏搜索框 */
+.phpdo-side-search {
+    display: flex;
+    align-items: center;
+    height: 42px;
+    background: #fff;
+    border: 1px solid #dfe3e8;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.phpdo-side-search input {
+    flex: 1; min-width: 0; height: 100%; padding: 0 12px;
+    border: 0; outline: 0; background: transparent; font-size: 15px; color: #333;
+}
+.phpdo-side-search button {
+    height: 100%; width: 44px; border: 0; background: transparent;
+    color: #666; cursor: pointer; border-left: 1px solid #eef0f3;
+}
+.phpdo-side-search button:hover { color: #505b93; background: #f7f8fb; }
+body.theme-php-dark .phpdo-side-search { background: var(--phpdo-surface); border-color: var(--phpdo-border); }
+body.theme-php-dark .phpdo-side-search input { color: var(--phpdo-text); }
+body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); border-left-color: var(--phpdo-border); }
