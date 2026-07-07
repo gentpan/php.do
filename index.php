@@ -56,6 +56,12 @@ if (preg_match('#^([a-z0-9-]+)\.php$#', $request_path, $m)) {
         exit;
     }
 }
+if (preg_match('#^forum/([0-9]+)$#', $request_path, $m)) {
+    $_GET['id'] = intval($m[1]);
+    $_SERVER['SCRIPT_NAME'] = '/forum.php';
+    require __DIR__ . '/pages/forum.php';
+    exit;
+}
 $forum_slug_id = qf_forum_id_by_slug($request_path);
 if ($forum_slug_id > 0) {
     $_GET['id'] = $forum_slug_id;

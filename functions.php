@@ -489,15 +489,16 @@ function qf_append_url_parts($path, $params = array(), $fragment = '') {
 function qf_forum_slug_map() {
     return array(
         '站务公告' => 'announcements',
-        'PHP 技术讨论' => 'develop',
-        '程序发布' => 'release',
+        '技术问答' => 'qa',
         '框架生态' => 'frameworks',
-        'Composer 与依赖' => 'composer',
-        '扩展与性能' => 'performance',
-        '数据库与缓存' => 'database',
-        '部署与运维' => 'ops',
+        '程序发布' => 'release',
+        '性能优化' => 'performance',
+        '部署运维' => 'ops',
         '安全审计' => 'security',
-        '代码求助' => 'support',
+        '作品展示' => 'showcase',
+        '综合交流' => 'community',
+        '灌水闲聊' => 'chat',
+        '个人博客' => 'blog',
     );
 }
 
