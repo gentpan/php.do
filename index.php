@@ -116,6 +116,7 @@ function phpdo_render_thread_row($t) {
                 <?php if (intval($t['is_good'])) { ?><span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span><?php } ?>
                 <a href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
                 <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
+                <?php if (!empty($t['has_attachment'])) { ?><i class="fa-solid fa-paperclip phpdo-attach-icon" title="含附件" aria-label="含附件"></i><?php } ?>
                 <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
             </h2>
             <div class="phpdo-thread-meta">
@@ -165,7 +166,8 @@ $phpdo_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $phpdo_ajax = isset($_GET['ajax']) ? $_GET['ajax'] : '';
 
 $phpdo_thread_select = "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email,
-    (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM qf_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image
+    (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM qf_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image,
+    (CASE WHEN EXISTS (SELECT 1 FROM qf_attachments a2 WHERE a2.thread_id=t.id AND a2.file_ext NOT IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_attachment
     FROM qf_threads t
     LEFT JOIN qf_forums f ON t.forum_id=f.id
     LEFT JOIN qf_users u ON t.user_id=u.id

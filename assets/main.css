@@ -6186,6 +6186,17 @@ body.theme-php .phpdo-image-icon {
     color: #c6c8cc;
     font-size: 18px;
 }
+body.theme-php .phpdo-attach-icon {
+    margin-left: 4px;
+    color: #c6c8cc;
+    font-size: 15px;
+    transform: rotate(15deg);
+    transition: color .16s ease, transform .16s ease;
+}
+body.theme-php .phpdo-thread-row:hover .phpdo-attach-icon {
+    color: #8b8f96;
+    transform: rotate(0deg);
+}
 
 body.theme-php .phpdo-thread-stats {
     display: flex;
@@ -8297,6 +8308,7 @@ body.theme-php-dark .phpdo-badge-top { background: #d1495b; }
 body.theme-php-dark .phpdo-badge-good { background: #7161d8; }
 
 body.theme-php-dark .phpdo-image-icon,
+body.theme-php-dark .phpdo-attach-icon,
 body.theme-php-dark .phpdo-thread-stats i,
 body.theme-php-dark .thread-count i,
 body.theme-php-dark .phpdo-reply-action,
