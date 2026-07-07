@@ -93,6 +93,7 @@ if ($qf_page_banner === '') {
 if (strpos($qf_page_banner, '{r}') !== false) {
     $qf_page_banner = str_replace('{r}', (string)mt_rand(1, 9999), $qf_page_banner);
 }
+$qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$_GET['slug'])) : '';
 ?>
 <header class="qf-topbar">
     <div class="qf-topbar-inner mx-auto px-3 sm:px-4">
@@ -114,18 +115,10 @@ if (strpos($qf_page_banner, '{r}') !== false) {
         <nav class="qf-navbar flex flex-wrap items-center" aria-label="主导航" x-data="{ open: false }">
             <button type="button" class="qf-burger sm:hidden" @click="open = !open" aria-label="展开菜单"><i class="fa-solid fa-bars"></i></button>
             <ul class="qf-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
-                <li>
-                    <a class="qf-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>">
-                        <i class="fa-solid fa-house"></i><span>首页</span>
-                    </a>
-                </li>
-                <?php foreach ($main_navs as $nav_item) { ?>
-                    <li>
-                        <a class="qf-menu-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>>
-                            <?php echo qf_nav_icon_html($nav_item); ?><span><?php echo h($nav_item['title']); ?></span>
-                        </a>
-                    </li>
-                <?php } ?>
+                <li><a class="qf-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house"></i><span>首页</span></a></li>
+                <li><a class="qf-menu-link<?php echo $qf_cur_slug === 'about' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('page.php', array('slug' => 'about'))); ?>"><i class="fa-solid fa-circle-info"></i><span>关于</span></a></li>
+                <li><a class="qf-menu-link<?php echo $qf_cur_slug === 'rules' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('page.php', array('slug' => 'rules'))); ?>"><i class="fa-solid fa-scale-balanced"></i><span>规则</span></a></li>
+                <li><a class="qf-menu-link<?php echo $qf_cur_slug === 'help' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('page.php', array('slug' => 'help'))); ?>"><i class="fa-regular fa-circle-question"></i><span>帮助</span></a></li>
             </ul>
             <div class="qf-navbar-right ml-auto flex items-center gap-2">
                 <form class="qf-search flex items-center" method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
