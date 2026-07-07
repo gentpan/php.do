@@ -7214,12 +7214,13 @@ body.theme-php .phpdo-reply-author {
 body.theme-php .phpdo-level {
     display: inline-flex;
     align-items: center;
-    height: 25px;
-    padding: 0 7px;
+    height: 19px;
+    padding: 0 6px;
     color: #fff;
-    font-size: 15px;
-    font-weight: 900;
+    font-size: 11px;
+    font-weight: 800;
     line-height: 1;
+    letter-spacing: .2px;
     background: var(--phpdo-accent);
     border-radius: 5px;
 }
@@ -7639,8 +7640,8 @@ body.theme-php .phpdo-auth-switch a {
     }
 
     body.theme-php .phpdo-level {
-        height: 22px;
-        font-size: 12px;
+        height: 18px;
+        font-size: 10px;
     }
 
     body.theme-php .phpdo-floor-no {
@@ -7842,9 +7843,12 @@ body.theme-php .phpdo-reply-action {
     font-size: .875rem;
 }
 
-body.theme-php .phpdo-floor-no,
-body.theme-php .phpdo-level {
+body.theme-php .phpdo-floor-no {
     border-radius: var(--phpdo-card-radius);
+}
+
+body.theme-php .phpdo-level {
+    border-radius: 5px;
 }
 
 body.theme-php .floor-replies,

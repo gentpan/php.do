@@ -354,6 +354,63 @@ function qf_site_keywords() {
     return qf_setting('site_keywords', '');
 }
 
+// ===== 用户积分与等级 =====
+// 积分来源（累加到 qf_users.points）：发主题帖 +10，发回复 +3。
+// 等级共 10 级，按累计积分映射，只显示数字（Lv.N）。
+function qf_points_for_thread() { return 10; }
+function qf_points_for_reply() { return 3; }
+
+// 各等级所需的累计积分下限（Lv => points）。可在此调整曲线。
+function qf_level_thresholds() {
+    return array(
+        1 => 0,
+        2 => 30,
+        3 => 100,
+        4 => 250,
+        5 => 500,
+        6 => 1000,
+        7 => 2000,
+        8 => 3500,
+        9 => 6000,
+        10 => 10000,
+    );
+}
+
+// 根据积分返回等级数字（1..最高级）。
+function qf_user_level($points) {
+    $points = intval($points);
+    $level = 1;
+    foreach (qf_level_thresholds() as $lv => $need) {
+        if ($points >= $need) {
+            $level = $lv;
+        } else {
+            break;
+        }
+    }
+    return $level;
+}
+
+// 距离下一级还差多少积分；已满级返回 0。
+function qf_points_to_next_level($points) {
+    $points = intval($points);
+    $thresholds = qf_level_thresholds();
+    $current = qf_user_level($points);
+    if (!isset($thresholds[$current + 1])) {
+        return 0;
+    }
+    return max(0, intval($thresholds[$current + 1]) - $points);
+}
+
+// 给用户增加积分（$delta 可为负）。
+function qf_add_user_points($user_id, $delta) {
+    $user_id = intval($user_id);
+    $delta = intval($delta);
+    if ($user_id <= 0 || $delta === 0) {
+        return;
+    }
+    mysqli_query(db(), "UPDATE qf_users SET points = GREATEST(0, points + ({$delta})) WHERE id={$user_id}");
+}
+
 function qf_theme_options() {
     return array(
         'php' => 'PHP 官方风格 · 浅色',

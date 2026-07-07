@@ -29,6 +29,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
   mute_until datetime DEFAULT NULL,
   coins int(11) NOT NULL DEFAULT '0',
   reply_count int(11) NOT NULL DEFAULT '0',
+  points int(11) NOT NULL DEFAULT '0',
   notification_sound_enabled tinyint(1) NOT NULL DEFAULT '1',
   ip varchar(45) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,

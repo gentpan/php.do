@@ -63,6 +63,12 @@ if ($ok) {
     if ($check && mysqli_num_rows($check) == 0) {
         mysqli_query(db(), "ALTER TABLE qf_users ADD notification_sound_enabled tinyint(1) NOT NULL DEFAULT '1' AFTER reply_count");
     }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'points'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD points int(11) NOT NULL DEFAULT '0' AFTER reply_count");
+        // 回填历史积分：发主题帖 +10、发回复 +3（回复以 reply_count 计）
+        mysqli_query(db(), "UPDATE qf_users u SET u.points = u.reply_count * 3 + IFNULL((SELECT COUNT(*) FROM qf_threads t WHERE t.user_id = u.id AND t.is_deleted = 0), 0) * 10");
+    }
 }
 
 if ($ok) {

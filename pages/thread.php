@@ -22,7 +22,7 @@ $reply_page = isset($_GET['rp']) ? intval($_GET['rp']) : 1;
 if ($reply_page < 1) $reply_page = 1;
 if ($reply_page > $reply_pages) $reply_page = $reply_pages;
 $reply_offset = ($reply_page - 1) * $replies_per_page;
-$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
+$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.points, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
     WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT {$reply_offset}, {$replies_per_page}");
 $attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
 $guest_zip_download_blocked = !current_user() && !qf_guest_download_allowed();
@@ -150,7 +150,7 @@ if ($me) {
         <?php
         $reply_avatar = qf_user_avatar($p, 96);
         $reply_author = $p['nickname'] !== '' ? $p['nickname'] : $p['username'];
-        $reply_level = max(1, min(9, intval(floor(intval($p['reply_count']) / 20)) + 1));
+        $reply_level = qf_user_level(intval(isset($p['points']) ? $p['points'] : 0));
         $reply_signature = trim((string)$p['signature']);
         ?>
         <div class="reply">

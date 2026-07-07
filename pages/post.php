@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ok = mysqli_query(db(), "INSERT INTO qf_threads (forum_id,user_id,topic_category,title,content,ip,created_at,updated_at) VALUES ({$fid},{$uid},'{$topic_category_sql}','{$title_sql}','{$content_sql}','{$ip}',NOW(),NOW())");
             if ($ok) {
                 $thread_id = mysqli_insert_id(db());
+                qf_add_user_points($uid, qf_points_for_thread());
                 $upload_errors = array();
                 $upload_saved = qf_upload_attachments($thread_id, 0, $uid, $upload_errors);
                 if ($upload_saved > 0 && empty($upload_errors)) {

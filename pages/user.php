@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 $id = qf_path_id();
-$rs = mysqli_query(db(), "SELECT id,username,nickname,avatar,email,signature,coins,reply_count,created_at FROM qf_users WHERE id={$id} AND status=1 LIMIT 1");
+$rs = mysqli_query(db(), "SELECT id,username,nickname,avatar,email,signature,coins,reply_count,points,created_at FROM qf_users WHERE id={$id} AND status=1 LIMIT 1");
 $user = $rs ? mysqli_fetch_assoc($rs) : null;
 if (!$user) {
     http_response_code(404);
@@ -17,8 +17,9 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id FROM qf_post
 <section class="card page-head phpdo-user-head">
     <img class="phpdo-author-avatar" src="<?php echo h($avatar); ?>" alt="">
     <div>
-        <h1><?php echo h($display_name); ?></h1>
-        <p>@<?php echo h($user['username']); ?> · 注册于 <?php echo h(format_time($user['created_at'])); ?> · <?php echo intval($user['reply_count']); ?> 回复 · <?php echo intval($user['coins']); ?> 金币</p>
+        <?php $user_points = intval(isset($user['points']) ? $user['points'] : 0); ?>
+        <h1><?php echo h($display_name); ?> <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($user_points)); ?></span></h1>
+        <p>@<?php echo h($user['username']); ?> · 注册于 <?php echo h(format_time($user['created_at'])); ?> · <?php echo intval($user['reply_count']); ?> 回复 · <?php echo $user_points; ?> 积分 · <?php echo intval($user['coins']); ?> 金币</p>
         <?php if (trim((string)$user['signature']) !== '') { ?><p><?php echo h($user['signature']); ?></p><?php } ?>
     </div>
 </section>
