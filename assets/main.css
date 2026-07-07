@@ -8752,9 +8752,10 @@ body.theme-php-dark .phpdo-must-read li {
 }
 
 /* 白框内正文区左右内边距（提高专属性以盖过基础 main.wrap 规则），并让 home-shell 填满 */
+/* 左右各 20px：1200px 白框内正文可用宽约 1160px */
 body.theme-php .qf-page-frame main.wrap,
 body.theme-php-dark .qf-page-frame main.wrap {
-    padding: 0 28px 42px;
+    padding: 0 20px 42px;
 }
 body.theme-php .qf-page-frame .phpdo-home-shell,
 body.theme-php-dark .qf-page-frame .phpdo-home-shell {
