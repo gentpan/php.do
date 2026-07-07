@@ -6898,7 +6898,8 @@ body.theme-php .phpdo-thread-breadcrumb {
     display: flex;
     align-items: center;
     gap: 9px;
-    margin-bottom: 18px;
+    margin: 0 0 12px;
+    padding: 0 2px;
     color: #9aa0a8;
     font-size: 14px;
 }
