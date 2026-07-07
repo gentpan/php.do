@@ -1382,7 +1382,7 @@ function qf_s3_setting($key, $default = '') {
 }
 
 function qf_s3_key($safe_name) {
-    $prefix = trim(qf_s3_setting('s3_path_prefix', 'lume'), "/ \t\n\r\0\x0B");
+    $prefix = trim(qf_s3_setting('s3_path_prefix', 'litebbs'), "/ \t\n\r\0\x0B");
     $prefix = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $prefix);
     $date_path = date('Y/m/d');
     return ($prefix !== '' ? $prefix . '/' : '') . $date_path . '/' . ltrim($safe_name, '/');
@@ -1481,7 +1481,7 @@ function qf_s3_upload_file($tmp_name, $key, $content_type, &$error) {
 function qf_s3_test(&$message) {
     $key = qf_s3_key('test_' . date('YmdHis') . '_' . mt_rand(1000, 9999) . '.txt');
     $error = '';
-    $url = qf_s3_upload_bytes("Lume S3/R2 test " . date('c') . "\n", $key, 'text/plain; charset=utf-8', $error);
+    $url = qf_s3_upload_bytes("LiteBBS S3/R2 test " . date('c') . "\n", $key, 'text/plain; charset=utf-8', $error);
     if ($url === '') {
         $message = $error;
         return false;

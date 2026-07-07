@@ -1,5 +1,5 @@
 <?php
-// Lume profile page build: 2026-06-15 with password_confirm
+// LiteBBS profile page build: 2026-06-15 with password_confirm
 require_once __DIR__ . '/../functions.php';
 qf_ensure_account_auth_schema();
 $u = require_login();

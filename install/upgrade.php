@@ -300,7 +300,7 @@ if ($ok) {
         's3_access_key' => '',
         's3_secret_key' => '',
         's3_cdn_domain' => '',
-        's3_path_prefix' => 'lume',
+        's3_path_prefix' => 'litebbs',
         'friend_links_enabled' => '0',
         'friend_links' => '',
         'rewrite_enabled' => '1',

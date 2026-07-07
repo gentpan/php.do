@@ -1,6 +1,6 @@
 {
-    "name": "lume/forum",
-    "description": "Lume lightweight PHP forum",
+    "name": "litebbs/forum",
+    "description": "LiteBBS lightweight PHP forum",
     "license": "proprietary",
     "type": "project",
     "require": {

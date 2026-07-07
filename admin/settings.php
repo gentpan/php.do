@@ -14,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $s3_access_key = clean_text(isset($_POST['s3_access_key']) ? $_POST['s3_access_key'] : '', 180);
         $s3_secret_key = clean_text(isset($_POST['s3_secret_key']) ? $_POST['s3_secret_key'] : '', 220);
         $s3_cdn_domain = rtrim(trim((string)(isset($_POST['s3_cdn_domain']) ? $_POST['s3_cdn_domain'] : '')), '/');
-        $s3_path_prefix = trim((string)(isset($_POST['s3_path_prefix']) ? $_POST['s3_path_prefix'] : 'lume'));
+        $s3_path_prefix = trim((string)(isset($_POST['s3_path_prefix']) ? $_POST['s3_path_prefix'] : 'litebbs'));
         if ($s3_region === '') {
             $s3_region = 'auto';
         }
         $s3_path_prefix = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $s3_path_prefix);
         if ($s3_path_prefix === '') {
-            $s3_path_prefix = 'lume';
+            $s3_path_prefix = 'litebbs';
         }
         qf_update_setting('s3_enabled', $s3_enabled);
         qf_update_setting('s3_endpoint', $s3_endpoint);
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $s3_access_key = clean_text(isset($_POST['s3_access_key']) ? $_POST['s3_access_key'] : '', 180);
     $s3_secret_key = clean_text(isset($_POST['s3_secret_key']) ? $_POST['s3_secret_key'] : '', 220);
     $s3_cdn_domain = rtrim(trim((string)(isset($_POST['s3_cdn_domain']) ? $_POST['s3_cdn_domain'] : '')), '/');
-    $s3_path_prefix = trim((string)(isset($_POST['s3_path_prefix']) ? $_POST['s3_path_prefix'] : 'lume'));
+    $s3_path_prefix = trim((string)(isset($_POST['s3_path_prefix']) ? $_POST['s3_path_prefix'] : 'litebbs'));
     $friend_links_enabled = !empty($_POST['friend_links_enabled']) ? '1' : '0';
     $friend_links = trim((string)$_POST['friend_links']);
     $rewrite_enabled = !empty($_POST['rewrite_enabled']) ? '1' : '0';
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $s3_path_prefix = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $s3_path_prefix);
     if ($s3_path_prefix === '') {
-        $s3_path_prefix = 'lume';
+        $s3_path_prefix = 'litebbs';
     }
     if ($rewrite_nginx_rules === '') {
         $rewrite_nginx_rules = qf_default_nginx_rewrite_rules();
@@ -203,11 +203,11 @@ qf_include_header();
             <p class="muted">显示在首页顶部网站名称下面，也会作为页面描述。</p>
 
             <label>关键词（KeyWords）</label>
-            <input type="text" name="site_keywords" value="<?php echo h(qf_setting('site_keywords', '')); ?>" maxlength="160" placeholder="例如：Lume,轻论坛,本地论坛,同城交流">
-            <p class="muted">多个关键词建议用英文逗号分隔，例如：Lume,轻论坛,本地论坛。</p>
+            <input type="text" name="site_keywords" value="<?php echo h(qf_setting('site_keywords', '')); ?>" maxlength="160" placeholder="例如：LiteBBS,论坛,本地论坛,同城交流">
+            <p class="muted">多个关键词建议用英文逗号分隔，例如：LiteBBS,论坛,本地论坛。</p>
 
             <label>网站备案信息代码</label>
-            <textarea name="icp_code" rows="3" placeholder="例如：蜀ICP备xxxx号"><?php echo h(qf_setting('icp_code', '')); ?></textarea>
+            <textarea name="icp_code" rows="3" placeholder="例如：鲁ICP备xxxx号"><?php echo h(qf_setting('icp_code', '')); ?></textarea>
             <p class="muted">会显示在页面底部，可填写文字或备案链接代码。</p>
 
             <label>第三方统计代码</label>
@@ -297,8 +297,8 @@ qf_include_header();
             <p class="muted">前台图片和附件会使用这个域名生成访问地址。留空时使用 Endpoint/Bucket 拼接地址。</p>
 
             <label>存储路径前缀</label>
-            <input type="text" name="s3_path_prefix" value="<?php echo h(qf_setting('s3_path_prefix', 'lume')); ?>" placeholder="例如：lume">
-            <p class="muted">实际对象路径会形如：lume/年/月/日/文件名。</p>
+            <input type="text" name="s3_path_prefix" value="<?php echo h(qf_setting('s3_path_prefix', 'litebbs')); ?>" placeholder="例如：litebbs">
+            <p class="muted">实际对象路径会形如：litebbs/年/月/日/文件名。</p>
             <p><button class="btn btn-light btn-small" type="submit" name="action" value="s3_test">测试 S3/R2 上传</button></p>
         </div>
 
@@ -306,7 +306,7 @@ qf_include_header();
             <h2><i class="fa-solid fa-link" aria-hidden="true"></i> 友情链接与伪静态</h2>
             <label>友情链接</label>
             <label><input class="inline-check" type="checkbox" name="friend_links_enabled" value="1" <?php if (qf_friend_links_enabled()) echo 'checked'; ?>> 开启友情链接</label>
-            <textarea name="friend_links" rows="5" placeholder="例如：Lume官网|https://lume.0816y.com"><?php echo h(qf_setting('friend_links', '')); ?></textarea>
+            <textarea name="friend_links" rows="5" placeholder="例如：LiteBBS官网|https://example.com"><?php echo h(qf_setting('friend_links', '')); ?></textarea>
             <p class="muted">每行一个友情链接，格式：网站名称|网站地址。例如：朋友论坛|https://example.com。</p>
 
             <label>伪静态</label>
