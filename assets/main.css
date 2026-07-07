@@ -7116,7 +7116,7 @@ body.theme-php .phpdo-thread-title-row {
     display: grid;
     grid-template-columns: 62px minmax(0, 1fr);
     gap: 18px;
-    align-items: start;
+    align-items: center;
 }
 
 body.theme-php .phpdo-author-avatar,
@@ -7134,29 +7134,38 @@ body.theme-php .post-meta {
     line-height: 1.5;
 }
 
-/* 主楼标题区两行 meta：第一行 用户名+等级，第二行 浏览/回复/时间 */
-body.theme-php .phpdo-thread-meta-2 {
+/* 主楼标题区：标题 + meta 同一行（meta 靠右） */
+body.theme-php .phpdo-thread-title-head {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-top: 6px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 18px;
+    flex-wrap: wrap;
 }
-body.theme-php .phpdo-thread-meta-primary {
+body.theme-php .phpdo-thread-title-head h1 {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+}
+body.theme-php .phpdo-thread-meta-inline {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 0 0 auto;
     flex-wrap: wrap;
+    justify-content: flex-end;
+    margin: 0;
 }
-body.theme-php .phpdo-thread-meta-primary .phpdo-author-link {
+body.theme-php .phpdo-thread-meta-inline .phpdo-author-link {
     color: #3a3f47;
     font-weight: 600;
 }
-body.theme-php .phpdo-thread-meta-secondary {
+body.theme-php .phpdo-thread-meta-inline .phpdo-meta-nums {
     color: #9298a1;
     font-size: 13px;
 }
-body.theme-php-dark .phpdo-thread-meta-primary .phpdo-author-link { color: #e6e6e6; }
-body.theme-php-dark .phpdo-thread-meta-secondary { color: #9a9a9a; }
+body.theme-php-dark .phpdo-thread-meta-inline .phpdo-author-link { color: #e6e6e6; }
+body.theme-php-dark .phpdo-thread-meta-inline .phpdo-meta-nums { color: #9a9a9a; }
 
 body.theme-php .phpdo-thread-votes {
     display: flex;

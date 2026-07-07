@@ -69,18 +69,14 @@ if ($me) {
 <article class="card post-title-card post-content-card phpdo-thread-title-card phpdo-thread-main-card">
     <div class="phpdo-thread-title-row">
         <img class="phpdo-author-avatar" src="<?php echo h($thread_avatar); ?>" alt="">
-        <div>
+        <div class="phpdo-thread-title-head">
             <h1><?php echo h($thread['title']); ?></h1>
             <?php $thread_author_points = intval(isset($thread['author_points']) ? $thread['author_points'] : 0); ?>
-            <div class="post-meta phpdo-thread-meta-2">
-                <div class="phpdo-thread-meta-primary">
-                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a>
-                    <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($thread_author_points)); ?></span>
-                    <?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?><span class="moderator-badge">版主</span><?php } ?>
-                </div>
-                <div class="phpdo-thread-meta-secondary">
-                    <?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复 · <?php echo format_time($thread['created_at']); ?>
-                </div>
+            <div class="post-meta phpdo-thread-meta-inline">
+                <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a>
+                <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($thread_author_points)); ?></span>
+                <?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?><span class="moderator-badge">版主</span><?php } ?>
+                <span class="phpdo-meta-nums"><?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复 · <?php echo format_time($thread['created_at']); ?></span>
             </div>
         </div>
     </div>
