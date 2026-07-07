@@ -79,7 +79,24 @@ function qf_avatar_initial($nickname, $username) {
 
 function qf_is_generated_avatar_path($avatar) {
     $avatar = (string)$avatar;
-    return preg_match('#^assets/avatars/(user|demo)-[a-zA-Z0-9_-]+\.svg$#', $avatar) === 1;
+    return preg_match('#^assets/avatars/(user|demo|pick)-[a-zA-Z0-9_-]+\.svg$#', $avatar) === 1;
+}
+
+// 用户主动选择的“随机卡通头像”，用 pick- 前缀区别于注册时自动生成的 user- 默认头像。
+function qf_is_chosen_cartoon_path($avatar) {
+    return preg_match('#^assets/avatars/pick-[a-zA-Z0-9_-]+\.svg$#', (string)$avatar) === 1;
+}
+
+function qf_avatar_gravatar_enabled() {
+    return intval(qf_setting('avatar_gravatar_enabled', '1')) === 1;
+}
+
+function qf_avatar_upload_enabled() {
+    return intval(qf_setting('avatar_upload_enabled', '1')) === 1;
+}
+
+function qf_avatar_cartoon_enabled() {
+    return intval(qf_setting('avatar_cartoon_enabled', '1')) === 1;
 }
 
 function qf_gravatar_url($email, $size = 160) {
@@ -88,12 +105,20 @@ function qf_gravatar_url($email, $size = 160) {
 }
 
 /**
- * 统一解析用户头像：自定义上传 > 配置了邮箱走 Gravatar > 生成的默认头像 > 兜底。
+ * 统一解析用户头像的优先级：
+ * 1) 自定义上传（avatar 为非生成路径）
+ * 2) 用户主动选择的随机卡通（pick- 前缀，优先于 Gravatar）
+ * 3) 绑定了邮箱且全局开启 Gravatar
+ * 4) 注册时自动生成的默认卡通（user-/demo- 前缀）
+ * 5) 兜底默认图
  * 传入的数组需含 avatar，可选 email。
  */
 function qf_user_avatar($user, $size = 160) {
     $avatar = isset($user['avatar']) ? (string)$user['avatar'] : '';
     if ($avatar !== '' && !qf_is_generated_avatar_path($avatar)) {
+        return $avatar;
+    }
+    if (qf_is_chosen_cartoon_path($avatar)) {
         return $avatar;
     }
     $email = '';
@@ -102,7 +127,7 @@ function qf_user_avatar($user, $size = 160) {
     } elseif (isset($user['user_email'])) {
         $email = trim((string)$user['user_email']);
     }
-    if ($email !== '') {
+    if ($email !== '' && qf_avatar_gravatar_enabled()) {
         return qf_gravatar_url($email, $size);
     }
     return $avatar !== '' ? $avatar : 'assets/avatar-default.svg';
@@ -112,8 +137,8 @@ function qf_pick_avatar_part($items, $hash, $shift = 0) {
     return $items[($hash >> $shift) % count($items)];
 }
 
-function qf_cartoon_default_avatar_svg($user_id, $username, $nickname) {
-    $hash = crc32($user_id . '|' . $username . '|' . $nickname);
+function qf_cartoon_default_avatar_svg($user_id, $username, $nickname, $seed = '') {
+    $hash = crc32($user_id . '|' . $username . '|' . $nickname . '|' . $seed);
     $backgrounds = array('#ff4f9a', '#5d29f0', '#bfaaff', '#d9d1ff', '#ffd34f', '#ff8da3', '#cbbcff', '#b990ff');
     $skins = array('#ffd2ba', '#f2b893', '#e9a978', '#ffe0c9', '#d8986d');
     $hair_colors = array('#1f2430', '#5d29f0', '#ffe67a', '#a868ff', '#f05b6a', '#6b3c23');
@@ -183,6 +208,24 @@ function qf_generate_default_avatar($user_id, $username, $nickname) {
         return '';
     }
     return qf_default_avatar_public_path($user_id);
+}
+
+// 保存用户主动选择的随机卡通头像（pick- 前缀），$seed 决定长相，返回公开路径或 ''。
+function qf_save_chosen_cartoon($user_id, $username, $nickname, $seed = '') {
+    $user_id = intval($user_id);
+    if ($user_id < 1) {
+        return '';
+    }
+    $dir = qf_default_avatar_dir();
+    if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+        return '';
+    }
+    $svg = qf_cartoon_default_avatar_svg($user_id, $username, $nickname, (string)$seed);
+    $path = $dir . '/pick-' . $user_id . '.svg';
+    if (file_put_contents($path, $svg) === false) {
+        return '';
+    }
+    return 'assets/avatars/pick-' . $user_id . '.svg';
 }
 
 function qf_setting($key, $default = '') {

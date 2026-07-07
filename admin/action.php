@@ -165,6 +165,26 @@ if ($action === 'clear_user_content' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect(qf_url_page('admin/users.php'));
 }
 
+if ($action === 'reset_user_avatar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = intval($_POST['user_id']);
+    if ($user_id > 0) {
+        $ur = mysqli_query(db(), "SELECT username, nickname FROM qf_users WHERE id={$user_id} AND is_admin=0 LIMIT 1");
+        $urow = $ur ? mysqli_fetch_assoc($ur) : null;
+        if ($urow) {
+            $seed = (string)mt_rand(1, 999999);
+            $path = qf_save_chosen_cartoon($user_id, $urow['username'], $urow['nickname'], $seed);
+            if ($path !== '') {
+                $path_sql = esc($path);
+                mysqli_query(db(), "UPDATE qf_users SET avatar='{$path_sql}' WHERE id={$user_id} AND is_admin=0");
+                $_SESSION['flash'] = '已为该用户重置为随机卡通头像。';
+            } else {
+                $_SESSION['flash'] = '重置头像失败，请检查 assets/avatars 目录权限。';
+            }
+        }
+    }
+    redirect(qf_url_page('admin/users.php'));
+}
+
 if ($action === 'top_board') {
     $id = intval($_GET['id']);
     qf_require_action_token('top_board', $id);

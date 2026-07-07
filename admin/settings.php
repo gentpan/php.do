@@ -62,6 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $friend_links = trim((string)$_POST['friend_links']);
     $rewrite_enabled = !empty($_POST['rewrite_enabled']) ? '1' : '0';
     $rewrite_nginx_rules = trim((string)$_POST['rewrite_nginx_rules']);
+    $avatar_upload_enabled = !empty($_POST['avatar_upload_enabled']) ? '1' : '0';
+    $avatar_gravatar_enabled = !empty($_POST['avatar_gravatar_enabled']) ? '1' : '0';
+    $avatar_cartoon_enabled = !empty($_POST['avatar_cartoon_enabled']) ? '1' : '0';
 
     if ($site_title === '') {
         $site_title = SITE_NAME;
@@ -165,6 +168,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     qf_update_setting('friend_links', $friend_links);
     qf_update_setting('rewrite_enabled', $rewrite_enabled);
     qf_update_setting('rewrite_nginx_rules', $rewrite_nginx_rules);
+    qf_update_setting('avatar_upload_enabled', $avatar_upload_enabled);
+    qf_update_setting('avatar_gravatar_enabled', $avatar_gravatar_enabled);
+    qf_update_setting('avatar_cartoon_enabled', $avatar_cartoon_enabled);
     $saved = true;
     }
 }
@@ -184,6 +190,7 @@ qf_include_header();
             <button type="button" :class="tab==='basic' ? 'active' : ''" @click="tab='basic'"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> 基本信息</button>
             <button type="button" :class="tab==='upload' ? 'active' : ''" @click="tab='upload'"><i class="fa-solid fa-paperclip" aria-hidden="true"></i> 上传附件</button>
             <button type="button" :class="tab==='forum' ? 'active' : ''" @click="tab='forum'"><i class="fa-solid fa-comments" aria-hidden="true"></i> 论坛发帖</button>
+            <button type="button" :class="tab==='avatar' ? 'active' : ''" @click="tab='avatar'"><i class="fa-solid fa-user-circle" aria-hidden="true"></i> 头像</button>
             <button type="button" :class="tab==='coins' ? 'active' : ''" @click="tab='coins'"><i class="fa-solid fa-coins" aria-hidden="true"></i> 金币签到</button>
             <button type="button" :class="tab==='security' ? 'active' : ''" @click="tab='security'"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 注册验证</button>
             <button type="button" :class="tab==='storage' ? 'active' : ''" @click="tab='storage'"><i class="fa-solid fa-cloud" aria-hidden="true"></i> 对象存储</button>
@@ -248,7 +255,16 @@ qf_include_header();
             <p class="muted">用户每次回帖最多允许输入的字数。</p>
         </div>
 
-        <div class="settings-panel" x-show="tab==='coins'">
+        <div class="settings-panel" x-show="tab==='avatar'" style="display:none">
+            <h2><i class="fa-solid fa-user-circle" aria-hidden="true"></i> 头像来源</h2>
+            <p class="muted">控制用户在“个人设置”里可选择的头像来源，以及全站是否启用 Gravatar。</p>
+            <label><input class="inline-check" type="checkbox" name="avatar_upload_enabled" value="1" <?php if (qf_avatar_upload_enabled()) echo 'checked'; ?>> 允许用户上传自定义头像</label>
+            <label><input class="inline-check" type="checkbox" name="avatar_gravatar_enabled" value="1" <?php if (qf_avatar_gravatar_enabled()) echo 'checked'; ?>> 启用 Gravatar（按绑定邮箱显示）</label>
+            <p class="muted">关闭后，绑定邮箱的用户不再自动使用 Gravatar，回退为随机卡通头像。当前源：gravatar.bluecdn.com。</p>
+            <label><input class="inline-check" type="checkbox" name="avatar_cartoon_enabled" value="1" <?php if (qf_avatar_cartoon_enabled()) echo 'checked'; ?>> 允许用户选择随机卡通头像</label>
+        </div>
+
+        <div class="settings-panel" x-show="tab==='coins'" style="display:none">
             <h2><i class="fa-solid fa-coins" aria-hidden="true"></i> 金币与签到</h2>
             <label>签到一次获得金币</label>
             <input type="number" name="signin_base_coins" min="0" max="100000" value="<?php echo h(qf_setting('signin_base_coins', '5')); ?>">

@@ -34,6 +34,7 @@ qf_include_header();
         <table class="forum-table user-table">
             <tr>
                 <th>ID</th>
+                <th>头像</th>
                 <th>用户名</th>
                 <th>昵称</th>
                 <th>状态</th>
@@ -51,6 +52,7 @@ qf_include_header();
                 ?>
                 <tr>
                     <td><?php echo intval($user['id']); ?></td>
+                    <td><img class="admin-user-avatar" src="<?php echo h(qf_user_avatar($user, 64)); ?>" alt="" width="36" height="36" loading="lazy"></td>
                     <td><?php echo h($user['username']); ?></td>
                     <td><?php echo h($user['nickname']); ?></td>
                     <td><?php echo h($mute_text); ?></td>
@@ -86,6 +88,10 @@ qf_include_header();
                             <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
                             <input type="password" name="password" minlength="6" placeholder="新密码" required>
                             <button class="btn btn-small" type="submit">修改密码</button>
+                        </form>
+                        <form class="user-action-avatar" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'reset_user_avatar'))); ?>" data-confirm="确定将该用户头像重置为一张随机卡通头像？">
+                            <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
+                            <button class="btn btn-small btn-light" type="submit">重置头像</button>
                         </form>
                         <form class="user-action-clear" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'clear_user_content'))); ?>" data-confirm="确定清除该用户全部发帖和回帖？此操作会把内容标记为删除。">
                             <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">

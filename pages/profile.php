@@ -4,6 +4,16 @@ require_once __DIR__ . '/../functions.php';
 qf_ensure_account_auth_schema();
 $u = require_login();
 $u = current_user();
+
+// AJAX：预览随机卡通头像（不落库，仅用于“换一个”实时预览）
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'avatar_cartoon') {
+    $seed = isset($_GET['seed']) ? preg_replace('/[^a-zA-Z0-9]/', '', (string)$_GET['seed']) : '';
+    header('Content-Type: image/svg+xml; charset=utf-8');
+    header('Cache-Control: no-store');
+    echo qf_cartoon_default_avatar_svg(intval($u['id']), $u['username'], $u['nickname'], $seed);
+    exit;
+}
+
 $error = '';
 $saved = false;
 
@@ -15,6 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notification_sound_enabled = !empty($_POST['notification_sound_enabled']) ? 1 : 0;
     $password = (string)$_POST['password'];
     $password_confirm = (string)(isset($_POST['password_confirm']) ? $_POST['password_confirm'] : '');
+    $avatar_type = isset($_POST['avatar_type']) ? $_POST['avatar_type'] : '';
+    if (!in_array($avatar_type, array('upload', 'gravatar', 'cartoon'), true)) {
+        $avatar_type = '';
+    }
     $avatar_path = $u['avatar'];
     if (!in_array($gender, array('', '男', '女', '保密'))) {
         $gender = '';
@@ -32,28 +46,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($error === '' && !empty($_FILES['avatar']['name'])) {
-        if ($_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-            $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
-            $allowed = array('jpg', 'jpeg', 'png', 'gif', 'webp');
-            if (!in_array($ext, $allowed)) {
-                $error = '头像只支持 jpg、jpeg、png、gif、webp。';
-            } elseif (intval($_FILES['avatar']['size']) > 2 * 1024 * 1024) {
-                $error = '头像不能超过 2MB。';
-            } else {
-                $dir = __DIR__ . '/../uploads/avatar';
-                if (!is_dir($dir)) {
-                    mkdir($dir, 0755, true);
-                }
-                $name = 'avatar_' . intval($u['id']) . '_' . time() . '.' . $ext;
-                if (move_uploaded_file($_FILES['avatar']['tmp_name'], $dir . '/' . $name)) {
-                    $avatar_path = 'uploads/avatar/' . $name;
-                } else {
-                    $error = '头像上传失败，请检查 uploads/avatar 权限。';
-                }
-            }
+    // 头像：按用户选择的来源处理
+    if ($error === '' && $avatar_type === 'gravatar') {
+        if (!qf_avatar_gravatar_enabled()) {
+            $error = 'Gravatar 头像已被管理员关闭。';
+        } elseif ($email === '') {
+            $error = '使用 Gravatar 头像需要先绑定邮箱。';
         } else {
-            $error = '头像上传失败。';
+            $avatar_path = '';
+        }
+    } elseif ($error === '' && $avatar_type === 'cartoon') {
+        if (!qf_avatar_cartoon_enabled()) {
+            $error = '随机卡通头像已被管理员关闭。';
+        } else {
+            $seed = isset($_POST['cartoon_seed']) ? preg_replace('/[^a-zA-Z0-9]/', '', (string)$_POST['cartoon_seed']) : '';
+            $new_path = qf_save_chosen_cartoon(intval($u['id']), $u['username'], $u['nickname'], $seed);
+            if ($new_path !== '') {
+                $avatar_path = $new_path;
+            } else {
+                $error = '生成随机头像失败，请检查 assets/avatars 目录权限。';
+            }
+        }
+    } elseif ($error === '' && ($avatar_type === 'upload' || $avatar_type === '')) {
+        if (!empty($_FILES['avatar']['name'])) {
+            if (!qf_avatar_upload_enabled()) {
+                $error = '上传头像已被管理员关闭。';
+            } elseif ($_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+                $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+                $allowed = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+                if (!in_array($ext, $allowed)) {
+                    $error = '头像只支持 jpg、jpeg、png、gif、webp。';
+                } elseif (intval($_FILES['avatar']['size']) > 2 * 1024 * 1024) {
+                    $error = '头像不能超过 2MB。';
+                } else {
+                    $dir = __DIR__ . '/../uploads/avatar';
+                    if (!is_dir($dir)) {
+                        mkdir($dir, 0755, true);
+                    }
+                    $name = 'avatar_' . intval($u['id']) . '_' . time() . '.' . $ext;
+                    if (move_uploaded_file($_FILES['avatar']['tmp_name'], $dir . '/' . $name)) {
+                        $avatar_path = 'uploads/avatar/' . $name;
+                    } else {
+                        $error = '头像上传失败，请检查 uploads/avatar 权限。';
+                    }
+                }
+            } else {
+                $error = '头像上传失败。';
+            }
+        } elseif ($avatar_type === 'upload' && !(isset($u['avatar']) && $u['avatar'] !== '' && !qf_is_generated_avatar_path($u['avatar']))) {
+            $error = '请选择要上传的头像图片。';
         }
     }
 
@@ -94,10 +135,65 @@ qf_include_header();
     </p>
     <?php if ($saved) { ?><div class="alert success">资料已保存。</div><?php } ?>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
-    <form method="post" enctype="multipart/form-data">
-        <div class="profile-avatar-preview">
-            <img src="<?php echo h(qf_user_avatar($u, 200)); ?>" alt="<?php echo h($u['nickname']); ?>">
+    <?php
+    $cur_avatar = isset($u['avatar']) ? (string)$u['avatar'] : '';
+    $cur_email = isset($u['email']) ? trim((string)$u['email']) : '';
+    if ($cur_avatar !== '' && !qf_is_generated_avatar_path($cur_avatar)) {
+        $current_avatar_type = 'upload';
+    } elseif (qf_is_chosen_cartoon_path($cur_avatar)) {
+        $current_avatar_type = 'cartoon';
+    } elseif ($cur_email !== '' && qf_avatar_gravatar_enabled()) {
+        $current_avatar_type = 'gravatar';
+    } else {
+        $current_avatar_type = 'cartoon';
+    }
+    $avatar_enabled = array();
+    if (qf_avatar_upload_enabled()) { $avatar_enabled[] = 'upload'; }
+    if (qf_avatar_gravatar_enabled()) { $avatar_enabled[] = 'gravatar'; }
+    if (qf_avatar_cartoon_enabled()) { $avatar_enabled[] = 'cartoon'; }
+    if (!in_array($current_avatar_type, $avatar_enabled, true)) {
+        $current_avatar_type = !empty($avatar_enabled) ? $avatar_enabled[0] : 'upload';
+    }
+    $cartoon_base_url = qf_url_page('profile.php');
+    $cartoon_sep = (strpos($cartoon_base_url, '?') === false) ? '?' : '&';
+    ?>
+    <form method="post" enctype="multipart/form-data" x-data="{ atype: '<?php echo h($current_avatar_type); ?>', seed: '' }">
+        <label>头像</label>
+        <div class="profile-avatar-choose">
+            <div class="profile-avatar-preview">
+                <img src="<?php echo h(qf_user_avatar($u, 200)); ?>" alt="<?php echo h($u['nickname']); ?>" x-show="atype !== 'cartoon'"<?php if ($current_avatar_type === 'cartoon') echo ' style="display:none"'; ?>>
+                <img alt="随机卡通头像预览" x-show="atype === 'cartoon'"<?php if ($current_avatar_type !== 'cartoon') echo ' style="display:none"'; ?> :src="'<?php echo h($cartoon_base_url . $cartoon_sep); ?>ajax=avatar_cartoon' + (seed ? '&seed=' + seed : '')">
+            </div>
+            <div class="profile-avatar-sources">
+                <?php if (qf_avatar_upload_enabled()) { ?>
+                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="upload" x-model="atype" <?php if ($current_avatar_type === 'upload') echo 'checked'; ?>> <span><i class="fa-solid fa-upload" aria-hidden="true"></i> 上传图片</span></label>
+                <?php } ?>
+                <?php if (qf_avatar_gravatar_enabled()) { ?>
+                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="gravatar" x-model="atype" <?php if ($current_avatar_type === 'gravatar') echo 'checked'; ?>> <span><i class="fa-solid fa-envelope" aria-hidden="true"></i> Gravatar（邮箱）</span></label>
+                <?php } ?>
+                <?php if (qf_avatar_cartoon_enabled()) { ?>
+                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="cartoon" x-model="atype" <?php if ($current_avatar_type === 'cartoon') echo 'checked'; ?>> <span><i class="fa-solid fa-face-smile" aria-hidden="true"></i> 随机卡通</span></label>
+                <?php } ?>
+            </div>
         </div>
+        <?php if (qf_avatar_upload_enabled()) { ?>
+        <div class="profile-avatar-panel" x-show="atype === 'upload'"<?php if ($current_avatar_type !== 'upload') echo ' style="display:none"'; ?>>
+            <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.gif,.webp">
+            <p class="muted">支持 jpg、jpeg、png、gif、webp，最大 2MB，保存后即生效。</p>
+        </div>
+        <?php } ?>
+        <?php if (qf_avatar_gravatar_enabled()) { ?>
+        <div class="profile-avatar-panel" x-show="atype === 'gravatar'"<?php if ($current_avatar_type !== 'gravatar') echo ' style="display:none"'; ?>>
+            <p class="muted">使用绑定邮箱的 Gravatar 头像<?php echo $cur_email !== '' ? '（' . h($cur_email) . '）' : '，请先在下方绑定邮箱'; ?>。修改邮箱后保存即可更新。</p>
+        </div>
+        <?php } ?>
+        <?php if (qf_avatar_cartoon_enabled()) { ?>
+        <div class="profile-avatar-panel" x-show="atype === 'cartoon'"<?php if ($current_avatar_type !== 'cartoon') echo ' style="display:none"'; ?>>
+            <input type="hidden" name="cartoon_seed" :value="seed">
+            <button type="button" class="btn btn-light btn-small" @click="seed = (Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(36))"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> 换一个</button>
+            <p class="muted">点击“换一个”随机生成头像，满意后点击下方“保存资料”即可保存。</p>
+        </div>
+        <?php } ?>
         <label>昵称</label>
         <input type="text" name="nickname" maxlength="30" value="<?php echo h($u['nickname']); ?>" required>
         <label>绑定邮箱</label>
@@ -121,9 +217,6 @@ qf_include_header();
         <label>重复新密码 <span class="muted">（必须与上方一致）</span></label>
         <input type="password" name="password_confirm" placeholder="再次输入新密码以确认" autocomplete="new-password">
         <p class="muted">两次输入相同后才会保存新密码；两次都留空则不修改密码。</p>
-        <label>上传头像</label>
-        <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.gif,.webp">
-        <p class="muted">使用 HTML5 文件上传，不使用 Flash。支持 jpg、jpeg、png、gif、webp，最大 2MB。</p>
         <button class="btn" type="submit">保存资料</button>
     </form>
 </section>

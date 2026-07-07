@@ -1431,38 +1431,92 @@ a:hover {
 
 .user-table th:nth-child(1),
 .user-table td:nth-child(1) {
-    width: 54px;
+    width: 48px;
 }
 
 .user-table th:nth-child(2),
 .user-table td:nth-child(2) {
-    width: 110px;
+    width: 52px;
 }
 
 .user-table th:nth-child(3),
 .user-table td:nth-child(3) {
-    width: 120px;
+    width: 108px;
 }
 
 .user-table th:nth-child(4),
 .user-table td:nth-child(4) {
-    width: 120px;
+    width: 118px;
 }
 
 .user-table th:nth-child(5),
 .user-table td:nth-child(5) {
-    width: 78px;
+    width: 118px;
 }
 
 .user-table th:nth-child(6),
 .user-table td:nth-child(6) {
-    width: 150px;
+    width: 78px;
+}
+
+.user-table th:nth-child(7),
+.user-table td:nth-child(7) {
+    width: 148px;
 }
 
 .user-table th:last-child,
 .user-table td:last-child {
-    width: 330px;
+    width: 320px;
 }
+
+.admin-user-avatar {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f1f1f1;
+    vertical-align: middle;
+}
+
+/* 个人设置 - 头像来源选择 */
+.profile-avatar-choose {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 6px 0 10px;
+    flex-wrap: wrap;
+}
+.profile-avatar-choose .profile-avatar-preview {
+    margin: 0;
+    flex: 0 0 auto;
+}
+.profile-avatar-sources {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.profile-avatar-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 500;
+    cursor: pointer;
+}
+.profile-avatar-radio input {
+    width: auto;
+    margin: 0;
+}
+.profile-avatar-panel {
+    margin: 0 0 8px;
+    padding: 12px 14px;
+    background: #f6f7fb;
+    border: 1px solid #e6e8f0;
+    border-radius: 8px;
+}
+.profile-avatar-panel > *:last-child { margin-bottom: 0; }
+body.theme-php-dark .profile-avatar-panel { background: #23262e; border-color: #333844; }
+body.theme-php-dark .admin-user-avatar { background: #23262e; }
 
 .user-actions form {
     display: grid;
