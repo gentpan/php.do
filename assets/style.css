@@ -8526,10 +8526,10 @@ body.theme-php-dark .qf-page-frame .phpdo-home-shell {
     margin: 0;
 }
 
-/* 面包屑行右端搜索框：宽度与侧边栏一致（380px），右对齐 */
+/* 面包屑行右端搜索框：宽度与侧边栏一致（340px），右对齐 */
 .phpdo-crumb-search {
     margin-left: auto;
-    flex: 0 0 380px;
+    flex: 0 0 340px;
     max-width: 46vw;
     display: flex;
     align-items: center;
