@@ -319,6 +319,7 @@ if ($ok) {
         'site_name' => SITE_NAME,
         'site_desc' => SITE_DESC,
         'site_keywords' => '',
+        'home_banner' => '1',
         'theme_name' => 'php',
         'title_font' => 'system',
         'content_font' => 'system',

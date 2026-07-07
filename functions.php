@@ -889,7 +889,36 @@ function qf_community_stats() {
     return $cache;
 }
 
-// 头部 banner：每个页面固定用对应图，首页在 1/2/3.png 间随机切换；优先 webp。返回本地路径或 ''。
+// 首页可选 banner 列表：扫描 assets/banner/ 下以数字命名（1,2,3…）的图，优先 webp。返回 [ key => 相对路径 ]。
+function qf_home_banner_options() {
+    $dir = 'assets/banner/';
+    $base = __DIR__ . '/' . $dir;
+    $options = array();
+    for ($i = 1; $i <= 30; $i++) {
+        foreach (array($i . '.webp', $i . '.png', $i . '.jpg', $i . '.jpeg') as $f) {
+            if (file_exists($base . $f)) {
+                $options[(string)$i] = $dir . $f;
+                break;
+            }
+        }
+    }
+    return $options;
+}
+
+// 首页当前选定的 banner 路径（后台可切换）。无匹配时回退第一张，全无则 ''。
+function qf_home_banner_src() {
+    $options = qf_home_banner_options();
+    if (empty($options)) {
+        return '';
+    }
+    $selected = (string)qf_setting('home_banner', '1');
+    if (isset($options[$selected])) {
+        return $options[$selected];
+    }
+    return reset($options);
+}
+
+// 头部 banner：每个页面固定用对应图，首页用后台选定的 banner；优先 webp。返回本地路径或 ''。
 function qf_header_banner_src($script, $slug = '') {
     $dir = 'assets/banner/';
     $base = __DIR__ . '/' . $dir;
@@ -911,22 +940,7 @@ function qf_header_banner_src($script, $slug = '') {
         return $first_existing(array('helpphpdo.webp', 'helpphpdo.png'));
     }
     if ($script === 'index.php') {
-        $pool = array();
-        foreach (array(array('1.webp', '1.png'), array('2.webp', '2.png'), array('3.webp', '3.png')) as $variants) {
-            foreach ($variants as $f) {
-                if (file_exists($base . $f)) {
-                    $pool[] = $dir . $f;
-                    break;
-                }
-            }
-        }
-        if (empty($pool)) {
-            return '';
-        }
-        if (intval(qf_setting('about_banner_random', '1')) === 1) {
-            return $pool[array_rand($pool)];
-        }
-        return $pool[0];
+        return qf_home_banner_src();
     }
     return '';
 }

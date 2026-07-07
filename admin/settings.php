@@ -70,7 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $site_founded = clean_text(isset($_POST['site_founded']) ? $_POST['site_founded'] : '', 20);
     $contact_email = clean_text(isset($_POST['contact_email']) ? $_POST['contact_email'] : '', 190);
     $member_noun = clean_text(isset($_POST['member_noun']) ? $_POST['member_noun'] : '', 20);
-    $about_banner_random = !empty($_POST['about_banner_random']) ? '1' : '0';
+    $home_banner = clean_text(isset($_POST['home_banner']) ? $_POST['home_banner'] : '1', 10);
+    $home_banner_options = qf_home_banner_options();
+    if ($home_banner === '' || !isset($home_banner_options[$home_banner])) {
+        $home_banner = !empty($home_banner_options) ? (string)array_key_first($home_banner_options) : '1';
+    }
 
     if ($site_title === '') {
         $site_title = SITE_NAME;
@@ -182,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     qf_update_setting('site_founded', $site_founded);
     qf_update_setting('contact_email', $contact_email);
     qf_update_setting('member_noun', $member_noun);
-    qf_update_setting('about_banner_random', $about_banner_random);
+    qf_update_setting('home_banner', $home_banner);
     $saved = true;
     }
 }
@@ -291,9 +295,32 @@ qf_include_header();
             <input type="text" name="member_noun" maxlength="20" value="<?php echo h(qf_setting('member_noun', '')); ?>" placeholder="成员（也可填 seeker、开发者、同学等）">
             <p class="muted">用在侧栏「目前论坛共有 N 位___」。留空默认「成员」。</p>
 
-            <label>首页头部 Banner 随机轮换</label>
-            <label><input class="inline-check" type="checkbox" name="about_banner_random" value="1" <?php if (intval(qf_setting('about_banner_random', '1')) === 1) echo 'checked'; ?>> 每次打开首页时，头部从 about1/2/3 中随机显示一张</label>
-            <p class="muted">关闭则固定用 about1phpdo。关于/规则/帮助页头部各自固定用对应 banner（aboutphpdo/rulesphpdo/helpphpdo）。头部图建议 2400×400（显示 1200×200）。</p>
+            <label>首页头部 Banner</label>
+            <p class="muted">选择首页顶部显示的 banner 图（固定显示，不再随机）。关于/规则/帮助页头部各自固定用对应 banner。头部图建议 2400×400（显示 1200×200）。</p>
+            <?php $home_banner_sel = (string)qf_setting('home_banner', '1'); $home_banner_list = qf_home_banner_options(); ?>
+            <?php if (empty($home_banner_list)) { ?>
+                <p class="muted">未在 <code>assets/banner/</code> 找到以数字命名的 banner 图（如 1.png、2.webp）。</p>
+            <?php } else { ?>
+                <style>
+                    .home-banner-picker { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 4px; }
+                    .home-banner-option { position: relative; display: block; width: 220px; max-width: 45%; margin: 0; cursor: pointer; border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; transition: border-color .15s ease, box-shadow .15s ease; }
+                    .home-banner-option img { display: block; width: 100%; height: 66px; object-fit: cover; }
+                    .home-banner-option span { display: block; padding: 5px 8px; font-size: 12px; color: #6b7280; background: #f9fafb; }
+                    .home-banner-option input { position: absolute; top: 6px; left: 6px; margin: 0; }
+                    .home-banner-picker:has(input:checked) .home-banner-option { border-color: #e5e7eb; }
+                    .home-banner-option:has(input:checked) { border-color: var(--phpdo-accent, #4f46e5); box-shadow: 0 0 0 2px rgba(79, 70, 229, .18); }
+                    .home-banner-option:has(input:checked) span { color: var(--phpdo-accent, #4f46e5); font-weight: 700; }
+                </style>
+                <div class="home-banner-picker">
+                    <?php foreach ($home_banner_list as $bkey => $bpath) { ?>
+                        <label class="home-banner-option<?php echo $home_banner_sel === (string)$bkey ? ' is-selected' : ''; ?>">
+                            <input class="inline-check" type="radio" name="home_banner" value="<?php echo h($bkey); ?>" <?php if ($home_banner_sel === (string)$bkey) echo 'checked'; ?>>
+                            <img src="<?php echo h($bpath); ?>?v=<?php echo intval(@filemtime(__DIR__ . '/../' . $bpath)); ?>" alt="Banner <?php echo h($bkey); ?>">
+                            <span>Banner <?php echo h($bkey); ?></span>
+                        </label>
+                    <?php } ?>
+                </div>
+            <?php } ?>
         </div>
 
         <div class="settings-panel" x-show="tab==='avatar'" style="display:none">
