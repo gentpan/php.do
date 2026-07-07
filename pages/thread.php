@@ -184,9 +184,9 @@ if ($me) {
                 <div class="phpdo-reply-actions">
                     <div class="phpdo-reply-actions-main">
                         <?php if (current_user()) { ?>
-                            <button class="phpdo-reply-action floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></button>
+                            <button class="phpdo-vote-button phpdo-vote-button-sm floor-reply-toggle" type="button" data-reply-target="floor-reply-form-<?php echo intval($p['id']); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></button>
                         <?php } else { ?>
-                            <a class="phpdo-reply-action" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></a>
+                            <a class="phpdo-vote-button phpdo-vote-button-sm" href="<?php echo h(qf_url_page('login.php')); ?>"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><span>回复</span></a>
                         <?php } ?>
                         <div class="phpdo-post-votes" data-post-votes>
                             <?php if ($me) { ?>
@@ -215,7 +215,7 @@ if ($me) {
                     <div>
                         <?php if (is_admin()) { ?><span class="admin-tools"><?php echo qf_ip_badge_html(isset($p['ip']) ? $p['ip'] : ''); ?><?php echo qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('del_post', $p['id'], intval($id)))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？" data-ajax="1"'); ?></span><?php } ?>
                         <?php if (!is_admin() && qf_can_moderator_delete_post(current_user(), $p)) { ?><span class="admin-tools"><?php echo qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_post', 'id' => intval($p['id']), 'tid' => intval($id), 'token' => qf_action_token('mod_del_post', $p['id'], intval($id)))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该回复？" data-ajax="1"'); ?></span><?php } ?>
-                        <span class="phpdo-reply-action phpdo-report"><i class="fa-regular fa-flag" aria-hidden="true"></i><span>举报</span></span>
+                        <span class="phpdo-reply-action phpdo-report" title="举报" aria-label="举报"><i class="fa-regular fa-flag" aria-hidden="true"></i></span>
                     </div>
                 </div>
             </div>

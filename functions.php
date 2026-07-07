@@ -1256,7 +1256,7 @@ function qf_ip_badge_html($ip) {
     if ($ip === '') {
         return '';
     }
-    return '<span class="action-badge action-badge-static phpdo-ip-badge" data-ip-geo="' . h($ip) . '"><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span class="phpdo-ip-text">IP: ' . h($ip) . '</span><span class="phpdo-ip-geo" hidden></span></span>';
+    return '<span class="action-badge action-badge-static phpdo-ip-badge" data-ip-geo="' . h($ip) . '" title="IP: ' . h($ip) . '"><i class="fa-solid fa-network-wired phpdo-ip-icon" aria-hidden="true"></i><span class="phpdo-ip-flag-wrap" hidden></span><span class="phpdo-ip-detail">IP: ' . h($ip) . '</span></span>';
 }
 
 function qf_geoip_lookup($ip) {

@@ -386,33 +386,24 @@
             badges.forEach(function(el) {
                 var ip = (el.getAttribute('data-ip-geo') || '').trim();
                 var info = res.data[ip];
-                if (!info) {
-                    el.setAttribute('data-ip-loaded', '1');
-                    return;
-                }
-                var geoEl = el.querySelector('.phpdo-ip-geo');
-                if (!geoEl) {
-                    el.setAttribute('data-ip-loaded', '1');
-                    return;
-                }
+                el.setAttribute('data-ip-loaded', '1');
+                if (!info) return;
                 var parts = [];
                 if (info.country) parts.push(info.country);
                 if (info.region && info.region !== info.country) parts.push(info.region);
                 else if (info.city && info.city !== info.country) parts.push(info.city);
                 var label = parts.join(' · ');
-                var html = '';
-                if (info.flag) {
-                    html += '<img class="phpdo-ip-flag" src="' + info.flag + '" alt="" width="16" height="12" loading="lazy" decoding="async">';
+                var flagWrap = el.querySelector('.phpdo-ip-flag-wrap');
+                var detail = el.querySelector('.phpdo-ip-detail');
+                if (info.flag && flagWrap) {
+                    flagWrap.innerHTML = '<img class="phpdo-ip-flag" src="' + info.flag + '" alt="" width="18" height="13" loading="lazy" decoding="async">';
+                    flagWrap.hidden = false;
+                    el.classList.add('has-flag');
                 }
-                if (label) {
-                    html += '<span class="phpdo-ip-place">' + label + '</span>';
+                if (detail) {
+                    detail.textContent = 'IP: ' + ip + (label ? ' · ' + label : '');
                 }
-                if (html) {
-                    geoEl.innerHTML = html;
-                    geoEl.hidden = false;
-                    if (label) el.setAttribute('title', 'IP: ' + ip + ' · ' + label + (info.isp ? ' · ' + info.isp : ''));
-                }
-                el.setAttribute('data-ip-loaded', '1');
+                el.setAttribute('title', 'IP: ' + ip + (label ? ' · ' + label : '') + (info.isp ? ' · ' + info.isp : ''));
             });
         }).catch(function() {});
     }

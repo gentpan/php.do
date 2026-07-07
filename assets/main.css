@@ -1768,30 +1768,63 @@ button.action-badge {
     transform: none;
 }
 
-/* IP 徽章：异步加载国旗 + 地理位置 */
+/* IP 徽章：默认仅国旗，悬浮展开 IP + 地理位置 */
 .action-badge-static.phpdo-ip-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 0;
+    padding: 0 6px;
+    overflow: hidden;
+    transition: gap .18s ease, padding .18s ease;
 }
-.phpdo-ip-geo {
+.phpdo-ip-badge .phpdo-ip-icon {
+    display: none;
+}
+.phpdo-ip-flag-wrap {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    line-height: 0;
 }
 .phpdo-ip-flag {
-    width: 16px;
-    height: 12px;
+    width: 18px;
+    height: 13px;
     object-fit: cover;
     border-radius: 2px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .08);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .1);
     flex: 0 0 auto;
 }
-.phpdo-ip-place {
+.phpdo-ip-detail {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
-    white-space: nowrap;
+    transition: max-width .22s ease, opacity .18s ease, margin .18s ease;
+}
+.phpdo-ip-badge.has-flag .phpdo-ip-detail {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+}
+.phpdo-ip-badge:hover,
+.phpdo-ip-badge:focus-within {
+    gap: 6px;
+    padding: 0 10px;
+}
+.phpdo-ip-badge:hover .phpdo-ip-detail,
+.phpdo-ip-badge:focus-within .phpdo-ip-detail {
+    max-width: 280px;
+    opacity: 1;
+    margin-left: 2px;
+}
+.phpdo-ip-badge:not(.has-flag) .phpdo-ip-icon {
+    display: inline;
+}
+.phpdo-ip-badge:not(.has-flag) .phpdo-ip-detail {
+    max-width: none;
+    opacity: 1;
 }
 
 .move-thread-form {
@@ -7496,6 +7529,7 @@ body.theme-php .phpdo-vote-button-sm {
 body.theme-php .phpdo-reply-action {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 0;
     color: #96999e;
@@ -7507,14 +7541,50 @@ body.theme-php .phpdo-reply-action {
     cursor: pointer;
 }
 
+body.theme-php .phpdo-reply-action.phpdo-report {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    padding: 0;
+    color: #96999e;
+    background: #f6f8fb;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: color .15s ease, background .15s ease, border-color .15s ease;
+}
+
 body.theme-php .phpdo-reply-action i {
     color: #b0b3b8;
     font-size: 20px;
 }
 
+body.theme-php .phpdo-reply-action.phpdo-report i {
+    font-size: 14px;
+    color: #96999e;
+}
+
 body.theme-php .phpdo-reply-action:hover,
 body.theme-php .phpdo-reply-action:hover i {
     color: var(--phpdo-accent);
+}
+
+body.theme-php .phpdo-reply-action.phpdo-report:hover {
+    color: #d93025;
+    background: #fff1f0;
+    border-color: #ffd0cc;
+}
+
+body.theme-php .phpdo-reply-action.phpdo-report:hover i {
+    color: #d93025;
+}
+
+body.theme-php .phpdo-reply-actions > div:last-child {
+    gap: 8px;
+}
+
+body.theme-php .phpdo-reply-actions .admin-tools {
+    gap: 8px;
 }
 
 body.theme-php .phpdo-report {
