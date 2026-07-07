@@ -104,7 +104,7 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
                 <span class="absolute inset-0 bg-black/25"></span>
             <?php } ?>
             <a class="qf-banner-logo relative z-10 inline-flex items-center" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
-                <img class="w-auto" src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>">
+                <img class="w-auto" src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>" draggable="false" oncontextmenu="return false;">
             </a>
             <div class="absolute right-4 top-4 z-10 flex items-center gap-2">
                 <?php if (!$me) { ?>
@@ -140,8 +140,8 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
             <button type="button" class="qf-burger sm:hidden" @click="open = !open" aria-label="展开菜单"><i class="fa-solid fa-bars"></i></button>
             <ul class="qf-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
                 <li><a class="qf-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house"></i><span>首页</span></a></li>
-                <?php foreach ($main_navs as $nav_item) { ?>
-                    <li><a class="qf-menu-link" href="<?php echo h(qf_url_nav($nav_item['url'])); ?>"<?php echo qf_nav_target($nav_item['url']); ?>><?php echo qf_nav_icon_html($nav_item); ?><span><?php echo h($nav_item['title']); ?></span></a></li>
+                <?php foreach ($header_forums as $forum) { ?>
+                    <li><a class="qf-menu-link<?php echo ($qf_current_forum && intval($qf_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(qf_url_forum($forum['id'])); ?>"><span><?php echo h($forum['name']); ?></span></a></li>
                 <?php } ?>
             </ul>
         </nav>

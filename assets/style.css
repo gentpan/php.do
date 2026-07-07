@@ -8447,3 +8447,27 @@ body.theme-php-dark {
 body.theme-php-dark .phpdo-side-search { background: var(--phpdo-surface); border-color: var(--phpdo-border); }
 body.theme-php-dark .phpdo-side-search input { color: var(--phpdo-text); }
 body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); border-left-color: var(--phpdo-border); }
+
+/* logo：悬浮轻微放大 + 禁止选中/拖拽（右键已在 HTML 层禁用） */
+.qf-banner-logo img {
+    transition: transform .18s ease;
+    transform-origin: left center;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+}
+.qf-banner-logo:hover img { transform: scale(1.06); }
+
+/* 顶部菜单合并为一行：超出则横向滚动（隐藏滚动条） */
+.qf-menu {
+    flex: 1;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.qf-menu::-webkit-scrollbar { display: none; }
+.qf-menu-link { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 640px) {
+    .qf-menu { flex: none; overflow-x: visible; }
+}

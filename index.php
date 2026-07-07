@@ -150,12 +150,6 @@ $must_reads = array(
 qf_include_header();
 ?>
 <div class="phpdo-home-shell">
-    <nav class="phpdo-category-bar" aria-label="论坛分类">
-        <?php foreach ($forum_rows as $forum) { ?>
-            <a href="<?php echo h(qf_url_forum($forum['id'])); ?>"><?php echo h($forum['name']); ?></a>
-        <?php } ?>
-    </nav>
-
     <?php echo qf_render_ad('top'); ?>
 
     <div class="phpdo-breadcrumb">
