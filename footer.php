@@ -1,4 +1,5 @@
 </main>
+</div><!-- /qf-page-frame -->
 <?php
 $footer_friend_links = array();
 if (qf_friend_links_enabled()) {

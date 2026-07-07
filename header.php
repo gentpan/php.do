@@ -95,6 +95,7 @@ if (strpos($qf_page_banner, '{r}') !== false) {
 }
 $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$_GET['slug'])) : '';
 ?>
+<div class="qf-page-frame">
 <header class="qf-topbar">
     <div class="qf-topbar-inner mx-auto px-3 sm:px-4">
         <div class="qf-banner relative w-full overflow-hidden rounded-t-xl">

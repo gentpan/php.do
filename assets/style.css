@@ -8378,3 +8378,39 @@ body.theme-php-dark .qf-user-menu a, body.theme-php-dark .qf-user-menu button { 
 body.theme-php-dark .qf-user-menu a:hover, body.theme-php-dark .qf-user-menu button:hover { background: #262d3c; color: #fff; }
 body.theme-php-dark .qf-breadcrumb { color: #8b93a3; }
 body.theme-php-dark .qf-crumb-cur { color: #cfd4df; }
+
+/* ============================================================
+   phpBB 风格页面外壳：灰褐底 + 白色圆角立体内容框
+   ============================================================ */
+body.theme-php {
+    background: #b4b4ac !important;
+}
+body.theme-php-dark {
+    background: #0b0d12 !important;
+}
+
+.qf-page-frame {
+    width: calc(100% - 44px);
+    max-width: 1200px;
+    margin: 24px auto 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .42),
+                0 1px 0 rgba(255, 255, 255, .9) inset,
+                0 7px 22px rgba(0, 0, 0, .30);
+    overflow: hidden;
+}
+body.theme-php-dark .qf-page-frame {
+    background: #12151c;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .05),
+                0 7px 22px rgba(0, 0, 0, .6);
+}
+
+/* 页头铺满框宽、banner 顶角交给外框圆角裁切 */
+.qf-page-frame .qf-topbar { padding-top: 0; }
+.qf-page-frame .qf-topbar-inner { max-width: none; margin: 0; padding: 0; }
+.qf-page-frame .qf-banner { border-radius: 0; }
+
+/* 正文区在白框内留出内边距（灰褐底只在框外显示） */
+.qf-page-frame main.wrap { padding-bottom: 42px; }
+body.theme-php .qf-page-frame main.wrap { background: transparent; }
