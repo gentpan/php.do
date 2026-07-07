@@ -6431,19 +6431,10 @@ body.theme-php .footer-qr span {
 body.theme-php .phpdo-right-toolbar {
     position: fixed;
     right: 22px;
-    top: 64%;
-    transform: translateY(-50%);
-    bottom: auto;
+    bottom: 92px;
     z-index: 80;
     display: grid;
     gap: 10px;
-}
-/* 宽屏：工具栏贴内容框(1200px)右侧,而不是视口最右 */
-@media (min-width: 1320px) {
-    body.theme-php .phpdo-right-toolbar {
-        right: auto;
-        left: calc(50% + 606px);
-    }
 }
 
 body.theme-php .phpdo-right-toolbar a,
@@ -6679,9 +6670,7 @@ body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
 
     body.theme-php .phpdo-right-toolbar {
         right: 10px;
-        top: auto;
         bottom: 16px;
-        transform: none;
         gap: 7px;
     }
 
@@ -9272,4 +9261,31 @@ body.theme-php .phpdo-thread-meta > .phpdo-thread-stats {
     .sm\:inline { display: inline; }
     .sm\:hidden { display: none; }
     .sm\:flex { display: flex; }
+}
+
+/* ===== 右侧工具栏最终定位（放最后，覆盖前面泄漏/冲突的规则）===== */
+/* 桌面默认：贴视口右侧、约 2/3 高度 */
+body.theme-php .phpdo-right-toolbar {
+    top: 64%;
+    bottom: auto;
+    right: 22px;
+    left: auto;
+    transform: translateY(-50%);
+}
+/* 宽屏：贴内容框（1200px）右侧 */
+@media (min-width: 1320px) {
+    body.theme-php .phpdo-right-toolbar {
+        right: auto;
+        left: calc(50% + 606px);
+    }
+}
+/* 移动端：回到右下角 */
+@media (max-width: 760px) {
+    body.theme-php .phpdo-right-toolbar {
+        top: auto;
+        bottom: 16px;
+        right: 10px;
+        left: auto;
+        transform: none;
+    }
 }
