@@ -118,7 +118,7 @@ function qf_avatar_cartoon_enabled() {
     return intval(qf_setting('avatar_cartoon_enabled', '1')) === 1;
 }
 
-// 按名称稳定地给分类/标签分配一个配色变体 class（同名恒定同色）
+// 按名称稳定地给分类分配一个配色变体 class（同名恒定同色）
 function qf_topic_tag_class($name) {
     $variants = array('phpdo-pill-blue', 'phpdo-pill-green', 'phpdo-pill-amber', 'phpdo-pill-red', 'phpdo-pill-purple', 'phpdo-pill-cyan', 'phpdo-pill-slate');
     return $variants[abs(crc32((string)$name)) % count($variants)];
@@ -604,78 +604,14 @@ function qf_forum_id_by_slug($slug) {
     return $cache[$slug];
 }
 
-function qf_tag_slug_map() {
-    return array(
-        'PHP 8.x' => 'php-8x',
-        '语法特性' => 'syntax',
-        '错误排查' => 'debugging',
-        '最佳实践' => 'best-practices',
-        '开源项目' => 'open-source',
-        '商业程序' => 'commercial',
-        '插件扩展' => 'plugins',
-        '版本更新' => 'releases',
-        'Laravel' => 'laravel',
-        'Symfony' => 'symfony',
-        'ThinkPHP' => 'thinkphp',
-        'Hyperf' => 'hyperf',
-        '框架选型' => 'framework-choice',
-        'Composer' => 'composer',
-        'Packagist' => 'packagist',
-        '依赖升级' => 'dependency-upgrade',
-        '包开发' => 'package-development',
-        'Opcache' => 'opcache',
-        'Swoole' => 'swoole',
-        'Redis' => 'redis',
-        '性能调优' => 'performance',
-        '扩展开发' => 'extension-development',
-        'MySQL' => 'mysql',
-        'PostgreSQL' => 'postgresql',
-        '队列' => 'queue',
-        '索引优化' => 'indexing',
-        'Nginx' => 'nginx',
-        'PHP-FPM' => 'php-fpm',
-        'Docker' => 'docker',
-        'CI/CD' => 'ci-cd',
-        'HTTPS' => 'https',
-        '认证授权' => 'auth',
-        'XSS' => 'xss',
-        'CSRF' => 'csrf',
-        'SQL 注入' => 'sql-injection',
-        '依赖安全' => 'dependency-security',
-        '报错求助' => 'help',
-        '代码审查' => 'code-review',
-        '环境配置' => 'environment',
-        '疑难杂症' => 'troubleshooting',
-        '公告' => 'announcement',
-        '规则' => 'rules',
-        '反馈' => 'feedback',
-        '更新' => 'updates',
-    );
-}
-
-function qf_tag_slug($name) {
-    $name = trim((string)$name);
-    $map = qf_tag_slug_map();
-    if (isset($map[$name])) {
-        return $map[$name];
+// 版块内分类筛选页 URL（替代已移除的全局 tags 页）
+function qf_url_category($forum_id, $category) {
+    $forum_id = intval($forum_id);
+    $category = trim((string)$category);
+    if ($forum_id <= 0 || $category === '') {
+        return '';
     }
-    $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $name), '-'));
-    return $slug !== '' ? $slug : rawurlencode($name);
-}
-
-function qf_tag_name_from_slug($slug) {
-    $slug = trim((string)$slug, '/');
-    foreach (qf_tag_slug_map() as $name => $known_slug) {
-        if (strtolower($known_slug) === strtolower($slug)) {
-            return $name;
-        }
-    }
-    return rawurldecode($slug);
-}
-
-function qf_url_tag($name) {
-    $slug = qf_tag_slug($name);
-    return qf_rewrite_enabled() ? '/tags/' . $slug : qf_url_page('tags.php', array('tag' => $name));
+    return qf_url_page('forum.php', array('id' => $forum_id, 'category' => $category));
 }
 
 function qf_route_script($script, &$params = array()) {
@@ -704,7 +640,6 @@ function qf_route_script($script, &$params = array()) {
         'profile.php' => 'pages/profile.php',
         'rankings.php' => 'pages/rankings.php',
         'search.php' => 'pages/search.php',
-        'tags.php' => 'pages/tags.php',
         'thread.php' => 'pages/thread.php',
         'user.php' => 'pages/user.php',
     );
@@ -727,7 +662,6 @@ function qf_clean_route_path($script) {
         'pages/rankings.php' => 'rankings.php',
         'pages/register.php' => 'register.php',
         'pages/search.php' => 'search.php',
-        'pages/tags.php' => 'tags.php',
         'pages/thread.php' => 'thread.php',
         'pages/user.php' => 'user.php',
         'pages/page.php' => 'pages.php',
@@ -776,11 +710,6 @@ function qf_url_page($script, $params = array(), $fragment = '') {
         $id = intval($params['id']);
         unset($params['id']);
         return qf_append_url_parts('/user/' . $id . '.html', $params, $fragment);
-    }
-    if (($logical_script === 'tags.php' || $script === 'pages/tags.php') && isset($params['tag'])) {
-        $tag = $params['tag'];
-        unset($params['tag']);
-        return qf_append_url_parts('/tags/' . qf_tag_slug($tag), $params, $fragment);
     }
     if (($logical_script === 'page.php' || $script === 'pages/page.php') && isset($params['slug'])) {
         $slug = preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$params['slug']));
@@ -881,7 +810,7 @@ function qf_static_pages() {
         'help' => array(
             'title' => '使用帮助',
             'body' => array(
-                '帖子支持 Markdown、代码块、图片和附件。分类页使用固定英文路径，标签页会优先使用可读英文 slug。',
+                '帖子支持 Markdown、代码块、图片和附件。版块内可开启分类筛选，点击分类标签会跳转到对应版块的分类列表。',
                 '个人主页展示公开资料、最近主题和回复；个人设置页用于头像、邮箱、签名、密码和 Passkey 管理。'
             ),
         ),

@@ -37,7 +37,7 @@ qf_include_header();
                     <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
                     <span><?php echo h($t['forum_name']); ?></span>
                     <span><?php echo format_time($t['updated_at']); ?></span>
-                    <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
+                    <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_category(intval($t['forum_id']), $t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
                 </p>
             </div>
             <div class="thread-count"><span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span><span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span></div>

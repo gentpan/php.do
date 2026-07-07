@@ -47,7 +47,7 @@ if ($me) {
     <a href="<?php echo h(qf_url_forum($thread['forum_id'])); ?>"><?php echo h($thread['forum_name']); ?></a>
     <?php if ($thread['topic_category'] !== '') { ?>
         <span class="phpdo-crumb-sep">›</span>
-        <a href="<?php echo h(qf_url_tag($thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a>
+        <a href="<?php echo h(qf_url_category(intval($thread['forum_id']), $thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a>
     <?php } ?>
     <span class="phpdo-crumb-sep">›</span>
     <span class="phpdo-crumb-current" title="<?php echo h($thread['title']); ?>"><?php echo h($thread['title']); ?></span>
@@ -56,7 +56,7 @@ if ($me) {
     <div class="phpdo-thread-title-row">
         <img class="phpdo-author-avatar" src="<?php echo h($thread_avatar); ?>" alt="">
         <div>
-            <h1><?php if ($thread['topic_category'] !== '') { ?><a class="category-tag" href="<?php echo h(qf_url_tag($thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a><?php } ?><?php echo h($thread['title']); ?></h1>
+            <h1><?php if ($thread['topic_category'] !== '') { ?><a class="category-tag" href="<?php echo h(qf_url_category(intval($thread['forum_id']), $thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a><?php } ?><?php echo h($thread['title']); ?></h1>
             <div class="post-meta">
                 <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?> · <?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复
                 <?php if (is_admin()) { ?>

@@ -70,7 +70,7 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     <div class="qf-search-window-box">
         <form method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input name="q" placeholder="搜索帖子、版块、标签…" autocomplete="off" aria-label="搜索">
+            <input name="q" placeholder="搜索帖子、版块、分类…" autocomplete="off" aria-label="搜索">
             <kbd>Esc</kbd>
         </form>
         <div class="qf-search-window-hint">回车搜索 · <kbd>Esc</kbd> 关闭 · <kbd>⌘/Ctrl</kbd>&nbsp;<kbd>K</kbd> 或 <kbd>/</kbd> 打开</div>
