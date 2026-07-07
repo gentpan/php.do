@@ -4,7 +4,7 @@ qf_ensure_thread_reaction_schema();
 qf_ensure_post_vote_schema();
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
-$rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
+$rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.signature AS author_signature, u.points AS author_points, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
     LEFT JOIN qf_forums f ON t.forum_id=f.id
     LEFT JOIN qf_users u ON t.user_id=u.id
     WHERE t.id={$id} AND t.is_deleted=0 LIMIT 1");
@@ -71,8 +71,16 @@ if ($me) {
         <img class="phpdo-author-avatar" src="<?php echo h($thread_avatar); ?>" alt="">
         <div>
             <h1><?php echo h($thread['title']); ?></h1>
-            <div class="post-meta">
-                <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a><?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?> · <?php echo format_time($thread['created_at']); ?> · <?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复
+            <?php $thread_author_points = intval(isset($thread['author_points']) ? $thread['author_points'] : 0); ?>
+            <div class="post-meta phpdo-thread-meta-2">
+                <div class="phpdo-thread-meta-primary">
+                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a>
+                    <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($thread_author_points)); ?></span>
+                    <?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?><span class="moderator-badge">版主</span><?php } ?>
+                </div>
+                <div class="phpdo-thread-meta-secondary">
+                    <?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复 · <?php echo format_time($thread['created_at']); ?>
+                </div>
             </div>
         </div>
     </div>
