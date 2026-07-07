@@ -103,6 +103,10 @@ if ($me) {
             <?php } ?>
         </div>
     <?php } ?>
+    <?php $thread_signature = trim((string)(isset($thread['author_signature']) ? $thread['author_signature'] : '')); ?>
+    <?php if ($thread_signature !== '') { ?>
+        <div class="phpdo-signature"><span class="phpdo-signature-label">Signature</span><?php echo nl2br(h($thread_signature)); ?></div>
+    <?php } ?>
     <?php
     $reaction_types = qf_reaction_types();
     $reaction_counts = qf_thread_reaction_counts($id);
