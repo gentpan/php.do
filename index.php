@@ -234,6 +234,7 @@ $must_reads = array(
 );
 
 $community_stats = qf_community_stats();
+$latest_users = qf_latest_users(8);
 
 qf_include_header();
 ?>
@@ -305,6 +306,23 @@ qf_include_header();
                 </div>
                 <a class="phpdo-community-link" href="<?php echo h(qf_url_page('about.php')); ?>">了解本站 <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></a>
             </section>
+            <?php if (!empty($latest_users)) { ?>
+            <section class="phpdo-side-card phpdo-newuser-card">
+                <h2><span></span>用户数目</h2>
+                <p class="phpdo-newuser-total">目前论坛共有 <b><?php echo qf_format_compact_number($community_stats['members']); ?></b> 位<?php echo h(qf_member_noun()); ?></p>
+                <h3 class="phpdo-newuser-sub">欢迎新用户</h3>
+                <div class="phpdo-newuser-grid">
+                    <?php foreach ($latest_users as $nu) {
+                        $nu_name = ($nu['nickname'] !== null && $nu['nickname'] !== '') ? $nu['nickname'] : $nu['username'];
+                    ?>
+                        <a class="phpdo-newuser" href="<?php echo h(qf_url_user($nu['id'])); ?>" title="<?php echo h($nu_name); ?>">
+                            <img src="<?php echo h(qf_user_avatar($nu, 96)); ?>" alt="" loading="lazy">
+                            <span><?php echo h($nu_name); ?></span>
+                        </a>
+                    <?php } ?>
+                </div>
+            </section>
+            <?php } ?>
             <section class="phpdo-ad phpdo-ad-warm">
                 <strong>PHP 项目发布</strong>
                 <span>开源程序 / 插件扩展 / 版本更新</span>

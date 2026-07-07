@@ -899,6 +899,21 @@ function qf_community_stats() {
     return $cache;
 }
 
+function qf_member_noun() {
+    $n = trim((string)qf_setting('member_noun', ''));
+    return $n !== '' ? $n : '成员';
+}
+
+function qf_latest_users($limit = 8) {
+    $limit = max(1, min(24, intval($limit)));
+    $rs = mysqli_query(db(), "SELECT id, username, nickname, avatar, email FROM qf_users ORDER BY id DESC LIMIT {$limit}");
+    $out = array();
+    while ($rs && ($r = mysqli_fetch_assoc($rs))) {
+        $out[] = $r;
+    }
+    return $out;
+}
+
 function qf_staff_list($role) {
     $where = ($role === 'admin') ? 'is_admin=1' : 'is_moderator=1 AND is_admin=0';
     $rs = mysqli_query(db(), "SELECT id, username, nickname, avatar, email, signature FROM qf_users WHERE {$where} ORDER BY id ASC LIMIT 60");

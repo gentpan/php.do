@@ -69,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $site_about = trim((string)(isset($_POST['site_about']) ? $_POST['site_about'] : ''));
     $site_founded = clean_text(isset($_POST['site_founded']) ? $_POST['site_founded'] : '', 20);
     $contact_email = clean_text(isset($_POST['contact_email']) ? $_POST['contact_email'] : '', 190);
+    $member_noun = clean_text(isset($_POST['member_noun']) ? $_POST['member_noun'] : '', 20);
 
     if ($site_title === '') {
         $site_title = SITE_NAME;
@@ -179,6 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     qf_update_setting('site_about', $site_about);
     qf_update_setting('site_founded', $site_founded);
     qf_update_setting('contact_email', $contact_email);
+    qf_update_setting('member_noun', $member_noun);
     $saved = true;
     }
 }
@@ -282,6 +284,10 @@ qf_include_header();
             <label>联系邮箱</label>
             <input type="email" name="contact_email" maxlength="190" value="<?php echo h(qf_setting('contact_email', '')); ?>" placeholder="admin@php.do，留空则用管理员邮箱">
             <p class="muted">显示在关于页「联系我们」。留空则自动使用第一个绑定邮箱的管理员账号。</p>
+
+            <label>成员称呼</label>
+            <input type="text" name="member_noun" maxlength="20" value="<?php echo h(qf_setting('member_noun', '')); ?>" placeholder="成员（也可填 seeker、开发者、同学等）">
+            <p class="muted">用在侧栏「目前论坛共有 N 位___」。留空默认「成员」。</p>
         </div>
 
         <div class="settings-panel" x-show="tab==='avatar'" style="display:none">
