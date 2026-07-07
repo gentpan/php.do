@@ -86,6 +86,13 @@ if ($current_script === 'forum.php' && function_exists('qf_path_id') && qf_table
     }
 }
 $qf_page_banner = ($qf_current_forum && !empty($qf_current_forum['banner'])) ? $qf_current_forum['banner'] : qf_setting('default_banner', '');
+if ($qf_page_banner === '') {
+    // 未设置则用随机自然图；r 每次请求随机（1-9999），刷新即换图
+    $qf_page_banner = 'https://img.et/1920/1080?type=nature&r={r}';
+}
+if (strpos($qf_page_banner, '{r}') !== false) {
+    $qf_page_banner = str_replace('{r}', (string)mt_rand(1, 9999), $qf_page_banner);
+}
 ?>
 <header class="qf-topbar">
     <div class="qf-topbar-inner mx-auto px-3 sm:px-4">
