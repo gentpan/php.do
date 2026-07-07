@@ -95,7 +95,7 @@ $qf_page_banner = ($qf_current_forum && !empty($qf_current_forum['banner'])) ? $
                 <span class="absolute inset-0 bg-black/25"></span>
             <?php } ?>
             <a class="qf-banner-logo relative z-10 inline-flex items-center" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
-                <img class="w-auto" src="assets/logo.svg" alt="<?php echo h(qf_site_name()); ?>">
+                <img class="w-auto" src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>">
             </a>
             <div class="absolute right-4 top-4 z-10 flex items-center gap-2">
                 <button type="button" class="nav-theme-toggle qf-banner-btn" data-theme-toggle aria-label="切换深色/浅色">

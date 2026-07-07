@@ -8315,7 +8315,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
     padding: 0 28px;
     background: linear-gradient(120deg, #5a6aa8 0%, #505b93 58%, #3f4874 100%);
 }
-.qf-banner-logo img { height: 52px; filter: brightness(0) invert(1); }
+.qf-banner-logo img { height: 52px; }
 .qf-banner-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: 38px; height: 38px; border-radius: 8px;
