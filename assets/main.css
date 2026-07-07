@@ -6046,8 +6046,8 @@ body.theme-php .phpdo-topic-tag {
     background: #fff3ef;
     border-radius: 3px;
 }
-/* 关键词/分类徽章文字不加粗 */
-body.theme-php .phpdo-topic-tag { font-weight: 400; }
+/* 关键词/分类徽章文字不加粗、字号 -1 */
+body.theme-php .phpdo-topic-tag { font-weight: 400; font-size: 13px; }
 
 body.theme-php .phpdo-author-link,
 body.theme-php .phpdo-reply-author {
@@ -9298,7 +9298,7 @@ body.theme-php .phpdo-right-toolbar {
 /* 顶部加载彩色进度条（页面加载/切换时显示） */
 .qf-topload {
     position: fixed;
-    top: 12px;
+    top: 7px;
     left: 0;
     right: 0;
     z-index: 3000;
@@ -9313,11 +9313,11 @@ body.qf-is-loading .qf-topload { opacity: 1; }
     position: relative;
     width: 60%;
     max-width: 500px;
-    height: 20px;
+    height: 10px;
     background: radial-gradient(circle, #1b2735, #090a0f);
     border-radius: 30px;
     overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
     border: 1px solid #313131;
 }
@@ -9354,8 +9354,8 @@ body.qf-is-loading .qf-topload { opacity: 1; }
 }
 .qf-topload .particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 3px;
+    height: 3px;
     background: #fff;
     border-radius: 50%;
     opacity: 0.6;
