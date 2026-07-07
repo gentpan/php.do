@@ -8510,7 +8510,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 }
 .qf-topbar-hasbg .qf-banner {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     min-height: 191px;
     background: transparent;
 }
@@ -8567,7 +8567,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-user-trigger { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 6px; color: #fff; background: rgba(255,255,255,.12); border: 0; cursor: pointer; font-weight: 600; font-size: 14px; }
 .qf-user-trigger:hover { background: rgba(255,255,255,.24); }
 .qf-user-trigger img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-.qf-user-menu { min-width: 194px; padding: 6px; margin-top: 6px; background: #fff; border: 1px solid #e6e8ee; border-radius: 10px; box-shadow: 0 12px 30px rgba(20,20,20,.14); z-index: 60; }
+.qf-user-menu { position: absolute; top: 100%; right: 0; min-width: 194px; padding: 6px; margin-top: 6px; background: #fff; border: 1px solid #e6e8ee; border-radius: 10px; box-shadow: 0 12px 30px rgba(20,20,20,.14); z-index: 60; }
 .qf-user-menu a, .qf-user-menu button, .qf-user-static { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 11px; border-radius: 7px; color: #333; font-size: 14px; background: transparent; border: 0; cursor: pointer; text-align: left; }
 .qf-user-menu a:hover, .qf-user-menu button:hover { background: #f2f4f8; color: #505b93; }
 .qf-user-menu form { margin: 0; }
@@ -8869,12 +8869,12 @@ body {
 @keyframes qfBodyFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* 页头关键布局兜底（不依赖 Tailwind，CDN 慢/被墙也不错位） */
-.qf-banner { position: relative; width: 100%; }
+.qf-banner { position: relative; z-index: 2; width: 100%; overflow: visible; }
 .qf-banner > img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 .qf-banner > span { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, .25); }
 .qf-banner-logo { position: relative; z-index: 2; display: inline-flex; align-items: center; }
 .qf-banner > div { position: absolute; top: 16px; right: 16px; z-index: 2; display: flex; align-items: center; gap: 8px; }
-.qf-navbar { display: flex; flex-wrap: wrap; align-items: center; }
+.qf-navbar { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; }
 .qf-menu { display: flex; align-items: center; }
 .hs-dropdown { position: relative; display: inline-flex; }
 .qf-user-menu.hidden { display: none; }
