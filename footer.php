@@ -5,11 +5,6 @@ $footer_friend_links = array();
 if (qf_friend_links_enabled()) {
     $footer_friend_links = qf_friend_links();
 }
-$footer_forums = array();
-$footer_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums ORDER BY display_order ASC, id ASC LIMIT 6");
-while ($footer_forum_rs && ($footer_forum = mysqli_fetch_assoc($footer_forum_rs))) {
-    $footer_forums[] = $footer_forum;
-}
 $footer_pages = array(
     array('title' => '首页', 'url' => qf_url_page('index.php')),
     array('title' => '搜索', 'url' => qf_url_page('search.php')),
@@ -32,40 +27,35 @@ $footer_icp = trim(qf_setting('icp_code', ''));
                     <img src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>" draggable="false" oncontextmenu="return false;">
                 </a>
                 <p class="site-footer-desc"><?php echo h(qf_site_desc()); ?></p>
-                <div class="site-footer-social">
-                    <?php foreach ($footer_social_links as $link) { ?>
-                        <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener" title="<?php echo h($link['title']); ?>" aria-label="<?php echo h($link['title']); ?>">
-                            <i class="<?php echo h($link['icon']); ?>" aria-hidden="true"></i>
-                        </a>
-                    <?php } ?>
-                </div>
             </div>
-            <div class="site-footer-cols">
-                <nav class="site-footer-col" aria-label="站点链接">
-                    <h3>站点</h3>
-                    <?php foreach ($footer_pages as $link) { ?>
-                        <a href="<?php echo h($link['url']); ?>"><?php echo h($link['title']); ?></a>
-                    <?php } ?>
-                </nav>
-                <nav class="site-footer-col" aria-label="论坛分类">
-                    <h3>分类</h3>
-                    <?php foreach ($footer_forums as $footer_forum) { ?>
-                        <a href="<?php echo h(qf_url_forum($footer_forum['id'])); ?>"><?php echo h($footer_forum['name']); ?></a>
-                    <?php } ?>
-                </nav>
-                <?php if (!empty($footer_friend_links)) { ?>
-                    <nav class="site-footer-col" aria-label="友情链接">
-                        <h3>链接</h3>
-                        <?php foreach ($footer_friend_links as $link) { ?>
-                            <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener"><?php echo h($link['name']); ?></a>
-                        <?php } ?>
-                    </nav>
+            <div class="site-footer-social">
+                <?php foreach ($footer_social_links as $link) { ?>
+                    <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener" title="<?php echo h($link['title']); ?>" aria-label="<?php echo h($link['title']); ?>">
+                        <i class="<?php echo h($link['icon']); ?>" aria-hidden="true"></i>
+                    </a>
                 <?php } ?>
             </div>
         </div>
+        <nav class="site-footer-links" aria-label="站点链接">
+            <?php foreach ($footer_pages as $link) { ?>
+                <a href="<?php echo h($link['url']); ?>"><?php echo h($link['title']); ?></a>
+            <?php } ?>
+        </nav>
+        <?php if (!empty($footer_friend_links)) { ?>
+            <nav class="site-footer-links site-footer-friends" aria-label="友情链接">
+                <span class="site-footer-friends-label">友情链接</span>
+                <?php foreach ($footer_friend_links as $link) { ?>
+                    <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener"><?php echo h($link['name']); ?></a>
+                <?php } ?>
+            </nav>
+        <?php } ?>
         <div class="site-footer-bottom">
-            <span>&copy; <?php echo date('Y'); ?> <?php echo h(qf_site_name()); ?></span>
-            <?php if ($footer_icp !== '') { ?><span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?>
+            <div class="site-footer-meta">
+                <span class="sh-badge"><span class="sh-badge-k">Time</span><span class="sh-badge-v sh-badge-green"><?php echo number_format(qf_perf_seconds(), 3); ?>s</span></span>
+                <span class="sh-badge"><span class="sh-badge-k">SQL</span><span class="sh-badge-v sh-badge-blue"><?php echo intval(qf_perf_sql_count()); ?></span></span>
+                <?php if ($footer_icp !== '') { ?><span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?>
+            </div>
+            <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(qf_site_name()); ?></span>
         </div>
     </div>
 </footer>

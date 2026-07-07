@@ -6088,6 +6088,46 @@ body.theme-php .phpdo-good {
     background: #f0edff;
 }
 
+/* 徽章/按钮样式变体：柔和底色系（可用于置顶/精华/分类等各种标签） */
+body.theme-php .phpdo-pill-blue    { color: #1d6fb8 !important; background: #e8f2fc; }
+body.theme-php .phpdo-pill-green   { color: #2f8f4e !important; background: #e7f6ec; }
+body.theme-php .phpdo-pill-amber   { color: #b7791f !important; background: #fdf3e0; }
+body.theme-php .phpdo-pill-red     { color: #d1495b !important; background: #fdeaec; }
+body.theme-php .phpdo-pill-purple  { color: #6b4bd6 !important; background: #f0ecfd; }
+body.theme-php .phpdo-pill-cyan    { color: #1a8a9d !important; background: #e4f6f8; }
+body.theme-php .phpdo-pill-slate   { color: #5a6270 !important; background: #eef0f3; }
+
+/* 实心风格 */
+body.theme-php .phpdo-pill-solid {
+    color: #fff !important;
+    background: var(--phpdo-accent);
+}
+body.theme-php .phpdo-pill-solid-red    { color: #fff !important; background: #e05d44; }
+body.theme-php .phpdo-pill-solid-green  { color: #fff !important; background: #35a862; }
+body.theme-php .phpdo-pill-solid-amber  { color: #fff !important; background: #f0951f; }
+
+/* 描边风格（任意色，跟随当前文字色描边） */
+body.theme-php .phpdo-pill-line {
+    background: transparent;
+    border: 1px solid currentColor;
+}
+
+/* 渐变风格 */
+body.theme-php .phpdo-pill-gradient {
+    color: #fff !important;
+    background: linear-gradient(135deg, #6b7bd6, #9d6bd6);
+    border: 0;
+}
+
+/* 深色适配：柔和底色改为半透明彩底 */
+body.theme-php-dark .phpdo-pill-blue    { color: #7fc0f5 !important; background: rgba(29,111,184,.18); }
+body.theme-php-dark .phpdo-pill-green   { color: #7fd6a0 !important; background: rgba(47,143,78,.18); }
+body.theme-php-dark .phpdo-pill-amber   { color: #f0c778 !important; background: rgba(183,121,31,.20); }
+body.theme-php-dark .phpdo-pill-red     { color: #f39aa6 !important; background: rgba(209,73,91,.18); }
+body.theme-php-dark .phpdo-pill-purple  { color: #b7a4f5 !important; background: rgba(107,75,214,.20); }
+body.theme-php-dark .phpdo-pill-cyan    { color: #7fd4de !important; background: rgba(26,138,157,.18); }
+body.theme-php-dark .phpdo-pill-slate   { color: #b7bdc8 !important; background: rgba(90,98,112,.22); }
+
 body.theme-php .phpdo-image-icon {
     color: #c6c8cc;
     font-size: 18px;
@@ -8868,24 +8908,51 @@ body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
 }
 .site-footer-social a:hover { color: #fff; background: #4f5b93; border-color: #4f5b93; }
 
-.site-footer-cols { display: flex; flex-wrap: wrap; gap: 56px; }
-.site-footer-col h3 { margin: 0 0 14px; color: #d7dae2; font-size: 14px; font-weight: 600; }
-.site-footer-col a { display: block; padding: 5px 0; color: #8b909d; font-size: 14px; transition: color .12s ease; }
-.site-footer-col a:hover { color: #fff; }
+.site-footer-top { align-items: center; }
+.site-footer-brand { max-width: none; }
+.site-footer-social { flex: 0 0 auto; }
+
+.site-footer-links {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px;
+    margin-top: 26px; padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, .06);
+}
+.site-footer-links a { color: #9298a6; font-size: 14px; transition: color .12s ease; }
+.site-footer-links a:hover { color: #fff; }
+.site-footer-friends { margin-top: 14px; padding-top: 0; border-top: 0; gap: 6px 16px; }
+.site-footer-friends-label { color: #6b707b; font-size: 13px; }
+.site-footer-friends a { color: #7f8593; font-size: 13px; }
 
 .site-footer-bottom {
-    margin-top: 34px; padding-top: 22px;
+    margin-top: 22px; padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, .06);
-    display: flex; flex-wrap: wrap; gap: 8px 20px;
+    display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: space-between; gap: 12px 20px;
     color: #71767f; font-size: 13px;
 }
+.site-footer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.site-footer-copy { margin-left: auto; color: #8b909d; }
 .site-footer-icp a { color: #8b909d; }
 .site-footer-icp a:hover { color: #fff; }
 
+/* shields.io 扁平风格徽章：左标签(深灰) + 右数值(彩色) */
+.sh-badge {
+    display: inline-flex; height: 20px; border-radius: 3px; overflow: hidden;
+    font-family: Verdana, "DejaVu Sans", system-ui, sans-serif;
+    font-size: 11px; line-height: 20px; white-space: nowrap;
+}
+.sh-badge-k, .sh-badge-v { padding: 0 7px; color: #fff; }
+.sh-badge-k { background: #555; }
+.sh-badge-v { background: #4c1; font-variant-numeric: tabular-nums; }
+.sh-badge-green { background: #4c1; }
+.sh-badge-blue { background: #007ec6; }
+.sh-badge-orange { background: #fe7d37; }
+.sh-badge-red { background: #e05d44; }
+
 @media (max-width: 640px) {
-    .site-footer-top { gap: 32px; }
-    .site-footer-cols { gap: 36px; }
+    .site-footer-top { gap: 24px; }
     .site-footer-inner { padding: 0 18px; }
+    .site-footer-copy { margin-left: 0; }
 }
 
 /* 帖子卡片两行化：第二行 = 元信息(左) + 统计(右)，头像超级椭圆 */

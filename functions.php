@@ -1,4 +1,7 @@
 <?php
+if (!defined('QF_START')) {
+    define('QF_START', microtime(true));
+}
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/compat.php';
 if (PHP_SAPI !== 'cli') {
@@ -31,6 +34,20 @@ function db() {
     qf_assert_mysql_runtime($conn);
     mysqli_set_charset($conn, DB_CHARSET);
     return $conn;
+}
+
+// 页面渲染耗时（秒），用于页脚性能徽章
+function qf_perf_seconds() {
+    return defined('QF_START') ? (microtime(true) - QF_START) : 0.0;
+}
+
+// 本次请求执行的 SQL 语句数（基于连接会话状态 Questions）
+function qf_perf_sql_count() {
+    $rs = @mysqli_query(db(), "SHOW SESSION STATUS LIKE 'Questions'");
+    if ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        return max(0, intval($row['Value']) - 1); // 扣除这条 SHOW 自身
+    }
+    return 0;
 }
 
 function h($str) {
@@ -97,6 +114,12 @@ function qf_avatar_upload_enabled() {
 
 function qf_avatar_cartoon_enabled() {
     return intval(qf_setting('avatar_cartoon_enabled', '1')) === 1;
+}
+
+// 按名称稳定地给分类/标签分配一个配色变体 class（同名恒定同色）
+function qf_topic_tag_class($name) {
+    $variants = array('phpdo-pill-blue', 'phpdo-pill-green', 'phpdo-pill-amber', 'phpdo-pill-red', 'phpdo-pill-purple', 'phpdo-pill-cyan', 'phpdo-pill-slate');
+    return $variants[abs(crc32((string)$name)) % count($variants)];
 }
 
 function qf_gravatar_url($email, $size = 160) {
