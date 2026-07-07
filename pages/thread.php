@@ -44,8 +44,6 @@ if ($me) {
 <nav class="phpdo-thread-breadcrumb" aria-label="面包屑导航">
     <div class="phpdo-crumb-trail">
         <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
-        <span class="phpdo-crumb-sep">›</span>
-        <a href="<?php echo h(qf_url_forum($thread['forum_id'])); ?>"><?php echo h($thread['forum_name']); ?></a>
         <?php if ($thread['topic_category'] !== '') { ?>
             <span class="phpdo-crumb-sep">›</span>
             <a href="<?php echo h(qf_url_category(intval($thread['forum_id']), $thread['topic_category'])); ?>"><?php echo h($thread['topic_category']); ?></a>
