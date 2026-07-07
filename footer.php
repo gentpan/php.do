@@ -77,7 +77,6 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     </div>
 </div>
 <aside class="phpdo-right-toolbar" aria-label="页面工具栏">
-    <a href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="首页" title="首页"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
     <a href="<?php echo h(qf_url_page('search.php')); ?>" aria-label="搜索" title="搜索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
     <a href="<?php echo h($footer_user ? qf_url_page('post.php') : qf_url_page('login.php')); ?>" aria-label="发帖" title="发帖"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
     <button type="button" data-theme-toggle aria-label="主题" title="主题"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></button>

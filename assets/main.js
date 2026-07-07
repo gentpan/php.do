@@ -673,12 +673,12 @@
     }
 
     function ensureLoadingIndicator() {
-        if (document.querySelector('.qf-loading-indicator')) return;
+        if (document.querySelector('.qf-topload')) return;
 
         var loader = document.createElement('div');
-        loader.className = 'qf-loading-indicator';
+        loader.className = 'qf-topload';
         loader.setAttribute('aria-hidden', 'true');
-        loader.innerHTML = '<svg stroke="#505b93" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3" stroke-linecap="round"><animate attributeName="stroke-dasharray" dur="1.5s" calcMode="spline" values="0 150;42 150;42 150;42 150" keyTimes="0;0.475;0.95;1" keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1" repeatCount="indefinite"/><animate attributeName="stroke-dashoffset" dur="1.5s" calcMode="spline" values="0;-16;-59;-59" keyTimes="0;0.475;0.95;1" keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1" repeatCount="indefinite"/></circle><animateTransform attributeName="transform" type="rotate" dur="2s" values="0 12 12;360 12 12" repeatCount="indefinite"/></g></svg>';
+        loader.innerHTML = '<div class="progress-container"><div class="progress-bar"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
         document.body.appendChild(loader);
     }
 
@@ -686,7 +686,12 @@
         ensureLoadingIndicator();
         loadingCount += active ? 1 : -1;
         if (loadingCount < 0) loadingCount = 0;
-        document.body.classList.toggle('qf-is-loading', loadingCount > 0);
+        var on = loadingCount > 0;
+        if (on) {
+            var bar = document.querySelector('.qf-topload .progress-bar');
+            if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; }
+        }
+        document.body.classList.toggle('qf-is-loading', on);
     }
 
     function initFormLoading() {

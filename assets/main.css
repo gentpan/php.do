@@ -9294,3 +9294,85 @@ body.theme-php .phpdo-right-toolbar {
 .qf-navbar-rss:hover { color: #ff9800; }
 .qf-topbar-hasbg .qf-navbar-rss { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 4px rgba(0, 0, 0, .55); }
 .qf-topbar-hasbg .qf-navbar-rss:hover { color: #ffb14d; }
+
+/* 顶部加载彩色进度条（页面加载/切换时显示） */
+.qf-topload {
+    position: fixed;
+    top: 12px;
+    left: 0;
+    right: 0;
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease;
+}
+body.qf-is-loading .qf-topload { opacity: 1; }
+.qf-topload .progress-container {
+    position: relative;
+    width: 60%;
+    max-width: 500px;
+    height: 20px;
+    background: radial-gradient(circle, #1b2735, #090a0f);
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    border: 1px solid #313131;
+}
+.qf-topload .progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, #00f260, #0575e6);
+    border-radius: 30px;
+    animation: qf-grow 3s ease-in-out forwards;
+    box-shadow: 0 0 15px #00f260, 0 0 30px #0575e6;
+}
+.qf-topload .progress-bar::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15), transparent);
+    opacity: 0.5;
+    animation: qf-ripple 3s infinite;
+}
+.qf-topload .particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.qf-topload .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: qf-float 5s infinite ease-in-out;
+}
+.qf-topload .particle:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+.qf-topload .particle:nth-child(2) { top: 30%; left: 70%; animation-delay: 1s; }
+.qf-topload .particle:nth-child(3) { top: 50%; left: 50%; animation-delay: 2s; }
+.qf-topload .particle:nth-child(4) { top: 80%; left: 40%; animation-delay: 1.5s; }
+.qf-topload .particle:nth-child(5) { top: 90%; left: 60%; animation-delay: 2.5s; }
+@keyframes qf-grow { 0% { width: 0; } 100% { width: 40%; } }
+@keyframes qf-ripple {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.7; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+@keyframes qf-float {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-20px) translateX(10px); }
+    100% { transform: translateY(0) translateX(0); }
+}
