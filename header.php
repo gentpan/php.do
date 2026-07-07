@@ -90,12 +90,12 @@ if (strpos($qf_page_banner, '{r}') !== false) {
 ?>
 <div class="qf-page-frame">
 <header class="qf-topbar">
-    <div class="qf-topbar-inner mx-auto px-3 sm:px-4">
+    <div class="qf-topbar-inner mx-auto px-3 sm:px-4<?php echo $qf_page_banner !== '' ? ' qf-topbar-hasbg' : ''; ?>">
+        <?php if ($qf_page_banner !== '') { ?>
+            <img class="qf-topbar-bg" src="<?php echo h($qf_page_banner); ?>" alt="">
+            <span class="qf-topbar-scrim"></span>
+        <?php } ?>
         <div class="qf-banner relative w-full rounded-t-xl">
-            <?php if ($qf_page_banner !== '') { ?>
-                <img class="absolute inset-0 h-full w-full object-cover" src="<?php echo h($qf_page_banner); ?>" alt="">
-                <span class="absolute inset-0 bg-black/25"></span>
-            <?php } ?>
             <a class="qf-banner-logo relative z-10 inline-flex items-center" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
                 <img class="w-auto" src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>" draggable="false" oncontextmenu="return false;">
             </a>
