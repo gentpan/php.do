@@ -899,8 +899,8 @@ function qf_community_stats() {
     return $cache;
 }
 
-// 页面顶部 banner：关于页可随机轮换 about1/2/3，规则/帮助各用对应图，优先 webp
-function qf_page_banner_src($page) {
+// 头部 banner：每个页面固定用对应图，首页在 about1/2/3 间随机；优先 webp。返回本地路径或 ''。
+function qf_header_banner_src($script, $slug = '') {
     $dir = 'assets/banner/';
     $base = __DIR__ . '/' . $dir;
     $first_existing = function ($files) use ($dir, $base) {
@@ -911,53 +911,31 @@ function qf_page_banner_src($page) {
         }
         return '';
     };
-    $all_existing = function ($files) use ($dir, $base) {
-        $out = array();
-        foreach ($files as $f) {
-            if (file_exists($base . $f)) {
-                $out[] = $dir . $f;
-            }
-        }
-        return $out;
-    };
-    if ($page === 'rules') {
-        return $first_existing(array('rulesphpdo.webp', 'rulesphpdo.png'));
-    }
-    if ($page === 'help') {
-        return $first_existing(array('helpphpdo.webp', 'helpphpdo.png'));
-    }
-    if ($page === 'about') {
-        if (intval(qf_setting('about_banner_random', '1')) === 1) {
-            $pool = $all_existing(array('about1phpdo.webp', 'about2phpdo.webp', 'about3phpdo.webp'));
-            if (empty($pool)) {
-                $pool = $all_existing(array('aboutphpdo.webp', 'aboutphpdo.png'));
-            }
-            return empty($pool) ? '' : $pool[array_rand($pool)];
-        }
+    if ($script === 'about.php') {
         return $first_existing(array('aboutphpdo.webp', 'aboutphpdo.png'));
     }
+    if ($script === 'page.php' && $slug === 'rules') {
+        return $first_existing(array('rulesphpdo.webp', 'rulesphpdo.png'));
+    }
+    if ($script === 'page.php' && $slug === 'help') {
+        return $first_existing(array('helpphpdo.webp', 'helpphpdo.png'));
+    }
+    if ($script === 'index.php') {
+        $pool = array();
+        foreach (array('about1phpdo.webp', 'about2phpdo.webp', 'about3phpdo.webp') as $f) {
+            if (file_exists($base . $f)) {
+                $pool[] = $dir . $f;
+            }
+        }
+        if (empty($pool)) {
+            return '';
+        }
+        if (intval(qf_setting('about_banner_random', '1')) === 1) {
+            return $pool[array_rand($pool)];
+        }
+        return $pool[0];
+    }
     return '';
-}
-
-function qf_render_page_banner($page, $overlay_title = '', $overlay_sub = '') {
-    $src = qf_page_banner_src($page);
-    if ($src === '') {
-        return;
-    }
-    $has_overlay = ($overlay_title !== '' || $overlay_sub !== '');
-    echo '<div class="phpdo-page-banner' . ($has_overlay ? ' has-overlay' : '') . '">';
-    echo '<img src="' . h($src) . '" alt="" loading="lazy">';
-    if ($has_overlay) {
-        echo '<div class="phpdo-page-banner-text">';
-        if ($overlay_title !== '') {
-            echo '<span class="phpdo-page-banner-title">' . h($overlay_title) . '</span>';
-        }
-        if ($overlay_sub !== '') {
-            echo '<span class="phpdo-page-banner-sub">' . h($overlay_sub) . '</span>';
-        }
-        echo '</div>';
-    }
-    echo '</div>';
 }
 
 function qf_member_noun() {

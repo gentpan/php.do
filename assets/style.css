@@ -8488,7 +8488,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-banner {
     display: flex;
     align-items: center;
-    min-height: 150px;
+    min-height: 200px;
     padding: 0 28px;
     background: linear-gradient(120deg, #5a6aa8 0%, #505b93 58%, #3f4874 100%);
 }
@@ -9155,59 +9155,6 @@ body.theme-php .phpdo-newuser:hover span { color: var(--phpdo-accent); }
 body.theme-php-dark .phpdo-newuser-total { color: #b0b0b0; }
 body.theme-php-dark .phpdo-newuser-sub { color: #e6e6e6; }
 body.theme-php-dark .phpdo-newuser span { color: #b8b8b8; }
-
-/* 页面顶部 banner（关于/规则/帮助） */
-body.theme-php .phpdo-page-shell { max-width: 960px; margin: 0 auto; }
-body.theme-php .phpdo-page-banner {
-    max-width: 960px;
-    margin: 0 auto 18px;
-    border-radius: 12px;
-    overflow: hidden;
-    line-height: 0;
-}
-body.theme-php .phpdo-page-banner img { display: block; width: 100%; height: auto; }
-
-/* banner 上的 slogan 叠加层 */
-body.theme-php .phpdo-page-banner.has-overlay { position: relative; }
-body.theme-php .phpdo-page-banner.has-overlay::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, .12), rgba(0, 0, 0, .36));
-}
-body.theme-php .phpdo-page-banner-text {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 24px;
-    text-align: center;
-    line-height: 1.2;
-}
-body.theme-php .phpdo-page-banner-title {
-    font-size: 36px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, .45);
-}
-body.theme-php .phpdo-page-banner-sub {
-    font-size: 16px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, .94);
-    text-shadow: 0 1px 10px rgba(0, 0, 0, .45);
-}
-@media (max-width: 640px) {
-    body.theme-php .phpdo-page-banner-title { font-size: 26px; }
-    body.theme-php .phpdo-page-banner-sub { font-size: 14px; }
-}
-/* 关于页 hero:标语已移到 banner，卡片收紧只留统计 */
-body.theme-php .phpdo-about-hero { padding: 22px 24px; }
-body.theme-php .phpdo-about-hero > .phpdo-about-topstats { margin-top: 0; }
 
 @media (max-width: 640px) {
     .site-footer-top { gap: 24px; }

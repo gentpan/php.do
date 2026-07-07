@@ -291,9 +291,9 @@ qf_include_header();
             <input type="text" name="member_noun" maxlength="20" value="<?php echo h(qf_setting('member_noun', '')); ?>" placeholder="成员（也可填 seeker、开发者、同学等）">
             <p class="muted">用在侧栏「目前论坛共有 N 位___」。留空默认「成员」。</p>
 
-            <label>关于页 Banner 随机轮换</label>
-            <label><input class="inline-check" type="checkbox" name="about_banner_random" value="1" <?php if (intval(qf_setting('about_banner_random', '1')) === 1) echo 'checked'; ?>> 每次打开关于页时，从 about1/2/3 中随机显示一张</label>
-            <p class="muted">关闭则固定使用 aboutphpdo.webp。规则页、帮助页各自固定使用对应 banner。</p>
+            <label>首页头部 Banner 随机轮换</label>
+            <label><input class="inline-check" type="checkbox" name="about_banner_random" value="1" <?php if (intval(qf_setting('about_banner_random', '1')) === 1) echo 'checked'; ?>> 每次打开首页时，头部从 about1/2/3 中随机显示一张</label>
+            <p class="muted">关闭则固定用 about1phpdo。关于/规则/帮助页头部各自固定用对应 banner（aboutphpdo/rulesphpdo/helpphpdo）。头部图建议 2400×400（显示 1200×200）。</p>
         </div>
 
         <div class="settings-panel" x-show="tab==='avatar'" style="display:none">

@@ -71,15 +71,22 @@ if ($current_script === 'forum.php' && function_exists('qf_path_id') && qf_table
         $qf_current_forum = $cf_rs ? mysqli_fetch_assoc($cf_rs) : null;
     }
 }
-$qf_page_banner = ($qf_current_forum && !empty($qf_current_forum['banner'])) ? $qf_current_forum['banner'] : qf_setting('default_banner', '');
-if ($qf_page_banner === '') {
-    // 未设置则用随机自然图；r 每次请求随机（1-9999），刷新即换图
-    $qf_page_banner = 'https://img.et/1920/1080?type=nature&r={r}';
+$qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$_GET['slug'])) : '';
+$qf_local_banner = qf_header_banner_src($current_script, $qf_cur_slug);
+if ($qf_current_forum && !empty($qf_current_forum['banner'])) {
+    $qf_page_banner = $qf_current_forum['banner'];
+} elseif ($qf_local_banner !== '') {
+    $qf_page_banner = $qf_local_banner;
+} else {
+    $qf_page_banner = qf_setting('default_banner', '');
+    if ($qf_page_banner === '') {
+        // 未设置则用随机自然图；r 每次请求随机（1-9999），刷新即换图
+        $qf_page_banner = 'https://img.et/1920/1080?type=nature&r={r}';
+    }
 }
 if (strpos($qf_page_banner, '{r}') !== false) {
     $qf_page_banner = str_replace('{r}', (string)mt_rand(1, 9999), $qf_page_banner);
 }
-$qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$_GET['slug'])) : '';
 ?>
 <div class="qf-page-frame">
 <header class="qf-topbar">

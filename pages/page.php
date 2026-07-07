@@ -9,8 +9,6 @@ if (!$page) {
 $page_title = $page['title'] . ' - ' . SITE_NAME;
 qf_include_header();
 ?>
-<div class="phpdo-page-shell">
-<?php qf_render_page_banner($slug); ?>
 <section class="card phpdo-page-head">
     <div>
         <h1><?php echo h($page['title']); ?></h1>
@@ -27,5 +25,4 @@ qf_include_header();
         <?php } ?>
     </div>
 </section>
-</div>
 <?php qf_include_footer(); ?>
