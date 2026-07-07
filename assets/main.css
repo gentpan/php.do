@@ -9602,6 +9602,39 @@ body.theme-php .phpdo-thread-meta > .phpdo-thread-stats {
     margin: 0;
 }
 
+/* 首页帖子 meta 里的版块（类别）名称徽章：紧跟时间之后 */
+body.theme-php .phpdo-forum-tag {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+    padding: 2px 9px;
+    color: #5a6499;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+    background: #eef0fb;
+    border: 1px solid #e0e3f5;
+    border-radius: 999px;
+    transition: background .15s ease, color .15s ease;
+}
+body.theme-php .phpdo-forum-tag:hover {
+    color: #fff;
+    background: var(--phpdo-accent);
+    border-color: var(--phpdo-accent);
+}
+body.theme-php-dark .phpdo-forum-tag {
+    color: #c8ccff;
+    background: rgba(80, 91, 147, .22);
+    border-color: rgba(80, 91, 147, .35);
+}
+body.theme-php-dark .phpdo-forum-tag:hover {
+    color: #fff;
+    background: var(--phpdo-accent);
+    border-color: var(--phpdo-accent);
+}
+
 /* ===== 手写工具类（替代已移除的 Tailwind，仅覆盖 header.php 实际用到的类） ===== */
 .mx-auto { margin-left: auto; margin-right: auto; }
 .px-3 { padding-left: .75rem; padding-right: .75rem; }
