@@ -111,7 +111,10 @@ if ($me) {
     </div>
     <?php $thread_signature = trim((string)(isset($thread['author_signature']) ? $thread['author_signature'] : '')); ?>
     <?php if ($thread_signature !== '') { ?>
-        <div class="phpdo-signature"><span class="phpdo-signature-label">Signature</span><?php echo nl2br(h($thread_signature)); ?></div>
+        <div class="phpdo-signature">
+            <span>SIGNATURE</span>
+            <p><?php echo nl2br(h($thread_signature)); ?></p>
+        </div>
     <?php } ?>
     <?php echo qf_render_ad('thread'); ?>
 </article>
