@@ -33,6 +33,8 @@ function db() {
     }
     qf_assert_mysql_runtime($conn);
     mysqli_set_charset($conn, DB_CHARSET);
+    // 统一数据库会话时区为 UTC+8，保证 NOW() 与 PHP 时区一致（全站按 UTC+8 存储/展示）
+    mysqli_query($conn, "SET time_zone = '+08:00'");
     return $conn;
 }
 

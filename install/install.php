@@ -9,6 +9,7 @@ qf_assert_mysql_runtime($conn);
 mysqli_query($conn, "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
 mysqli_select_db($conn, DB_NAME);
 mysqli_set_charset($conn, DB_CHARSET);
+mysqli_query($conn, "SET time_zone = '+08:00'");
 
 $sqls = array();
 $sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
