@@ -8538,9 +8538,21 @@ body.theme-php-dark .phpdo-oauth-google:hover {
     border-top: 1px solid rgba(255, 255, 255, .10);
     box-shadow: none;
 }
-.qf-topbar-hasbg .qf-navbar .qf-menu-link { color: rgba(255, 255, 255, .88); }
-.qf-topbar-hasbg .qf-navbar .qf-menu-link:hover { color: #fff; background: rgba(255, 255, 255, .12); }
-.qf-topbar-hasbg .qf-navbar .qf-menu-link.active { color: #fff; background: rgba(255, 255, 255, .18); }
+.qf-topbar-hasbg .qf-navbar .qf-menu-link {
+    color: rgba(255, 255, 255, .90);
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, .55);
+    transition: color .12s ease, background .12s ease;
+}
+.qf-topbar-hasbg .qf-navbar .qf-menu-link:hover { color: #fff; background: rgba(255, 255, 255, .10); }
+.qf-topbar-hasbg .qf-navbar .qf-menu-link.active {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    background: transparent;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, .65);
+}
 .qf-menu { display: flex; }
 .qf-navbar .qf-menu-link {
     display: inline-flex; align-items: center; gap: 7px;
