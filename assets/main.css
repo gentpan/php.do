@@ -6431,10 +6431,19 @@ body.theme-php .footer-qr span {
 body.theme-php .phpdo-right-toolbar {
     position: fixed;
     right: 22px;
-    bottom: 92px;
+    top: 64%;
+    transform: translateY(-50%);
+    bottom: auto;
     z-index: 80;
     display: grid;
     gap: 10px;
+}
+/* 宽屏：工具栏贴内容框(1200px)右侧,而不是视口最右 */
+@media (min-width: 1320px) {
+    body.theme-php .phpdo-right-toolbar {
+        right: auto;
+        left: calc(50% + 606px);
+    }
 }
 
 body.theme-php .phpdo-right-toolbar a,
@@ -6670,7 +6679,9 @@ body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
 
     body.theme-php .phpdo-right-toolbar {
         right: 10px;
+        top: auto;
         bottom: 16px;
+        transform: none;
         gap: 7px;
     }
 
