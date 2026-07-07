@@ -18,6 +18,14 @@ if (PHP_SAPI !== 'cli') {
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-XSS-Protection: 0');
+    // 使用应用自有 session 目录，避免系统 /var/lib/php/sessions 无读权限导致 GC opendir 失败
+    $qf_session_dir = __DIR__ . '/storage/sessions';
+    if (!is_dir($qf_session_dir)) {
+        @mkdir($qf_session_dir, 0775, true);
+    }
+    if (is_dir($qf_session_dir) && is_writable($qf_session_dir)) {
+        session_save_path($qf_session_dir);
+    }
 }
 session_start();
 

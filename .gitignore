@@ -1,5 +1,6 @@
 config.php
 uploads/
+storage/
 .DS_Store
 *.log
 *.pem
