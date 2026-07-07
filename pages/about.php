@@ -26,6 +26,7 @@ function phpdo_staff_card($u) {
 qf_include_header();
 ?>
 <div class="phpdo-about">
+    <?php qf_render_page_banner('about'); ?>
     <div class="phpdo-breadcrumb">
         <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
         <span>»</span>

@@ -70,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $site_founded = clean_text(isset($_POST['site_founded']) ? $_POST['site_founded'] : '', 20);
     $contact_email = clean_text(isset($_POST['contact_email']) ? $_POST['contact_email'] : '', 190);
     $member_noun = clean_text(isset($_POST['member_noun']) ? $_POST['member_noun'] : '', 20);
+    $about_banner_random = !empty($_POST['about_banner_random']) ? '1' : '0';
 
     if ($site_title === '') {
         $site_title = SITE_NAME;
@@ -181,6 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     qf_update_setting('site_founded', $site_founded);
     qf_update_setting('contact_email', $contact_email);
     qf_update_setting('member_noun', $member_noun);
+    qf_update_setting('about_banner_random', $about_banner_random);
     $saved = true;
     }
 }
@@ -288,6 +290,10 @@ qf_include_header();
             <label>成员称呼</label>
             <input type="text" name="member_noun" maxlength="20" value="<?php echo h(qf_setting('member_noun', '')); ?>" placeholder="成员（也可填 seeker、开发者、同学等）">
             <p class="muted">用在侧栏「目前论坛共有 N 位___」。留空默认「成员」。</p>
+
+            <label>关于页 Banner 随机轮换</label>
+            <label><input class="inline-check" type="checkbox" name="about_banner_random" value="1" <?php if (intval(qf_setting('about_banner_random', '1')) === 1) echo 'checked'; ?>> 每次打开关于页时，从 about1/2/3 中随机显示一张</label>
+            <p class="muted">关闭则固定使用 aboutphpdo.webp。规则页、帮助页各自固定使用对应 banner。</p>
         </div>
 
         <div class="settings-panel" x-show="tab==='avatar'" style="display:none">

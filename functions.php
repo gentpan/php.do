@@ -899,6 +899,54 @@ function qf_community_stats() {
     return $cache;
 }
 
+// 页面顶部 banner：关于页可随机轮换 about1/2/3，规则/帮助各用对应图，优先 webp
+function qf_page_banner_src($page) {
+    $dir = 'assets/banner/';
+    $base = __DIR__ . '/' . $dir;
+    $first_existing = function ($files) use ($dir, $base) {
+        foreach ($files as $f) {
+            if (file_exists($base . $f)) {
+                return $dir . $f;
+            }
+        }
+        return '';
+    };
+    $all_existing = function ($files) use ($dir, $base) {
+        $out = array();
+        foreach ($files as $f) {
+            if (file_exists($base . $f)) {
+                $out[] = $dir . $f;
+            }
+        }
+        return $out;
+    };
+    if ($page === 'rules') {
+        return $first_existing(array('rulesphpdo.webp', 'rulesphpdo.png'));
+    }
+    if ($page === 'help') {
+        return $first_existing(array('helpphpdo.webp', 'helpphpdo.png'));
+    }
+    if ($page === 'about') {
+        if (intval(qf_setting('about_banner_random', '1')) === 1) {
+            $pool = $all_existing(array('about1phpdo.webp', 'about2phpdo.webp', 'about3phpdo.webp'));
+            if (empty($pool)) {
+                $pool = $all_existing(array('aboutphpdo.webp', 'aboutphpdo.png'));
+            }
+            return empty($pool) ? '' : $pool[array_rand($pool)];
+        }
+        return $first_existing(array('aboutphpdo.webp', 'aboutphpdo.png'));
+    }
+    return '';
+}
+
+function qf_render_page_banner($page) {
+    $src = qf_page_banner_src($page);
+    if ($src === '') {
+        return;
+    }
+    echo '<div class="phpdo-page-banner"><img src="' . h($src) . '" alt="" loading="lazy"></div>';
+}
+
 function qf_member_noun() {
     $n = trim((string)qf_setting('member_noun', ''));
     return $n !== '' ? $n : '成员';

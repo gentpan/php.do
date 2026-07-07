@@ -9156,6 +9156,17 @@ body.theme-php-dark .phpdo-newuser-total { color: #b0b0b0; }
 body.theme-php-dark .phpdo-newuser-sub { color: #e6e6e6; }
 body.theme-php-dark .phpdo-newuser span { color: #b8b8b8; }
 
+/* 页面顶部 banner（关于/规则/帮助） */
+body.theme-php .phpdo-page-shell { max-width: 960px; margin: 0 auto; }
+body.theme-php .phpdo-page-banner {
+    max-width: 960px;
+    margin: 0 auto 18px;
+    border-radius: 12px;
+    overflow: hidden;
+    line-height: 0;
+}
+body.theme-php .phpdo-page-banner img { display: block; width: 100%; height: auto; }
+
 @media (max-width: 640px) {
     .site-footer-top { gap: 24px; }
     .site-footer-inner { padding: 0 18px; }
