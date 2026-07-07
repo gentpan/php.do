@@ -1,6 +1,6 @@
 (function() {
     var loadingCount = 0;
-    var loadProgress = { value: 0, timer: null };
+    var loadProgress = { value: 0, timer: null, raf: null };
 
     function initNavMore() {
         var toggle = document.querySelector('[data-nav-more]');
@@ -717,23 +717,66 @@
         if (txt) txt.textContent = Math.round(pct) + '%';
     }
 
+    var loadbarNow = (window.performance && performance.now)
+        ? function() { return performance.now(); }
+        : function() { return Date.now(); };
+
+    // 逐帧补间到目标值：保证进度条与数字同步，且 1-100 每个整数都会被显示出来
+    function loadbarAnimateTo(target, duration, cb) {
+        var el = document.querySelector('.qf-topload');
+        var bar = el ? el.querySelector('.progress-bar') : null;
+        if (loadProgress.raf) { cancelAnimationFrame(loadProgress.raf); loadProgress.raf = null; }
+        var startVal = loadProgress.value;
+        var startT = loadbarNow();
+        duration = Math.max(1, duration || 400);
+        // 补间期间关闭 CSS width 过渡，改由 rAF 逐帧驱动，避免文字跳数、条与数字不同步
+        if (bar) bar.style.transition = 'none';
+        function step() {
+            var t = Math.min(1, (loadbarNow() - startT) / duration);
+            var eased = 1 - Math.pow(1 - t, 2); // easeOut：前段快、末段稍缓
+            loadProgress.value = startVal + (target - startVal) * eased;
+            loadbarSet(loadProgress.value);
+            if (t < 1) {
+                loadProgress.raf = requestAnimationFrame(step);
+            } else {
+                loadProgress.raf = null;
+                loadProgress.value = target;
+                loadbarSet(target);
+                if (bar) bar.style.transition = '';
+                if (cb) cb();
+            }
+        }
+        loadProgress.raf = requestAnimationFrame(step);
+    }
+
     function loadbarStart() {
-        loadProgress.value = 8;
-        loadbarSet(8);
+        if (loadProgress.raf) { cancelAnimationFrame(loadProgress.raf); loadProgress.raf = null; }
+        // 从 1 起步，数值 1-100 全程可见
+        loadProgress.value = 1;
+        loadbarSet(1);
         if (loadProgress.timer) clearInterval(loadProgress.timer);
+        // 真实加载期间平滑爬升（前快后慢，封顶 92%）：加载越久数字停留越久，直观反映“慢”
         loadProgress.timer = window.setInterval(function() {
-            if (loadProgress.value < 90) {
-                loadProgress.value = Math.min(90, loadProgress.value + (90 - loadProgress.value) * 0.09 + 0.3);
+            if (loadProgress.raf) return; // 正在补间到 100 时不再 trickle
+            if (loadProgress.value < 92) {
+                loadProgress.value = Math.min(92, loadProgress.value + (92 - loadProgress.value) * 0.06 + 0.35);
                 loadbarSet(loadProgress.value);
             }
-        }, 220);
+        }, 90);
     }
 
     function loadbarDone() {
         if (loadProgress.timer) { clearInterval(loadProgress.timer); loadProgress.timer = null; }
-        loadProgress.value = 100;
-        loadbarSet(100);
-        window.setTimeout(function() { loadProgress.value = 0; loadbarSet(0); }, 320);
+        // 平滑冲到 100 并逐个显示剩余数字；剩余越多补间越久 => 加载越快，1-100 跑得越完整、越连贯
+        var remaining = Math.max(0, 100 - loadProgress.value);
+        var dur = Math.max(260, remaining * 9);
+        loadbarAnimateTo(100, dur, function() {
+            window.setTimeout(function() {
+                if (loadProgress.raf) { cancelAnimationFrame(loadProgress.raf); loadProgress.raf = null; }
+                loadProgress.value = 0;
+                loadbarSet(0);
+            }, 300);
+        });
     }
 
     function setLoading(active) {

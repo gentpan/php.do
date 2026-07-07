@@ -9343,7 +9343,7 @@ body.qf-is-loading .qf-topload { opacity: 1; }
     width: 0;
     background: linear-gradient(90deg, #00f260, #0575e6);
     border-radius: 30px;
-    transition: width .25s ease;
+    transition: width .12s linear;
     box-shadow: 0 0 15px #00f260, 0 0 30px #0575e6;
 }
 .qf-topload .progress-bar::before {
