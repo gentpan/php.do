@@ -1733,6 +1733,7 @@ button.action-badge {
     width: auto;
     min-width: 0;
     padding: 0 8px;
+    gap: 5px;
 }
 
 .action-badge-static > span {
@@ -1748,6 +1749,12 @@ button.action-badge {
 
 .action-badge-static > span::after {
     display: none;
+}
+
+/* 静态徽章（如 IP）无 tooltip：悬浮/聚焦时不要继承 tooltip 的平移，避免文字错位 */
+.action-badge-static:hover > span,
+.action-badge-static:focus-visible > span {
+    transform: none;
 }
 
 .move-thread-form {
