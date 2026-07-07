@@ -7103,7 +7103,7 @@ body.theme-php .phpdo-thread-breadcrumb {
     color: #8a9099;
     font-size: 13px;
     background: #fff;
-    border: 1px solid #eceef2;
+    border: 1px solid var(--phpnet-paper-border);
     border-radius: var(--phpdo-card-radius);
     box-shadow: var(--phpdo-shadow-soft);
 }
@@ -7189,7 +7189,13 @@ body.theme-php .phpdo-reply-avatar {
     height: 58px;
     object-fit: cover;
     background: #eef0f4;
-    border-radius: 50%;
+    border-radius: 0;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c9.601 0 12 2.399 12 12 0 9.601-2.399 12-12 12-9.601 0-12-2.399-12-12C0 2.399 2.399 0 12 0z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c9.601 0 12 2.399 12 12 0 9.601-2.399 12-12 12-9.601 0-12-2.399-12-12C0 2.399 2.399 0 12 0z'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
 }
 
 body.theme-php .post-meta {
@@ -7198,38 +7204,33 @@ body.theme-php .post-meta {
     line-height: 1.5;
 }
 
-/* 主楼标题区：标题 + meta 同一行（meta 靠右） */
-body.theme-php .phpdo-thread-title-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 18px;
-    flex-wrap: wrap;
-}
-body.theme-php .phpdo-thread-title-head h1 {
-    flex: 1 1 auto;
-    min-width: 0;
-    margin: 0;
-}
-body.theme-php .phpdo-thread-meta-inline {
+/* 主楼标题区：meta 在标题下方左侧（作者 · 等级 · 发布时间） */
+body.theme-php .phpdo-thread-title-meta {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex: 0 0 auto;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    margin: 0;
+    margin-top: 6px;
 }
-body.theme-php .phpdo-thread-meta-inline .phpdo-author-link {
+body.theme-php .phpdo-thread-title-meta .phpdo-author-link {
     color: #3a3f47;
     font-weight: 600;
 }
-body.theme-php .phpdo-thread-meta-inline .phpdo-meta-nums {
+body.theme-php .phpdo-thread-title-meta .phpdo-meta-time {
     color: #9298a1;
     font-size: 13px;
 }
-body.theme-php-dark .phpdo-thread-meta-inline .phpdo-author-link { color: #e6e6e6; }
-body.theme-php-dark .phpdo-thread-meta-inline .phpdo-meta-nums { color: #9a9a9a; }
+body.theme-php-dark .phpdo-thread-title-meta .phpdo-author-link { color: #e6e6e6; }
+body.theme-php-dark .phpdo-thread-title-meta .phpdo-meta-time { color: #9a9a9a; }
+
+/* 帖子正文底部右侧：浏览 · 回复 统计 */
+body.theme-php .phpdo-thread-foot-stats {
+    margin-top: 16px;
+    text-align: right;
+    color: #9298a1;
+    font-size: 13px;
+}
+body.theme-php-dark .phpdo-thread-foot-stats { color: #9a9a9a; }
 
 body.theme-php .phpdo-thread-votes {
     display: flex;

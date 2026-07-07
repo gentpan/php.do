@@ -378,7 +378,8 @@
             if (ip && ips.indexOf(ip) < 0) ips.push(ip);
         });
         if (!ips.length) return;
-        var url = 'api/geoip?ips=' + encodeURIComponent(ips.join(','));
+        var base = window.qfGeoipUrl || 'api/geoip.php';
+        var url = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'ips=' + encodeURIComponent(ips.join(','));
         fetch(url, { credentials: 'same-origin' }).then(function(r) {
             return r.json();
         }).then(function(res) {

@@ -46,7 +46,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
             --qf-content-font: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
         }
     </style>
-    <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>;</script>
+    <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>; window.qfGeoipUrl = <?php echo json_encode(qf_url_page('api/geoip.php')); ?>;</script>
     <script defer src="assets/lib/preline.min.js"></script>
     <script defer src="assets/lib/alpine.min.js"></script>
 </head>
