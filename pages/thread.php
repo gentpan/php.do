@@ -226,5 +226,5 @@ if ($me) {
 <?php } else { ?>
 <section class="card"><a href="<?php echo h(qf_url_page('login.php')); ?>">登录后回复</a></section>
 <?php } ?>
-<script src="<?php echo h(qf_asset_js('editor')); ?>"></script>
+<script src="<?php echo h(qf_asset_js('admin')); ?>"></script>
 <?php qf_include_footer(); ?>

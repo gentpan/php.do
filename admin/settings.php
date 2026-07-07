@@ -378,5 +378,5 @@ qf_include_header();
         <button class="btn" type="submit">保存设置</button>
     </form>
 </section>
-<script src="<?php echo h(qf_asset_js('admin-settings')); ?>"></script>
+<script src="<?php echo h(qf_asset_js('admin')); ?>"></script>
 <?php qf_include_footer(); ?>

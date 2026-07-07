@@ -109,5 +109,5 @@ qf_include_header();
     </form>
 </section>
 <script>window.qfForumCategories = <?php echo json_encode($forum_category_map); ?>;</script>
-<script src="<?php echo h(qf_asset_js('editor')); ?>"></script>
+<script src="<?php echo h(qf_asset_js('admin')); ?>"></script>
 <?php qf_include_footer(); ?>

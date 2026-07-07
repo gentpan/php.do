@@ -89,5 +89,5 @@ qf_include_header();
         <a class="btn btn-light" href="<?php echo h(qf_url_thread($id)); ?>">返回帖子</a>
     </form>
 </section>
-<script src="<?php echo h(qf_asset_js('editor')); ?>"></script>
+<script src="<?php echo h(qf_asset_js('admin')); ?>"></script>
 <?php qf_include_footer(); ?>
