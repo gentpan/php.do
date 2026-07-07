@@ -7104,8 +7104,8 @@ body.theme-php .phpdo-thread-breadcrumb {
     font-size: 13px;
     background: #fff;
     border: 1px solid #eceef2;
-    border-radius: 8px;
-    box-shadow: 0 1px 0 rgba(20, 20, 20, .02);
+    border-radius: var(--phpdo-card-radius);
+    box-shadow: var(--phpdo-shadow-soft);
 }
 
 /* 面包屑左侧链接组：可收缩，标题过长时省略号 */
