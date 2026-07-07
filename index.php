@@ -63,8 +63,15 @@ if ($forum_slug_id > 0) {
     require __DIR__ . '/pages/forum.php';
     exit;
 }
+if ($request_path === 'about' || $request_path === 'about.php') {
+    if ($request_path === 'about.php' && qf_rewrite_enabled()) {
+        qf_front_redirect(qf_url_page('about.php'));
+    }
+    $_SERVER['SCRIPT_NAME'] = '/about.php';
+    require __DIR__ . '/pages/about.php';
+    exit;
+}
 $front_routes = array(
-    'about' => 'about.php',
     'download' => 'download.php',
     'edit-thread' => 'edit-thread.php',
     'login' => 'login.php',
