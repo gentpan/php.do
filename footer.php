@@ -24,56 +24,49 @@ $footer_social_links = array(
 $footer_user = current_user();
 $footer_icp = trim(qf_setting('icp_code', ''));
 ?>
-<footer class="footer">
-    <div class="wrap footer-panel">
-        <section class="footer-brand" aria-label="站点信息">
-            <a class="footer-logo" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
-                <img src="assets/logo.svg" alt="<?php echo h(qf_site_name()); ?>">
-            </a>
-            <p><?php echo h(qf_site_desc()); ?></p>
-            <div class="footer-copyright">
-                <span>&copy; <?php echo date('Y'); ?> <?php echo h(qf_site_name()); ?></span>
-                <?php if ($footer_icp !== '') { ?><span><?php echo nl2br(h($footer_icp)); ?></span><?php } ?>
+<footer class="site-footer">
+    <div class="site-footer-inner">
+        <div class="site-footer-top">
+            <div class="site-footer-brand">
+                <a class="site-footer-logo" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
+                    <img src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>" draggable="false" oncontextmenu="return false;">
+                </a>
+                <p class="site-footer-desc"><?php echo h(qf_site_desc()); ?></p>
+                <div class="site-footer-social">
+                    <?php foreach ($footer_social_links as $link) { ?>
+                        <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener" title="<?php echo h($link['title']); ?>" aria-label="<?php echo h($link['title']); ?>">
+                            <i class="<?php echo h($link['icon']); ?>" aria-hidden="true"></i>
+                        </a>
+                    <?php } ?>
+                </div>
             </div>
-        </section>
-
-        <div class="footer-link-groups">
-            <nav class="footer-link-group footer-site-nav" aria-label="站点链接">
-                <h2>站点</h2>
-                <?php foreach ($footer_pages as $link) { ?>
-                    <a href="<?php echo h($link['url']); ?>"><?php echo h($link['title']); ?></a>
-                <?php } ?>
-            </nav>
-            <nav class="footer-link-group footer-forum-nav" aria-label="论坛分类">
-                <h2>分类</h2>
-                <?php foreach ($footer_forums as $footer_forum) { ?>
-                    <a href="<?php echo h(qf_url_forum($footer_forum['id'])); ?>"><?php echo h($footer_forum['name']); ?></a>
-                <?php } ?>
-            </nav>
-            <?php if (!empty($footer_friend_links)) { ?>
-                <nav class="footer-link-group footer-external-links" aria-label="友情链接">
-                    <h2>链接</h2>
-                    <?php foreach ($footer_friend_links as $link) { ?>
-                        <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener"><?php echo h($link['name']); ?></a>
+            <div class="site-footer-cols">
+                <nav class="site-footer-col" aria-label="站点链接">
+                    <h3>站点</h3>
+                    <?php foreach ($footer_pages as $link) { ?>
+                        <a href="<?php echo h($link['url']); ?>"><?php echo h($link['title']); ?></a>
                     <?php } ?>
                 </nav>
-            <?php } ?>
-        </div>
-
-        <section class="footer-social" aria-label="社交链接">
-            <div class="footer-social-links">
-                <?php foreach ($footer_social_links as $link) { ?>
-                    <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener" aria-label="<?php echo h($link['title']); ?>">
-                        <i class="<?php echo h($link['icon']); ?>" aria-hidden="true"></i>
-                        <span><?php echo h($link['title']); ?></span>
-                    </a>
+                <nav class="site-footer-col" aria-label="论坛分类">
+                    <h3>分类</h3>
+                    <?php foreach ($footer_forums as $footer_forum) { ?>
+                        <a href="<?php echo h(qf_url_forum($footer_forum['id'])); ?>"><?php echo h($footer_forum['name']); ?></a>
+                    <?php } ?>
+                </nav>
+                <?php if (!empty($footer_friend_links)) { ?>
+                    <nav class="site-footer-col" aria-label="友情链接">
+                        <h3>链接</h3>
+                        <?php foreach ($footer_friend_links as $link) { ?>
+                            <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener"><?php echo h($link['name']); ?></a>
+                        <?php } ?>
+                    </nav>
                 <?php } ?>
             </div>
-            <div class="footer-qr" aria-label="社区二维码位置">
-                <span><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
-                <strong>社区二维码</strong>
-            </div>
-        </section>
+        </div>
+        <div class="site-footer-bottom">
+            <span>&copy; <?php echo date('Y'); ?> <?php echo h(qf_site_name()); ?></span>
+            <?php if ($footer_icp !== '') { ?><span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?>
+        </div>
     </div>
 </footer>
 <aside class="phpdo-right-toolbar" aria-label="页面工具栏">

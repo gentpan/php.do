@@ -875,7 +875,7 @@ a:hover {
 
 .page-head h1 .back-home:hover {
     color: #3f4874;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 /* 首页“最新帖子”行内手机端发帖按钮：桌面端隐藏 */
@@ -4488,7 +4488,7 @@ body.theme-light a,
 body.theme-litenote a,
 body.theme-dark a {
     color: var(--php-accent);
-    text-decoration: underline;
+    text-decoration: none;
     text-underline-offset: 2px;
 }
 
@@ -5165,7 +5165,7 @@ body.theme-php .phpnet-release-strip a {
 
 body.theme-php .phpnet-release-strip a:hover {
     color: #FFFFFF;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 body.theme-php .phpnet-layout {
@@ -5221,7 +5221,7 @@ body.theme-php .phpnet-news-list .list-main > a::after {
 
 body.theme-php .phpnet-news-list .list-main > a:hover {
     color: #3f4874;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 body.theme-php .phpnet-news-list .list-meta {
@@ -8621,3 +8621,56 @@ body.theme-php-dark .settings-tabs { border-bottom-color: var(--phpdo-border); }
 body.theme-php-dark .settings-tabs button { background: var(--phpdo-surface); border-color: var(--phpdo-border); color: var(--phpdo-muted); }
 body.theme-php-dark .settings-tabs button.active { background: #505b93; color: #fff; border-color: #505b93; }
 body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
+
+/* ============================================================
+   重构页脚（深色纹理底上的浅色页脚）
+   ============================================================ */
+.site-footer {
+    margin-top: 24px;
+    padding: 42px 0 34px;
+    border-top: 1px solid rgba(255, 255, 255, .07);
+}
+.site-footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 28px;
+}
+.site-footer-top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    justify-content: space-between;
+}
+.site-footer-brand { flex: 1 1 280px; max-width: 380px; }
+.site-footer-logo { display: inline-block; }
+.site-footer-logo img { height: 34px; width: auto; user-select: none; -webkit-user-drag: none; }
+.site-footer-desc { margin: 16px 0; color: #9298a6; font-size: 14px; line-height: 1.7; }
+.site-footer-social { display: flex; gap: 10px; }
+.site-footer-social a {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 8px;
+    color: #c3c8d2; background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .08);
+    font-size: 17px; transition: color .15s, background .15s, border-color .15s;
+}
+.site-footer-social a:hover { color: #fff; background: #4f5b93; border-color: #4f5b93; }
+
+.site-footer-cols { display: flex; flex-wrap: wrap; gap: 56px; }
+.site-footer-col h3 { margin: 0 0 14px; color: #d7dae2; font-size: 14px; font-weight: 600; }
+.site-footer-col a { display: block; padding: 5px 0; color: #8b909d; font-size: 14px; transition: color .12s ease; }
+.site-footer-col a:hover { color: #fff; }
+
+.site-footer-bottom {
+    margin-top: 34px; padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, .06);
+    display: flex; flex-wrap: wrap; gap: 8px 20px;
+    color: #71767f; font-size: 13px;
+}
+.site-footer-icp a { color: #8b909d; }
+.site-footer-icp a:hover { color: #fff; }
+
+@media (max-width: 640px) {
+    .site-footer-top { gap: 32px; }
+    .site-footer-cols { gap: 36px; }
+    .site-footer-inner { padding: 0 18px; }
+}
