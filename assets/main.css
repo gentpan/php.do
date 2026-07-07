@@ -6895,22 +6895,55 @@ body.theme-php .phpdo-thread-title-card {
 }
 
 body.theme-php .phpdo-thread-breadcrumb {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     margin: 0 0 12px;
-    padding: 0 2px;
-    color: #9aa0a8;
-    font-size: 14px;
+    padding: 8px 14px;
+    color: #8a9099;
+    font-size: 13px;
+    background: #fff;
+    border: 1px solid #eceef2;
+    border-radius: 8px;
+    box-shadow: 0 1px 0 rgba(20, 20, 20, .02);
 }
 
 body.theme-php .phpdo-thread-breadcrumb a {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    color: #7d838c;
-    font-weight: 750;
+    color: #505b93;
+    font-weight: 600;
     text-decoration: none;
+    transition: color .15s ease;
+}
+body.theme-php .phpdo-thread-breadcrumb a:hover {
+    color: #3f4874;
+}
+body.theme-php .phpdo-thread-breadcrumb a i {
+    font-size: 12px;
+    opacity: .85;
+}
+body.theme-php .phpdo-thread-breadcrumb > span {
+    color: #c0c4cc;
+    font-size: 12px;
+    user-select: none;
+}
+
+body.theme-php-dark .phpdo-thread-breadcrumb {
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
+    color: var(--phpdo-muted);
+    box-shadow: var(--phpdo-shadow-soft);
+}
+body.theme-php-dark .phpdo-thread-breadcrumb a {
+    color: #a8b0d4;
+}
+body.theme-php-dark .phpdo-thread-breadcrumb a:hover {
+    color: #c5cae8;
+}
+body.theme-php-dark .phpdo-thread-breadcrumb > span {
+    color: #4a5060;
 }
 
 body.theme-php .phpdo-thread-title-row {
