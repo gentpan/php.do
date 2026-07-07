@@ -424,7 +424,7 @@ if ($ok) {
 <head>
     <meta charset="utf-8">
     <title>升级数据库</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/main.css">
 </head>
 <body>
 <main class="wrap narrow">

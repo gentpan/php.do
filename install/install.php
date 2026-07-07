@@ -365,7 +365,7 @@ try_files $uri $uri/ /index.php?$query_string;'
 <head>
     <meta charset="utf-8">
     <title>论坛安装</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/main.css">
 </head>
 <body>
 <main class="wrap narrow">

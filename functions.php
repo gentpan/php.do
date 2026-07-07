@@ -461,10 +461,11 @@ function qf_include_footer() {
     include qf_theme_file('footer.php');
 }
 
-function qf_asset_js($name) {
+function qf_asset_js($name, $base = 'assets/js/') {
     $name = trim((string)$name, '/');
-    $source = 'assets/js/' . $name . '.js';
-    $min = 'assets/js/' . $name . '.min.js';
+    $base = rtrim((string)$base, '/') . '/';
+    $source = $base . $name . '.js';
+    $min = $base . $name . '.min.js';
     $host = strtolower(isset($_SERVER['HTTP_HOST']) ? preg_replace('/:.*/', '', $_SERVER['HTTP_HOST']) : '');
     $local_hosts = array('', 'localhost', '127.0.0.1', '::1', 'lume.test');
     $path = (!in_array($host, $local_hosts, true) && file_exists(__DIR__ . '/' . $min)) ? $min : $source;

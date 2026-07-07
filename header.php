@@ -35,7 +35,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <meta name="msapplication-TileImage" content="assets/mstile-150x150.png">
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
     <link rel="stylesheet" href="assets/fonts/fira.css?v=<?php echo filemtime(__DIR__ . '/assets/fonts/fira.css'); ?>">
-    <link rel="stylesheet" href="assets/style.css?v=<?php echo filemtime(__DIR__ . '/assets/style.css'); ?>">
+    <link rel="stylesheet" href="assets/main.css?v=<?php echo filemtime(__DIR__ . '/assets/main.css'); ?>">
     <style>
         :root {
             --qf-title-font: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;

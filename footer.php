@@ -77,8 +77,8 @@ $footer_icp = trim(qf_setting('icp_code', ''));
     <button type="button" data-scroll-top aria-label="返回顶部" title="返回顶部"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
     <button type="button" data-scroll-bottom aria-label="到底部" title="到底部"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
 </aside>
-<script src="assets/litezoom.min.js"></script>
-<script src="<?php echo h(qf_asset_js('app')); ?>"></script>
+<script src="assets/lib/litezoom.min.js"></script>
+<script src="<?php echo h(qf_asset_js('main', 'assets/')); ?>"></script>
 <script>
 (function () {
     // Preline UI 初始化（页面加载 + AJAX 局部替换后）
