@@ -185,23 +185,23 @@ qf_include_header();
                             </a>
                             <div class="phpdo-thread-main">
                                 <h2>
-                                    <a href="<?php echo h(qf_url_thread($t['id'])); ?>">
-                                        <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-pill phpdo-pill-outline">置顶</span><?php } ?>
-                                        <?php echo h($t['title']); ?>
-                                    </a>
-                                    <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
+                                    <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-pill phpdo-pill-outline">置顶</span><?php } ?>
+                                    <?php if (intval($t['is_good'])) { ?><span class="phpdo-pill phpdo-good">精华</span><?php } ?>
+                                    <a href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
                                     <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
+                                    <?php if ($is_new) { ?><span class="phpdo-new">New</span><?php } ?>
                                 </h2>
-                                <p>
-                                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
-                                    <span>发表于 <?php echo h(format_time($t['created_at'])); ?></span>
-                                    <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
-                                    <?php if (intval($t['is_good'])) { ?><span class="phpdo-topic-tag phpdo-good">精华</span><?php } ?>
-                                </p>
-                            </div>
-                            <div class="phpdo-thread-stats" aria-label="帖子统计">
-                                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
-                                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                                <div class="phpdo-thread-meta">
+                                    <p>
+                                        <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
+                                        <span>发表于 <?php echo h(format_time($t['created_at'])); ?></span>
+                                        <?php if ($t['topic_category'] !== '') { ?><a class="phpdo-topic-tag" href="<?php echo h(qf_url_tag($t['topic_category'])); ?>"><?php echo h($t['topic_category']); ?></a><?php } ?>
+                                    </p>
+                                    <div class="phpdo-thread-stats" aria-label="帖子统计">
+                                        <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
+                                        <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                                    </div>
+                                </div>
                             </div>
                         </article>
                     <?php } ?>

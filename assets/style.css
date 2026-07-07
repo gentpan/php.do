@@ -5837,11 +5837,11 @@ body.theme-php .phpdo-thread-list {
 
 body.theme-php .phpdo-thread-row {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1fr) auto;
-    gap: 18px;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 16px;
     align-items: center;
-    min-height: 104px;
-    padding: 17px 0;
+    min-height: 84px;
+    padding: 16px 0;
     border-bottom: 1px solid var(--phpdo-line);
 }
 
@@ -5855,7 +5855,13 @@ body.theme-php .phpdo-avatar {
     height: 58px;
     overflow: hidden;
     background: #eef0f4;
-    border-radius: 50%;
+    border-radius: 0;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c9.601 0 12 2.399 12 12 0 9.601-2.399 12-12 12-9.601 0-12-2.399-12-12C0 2.399 2.399 0 12 0z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c9.601 0 12 2.399 12 12 0 9.601-2.399 12-12 12-9.601 0-12-2.399-12-12C0 2.399 2.399 0 12 0z'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
 }
 
 body.theme-php .phpdo-avatar img {
@@ -8749,4 +8755,26 @@ body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
     .site-footer-top { gap: 32px; }
     .site-footer-cols { gap: 36px; }
     .site-footer-inner { padding: 0 18px; }
+}
+
+/* 帖子卡片两行化：第二行 = 元信息(左) + 统计(右)，头像超级椭圆 */
+body.theme-php .phpdo-thread-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    min-width: 0;
+}
+body.theme-php .phpdo-thread-meta > p {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+body.theme-php .phpdo-thread-meta > .phpdo-thread-stats {
+    flex: 0 0 auto;
+    min-width: 0;
+    justify-content: flex-end;
+    margin: 0;
 }
