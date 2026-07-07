@@ -47,7 +47,6 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
         }
     </style>
     <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>;</script>
-    <!-- 前端栈（本地托管）：Preline UI（下拉）+ Alpine.js（交互）。样式全部手写，不再用 Tailwind。 -->
     <script defer src="assets/lib/preline.min.js"></script>
     <script defer src="assets/lib/alpine.min.js"></script>
 </head>
