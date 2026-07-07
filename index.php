@@ -63,7 +63,7 @@ if ($request_path === 'feed' || $request_path === 'feed.php' || $request_path ==
     exit;
 }
 if ($request_path === 'about' || $request_path === 'about.php') {
-    if ($request_path === 'about.php' && qf_rewrite_enabled()) {
+    if ($request_path === 'about' && qf_rewrite_enabled()) {
         qf_front_redirect(qf_url_page('about.php'));
     }
     $_SERVER['SCRIPT_NAME'] = '/about.php';

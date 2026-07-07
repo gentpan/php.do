@@ -716,6 +716,10 @@ function qf_url_page($script, $params = array(), $fragment = '') {
         unset($params['slug']);
         return qf_append_url_parts('/' . $slug . '.php', $params, $fragment);
     }
+    // 关于页规范地址保留 .php 扩展名（与 /rules.php、/help.php 等静态页一致）
+    if ($logical_script === 'about.php' || $script === 'pages/about.php') {
+        return qf_append_url_parts('/about.php', $params, $fragment);
+    }
     if (($logical_script === 'download.php' || $script === 'pages/download.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
