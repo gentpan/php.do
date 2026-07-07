@@ -63,9 +63,9 @@ if ($forum_slug_id > 0) {
     require __DIR__ . '/pages/forum.php';
     exit;
 }
-if ($request_path === 'rss' || $request_path === 'rss.php') {
-    $_SERVER['SCRIPT_NAME'] = '/rss.php';
-    require __DIR__ . '/pages/rss.php';
+if ($request_path === 'feed' || $request_path === 'feed.php' || $request_path === 'rss') {
+    $_SERVER['SCRIPT_NAME'] = '/feed.php';
+    require __DIR__ . '/pages/feed.php';
     exit;
 }
 if ($request_path === 'about' || $request_path === 'about.php') {

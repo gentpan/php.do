@@ -13,7 +13,7 @@ $header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums{$nav_hidden
 while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
     $header_forums[] = $header_forum;
 }
-$qf_rss_url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . (isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : '') . '/rss';
+$qf_rss_url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . (isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : '') . '/feed';
 $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 $page_body_class = 'page-' . preg_replace('/[^a-z0-9_-]+/', '-', strtolower(str_replace('.php', '', $current_script)));
 $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
@@ -39,6 +39,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
     <link rel="stylesheet" href="assets/fonts/fira.css?v=<?php echo filemtime(__DIR__ . '/assets/fonts/fira.css'); ?>">
     <link rel="stylesheet" href="assets/main.css?v=<?php echo filemtime(__DIR__ . '/assets/main.css'); ?>">
+    <link rel="alternate" type="application/rss+xml" title="<?php echo h(qf_site_name()); ?> · RSS" href="/feed">
     <style>
         :root {
             --qf-title-font: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;

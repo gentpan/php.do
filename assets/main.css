@@ -6046,6 +6046,8 @@ body.theme-php .phpdo-topic-tag {
     background: #fff3ef;
     border-radius: 3px;
 }
+/* 关键词/分类徽章文字不加粗 */
+body.theme-php .phpdo-topic-tag { font-weight: 400; }
 
 body.theme-php .phpdo-author-link,
 body.theme-php .phpdo-reply-author {

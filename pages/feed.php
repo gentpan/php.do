@@ -15,10 +15,11 @@ $rows = mysqli_query(db(), "SELECT t.id, t.title, t.content, t.created_at, u.nic
 header('Content-Type: application/rss+xml; charset=utf-8');
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
 <title><?php echo h(qf_site_name()); ?></title>
 <link><?php echo h($base); ?>/</link>
+<atom:link href="<?php echo h($base); ?>/feed" rel="self" type="application/rss+xml" />
 <description><?php echo h(qf_site_desc()); ?></description>
 <language>zh-CN</language>
 <generator><?php echo h(qf_site_name()); ?></generator>
