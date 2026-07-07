@@ -53,6 +53,24 @@ if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $order = intval($data['display_order']);
             if ($name !== '') {
                 mysqli_query(db(), "UPDATE qf_forums SET name='{$name}', description='{$desc}', topic_category_enabled={$topic_category_enabled}, topic_categories='{$topic_categories}', post_user_limit_enabled={$post_user_limit_enabled}, post_user_ids='{$post_user_ids}', display_order={$order} WHERE id={$forum_id}");
+                if (qf_table_has_column('qf_forums', 'banner')
+                    && isset($_FILES['forum_banner']['name'][$forum_id])
+                    && $_FILES['forum_banner']['name'][$forum_id] !== ''
+                    && $_FILES['forum_banner']['error'][$forum_id] === UPLOAD_ERR_OK) {
+                    $allow = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+                    $ext = strtolower(pathinfo($_FILES['forum_banner']['name'][$forum_id], PATHINFO_EXTENSION));
+                    if (in_array($ext, $allow, true)) {
+                        $dir = __DIR__ . '/../uploads/banners';
+                        if (!is_dir($dir)) {
+                            mkdir($dir, 0755, true);
+                        }
+                        $fname = 'banner_' . $forum_id . '_' . date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
+                        if (move_uploaded_file($_FILES['forum_banner']['tmp_name'][$forum_id], $dir . '/' . $fname)) {
+                            $bpath = esc('uploads/banners/' . $fname);
+                            mysqli_query(db(), "UPDATE qf_forums SET banner='{$bpath}' WHERE id={$forum_id}");
+                        }
+                    }
+                }
             }
         }
     }

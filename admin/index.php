@@ -48,13 +48,19 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
             <button class="btn">保存</button>
         </form>
         <h2>现有版块</h2>
-        <form method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'save_forums'))); ?>">
+        <form method="post" enctype="multipart/form-data" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'save_forums'))); ?>">
             <table class="forum-table forum-admin-table">
-                <tr><th class="forum-name-col">名称</th><th class="forum-desc-col">简介</th><th class="forum-category-col">主题分类</th><th class="forum-limit-col">指定用户ID发帖</th><th class="forum-order-col">排序</th><th class="forum-del-col">删除</th></tr>
+                <tr><th class="forum-name-col">名称</th><th class="forum-desc-col">简介</th><th>Banner 图</th><th class="forum-category-col">主题分类</th><th class="forum-limit-col">指定用户ID发帖</th><th class="forum-order-col">排序</th><th class="forum-del-col">删除</th></tr>
                 <?php while ($forums && $f = mysqli_fetch_assoc($forums)) { ?>
                     <tr>
                         <td><input type="text" name="forums[<?php echo intval($f['id']); ?>][name]" value="<?php echo h($f['name']); ?>" required></td>
                         <td><input type="text" name="forums[<?php echo intval($f['id']); ?>][description]" value="<?php echo h($f['description']); ?>"></td>
+                        <td class="forum-banner-cell">
+                            <?php if (isset($f['banner']) && $f['banner'] !== '') { ?>
+                                <img src="<?php echo h($f['banner']); ?>" alt="" style="display:block;width:120px;height:36px;object-fit:cover;border-radius:4px;margin-bottom:4px;">
+                            <?php } ?>
+                            <input type="file" name="forum_banner[<?php echo intval($f['id']); ?>]" accept=".jpg,.jpeg,.png,.gif,.webp">
+                        </td>
                         <td class="category-cell forum-category-cell">
                             <label class="category-inline"><input class="inline-check" type="checkbox" name="forums[<?php echo intval($f['id']); ?>][topic_category_enabled]" value="1" <?php if (intval($f['topic_category_enabled'])) echo 'checked'; ?>> 开启</label>
                             <input type="text" name="forums[<?php echo intval($f['id']); ?>][topic_categories]" value="<?php echo h($f['topic_categories']); ?>" placeholder="例如：意见,BUG">

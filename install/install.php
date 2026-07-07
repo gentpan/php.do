@@ -55,6 +55,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_forums (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(60) NOT NULL DEFAULT '',
   description varchar(255) NOT NULL DEFAULT '',
+  banner varchar(255) NOT NULL DEFAULT '',
   topic_category_enabled tinyint(1) NOT NULL DEFAULT '0',
   topic_categories varchar(255) NOT NULL DEFAULT '',
   post_user_limit_enabled tinyint(1) NOT NULL DEFAULT '0',

@@ -411,6 +411,13 @@ if ($ok) {
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
+
+if ($ok) {
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_forums LIKE 'banner'");
+    if ($check && mysqli_num_rows($check) === 0) {
+        mysqli_query(db(), "ALTER TABLE qf_forums ADD banner varchar(255) NOT NULL DEFAULT '' AFTER description");
+    }
+}
 ?>
 <!doctype html>
 <html lang="zh-CN">
