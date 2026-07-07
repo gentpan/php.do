@@ -96,7 +96,7 @@ qf_include_header();
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
     <form method="post" enctype="multipart/form-data">
         <div class="profile-avatar-preview">
-            <img src="<?php echo h($u['avatar'] !== '' ? $u['avatar'] : 'assets/avatar-default.svg'); ?>" alt="<?php echo h($u['nickname']); ?>">
+            <img src="<?php echo h(qf_user_avatar($u, 200)); ?>" alt="<?php echo h($u['nickname']); ?>">
         </div>
         <label>昵称</label>
         <input type="text" name="nickname" maxlength="30" value="<?php echo h($u['nickname']); ?>" required>

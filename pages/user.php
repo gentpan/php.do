@@ -1,14 +1,14 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 $id = qf_path_id();
-$rs = mysqli_query(db(), "SELECT id,username,nickname,avatar,signature,coins,reply_count,created_at FROM qf_users WHERE id={$id} AND status=1 LIMIT 1");
+$rs = mysqli_query(db(), "SELECT id,username,nickname,avatar,email,signature,coins,reply_count,created_at FROM qf_users WHERE id={$id} AND status=1 LIMIT 1");
 $user = $rs ? mysqli_fetch_assoc($rs) : null;
 if (!$user) {
     http_response_code(404);
     exit('用户不存在');
 }
 $display_name = $user['nickname'] !== '' ? $user['nickname'] : $user['username'];
-$avatar = $user['avatar'] !== '' ? $user['avatar'] : 'assets/avatar-default.svg';
+$avatar = qf_user_avatar($user, 200);
 $page_title = $display_name . ' - 用户主页 - ' . SITE_NAME;
 qf_include_header();
 $threads = mysqli_query(db(), "SELECT t.*, f.name AS forum_name FROM qf_threads t LEFT JOIN qf_forums f ON f.id=t.forum_id WHERE t.user_id=" . intval($user['id']) . " AND t.is_deleted=0 ORDER BY t.updated_at DESC LIMIT 30");

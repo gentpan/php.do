@@ -82,6 +82,32 @@ function qf_is_generated_avatar_path($avatar) {
     return preg_match('#^assets/avatars/(user|demo)-[a-zA-Z0-9_-]+\.svg$#', $avatar) === 1;
 }
 
+function qf_gravatar_url($email, $size = 160) {
+    $hash = md5(strtolower(trim((string)$email)));
+    return 'https://gravatar.bluecdn.com/avatar/' . $hash . '?s=' . intval($size) . '&d=identicon';
+}
+
+/**
+ * 统一解析用户头像：自定义上传 > 配置了邮箱走 Gravatar > 生成的默认头像 > 兜底。
+ * 传入的数组需含 avatar，可选 email。
+ */
+function qf_user_avatar($user, $size = 160) {
+    $avatar = isset($user['avatar']) ? (string)$user['avatar'] : '';
+    if ($avatar !== '' && !qf_is_generated_avatar_path($avatar)) {
+        return $avatar;
+    }
+    $email = '';
+    if (isset($user['email'])) {
+        $email = trim((string)$user['email']);
+    } elseif (isset($user['user_email'])) {
+        $email = trim((string)$user['user_email']);
+    }
+    if ($email !== '') {
+        return qf_gravatar_url($email, $size);
+    }
+    return $avatar !== '' ? $avatar : 'assets/avatar-default.svg';
+}
+
 function qf_pick_avatar_part($items, $hash, $shift = 0) {
     return $items[($hash >> $shift) % count($items)];
 }

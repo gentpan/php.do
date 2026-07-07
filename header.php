@@ -99,7 +99,7 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
                 <?php } else { ?>
                     <div class="hs-dropdown relative inline-flex">
                         <button id="qf-user-dd" type="button" class="hs-dropdown-toggle qf-user-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="用户菜单">
-                            <img src="<?php echo h($me['avatar'] !== '' ? $me['avatar'] : 'assets/avatar-default.svg'); ?>" alt="">
+                            <img src="<?php echo h(qf_user_avatar($me, 96)); ?>" alt="">
                             <span class="hidden sm:inline"><?php echo h($me['nickname']); ?></span>
                             <i class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
@@ -136,7 +136,7 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
 <aside class="side-user-menu" aria-label="用户快捷菜单" data-side-user-menu>
     <button class="side-user-trigger" type="button" aria-expanded="false" aria-haspopup="true" data-side-user-toggle>
         <?php if ($me) { ?>
-            <img src="<?php echo h($me['avatar'] !== '' ? $me['avatar'] : 'assets/avatar-default.svg'); ?>" alt="<?php echo h($me['nickname']); ?>">
+            <img src="<?php echo h(qf_user_avatar($me, 96)); ?>" alt="<?php echo h($me['nickname']); ?>">
         <?php } else { ?>
             <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
         <?php } ?>
@@ -144,7 +144,7 @@ $qf_cur_slug = ($current_script === 'page.php' && isset($_GET['slug'])) ? preg_r
     <div class="side-user-panel" role="menu" data-side-user-panel>
         <?php if ($me) { ?>
             <div class="side-user-card">
-                <img src="<?php echo h($me['avatar'] !== '' ? $me['avatar'] : 'assets/avatar-default.svg'); ?>" alt="<?php echo h($me['nickname']); ?>">
+                <img src="<?php echo h(qf_user_avatar($me, 96)); ?>" alt="<?php echo h($me['nickname']); ?>">
                 <div>
                     <strong><?php echo h($me['nickname']); ?></strong>
                     <span><?php echo h($me['username']); ?></span>

@@ -127,7 +127,7 @@ while ($forums && ($forum = mysqli_fetch_assoc($forums))) {
     $forum_rows[] = $forum;
 }
 
-$latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar,
+$latest = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email,
     (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM qf_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image
     FROM qf_threads t
     LEFT JOIN qf_forums f ON t.forum_id=f.id
@@ -175,10 +175,7 @@ qf_include_header();
             <div class="phpdo-thread-list latest-list">
                 <?php if ($latest && mysqli_num_rows($latest) > 0) { ?>
                     <?php while ($t = mysqli_fetch_assoc($latest)) {
-                        $avatar = trim((string)$t['avatar']);
-                        if ($avatar === '') {
-                            $avatar = 'assets/avatar-default.svg';
-                        }
+                        $avatar = qf_user_avatar($t, 80);
                         $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
                         $is_new = strtotime($t['created_at']) >= time() - 86400 * 7;
                     ?>

@@ -30,7 +30,7 @@ if (qf_topic_category_enabled($fid)) {
 }
 $page_title = $forum['name'] . ' - ' . SITE_NAME;
 qf_include_header();
-$threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar FROM qf_threads t LEFT JOIN qf_users u ON t.user_id=u.id
+$threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.email FROM qf_threads t LEFT JOIN qf_users u ON t.user_id=u.id
     WHERE t.forum_id={$fid} AND t.is_deleted=0{$where_extra}
     ORDER BY {$order_sql}
     LIMIT " . qf_forum_threads_limit());
@@ -58,10 +58,7 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar FROM
 <section class="card thread-list phpdo-forum-thread-list">
     <?php while ($threads && $t = mysqli_fetch_assoc($threads)) { ?>
         <?php
-        $avatar = trim((string)$t['avatar']);
-        if ($avatar === '') {
-            $avatar = 'assets/avatar-default.svg';
-        }
+        $avatar = qf_user_avatar($t, 80);
         $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
         ?>
         <div class="thread-row">

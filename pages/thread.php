@@ -3,7 +3,7 @@ require_once __DIR__ . '/../functions.php';
 qf_ensure_thread_vote_schema();
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
-$rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
+$rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
     LEFT JOIN qf_forums f ON t.forum_id=f.id
     LEFT JOIN qf_users u ON t.user_id=u.id
     WHERE t.id={$id} AND t.is_deleted=0 LIMIT 1");
@@ -13,15 +13,12 @@ $content_page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $paged_content = qf_paginate_content($thread['content'], qf_thread_page_chars(), $content_page);
 $page_title = $thread['title'] . ' - ' . SITE_NAME;
 qf_include_header();
-$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.signature, u.reply_count, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
+$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
     WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT 200");
 $attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
 $guest_zip_download_blocked = !current_user() && !qf_guest_download_allowed();
 $compressed_exts = array('zip', 'rar');
-$thread_avatar = trim((string)$thread['avatar']);
-if ($thread_avatar === '') {
-    $thread_avatar = 'assets/avatar-default.svg';
-}
+$thread_avatar = qf_user_avatar($thread, 160);
 $thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['username'];
 $me = current_user();
 $user_vote = 0;
@@ -124,10 +121,7 @@ if ($me) {
         <?php $floor_no++; ?>
         <?php $reply_attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE post_id=" . intval($p['id']) . " ORDER BY id ASC"); ?>
         <?php
-        $reply_avatar = trim((string)$p['avatar']);
-        if ($reply_avatar === '') {
-            $reply_avatar = 'assets/avatar-default.svg';
-        }
+        $reply_avatar = qf_user_avatar($p, 96);
         $reply_author = $p['nickname'] !== '' ? $p['nickname'] : $p['username'];
         $reply_level = max(1, min(9, intval(floor(intval($p['reply_count']) / 20)) + 1));
         $reply_signature = trim((string)$p['signature']);

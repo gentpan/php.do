@@ -9,7 +9,7 @@ $page_title = $tag . ' - 标签 - ' . SITE_NAME;
 qf_include_header();
 $tag_sql = esc($tag);
 $like_sql = esc($tag);
-$threads = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar
+$threads = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email
     FROM qf_threads t
     LEFT JOIN qf_forums f ON f.id=t.forum_id
     LEFT JOIN qf_users u ON u.id=t.user_id
@@ -27,10 +27,7 @@ $threads = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.u
 
 <section class="card thread-list">
     <?php $count = 0; while ($threads && ($t = mysqli_fetch_assoc($threads))) { $count++;
-        $avatar = trim((string)$t['avatar']);
-        if ($avatar === '') {
-            $avatar = 'assets/avatar-default.svg';
-        }
+        $avatar = qf_user_avatar($t, 80);
         $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
     ?>
         <div class="thread-row">

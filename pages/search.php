@@ -13,7 +13,7 @@ qf_include_header();
 </section>
 <?php if ($q !== '') { 
     $qs = esc($q);
-    $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar
+    $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email
         FROM qf_threads t
         LEFT JOIN qf_forums f ON t.forum_id=f.id
         LEFT JOIN qf_users u ON t.user_id=u.id
@@ -26,10 +26,7 @@ qf_include_header();
         <div class="phpdo-empty">没有找到相关帖子，可以换一个关键词再试。</div>
     <?php } ?>
     <?php while ($rs && $t = mysqli_fetch_assoc($rs)) {
-        $avatar = trim((string)$t['avatar']);
-        if ($avatar === '') {
-            $avatar = 'assets/avatar-default.svg';
-        }
+        $avatar = qf_user_avatar($t, 80);
         $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
     ?>
         <div class="thread-row">
