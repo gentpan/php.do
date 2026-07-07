@@ -707,29 +707,35 @@
     function toast(message, type) {
         message = String(message || '').trim();
         if (!message) return;
-        type = type === 'error' ? 'error' : 'success';
+        var isError = type === 'error';
 
-        var old = document.querySelector('.qf-toast');
-        if (old) old.remove();
+        var stack = document.querySelector('.qf-toast-stack');
+        if (!stack) {
+            stack = document.createElement('div');
+            stack.className = 'qf-toast-stack';
+            stack.setAttribute('aria-live', 'polite');
+            stack.setAttribute('aria-atomic', 'true');
+            document.body.appendChild(stack);
+        }
 
         var item = document.createElement('div');
-        item.className = 'qf-toast qf-toast-' + type;
-        item.setAttribute('role', type === 'error' ? 'alert' : 'status');
-        item.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
-        item.innerHTML = '<i class="fa-solid ' + (type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-check') + '" aria-hidden="true"></i><span></span>';
-        item.querySelector('span').textContent = message;
-        document.body.appendChild(item);
+        item.className = 'qf-toast qf-toast-' + (isError ? 'error' : 'success');
+        item.setAttribute('role', isError ? 'alert' : 'status');
+        item.innerHTML = (isError
+            ? '<i class="fa-solid fa-triangle-exclamation"></i>'
+            : '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>')
+            + '<span class="qf-toast-message"></span>';
+        item.querySelector('.qf-toast-message').textContent = message;
+        stack.appendChild(item);
 
-        requestAnimationFrame(function() {
-            item.classList.add('is-visible');
-        });
-
-        window.setTimeout(function() {
-            item.classList.remove('is-visible');
+        var close = function() {
+            if (item.classList.contains('is-leaving')) return;
+            item.classList.add('is-leaving');
             window.setTimeout(function() {
                 if (item.parentNode) item.parentNode.removeChild(item);
             }, 180);
-        }, 2200);
+        };
+        window.setTimeout(close, 3600);
     }
 
     function initToast() {

@@ -3871,34 +3871,43 @@ body.theme-dark .site-nav-bar .nav-more-menu {
     display: none;
 }
 
-.qf-toast {
+/* Toast：与 LiteNote 后台 toast 样式完全一致 */
+.qf-toast-stack {
     position: fixed;
     right: 24px;
     bottom: 24px;
     z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+    width: auto;
+    max-width: calc(100vw - 48px);
+    pointer-events: none;
+}
+
+.qf-toast {
     display: inline-flex;
     gap: 8px;
     align-items: center;
-    max-width: calc(100vw - 48px);
-    min-height: 42px;
+    justify-content: flex-start;
+    width: auto;
+    max-width: 100%;
+    min-height: 44px;
     padding: 10px 14px;
     overflow: hidden;
-    color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    line-height: 1.45;
-    white-space: pre-line;
-    pointer-events: none;
+    color: #fff;
+    pointer-events: auto;
     background: #0f172a;
-    border: 1px solid rgba(15, 23, 42, .1);
+    border: 1px solid rgba(15, 23, 42, 0.1);
     border-radius: 8px;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, .18);
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 180ms ease, transform 180ms ease;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+    animation: toast-in 0.2s ease-out;
 }
 
-.qf-toast i {
+.qf-toast > i {
     display: inline-grid;
     flex: 0 0 20px;
     place-items: center;
@@ -3908,69 +3917,53 @@ body.theme-dark .site-nav-bar .nav-more-menu {
     transform: translateY(-1px);
 }
 
-.qf-toast span {
+.qf-toast > .qf-toast-message {
     flex: 1 1 auto;
     min-width: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #fff;
     overflow-wrap: anywhere;
 }
 
-.qf-toast.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.qf-toast-error {
-    color: #fff;
-    background: #0f172a;
-    border-color: rgba(15, 23, 42, .1);
-}
-
-.qf-toast-error i {
-    color: #ef4444;
-}
-
 .qf-toast-success {
-    color: #fff;
     background: #0f172a;
-    border-color: rgba(15, 23, 42, .1);
+    border-color: rgba(15, 23, 42, 0.1);
 }
 
-.qf-toast-success i {
+.qf-toast-success > i {
     color: #22c55e;
 }
 
-body.theme-litenote .qf-toast {
-    color: #fff;
+.qf-toast-error {
     background: #0f172a;
-    border-color: rgba(15, 23, 42, .1);
-    box-shadow: 0 12px 28px rgba(15, 23, 42, .18);
+    border-color: rgba(15, 23, 42, 0.1);
 }
 
-body.theme-dark .qf-toast {
-    color: #fff;
-    background: #0f172a;
-    border-color: rgba(15, 23, 42, .35);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, .45);
+.qf-toast-error > i {
+    color: #ef4444;
 }
 
-body.theme-dark .qf-toast-error {
-    color: #fff;
+.qf-toast.is-leaving {
+    animation: toast-out 0.18s ease-in forwards;
 }
 
-body.theme-dark .qf-toast-success {
-    color: #fff;
-}
-
-@media (max-width: 768px) {
-    .qf-toast {
-        right: 50%;
-        bottom: calc(92px + env(safe-area-inset-bottom, 0px));
-        max-width: min(340px, calc(100vw - 32px));
-        transform: translate(50%, 8px);
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
     }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-    .qf-toast.is-visible {
-        transform: translate(50%, 0);
+@keyframes toast-out {
+    to {
+        opacity: 0;
+        transform: translateY(8px);
     }
 }
 
@@ -4914,18 +4907,8 @@ textarea:disabled {
 }
 
 .danger,
-.alert.danger,
-.qf-toast-error {
+.alert.danger {
     color: #9F1D35;
-}
-
-.qf-toast,
-body.theme-dark .qf-toast,
-body.theme-litenote .qf-toast {
-    color: #FFFFFF;
-    background: var(--php-nav);
-    border: 1px solid rgba(0, 0, 0, .1);
-    border-radius: 4px;
 }
 
 .side-user-panel a {
