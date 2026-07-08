@@ -381,11 +381,13 @@ body.pd-standalone .pd-banner-logo img {
     font-size: 17px;
     text-align: center;
 }
-/* 登录/Passkey/第三方按钮统一为圆角矩形（非胶囊），同一尺寸家族 */
+/* 登录/Passkey/第三方按钮统一为圆角矩形（非胶囊），同一尺寸家族。
+   main.css 顶部有 “Final shape lock” 对 button 强制 999px !important，
+   这里用 !important 覆盖回 8px（Google/GitHub 是 <a> 不受影响）。 */
 .pd-auth-submit,
 .pd-auth-oauth a,
 .pd-auth-oauth button {
-    border-radius: 8px;
+    border-radius: 8px !important;
     height: 48px;
 }
 .pd-auth2-switch {
@@ -419,7 +421,7 @@ body.pd-standalone .pd-banner-logo img {
     height: 34px; min-width: 34px; padding: 0 10px;
     display: inline-flex; align-items: center; justify-content: center;
     color: var(--pd-muted); background: var(--pd-surface-soft);
-    border: 1px solid var(--pd-border); border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--pd-border); border-radius: 6px !important; cursor: pointer;
     font-size: 14px; transition: color .15s ease, border-color .15s ease;
 }
 .pd-affix-btn:hover { color: var(--pd-accent); border-color: var(--pd-accent); }
