@@ -33,8 +33,10 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(fn (): string => ForumBrand::name())
             ->brandLogo(ForumBrand::logoUrl(false))
             ->darkModeBrandLogo(ForumBrand::logoUrl(true))
-            ->brandLogoHeight('2rem')
+            ->brandLogoHeight('1.75rem')
             ->favicon('/assets/favicon.ico')
+            ->sidebarWidth('12.5rem')
+            ->collapsedSidebarWidth('3.5rem')
             ->colors([
                 'primary' => Color::Amber,
             ])
