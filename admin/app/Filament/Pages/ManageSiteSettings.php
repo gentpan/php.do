@@ -74,8 +74,8 @@ class ManageSiteSettings extends Page
             ->components([
                 Tabs::make('settings')->tabs([
                     Tab::make('基本信息')->schema([
-                        TextInput::make('site_name')->label('站点名称'),
-                        TextInput::make('site_slogan')->label('站点副标题')->helperText('显示在浏览器标签标题与首页“关于社区”卡片'),
+                        TextInput::make('site_name')->label('站点标题'),
+                        TextInput::make('site_slogan')->label('副标题')->helperText('显示在浏览器标签标题与首页“关于社区”卡片'),
                         Textarea::make('site_desc')->label('网站简介')->rows(3)->helperText('用于搜索引擎 meta description'),
                         TextInput::make('site_keywords')->label('关键词'),
                         Textarea::make('icp_code')->label('备案信息')->rows(2),
