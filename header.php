@@ -49,7 +49,6 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
         }
     </style>
     <script>window.pdCsrfToken = <?php echo json_encode(pd_csrf_token()); ?>; window.pdGeoipUrl = <?php echo json_encode(pd_url_page('api/geoip.php')); ?>; window.pdUserTimezone = <?php echo json_encode(pd_user_timezone($me)); ?>; window.pdCurrentUserId = <?php echo json_encode($me ? intval($me['id']) : 0); ?>;</script>
-    <script defer src="assets/lib/preline.min.js"></script>
     <script defer src="assets/lib/alpine.min.js"></script>
 </head>
 <body class="theme-pd <?php echo h($page_body_class); ?><?php echo !empty($pd_lite_layout) ? ' pd-standalone' : ''; ?>">

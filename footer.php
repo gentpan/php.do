@@ -235,16 +235,6 @@ $online = pd_online_counts();
 <script src="<?php echo h(pd_asset_js('main', 'assets/')); ?>"></script>
 <script>
 (function () {
-    // Preline UI 初始化（页面加载 + AJAX 局部替换后）
-    function pdPrelineInit() {
-        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-            window.HSStaticMethods.autoInit();
-        }
-    }
-    if (document.readyState !== 'loading') { pdPrelineInit(); }
-    window.addEventListener('load', pdPrelineInit);
-    window.pdPrelineInit = pdPrelineInit;
-
     // 搜索模态窗：⌘/Ctrl+K 或 / 打开，Esc / 点击遮罩关闭
     (function () {
         var modal = document.getElementById('pd-search-modal');
