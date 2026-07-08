@@ -19,19 +19,8 @@ if ($q !== '') {
 pd_include_header();
 ?>
 <div class="pd-search">
-    <section class="pd-search-hero">
-        <h1 class="pd-search-title">搜索</h1>
-        <form class="pd-search-box" method="get" action="<?php echo h(pd_url_page('search.php')); ?>" role="search">
-            <i class="fa-solid fa-magnifying-glass pd-search-box-icon" aria-hidden="true"></i>
-            <input type="search" name="q" value="<?php echo h($q); ?>" placeholder="输入关键词，回车搜索…" autocomplete="off" autofocus>
-            <button type="submit" class="pd-search-box-btn">搜索</button>
-        </form>
-        <?php if ($q !== '') { ?>
-            <p class="pd-search-summary">找到 <b><?php echo intval($found); ?></b> 条与 “<span><?php echo h($q); ?></span>” 相关的结果</p>
-        <?php } ?>
-    </section>
-
     <?php if ($q !== '') { ?>
+    <p class="pd-search-summary">找到 <b><?php echo intval($found); ?></b> 条与 “<span><?php echo h($q); ?></span>” 相关的结果</p>
     <section class="pd-search-results thread-list">
         <?php if ($found === 0) { ?>
             <div class="pd-empty">没有找到相关帖子，可以换一个关键词再试。</div>
@@ -40,6 +29,11 @@ pd_include_header();
             <?php echo pd_render_thread_row($t, array('variant' => 'list', 'meta' => 'search')); ?>
         <?php } ?>
     </section>
+    <?php } else { ?>
+    <div class="pd-search-empty">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <p>请使用顶部导航的搜索框输入关键词进行搜索。</p>
+    </div>
     <?php } ?>
 </div>
 <?php pd_include_footer(); ?>
