@@ -34,6 +34,25 @@ function pd_ensure_upload_protection() {
 }
 
 // ===== 用户积分、等级与用户组 =====
+function pd_ensure_attachment_download_schema() {
+    static $done = false;
+    if ($done) {
+        return true;
+    }
+    $done = true;
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_attachment_downloads (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      attachment_id int(11) NOT NULL DEFAULT '0',
+      user_id int(11) NOT NULL DEFAULT '0',
+      cost int(11) NOT NULL DEFAULT '0',
+      created_at datetime NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY uniq_att_user (attachment_id, user_id),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    return true;
+}
+
 function pd_ensure_points_schema() {
     static $done = false;
     if ($done) {

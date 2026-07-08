@@ -127,6 +127,10 @@ function pd_render_attachment_list($attachments, $opts = array()) {
     $guest_zip_blocked = !empty($opts['guest_zip_blocked']);
     $compressed_exts = array('zip', 'rar');
     $image_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+    $dl_cost = pd_download_points_cost();
+    $dl_viewer = current_user();
+    $dl_viewer_id = $dl_viewer ? intval($dl_viewer['id']) : 0;
+    $dl_viewer_admin = $dl_viewer && !empty($dl_viewer['is_admin']);
     ob_start();
     ?>
     <div class="attachment-list<?php echo h($reply_class); ?>">
@@ -141,7 +145,7 @@ function pd_render_attachment_list($attachments, $opts = array()) {
             <?php } else {
                 $zip_blocked = $guest_zip_blocked && in_array($ext, $compressed_exts, true); ?>
                 <a class="attachment-file" href="<?php echo h($zip_blocked ? pd_url_page('register.php') : pd_attachment_url($att['id'])); ?>" target="_blank" <?php if ($zip_blocked) echo pd_guest_download_confirm_onclick(); ?>>
-                    <?php echo h($att['original_name']); ?> · <?php echo h(strtoupper($att['file_ext'])); ?> · <?php echo round(intval($att['file_size']) / 1024, 1); ?>KB · 下载次数 <?php echo intval(isset($att['download_count']) ? $att['download_count'] : 0); ?>
+                    <?php echo h($att['original_name']); ?> · <?php echo h(strtoupper($att['file_ext'])); ?> · <?php echo round(intval($att['file_size']) / 1024, 1); ?>KB · 下载次数 <?php echo intval(isset($att['download_count']) ? $att['download_count'] : 0); ?><?php if ($dl_cost > 0 && !$dl_viewer_admin && $dl_viewer_id !== intval($att['user_id'])) { ?> · <span class="attachment-price">首次下载需 <?php echo intval($dl_cost); ?> 积分</span><?php } ?>
                 </a>
                 <?php echo pd_attachment_delete_form($att);
             }

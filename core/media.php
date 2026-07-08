@@ -61,6 +61,21 @@ function pd_attachment_url($id) {
     return pd_url_page('download.php', array('id' => intval($id)));
 }
 
+// 每次首下载扣的积分（0 = 不扣费）
+function pd_download_points_cost() {
+    return max(0, intval(pd_setting('download_points_cost', 0)));
+}
+
+// 判断某用户是否已为该附件付过费（付过则免费重下）
+function pd_attachment_purchased($attachment_id, $user_id) {
+    $attachment_id = intval($attachment_id);
+    $user_id = intval($user_id);
+    if ($attachment_id <= 0 || $user_id <= 0) return false;
+    pd_ensure_attachment_download_schema();
+    $rs = mysqli_query(db(), "SELECT id FROM pd_attachment_downloads WHERE attachment_id={$attachment_id} AND user_id={$user_id} LIMIT 1");
+    return $rs && mysqli_num_rows($rs) > 0;
+}
+
 function pd_attachment_delete_form($att, $label = '删除附件') {
     if (!pd_can_delete_attachment($att)) {
         return '';
