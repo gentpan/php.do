@@ -58,7 +58,7 @@ if ($me) {
     <div class="phpdo-thread-title-row">
         <img class="phpdo-author-avatar" src="<?php echo h($thread_avatar); ?>" alt="">
         <div>
-            <h1<?php echo intval($thread['is_good']) ? ' class="phpdo-title-good"' : ''; ?>><?php echo h($thread['title']); ?></h1>
+            <h1<?php echo qf_thread_title_attr($thread); ?>><?php echo h($thread['title']); ?></h1>
             <?php $thread_author_points = intval(isset($thread['author_points']) ? $thread['author_points'] : 0); ?>
             <div class="post-meta phpdo-thread-title-meta">
                 <span class="phpdo-meta-time"><?php echo format_time($thread['created_at']); ?></span>

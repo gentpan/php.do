@@ -112,9 +112,9 @@ function phpdo_render_thread_row($t) {
         </a>
         <div class="phpdo-thread-main">
             <h2>
-                <?php if (intval($t['is_top']) === 1) { ?><span class="phpdo-badge-sq phpdo-badge-top" title="置顶" aria-label="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span><?php } ?>
-                <?php if (intval($t['is_good'])) { ?><span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span><?php } ?>
-                <a href="<?php echo h(qf_url_thread($t['id'])); ?>"<?php echo intval($t['is_good']) ? ' class="phpdo-title-good"' : ''; ?>><?php echo h($t['title']); ?></a>
+                <?php echo qf_thread_top_badge_html($t); ?>
+                <?php echo qf_thread_good_badge_html($t); ?>
+                <a href="<?php echo h(qf_url_thread($t['id'])); ?>"<?php echo qf_thread_title_attr($t); ?>><?php echo h($t['title']); ?></a>
                 <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
                 <?php if (!empty($t['has_attachment'])) { ?><i class="fa-solid fa-paperclip phpdo-attach-icon" title="含附件" aria-label="含附件"></i><?php } ?>
                 <?php if ($is_new) { ?><i class="fa-solid fa-rectangle-new phpdo-new" title="新帖" aria-label="新帖"></i><?php } ?>

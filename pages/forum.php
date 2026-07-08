@@ -49,9 +49,9 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.e
                 <img src="<?php echo h($avatar); ?>" alt="">
             </a>
             <div class="thread-main">
-                <a class="thread-title<?php echo intval($t['is_good']) ? ' phpdo-title-good' : ''; ?>" href="<?php echo h(qf_url_thread($t['id'])); ?>">
-                    <?php if (intval($t['is_top']) > 0) { ?><span class="phpdo-badge-sq phpdo-badge-top" title="置顶" aria-label="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span><?php } ?>
-                    <?php if (intval($t['is_good'])) { ?><span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span><?php } ?>
+                <a<?php echo qf_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(qf_url_thread($t['id'])); ?>">
+                    <?php echo qf_thread_top_badge_html($t); ?>
+                    <?php echo qf_thread_good_badge_html($t); ?>
                     <?php echo h($t['title']); ?>
                 </a>
                 <p><a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>

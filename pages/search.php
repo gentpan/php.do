@@ -32,7 +32,7 @@ qf_include_header();
         <div class="thread-row">
             <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1"><img src="<?php echo h($avatar); ?>" alt=""></a>
             <div class="thread-main">
-                <a class="thread-title<?php echo intval($t['is_good']) ? ' phpdo-title-good' : ''; ?>" href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
+                <a<?php echo qf_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
                 <p>
                     <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
                     <span><?php echo h($t['forum_name']); ?></span>

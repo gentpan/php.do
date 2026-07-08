@@ -5079,6 +5079,10 @@ body.theme-php {
     --phpdo-gold: #f5a623;
     --phpdo-good-title: #c58a12;
     --phpdo-good-title-hover: #a87310;
+    --phpdo-top-title: #d1495b;
+    --phpdo-top-title-hover: #b83a4a;
+    --phpdo-top-board-title: #e05a4a;
+    --phpdo-top-board-title-hover: #c94a3a;
 
     /* 文字 */
     --phpdo-text: #3f3f3f;
@@ -5170,6 +5174,10 @@ body.theme-php-dark {
     --phpdo-red: #ff8a78;
     --phpdo-good-title: #f5a623;
     --phpdo-good-title-hover: #ffc04d;
+    --phpdo-top-title: #ff8a78;
+    --phpdo-top-title-hover: #ffb0a3;
+    --phpdo-top-board-title: #ff8a78;
+    --phpdo-top-board-title-hover: #ffb0a3;
     --phpdo-nav-bg: #151821;
     --phpdo-nav-border: var(--phpdo-border);
     --phpdo-nav-shadow: 0 .125rem .75rem rgba(0, 0, 0, .28);
@@ -6298,6 +6306,36 @@ body.theme-php .post-title-card h1.phpdo-title-good {
 body.theme-php .phpdo-thread-main h2 a.phpdo-title-good:hover,
 body.theme-php .thread-title.phpdo-title-good:hover {
     color: var(--phpdo-good-title-hover) !important;
+}
+
+body.theme-php .phpdo-thread-main h2 a.phpdo-title-top,
+body.theme-php .thread-title.phpdo-title-top,
+body.theme-php .post-title-card h1.phpdo-title-top {
+    color: var(--phpdo-top-title) !important;
+}
+
+body.theme-php .phpdo-thread-main h2 a.phpdo-title-top-board,
+body.theme-php .thread-title.phpdo-title-top-board,
+body.theme-php .post-title-card h1.phpdo-title-top-board {
+    color: var(--phpdo-top-board-title) !important;
+}
+
+body.theme-php .phpdo-thread-main h2 a.phpdo-title-top:hover,
+body.theme-php .thread-title.phpdo-title-top:hover,
+body.theme-php .post-title-card h1.phpdo-title-top:hover {
+    color: var(--phpdo-top-title-hover) !important;
+}
+
+body.theme-php .phpdo-thread-main h2 a.phpdo-title-top-board:hover,
+body.theme-php .thread-title.phpdo-title-top-board:hover,
+body.theme-php .post-title-card h1.phpdo-title-top-board:hover {
+    color: var(--phpdo-top-board-title-hover) !important;
+}
+
+body.theme-php .phpdo-thread-main h2 a.phpdo-title-top.phpdo-title-good,
+body.theme-php .thread-title.phpdo-title-top.phpdo-title-good,
+body.theme-php .post-title-card h1.phpdo-title-top.phpdo-title-good {
+    color: var(--phpdo-top-title) !important;
 }
 
 /* 徽章/按钮样式变体：柔和底色系（可用于置顶/精华/分类等各种标签） */
@@ -8525,6 +8563,36 @@ body.theme-php-dark .post-title-card h1.phpdo-title-good {
 body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-good:hover,
 body.theme-php-dark .thread-title.phpdo-title-good:hover {
     color: var(--phpdo-good-title-hover) !important;
+}
+
+body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-top,
+body.theme-php-dark .thread-title.phpdo-title-top,
+body.theme-php-dark .post-title-card h1.phpdo-title-top {
+    color: var(--phpdo-top-title) !important;
+}
+
+body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-top-board,
+body.theme-php-dark .thread-title.phpdo-title-top-board,
+body.theme-php-dark .post-title-card h1.phpdo-title-top-board {
+    color: var(--phpdo-top-board-title) !important;
+}
+
+body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-top:hover,
+body.theme-php-dark .thread-title.phpdo-title-top:hover,
+body.theme-php-dark .post-title-card h1.phpdo-title-top:hover {
+    color: var(--phpdo-top-title-hover) !important;
+}
+
+body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-top-board:hover,
+body.theme-php-dark .thread-title.phpdo-title-top-board:hover,
+body.theme-php-dark .post-title-card h1.phpdo-title-top-board:hover {
+    color: var(--phpdo-top-board-title-hover) !important;
+}
+
+body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-top.phpdo-title-good,
+body.theme-php-dark .thread-title.phpdo-title-top.phpdo-title-good,
+body.theme-php-dark .post-title-card h1.phpdo-title-top.phpdo-title-good {
+    color: var(--phpdo-top-title) !important;
 }
 
 body.theme-php-dark .phpdo-badge-good { background: var(--phpdo-gold); }

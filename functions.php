@@ -1047,6 +1047,50 @@ function qf_recount_post_votes($post_id) {
     return array('upvotes' => $up, 'downvotes' => $down);
 }
 
+// 帖子列表/详情：置顶与精华标题 class、徽章 HTML（全站 is_top=1 / 版块 is_top=2）
+function qf_thread_title_classes($row) {
+    $classes = array();
+    $is_top = intval(isset($row['is_top']) ? $row['is_top'] : 0);
+    if ($is_top === 1) {
+        $classes[] = 'phpdo-title-top';
+        $classes[] = 'phpdo-title-top-global';
+    } elseif ($is_top === 2) {
+        $classes[] = 'phpdo-title-top';
+        $classes[] = 'phpdo-title-top-board';
+    }
+    if (intval(isset($row['is_good']) ? $row['is_good'] : 0)) {
+        $classes[] = 'phpdo-title-good';
+    }
+    return implode(' ', $classes);
+}
+
+function qf_thread_title_attr($row, $base_classes = '') {
+    $classes = trim((string)$base_classes);
+    $extra = qf_thread_title_classes($row);
+    if ($extra !== '') {
+        $classes = $classes === '' ? $extra : $classes . ' ' . $extra;
+    }
+    return $classes === '' ? '' : ' class="' . h($classes) . '"';
+}
+
+function qf_thread_top_badge_html($row) {
+    $is_top = intval(isset($row['is_top']) ? $row['is_top'] : 0);
+    if ($is_top === 1) {
+        return '<span class="phpdo-badge-sq phpdo-badge-top phpdo-badge-top-global" title="全站置顶" aria-label="全站置顶"><i class="fa-solid fa-up-long" aria-hidden="true"></i></span>';
+    }
+    if ($is_top === 2) {
+        return '<span class="phpdo-badge-sq phpdo-badge-top phpdo-badge-top-board" title="版块置顶" aria-label="版块置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span>';
+    }
+    return '';
+}
+
+function qf_thread_good_badge_html($row) {
+    if (!intval(isset($row['is_good']) ? $row['is_good'] : 0)) {
+        return '';
+    }
+    return '<span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span>';
+}
+
 // 帖子表情反应：5 种类型（key => emoji + 标签）。每人每帖只能选 1 种。
 function qf_reaction_types() {
     return array(
