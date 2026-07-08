@@ -12,8 +12,8 @@ $register_action = h(pd_url_page('api/auth.php', array('action' => 'register')))
     <title>UI 预览：登录/注册（Tailwind + daisyUI）</title>
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
     <link rel="stylesheet" href="assets/fonts/fira.css">
-    <!-- daisyUI 组件（纯 CSS） -->
-    <link rel="stylesheet" href="https://static.bluecdn.com/npm/daisyui@5/daisyui.css">
+    <!-- daisyUI 5.6.16 组件（预构建纯 CSS，经 static.bluecdn.com 反代 jsdelivr） -->
+    <link rel="stylesheet" href="https://static.bluecdn.com/npm/daisyui@5.6.16/daisyui.min.css">
     <!-- Tailwind v4 浏览器运行时（仅生成工具类；浏览器版不支持 @plugin/config） -->
     <script src="https://static.bluecdn.com/npm/@tailwindcss/browser@4/dist/index.global.js"></script>
     <style>
