@@ -5206,6 +5206,25 @@ body.theme-php .phpdo-reply-actions {
     color: #999;
 }
 
+/* 帖子底部：默认淡化，悬浮清晰（类似 Discuz 楼层底栏） */
+@media (hover: hover) and (pointer: fine) {
+    body.theme-php .reply .phpdo-signature,
+    body.theme-php .reply .phpdo-reply-actions,
+    body.theme-php .phpdo-thread-main-card > .phpdo-signature {
+        opacity: .36;
+        filter: saturate(.7);
+        transition: opacity .22s ease, filter .22s ease;
+    }
+    body.theme-php .reply:hover .phpdo-signature,
+    body.theme-php .reply:hover .phpdo-reply-actions,
+    body.theme-php .phpdo-thread-main-card:hover > .phpdo-signature,
+    body.theme-php .reply:focus-within .phpdo-signature,
+    body.theme-php .reply:focus-within .phpdo-reply-actions {
+        opacity: 1;
+        filter: none;
+    }
+}
+
 body.theme-php .phpdo-reply-actions > div {
     display: flex;
     align-items: center;
