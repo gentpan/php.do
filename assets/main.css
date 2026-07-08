@@ -5054,7 +5054,7 @@ pre {
     }
 }
 
-/* php.net fidelity pass — 设计令牌见 assets/phpdo-tokens.css；页面底色由下方 forum index 段定义 */
+/* php.net fidelity pass — 基础变量见 assets/phpdo-base.css；页面底色由下方 forum index 段定义 */
 
 body.theme-php .site-nav-bar {
     height: 64px;
@@ -7917,7 +7917,7 @@ body.theme-php .phpdo-auth-switch a {
     }
 }
 
-/* php.net component scale pass — 令牌见 assets/phpdo-tokens.css */
+/* php.net component scale pass — 基础变量见 assets/phpdo-base.css */
 body.theme-php {
     font-family: var(--phpdo-font-sans);
     font-size: var(--phpdo-font-size-base);
@@ -8143,7 +8143,7 @@ body.theme-php .phpdo-right-toolbar button {
     }
 }
 
-/* PHP official dark variant — 暗色令牌见 assets/phpdo-tokens.css */
+/* PHP official dark variant — 暗色变量见 assets/phpdo-base.css */
 body.theme-php-dark {
     color: var(--phpdo-text);
     background: var(--phpdo-page);

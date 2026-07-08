@@ -1,5 +1,5 @@
 /**
- * php.do 设计令牌 — 颜色 / 按钮 / 卡片 / 字体 / 间距
+ * php.do 基础样式层 — 颜色 / 按钮 / 卡片 / 字体 / 间距
  * 全站 theme-php 样式请优先引用这些变量，避免硬编码色值。
  */
 
@@ -115,7 +115,7 @@ body.theme-php-dark {
     --phpdo-red: #ff8a78;
     --phpdo-nav-bg: #151821;
     --phpdo-nav-border: var(--phpdo-border);
-    --phpdo-nav-shadow: 0 .125rem .75rem rgba(0, 0, 0, .26);
+    --phpdo-nav-shadow: 0 .125rem .75rem rgba(0, 0, 0, .28);
     --phpdo-btn-secondary-bg: var(--phpdo-surface-soft);
     --phpdo-btn-secondary-border: var(--phpdo-border);
     --phpdo-btn-secondary-color: var(--phpdo-muted);
