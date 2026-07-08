@@ -101,10 +101,6 @@ if ($request_path !== '') {
     exit('404 Not Found');
 }
 
-function pd_render_thread_row($t) {
-    return pd_render_thread_row($t, array('variant' => 'feed'));
-}
-
 $page_title = SITE_NAME . ' - 首页';
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'reply';
 $allowed_filters = array('reply', 'latest', 'hot', 'good');
