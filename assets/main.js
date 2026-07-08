@@ -526,6 +526,67 @@
         });
     }
 
+    function qfConfettiBurst(anchor, opts) {
+        if (!anchor || typeof anchor.getBoundingClientRect !== 'function') return;
+        opts = opts || {};
+        var themes = {
+            like: { emojis: ['👍', '✨', '💛'], count: 18 },
+            cheer: { emojis: ['👏', '✨', '🎊'], count: 20 },
+            celebrate: { emojis: ['🎉', '🌸', '✨', '🎊'], count: 30 },
+            appreciate: { emojis: ['✨', '⭐', '💫'], count: 22 },
+            smile: { emojis: ['🙂', '✨'], count: 14 },
+            upvote: { emojis: ['👍', '🌸', '✨', '🎉'], count: 24 }
+        };
+        var theme = themes[opts.theme] || themes.celebrate;
+        var rect = anchor.getBoundingClientRect();
+        var x = rect.left + rect.width / 2;
+        var y = rect.top + rect.height / 2;
+        var layer = document.createElement('div');
+        layer.className = 'phpdo-confetti-layer';
+        layer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(layer);
+        var colors = ['#f5a623', '#ff674f', '#505b93', '#ff8ab0', '#79c779', '#ffd54f'];
+        var i, p, angle, dist, dx, dy, rot, size;
+        for (i = 0; i < theme.count; i++) {
+            p = document.createElement('span');
+            p.className = 'phpdo-confetti-piece';
+            if (theme.emojis && theme.emojis.length) {
+                p.className += ' phpdo-confetti-emoji';
+                p.textContent = theme.emojis[i % theme.emojis.length];
+            } else {
+                size = 5 + Math.random() * 7;
+                p.style.width = size + 'px';
+                p.style.height = (size * 0.55) + 'px';
+                p.style.background = colors[i % colors.length];
+            }
+            angle = Math.random() * Math.PI * 2;
+            dist = 36 + Math.random() * 96;
+            dx = Math.cos(angle) * dist;
+            dy = Math.sin(angle) * dist - (28 + Math.random() * 40);
+            rot = (Math.random() * 720 - 360) + 'deg';
+            p.style.setProperty('--dx', dx + 'px');
+            p.style.setProperty('--dy', dy + 'px');
+            p.style.setProperty('--rot', rot);
+            p.style.left = x + 'px';
+            p.style.top = y + 'px';
+            p.style.animationDelay = (Math.random() * 120) + 'ms';
+            layer.appendChild(p);
+        }
+        window.setTimeout(function() {
+            if (layer.parentNode) layer.parentNode.removeChild(layer);
+        }, 1400);
+    }
+
+    function qfReactionPop(btn) {
+        if (!btn) return;
+        btn.classList.remove('is-popping');
+        void btn.offsetWidth;
+        btn.classList.add('is-popping');
+        window.setTimeout(function() {
+            btn.classList.remove('is-popping');
+        }, 450);
+    }
+
     function initThreadVotes() {
         document.addEventListener('submit', function(e) {
             var form = e.target.closest('form[data-vote-form]');
@@ -560,6 +621,10 @@
                 if (downButton) {
                     downButton.classList.toggle('active', Number(json.vote) === -1);
                     downButton.setAttribute('aria-pressed', Number(json.vote) === -1 ? 'true' : 'false');
+                }
+                if (Number(json.vote) === 1) {
+                    qfConfettiBurst(upButton || form, { theme: 'upvote' });
+                    qfReactionPop(upButton);
                 }
             }).catch(function(err) {
                 toast(err.message || '投票失败。', 'error');
@@ -1067,6 +1132,11 @@
                             el.textContent = n > 0 ? n : '';
                         }
                     });
+                }
+                if (json.active) {
+                    var activeBtn = box.querySelector('[data-reaction="' + json.active + '"]') || btn;
+                    qfConfettiBurst(activeBtn, { theme: json.active });
+                    qfReactionPop(activeBtn);
                 }
             }).catch(function(err) {
                 toast(err.message || '操作失败。', 'error');

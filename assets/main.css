@@ -10118,3 +10118,59 @@ body.theme-php-dark .phpdo-reaction-count {
     .phpdo-reaction { padding: 7px 9px; }
     .phpdo-reaction-emoji { font-size: 19px; }
 }
+
+/* 点赞 / 表情反应撒花 */
+.phpdo-confetti-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    pointer-events: none;
+    overflow: hidden;
+}
+.phpdo-confetti-piece {
+    position: fixed;
+    margin: 0;
+    border-radius: 2px;
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.4);
+    animation: phpdo-confetti-burst 1s cubic-bezier(.18, .8, .32, 1) forwards;
+    will-change: transform, opacity;
+}
+.phpdo-confetti-emoji {
+    width: auto !important;
+    height: auto !important;
+    background: transparent !important;
+    font-size: 15px;
+    line-height: 1;
+    animation-duration: 1.15s;
+}
+@keyframes phpdo-confetti-burst {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(0.5);
+    }
+    18% {
+        opacity: 1;
+        transform: translate(calc(var(--dx) * 0.35), calc(var(--dy) * 0.2)) rotate(calc(var(--rot) * 0.25)) scale(1.1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7);
+    }
+}
+.phpdo-reaction.is-popping {
+    animation: phpdo-reaction-pop 420ms ease;
+}
+.phpdo-vote-button.is-popping {
+    animation: phpdo-reaction-pop 420ms ease;
+}
+@keyframes phpdo-reaction-pop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.28); }
+    100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .phpdo-confetti-layer { display: none !important; }
+    .phpdo-reaction.is-popping,
+    .phpdo-vote-button.is-popping { animation: none; }
+}
