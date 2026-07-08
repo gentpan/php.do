@@ -56,7 +56,7 @@ php.do {
 	rewrite @thread /pages/thread.php?id={re.thread.1}
 
 	@download path_regexp download ^/download/([0-9]+)$
-	rewrite @download /pages/download.php?id={re.download.1}
+	rewrite @download /api/download.php?id={re.download.1}
 
 	@api path_regexp api ^/api/([a-z-]+)$
 	rewrite @api /api/{re.api.1}.php

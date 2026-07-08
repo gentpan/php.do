@@ -59,7 +59,12 @@ if ($forum_slug_id > 0) {
 }
 if ($request_path === 'feed' || $request_path === 'feed.php' || $request_path === 'rss') {
     $_SERVER['SCRIPT_NAME'] = '/feed.php';
-    require __DIR__ . '/pages/feed.php';
+    require __DIR__ . '/api/feed.php';
+    exit;
+}
+if ($request_path === 'download' || $request_path === 'download.php') {
+    $_SERVER['SCRIPT_NAME'] = '/download.php';
+    require __DIR__ . '/api/download.php';
     exit;
 }
 if ($request_path === 'about' || $request_path === 'about.php') {
@@ -71,7 +76,6 @@ if ($request_path === 'about' || $request_path === 'about.php') {
     exit;
 }
 $front_routes = array(
-    'download' => 'download.php',
     'edit-thread' => 'edit-thread.php',
     'login' => 'login.php',
     'move-thread' => 'move-thread.php',
