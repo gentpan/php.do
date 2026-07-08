@@ -70,7 +70,8 @@ for ($i = 1; $i <= 48; $i++) {
     if (!$row) {
         $nickname_sql = seed_sql($nickname);
         $password_sql = seed_sql(qf_password_hash('demo123456'));
-        $ip = '10.20.' . intval($i % 255) . '.' . intval(20 + $i);
+        $ip_pool = array('8.8.8.8', '1.1.1.1', '223.5.5.5', '180.76.76.76', '210.140.92.187', '168.126.63.1', '165.21.83.88', '213.230.114.118');
+        $ip = $ip_pool[$i % count($ip_pool)];
         mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','这里是 Blue 演示用户',1," . mt_rand(0, 280) . ",0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(3, 80) . " DAY))");
         $user_id = intval(mysqli_insert_id(db()));
         $avatar = qf_generate_default_avatar($user_id, $username, $nickname);
@@ -111,7 +112,8 @@ for ($i = 1; $i <= 160; $i++) {
     $is_good = $i % 11 === 0 ? 1 : 0;
     $is_top = $i % 53 === 0 ? 1 : 0;
     $days = mt_rand(0, 45);
-    $ip = '172.16.' . intval($i % 255) . '.' . intval(30 + ($i % 200));
+    $ip_pool = array('8.8.8.8', '1.1.1.1', '223.5.5.5', '114.114.114.114', '210.140.92.187', '168.95.1.1', '185.228.168.9', '213.230.114.118');
+    $ip = $ip_pool[$i % count($ip_pool)];
     mysqli_query(db(), "INSERT INTO qf_threads (forum_id,user_id,title,content,views,replies,is_top,is_good,is_deleted,ip,created_at,updated_at) VALUES ({$forum_id},{$user_id},'{$title_sql}','{$content_sql}',{$views},0,{$is_top},{$is_good},0,'{$ip}',DATE_SUB(NOW(), INTERVAL {$days} DAY),DATE_SUB(NOW(), INTERVAL " . max(0, $days - mt_rand(0, 3)) . " DAY))");
     $thread_id = intval(mysqli_insert_id(db()));
     $reply_count = mt_rand(0, 8);

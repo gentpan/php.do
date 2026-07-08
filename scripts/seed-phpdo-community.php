@@ -98,7 +98,10 @@ for ($i = 1; $i <= 30; $i++) {
     $signature_sql = seed_phpdo_sql(seed_phpdo_pick($signatures, $i));
     $password_sql = seed_phpdo_sql(qf_password_hash('phpdo123456'));
     $coins = 20 + mt_rand(0, 680);
-    $ip = '10.80.' . intval($i % 255) . '.' . intval(30 + $i);
+    $ip = seed_phpdo_pick(array(
+        '8.8.8.8', '1.1.1.1', '223.5.5.5', '119.29.29.29', '210.140.92.187',
+        '168.95.1.1', '165.21.83.88', '185.228.168.9', '213.230.114.118',
+    ), $i);
     mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','{$signature_sql}',1,{$coins},0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(2, 160) . " DAY))");
     $user_id = intval(mysqli_insert_id(db()));
     $avatar = qf_generate_default_avatar($user_id, $username, $nickname);
@@ -199,7 +202,11 @@ foreach ($topics as $i => $topic) {
     $is_good = ($i % 7 === 0 || $forum_index === 2) ? 1 : 0;
     $is_top = ($i === 0 || $i === 1) ? 1 : 0;
     $days = mt_rand(0, 35);
-    $ip = '172.20.' . intval($i % 255) . '.' . intval(40 + ($i % 180));
+    $ip = seed_phpdo_pick(array(
+        '8.8.8.8', '1.1.1.1', '223.5.5.5', '180.76.76.76', '114.114.114.114',
+        '210.140.92.187', '168.126.63.1', '202.45.84.58', '165.21.83.88',
+        '185.228.168.9', '77.88.8.8', '213.186.33.99', '213.230.114.118',
+    ), $i);
     mysqli_query(db(), "INSERT INTO qf_threads (forum_id,user_id,topic_category,title,content,views,replies,is_top,is_good,is_deleted,ip,created_at,updated_at) VALUES ({$forum_id},{$user_id},'{$category_sql}','{$title_sql}','{$content_sql}',{$views},0,{$is_top},{$is_good},0,'{$ip}',DATE_SUB(NOW(), INTERVAL {$days} DAY),DATE_SUB(NOW(), INTERVAL " . mt_rand(0, min(5, $days)) . " DAY))");
     $thread_id = intval(mysqli_insert_id(db()));
     $created_threads++;
