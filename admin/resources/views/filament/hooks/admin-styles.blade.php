@@ -50,4 +50,95 @@
         max-height: 1.5rem;
         width: auto;
     }
+
+    .qf-server-status {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.875rem;
+        margin: 0;
+    }
+
+    .qf-server-status-item {
+        margin: 0;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background: color-mix(in srgb, var(--gray-950) 3%, transparent);
+    }
+
+    .dark .qf-server-status-item {
+        background: color-mix(in srgb, var(--gray-50) 5%, transparent);
+    }
+
+    .qf-server-status-item--wide {
+        grid-column: 1 / -1;
+    }
+
+    .qf-server-status-item dt {
+        margin: 0 0 0.375rem;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        color: var(--gray-500);
+    }
+
+    .qf-server-status-item dd {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin: 0;
+        font-size: 0.8125rem;
+        line-height: 1.25rem;
+        color: var(--gray-700);
+    }
+
+    .dark .qf-server-status-item dd {
+        color: var(--gray-300);
+    }
+
+    .qf-server-status-item dd strong {
+        font-weight: 600;
+        color: var(--gray-950);
+    }
+
+    .dark .qf-server-status-item dd strong {
+        color: var(--gray-50);
+    }
+
+    .qf-server-status-item dd span {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    .qf-server-meter {
+        height: 0.5rem;
+        overflow: hidden;
+        border-radius: 9999px;
+        background: color-mix(in srgb, var(--gray-950) 8%, transparent);
+    }
+
+    .dark .qf-server-meter {
+        background: color-mix(in srgb, var(--gray-50) 10%, transparent);
+    }
+
+    .qf-server-meter-bar {
+        height: 100%;
+        border-radius: 9999px;
+    }
+
+    .qf-server-meter-bar--memory {
+        background: var(--primary-500);
+    }
+
+    .qf-server-meter-bar--disk {
+        background: #0ea5e9;
+    }
+
+    .qf-server-status-link {
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .qf-server-status {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
