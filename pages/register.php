@@ -5,7 +5,6 @@ if (current_user()) {
 }
 $auth_error = isset($_SESSION['auth_error']) ? (string)$_SESSION['auth_error'] : '';
 $auth_register_username = isset($_SESSION['auth_register_username']) ? (string)$_SESSION['auth_register_username'] : '';
-$auth_register_nickname = isset($_SESSION['auth_register_nickname']) ? (string)$_SESSION['auth_register_nickname'] : '';
 $auth_register_email = isset($_SESSION['auth_register_email']) ? (string)$_SESSION['auth_register_email'] : '';
 unset($_SESSION['auth_modal'], $_SESSION['auth_error'], $_SESSION['auth_register_username'], $_SESSION['auth_register_nickname'], $_SESSION['auth_register_email']);
 $page_title = '注册 - ' . SITE_NAME;
@@ -33,10 +32,6 @@ pd_include_header(true);
                     <label>用户名</label>
                     <input name="username" value="<?php echo h($auth_register_username); ?>" required autocomplete="username" placeholder="5-16 位，中英文/数字/下划线">
                     <p class="pd-field-hint">支持中英文、数字、下划线、连字符；5-16 位；不能纯数字或含句号逗号等标点。</p>
-                </div>
-                <div class="pd-auth-field">
-                    <label>昵称</label>
-                    <input name="nickname" value="<?php echo h($auth_register_nickname); ?>" required autocomplete="nickname" placeholder="展示给他人的昵称">
                 </div>
                 <div class="pd-auth-field">
                     <label>密码</label>

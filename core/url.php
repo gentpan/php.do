@@ -295,7 +295,7 @@ function pd_handle_register() {
         redirect(pd_url_page('register.php'));
     }
     $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 40);
-    $nickname = clean_text(isset($_POST['nickname']) ? $_POST['nickname'] : '', 30);
+    $nickname = $username; // 注册不再单独填昵称，默认用用户名，注册后可在设置里修改
     $email = strtolower(trim((string)(isset($_POST['email']) ? $_POST['email'] : '')));
     $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
     $password2 = (string)(isset($_POST['password_confirm']) ? $_POST['password_confirm'] : '');
@@ -308,8 +308,6 @@ function pd_handle_register() {
         $error = '验证码错误，请重新输入。';
     } elseif ($uerr !== '') {
         $error = $uerr;
-    } elseif ($nickname === '') {
-        $error = '昵称不能为空。';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = '请输入有效的电子邮箱。';
     } elseif ($perr !== '') {
@@ -360,7 +358,6 @@ function pd_handle_register() {
     }
     $_SESSION['auth_error'] = $error;
     $_SESSION['auth_register_username'] = $username;
-    $_SESSION['auth_register_nickname'] = $nickname;
     $_SESSION['auth_register_email'] = $email;
     redirect(pd_url_page('register.php'));
 }
