@@ -4348,6 +4348,41 @@ body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--brand:hover {
     color: var(--color-cloud);
 }
 
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--active {
+    background: var(--color-ink);
+    color: var(--color-cloud);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--active:hover {
+    background: #1a1f28;
+    color: var(--color-cloud);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--brand.cir-rail__b--active {
+    background: var(--color-ink);
+    color: var(--color-cloud);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__badge {
+    position: absolute;
+    top: 4px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: inline-grid;
+    place-items: center;
+    background: var(--color-citrus, #ff7a3d);
+    color: var(--color-cloud, #ffffff);
+    border: 2px solid var(--color-cloud, #ffffff);
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    pointer-events: none;
+}
+
 body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(46, 125, 239, 0.32);
@@ -6354,6 +6389,20 @@ body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b--brand {
 body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b--brand:hover {
     background: #e5e7eb;
     color: #1c1f26;
+}
+
+body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b--active {
+    background: var(--color-ink);
+    color: #1c1f26;
+}
+
+body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b--active:hover {
+    background: #e5e7eb;
+    color: #1c1f26;
+}
+
+body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__badge {
+    border-color: var(--color-cloud);
 }
 
 /* ==========================================================================

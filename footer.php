@@ -24,6 +24,18 @@ $footer_social_links = array(
     array('title' => 'Issues', 'url' => 'https://github.com/gentpan/php.do/issues', 'icon' => 'fa-regular fa-circle-question'),
 );
 $footer_user = current_user();
+$footer_unread_notifications = $footer_user ? qf_unread_notifications_count(intval($footer_user['id'])) : 0;
+$footer_login_url = qf_url_page('login.php');
+$footer_home_url = qf_url_page('index.php');
+$footer_user_url = $footer_user ? qf_url_user(intval($footer_user['id'])) : $footer_login_url;
+$footer_messages_url = $footer_user ? qf_url_page('notifications.php') : $footer_login_url;
+$footer_profile_url = $footer_user ? qf_url_page('profile.php') : $footer_login_url;
+$footer_post_url = $footer_user ? qf_url_page('post.php') : $footer_login_url;
+$footer_user_page_id = ($current_script === 'user.php') ? (function_exists('qf_path_id') ? qf_path_id() : intval(isset($_GET['id']) ? $_GET['id'] : 0)) : 0;
+$footer_rail_home_active = ($current_script === 'index.php');
+$footer_rail_user_active = ($footer_user && $current_script === 'user.php' && $footer_user_page_id === intval($footer_user['id']));
+$footer_rail_messages_active = ($current_script === 'notifications.php');
+$footer_rail_profile_active = ($current_script === 'profile.php');
 $footer_icp = trim(qf_setting('icp_code', ''));
 $online = qf_online_counts();
 $online_today = qf_online_today_peak();
@@ -109,13 +121,38 @@ $online_members = qf_online_members(12);
         </svg>
     </button>
     <span class="cir-rail__sep cir-rail__sep--scroll" aria-hidden="true"></span>
-    <a href="<?php echo h($footer_user ? qf_url_page('post.php') : qf_url_page('login.php')); ?>" class="cir-rail__b cir-rail__b--brand" aria-label="发帖" data-tooltip="发帖">
+    <a href="<?php echo h($footer_home_url); ?>" class="cir-rail__b cir-rail__b--brand<?php echo $footer_rail_home_active ? ' cir-rail__b--active' : ''; ?>" aria-label="首页" data-tooltip="首页"<?php echo $footer_rail_home_active ? ' aria-current="page"' : ''; ?>>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 3 3 10v10a1 1 0 0 0 1 1h5v-6h6v6h5a1 1 0 0 0 1-1V10z"></path>
+        </svg>
+    </a>
+    <a href="<?php echo h($footer_user_url); ?>" class="cir-rail__b<?php echo $footer_rail_user_active ? ' cir-rail__b--active' : ''; ?>" aria-label="个人中心" data-tooltip="个人中心"<?php echo $footer_rail_user_active ? ' aria-current="page"' : ''; ?>>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+    </a>
+    <a href="<?php echo h($footer_messages_url); ?>" class="cir-rail__b<?php echo $footer_rail_messages_active ? ' cir-rail__b--active' : ''; ?>" aria-label="私信" data-tooltip="私信"<?php echo $footer_rail_messages_active ? ' aria-current="page"' : ''; ?>>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <?php if ($footer_unread_notifications > 0) { ?>
+            <span class="cir-rail__badge"><?php echo $footer_unread_notifications > 99 ? '99+' : intval($footer_unread_notifications); ?></span>
+        <?php } ?>
+    </a>
+    <a href="<?php echo h($footer_post_url); ?>" class="cir-rail__b" aria-label="发帖" data-tooltip="发帖">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 20h9"></path>
             <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
         </svg>
     </a>
     <span class="cir-rail__sep" aria-hidden="true"></span>
+    <a href="<?php echo h($footer_profile_url); ?>" class="cir-rail__b<?php echo $footer_rail_profile_active ? ' cir-rail__b--active' : ''; ?>" aria-label="设置" data-tooltip="设置"<?php echo $footer_rail_profile_active ? ' aria-current="page"' : ''; ?>>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+    </a>
     <button type="button" class="cir-rail__b" data-theme-toggle aria-label="切换主题" data-tooltip="切换主题">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"></circle>
