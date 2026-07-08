@@ -316,11 +316,11 @@
 
     function initIpGeo() {
         window.qfLoadIpGeo = loadIpGeo;
-        var run = function() { loadIpGeo(document); };
-        if (window.requestIdleCallback) {
-            requestIdleCallback(run, { timeout: 2000 });
+        // 尽快发起：原先 idle/最多等 2s 会体感更慢
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() { loadIpGeo(document); });
         } else {
-            setTimeout(run, 300);
+            loadIpGeo(document);
         }
     }
 

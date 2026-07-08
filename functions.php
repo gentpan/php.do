@@ -1452,34 +1452,74 @@ function qf_geoip_lookup($ip) {
     static $cache = array();
     $ip = trim((string)$ip);
     if ($ip === '' || !filter_var($ip, FILTER_VALIDATE_IP)) {
-        return array('ip' => $ip, 'country' => '', 'flag' => '');
+        return array('ip' => $ip, 'country' => '', 'country_code' => '', 'region' => '', 'city' => '', 'isp' => '', 'flag' => '');
     }
     if (isset($cache[$ip])) {
         return $cache[$ip];
     }
+
+    // 磁盘缓存：避免每次管理页都串行打外部 API（单次约 1–2s）
+    $ttl = 86400 * 7;
+    $dir = __DIR__ . '/storage/geoip';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0775, true);
+    }
+    $file = $dir . '/' . preg_replace('/[^0-9a-f.:]/i', '_', $ip) . '.json';
+    if (is_file($file) && (time() - filemtime($file)) < $ttl) {
+        $cached = json_decode((string)@file_get_contents($file), true);
+        if (is_array($cached)) {
+            $cache[$ip] = $cached;
+            return $cache[$ip];
+        }
+    }
+
+    $empty = array('ip' => $ip, 'country' => '', 'country_code' => '', 'region' => '', 'city' => '', 'isp' => '', 'flag' => '');
     $url = 'https://api.cnip.io/geoip/' . rawurlencode($ip);
-    $ctx = stream_context_create(array('http' => array('timeout' => 4, 'ignore_errors' => true)));
-    $raw = @file_get_contents($url, false, $ctx);
-    $json = $raw ? json_decode($raw, true) : null;
+    $raw = '';
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_TIMEOUT => 3,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_USERAGENT => 'php.do-geoip/1.0',
+        ));
+        $raw = (string)curl_exec($ch);
+        curl_close($ch);
+    } else {
+        $ctx = stream_context_create(array('http' => array('timeout' => 3, 'ignore_errors' => true, 'header' => "User-Agent: php.do-geoip/1.0\r\n")));
+        $raw = (string)@file_get_contents($url, false, $ctx);
+    }
+    $json = $raw !== '' ? json_decode($raw, true) : null;
     if (!is_array($json)) {
-        $cache[$ip] = array('ip' => $ip, 'country' => '', 'flag' => '');
+        $cache[$ip] = $empty;
         return $cache[$ip];
     }
     $country = trim((string)(isset($json['country']) ? $json['country'] : ''));
-    if ($country === '保留' || $country === '') {
+    if ($country === '保留') {
         $country = '';
+    }
+    $country_code = strtoupper(trim((string)(isset($json['country_code']) ? $json['country_code'] : '')));
+    $flag = trim((string)(isset($json['flag']) ? $json['flag'] : ''));
+    if ($flag === '' && preg_match('/^[A-Z]{2}$/', $country_code)) {
+        $flag = 'https://flagcdn.io/' . strtolower($country_code) . '.svg';
     }
     $cache[$ip] = array(
         'ip' => $ip,
         'country' => $country,
-        'country_code' => strtoupper(trim((string)(isset($json['country_code']) ? $json['country_code'] : ''))),
+        'country_code' => $country_code,
         'region' => trim((string)(isset($json['region']) ? $json['region'] : '')),
         'city' => trim((string)(isset($json['city']) ? $json['city'] : '')),
         'isp' => trim((string)(isset($json['isp']) ? $json['isp'] : '')),
-        'flag' => trim((string)(isset($json['flag']) ? $json['flag'] : '')),
+        'flag' => $flag,
     );
     if ($cache[$ip]['region'] === '保留') $cache[$ip]['region'] = '';
     if ($cache[$ip]['city'] === '保留') $cache[$ip]['city'] = '';
+    if (is_dir($dir) && is_writable($dir)) {
+        @file_put_contents($file, json_encode($cache[$ip], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    }
     return $cache[$ip];
 }
 
