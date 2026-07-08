@@ -35,7 +35,7 @@ function pd_route_script($script, &$params = array()) {
         'login.php' => 'pages/login.php',
         'logout.php' => 'api/auth.php',
         'register.php' => 'pages/register.php',
-        'download.php' => 'pages/download.php',
+        'download.php' => 'api/download.php',
         'edit_thread.php' => 'pages/edit-thread.php',
         'forum.php' => 'pages/forum.php',
         'move_thread.php' => 'pages/move-thread.php',
@@ -94,7 +94,7 @@ function pd_url_page($script, $params = array(), $fragment = '') {
     if ($logical_script === 'about.php' || $script === 'pages/about.php') {
         return pd_append_url_parts('/about.php', $params, $fragment);
     }
-    if (($logical_script === 'download.php' || $script === 'pages/download.php') && isset($params['id'])) {
+    if (($logical_script === 'download.php' || $script === 'api/download.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
         return pd_append_url_parts('/download/' . $id, $params, $fragment);

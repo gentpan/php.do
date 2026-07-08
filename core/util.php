@@ -286,7 +286,7 @@ function pd_append_url_parts($path, $params = array(), $fragment = '') {
 
 function pd_clean_route_path($script) {
     $map = array(
-        'pages/download.php' => 'download.php',
+        'api/download.php' => 'download.php',
         'pages/edit-thread.php' => 'edit-thread.php',
         'pages/forum.php' => 'forum.php',
         'pages/move-thread.php' => 'move-thread.php',
