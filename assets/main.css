@@ -6051,12 +6051,16 @@ body.theme-php-dark .phpdo-oauth-google:hover {
     text-shadow: 0 1px 4px rgba(0, 0, 0, .55);
     transition: color .12s ease, background .12s ease;
 }
-.qf-topbar-hasbg .qf-navbar .qf-menu-link:hover,
+.qf-topbar-hasbg .qf-navbar .qf-menu-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, .10);
+}
 .qf-topbar-hasbg .qf-navbar .qf-menu-link:hover span,
-.qf-topbar-hasbg .qf-navbar .qf-menu-link:hover i { color: #fff; background: rgba(255, 255, 255, .10); }
-.qf-topbar-hasbg .qf-navbar .qf-menu-link.active,
-.qf-topbar-hasbg .qf-navbar .qf-menu-link.active span,
-.qf-topbar-hasbg .qf-navbar .qf-menu-link.active i {
+.qf-topbar-hasbg .qf-navbar .qf-menu-link:hover i {
+    color: #fff;
+    background: transparent;
+}
+.qf-topbar-hasbg .qf-navbar .qf-menu-link.active {
     color: #fff;
     font-size: 16px;
     font-weight: 800;
@@ -6065,6 +6069,16 @@ body.theme-php-dark .phpdo-oauth-google:hover {
     backdrop-filter: blur(12px) saturate(135%);
     border-radius: 0;
     text-shadow: 0 1px 6px rgba(0, 0, 0, .65);
+}
+.qf-topbar-hasbg .qf-navbar .qf-menu-link.active span,
+.qf-topbar-hasbg .qf-navbar .qf-menu-link.active i {
+    color: #fff;
+    background: transparent;
+    font-size: inherit;
+    font-weight: inherit;
+    text-shadow: inherit;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 .qf-menu { display: flex; }
 .qf-navbar .qf-menu-link {
@@ -6081,12 +6095,24 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-navbar .qf-menu-link i {
     color: rgba(255, 255, 255, .82);
 }
-.qf-navbar .qf-menu-link:hover,
+.qf-navbar .qf-menu-link:hover {
+    color: #fff;
+    background: rgba(0, 0, 0, .06);
+}
 .qf-navbar .qf-menu-link:hover span,
-.qf-navbar .qf-menu-link:hover i { color: #fff; background: rgba(0,0,0,.06); }
-.qf-navbar .qf-menu-link.active,
+.qf-navbar .qf-menu-link:hover i {
+    color: #fff;
+    background: transparent;
+}
+.qf-navbar .qf-menu-link.active {
+    color: #fff;
+    background: rgba(0, 0, 0, .1);
+}
 .qf-navbar .qf-menu-link.active span,
-.qf-navbar .qf-menu-link.active i { color: #fff; background: rgba(0,0,0,.1); }
+.qf-navbar .qf-menu-link.active i {
+    color: #fff;
+    background: transparent;
+}
 .qf-menu-link i, .qf-menu-link .qf-cat-icon { font-size: 14px; }
 .qf-menu-link .qf-cat-icon-img { width: 16px; height: 16px; filter: brightness(0) invert(1); }
 .qf-menu-link .qf-cat-icon-svg svg { fill: currentColor; }
