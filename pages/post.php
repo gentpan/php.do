@@ -66,41 +66,57 @@ while ($forums && $f = mysqli_fetch_assoc($forums)) {
 $page_title = '发布新帖 - ' . SITE_NAME;
 qf_include_header();
 ?>
-<section class="card post-form-card">
-    <h1>发布新帖</h1>
+<section class="phpdo-post-page">
+    <header class="phpdo-post-page-head">
+        <div>
+            <h1>发布新帖</h1>
+            <p class="muted">撰写 Markdown 内容并发布到选定版块。</p>
+        </div>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('index.php')); ?>">返回首页</a>
+    </header>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
-    <form method="post" enctype="multipart/form-data">
-        <label>选择版块</label>
-        <select name="forum_id" required>
-            <?php foreach ($forum_rows as $f) { ?>
-                <option value="<?php echo intval($f['id']); ?>" <?php if ($fid == intval($f['id'])) echo 'selected'; ?>><?php echo h($f['name']); ?></option>
-            <?php } ?>
-        </select>
-        <div id="topic-category-box" class="forum-category-map">
-            <label>主题分类</label>
-            <select name="topic_category" id="topic-category-select">
-                <option value="">不选择分类</option>
-                <?php foreach (qf_topic_categories($fid) as $cat) { ?>
-                    <option value="<?php echo h($cat); ?>"><?php echo h($cat); ?></option>
-                <?php } ?>
-            </select>
+    <form class="phpdo-post-form" method="post" enctype="multipart/form-data">
+        <div class="phpdo-post-meta">
+            <div class="phpdo-post-field">
+                <label for="post-forum-id">选择版块</label>
+                <select id="post-forum-id" name="forum_id" required>
+                    <?php foreach ($forum_rows as $f) { ?>
+                        <option value="<?php echo intval($f['id']); ?>" <?php if ($fid == intval($f['id'])) echo 'selected'; ?>><?php echo h($f['name']); ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div id="topic-category-box" class="phpdo-post-field forum-category-map">
+                <label for="topic-category-select">主题分类</label>
+                <select name="topic_category" id="topic-category-select">
+                    <option value="">不选择分类</option>
+                    <?php foreach (qf_topic_categories($fid) as $cat) { ?>
+                        <option value="<?php echo h($cat); ?>"><?php echo h($cat); ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="phpdo-post-field phpdo-post-field-title">
+                <label for="post-title">标题</label>
+                <input id="post-title" type="text" name="title" maxlength="100" required placeholder="一句话说清主题">
+            </div>
         </div>
-        <label>标题</label>
-        <input type="text" name="title" maxlength="100" required>
-        <label>内容</label>
-        <?php
-        $editorId = 'post-content-textarea';
-        $editorName = 'content';
-        $editorValue = '';
-        $editorRows = 18;
-        $editorRequired = true;
-        $editorCompact = false;
-        include __DIR__ . '/../parts/markdown-editor.php';
-        ?>
-        <div class="upload-captcha-row">
-            <div class="captcha-col"><?php if (qf_captcha_required('post', $u)) { echo qf_render_captcha(); } ?></div>
+        <div class="phpdo-post-editor">
+            <label for="post-content-textarea">内容</label>
+            <?php
+            $editorId = 'post-content-textarea';
+            $editorName = 'content';
+            $editorValue = '';
+            $editorRows = 22;
+            $editorRequired = true;
+            $editorCompact = false;
+            include __DIR__ . '/../parts/markdown-editor.php';
+            ?>
         </div>
-        <button class="btn" type="submit">发帖</button>
+        <div class="phpdo-post-actions">
+            <div class="upload-captcha-row">
+                <div class="captcha-col"><?php if (qf_captcha_required('post', $u)) { echo qf_render_captcha(); } ?></div>
+            </div>
+            <button class="btn" type="submit">发布帖子</button>
+        </div>
     </form>
 </section>
 <script>window.qfForumCategories = <?php echo json_encode($forum_category_map); ?>;</script>

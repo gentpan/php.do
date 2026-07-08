@@ -1603,9 +1603,97 @@ textarea {
 }
 
 .post-form-card {
-    max-width: 920px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+}
+
+/* 发帖独立页：占满白框内容区，不再套小卡片 */
+body.theme-php.page-post .qf-page-frame main.wrap,
+body.theme-php-dark.page-post .qf-page-frame main.wrap {
+    width: 100%;
+    max-width: none;
+    padding-top: 18px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+body.page-post .phpdo-post-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 8px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+body.page-post .phpdo-post-page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 18px;
+}
+body.page-post .phpdo-post-page-head h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    line-height: 1.25;
+}
+body.page-post .phpdo-post-page-head .muted {
+    margin: 0;
+}
+body.page-post .phpdo-post-form {
+    width: 100%;
+}
+body.page-post .phpdo-post-meta {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) minmax(160px, 220px) minmax(0, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+}
+body.page-post .phpdo-post-field label,
+body.page-post .phpdo-post-editor > label {
+    display: block;
+    margin: 0 0 8px;
+    font-weight: 700;
+}
+body.page-post .phpdo-post-field select,
+body.page-post .phpdo-post-field input {
+    width: 100%;
+    margin: 0;
+}
+body.page-post .phpdo-post-editor {
+    width: 100%;
+}
+body.page-post .phpdo-post-editor .markdown-editor {
+    margin-bottom: 0;
+}
+body.page-post .phpdo-post-editor .editor-pane textarea {
+    min-height: min(58vh, 640px);
+}
+body.page-post .phpdo-post-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 18px;
+}
+body.page-post .phpdo-post-actions .btn {
+    min-width: 140px;
+}
+body.page-post .md-preview-box {
+    width: min(1160px, calc(100vw - 84px));
+}
+@media (max-width: 900px) {
+    body.page-post .phpdo-post-meta {
+        grid-template-columns: 1fr;
+    }
+    body.page-post .phpdo-post-page-head {
+        flex-direction: column;
+    }
+    body.page-post .md-preview-box {
+        width: min(920px, calc(100vw - 40px));
+    }
 }
 
 .post-content-textarea {
@@ -1810,7 +1898,7 @@ textarea {
     display: flex;
 }
 .md-preview-box {
-    width: min(820px, 94vw);
+    width: min(920px, calc(100vw - 40px));
     max-height: min(86vh, 900px);
     display: flex;
     flex-direction: column;
