@@ -1448,32 +1448,80 @@ function qf_ip_badge_html($ip) {
     return '<span class="action-badge action-badge-static phpdo-ip-badge" data-ip-geo="' . h($ip) . '" title="IP: ' . h($ip) . '"><i class="fa-solid fa-network-wired phpdo-ip-icon" aria-hidden="true"></i><span class="phpdo-ip-flag-wrap" hidden></span><span class="phpdo-ip-detail">IP: ' . h($ip) . '</span></span>';
 }
 
-function qf_geoip_lookup($ip) {
-    static $cache = array();
-    $ip = trim((string)$ip);
-    if ($ip === '' || !filter_var($ip, FILTER_VALIDATE_IP)) {
-        return array('ip' => $ip, 'country' => '', 'country_code' => '', 'region' => '', 'city' => '', 'isp' => '', 'flag' => '');
-    }
-    if (isset($cache[$ip])) {
-        return $cache[$ip];
-    }
-
-    // 磁盘缓存：避免每次管理页都串行打外部 API（单次约 1–2s）
-    $ttl = 86400 * 7;
+function qf_geoip_cache_dir() {
     $dir = __DIR__ . '/storage/geoip';
     if (!is_dir($dir)) {
         @mkdir($dir, 0775, true);
     }
-    $file = $dir . '/' . preg_replace('/[^0-9a-f.:]/i', '_', $ip) . '.json';
-    if (is_file($file) && (time() - filemtime($file)) < $ttl) {
-        $cached = json_decode((string)@file_get_contents($file), true);
-        if (is_array($cached)) {
-            $cache[$ip] = $cached;
-            return $cache[$ip];
-        }
+    return $dir;
+}
+
+function qf_geoip_cache_file($ip) {
+    return qf_geoip_cache_dir() . '/' . hash('sha256', $ip) . '.json';
+}
+
+function qf_geoip_cache_read($ip) {
+    $file = qf_geoip_cache_file($ip);
+    if (!is_file($file)) {
+        return null;
+    }
+    $cached = json_decode((string)@file_get_contents($file), true);
+    if (!is_array($cached)) {
+        return null;
+    }
+    $ttl = !empty($cached['_miss']) ? 3600 : (86400 * 7); // 失败短缓存 1h，成功 7 天
+    $cached_at = isset($cached['_cached_at']) ? intval($cached['_cached_at']) : filemtime($file);
+    if ((time() - $cached_at) >= $ttl) {
+        return null;
+    }
+    unset($cached['_miss'], $cached['_cached_at']);
+    return $cached;
+}
+
+function qf_geoip_cache_write($ip, $data, $is_miss = false) {
+    $dir = qf_geoip_cache_dir();
+    if (!is_dir($dir) || !is_writable($dir)) {
+        return false;
+    }
+    $payload = $data;
+    $payload['_cached_at'] = time();
+    if ($is_miss) {
+        $payload['_miss'] = 1;
+    }
+    $file = qf_geoip_cache_file($ip);
+    $tmp = $file . '.' . getmypid() . '.tmp';
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false || @file_put_contents($tmp, $json, LOCK_EX) === false) {
+        @unlink($tmp);
+        return false;
+    }
+    return @rename($tmp, $file);
+}
+
+function qf_geoip_lookup($ip) {
+    static $mem = array();
+    $ip = trim((string)$ip);
+    $empty = array('ip' => $ip, 'country' => '', 'country_code' => '', 'region' => '', 'city' => '', 'isp' => '', 'flag' => '');
+    if ($ip === '' || !filter_var($ip, FILTER_VALIDATE_IP)) {
+        return $empty;
+    }
+    if (isset($mem[$ip])) {
+        return $mem[$ip];
     }
 
-    $empty = array('ip' => $ip, 'country' => '', 'country_code' => '', 'region' => '', 'city' => '', 'isp' => '', 'flag' => '');
+    $cached = qf_geoip_cache_read($ip);
+    if (is_array($cached)) {
+        $mem[$ip] = $cached;
+        return $mem[$ip];
+    }
+
+    // 私网/保留地址不打外部 API，直接落盘，避免无意义的远程请求
+    if (qf_ip_is_private_or_local($ip)) {
+        $mem[$ip] = $empty;
+        qf_geoip_cache_write($ip, $empty, false);
+        return $mem[$ip];
+    }
+
     $url = 'https://api.cnip.io/geoip/' . rawurlencode($ip);
     $raw = '';
     if (function_exists('curl_init')) {
@@ -1494,8 +1542,9 @@ function qf_geoip_lookup($ip) {
     }
     $json = $raw !== '' ? json_decode($raw, true) : null;
     if (!is_array($json)) {
-        $cache[$ip] = $empty;
-        return $cache[$ip];
+        $mem[$ip] = $empty;
+        qf_geoip_cache_write($ip, $empty, true); // 负缓存 1 小时，避免反复打 API
+        return $mem[$ip];
     }
     $country = trim((string)(isset($json['country']) ? $json['country'] : ''));
     if ($country === '保留') {
@@ -1506,7 +1555,7 @@ function qf_geoip_lookup($ip) {
     if ($flag === '' && preg_match('/^[A-Z]{2}$/', $country_code)) {
         $flag = 'https://flagcdn.io/' . strtolower($country_code) . '.svg';
     }
-    $cache[$ip] = array(
+    $mem[$ip] = array(
         'ip' => $ip,
         'country' => $country,
         'country_code' => $country_code,
@@ -1515,12 +1564,10 @@ function qf_geoip_lookup($ip) {
         'isp' => trim((string)(isset($json['isp']) ? $json['isp'] : '')),
         'flag' => $flag,
     );
-    if ($cache[$ip]['region'] === '保留') $cache[$ip]['region'] = '';
-    if ($cache[$ip]['city'] === '保留') $cache[$ip]['city'] = '';
-    if (is_dir($dir) && is_writable($dir)) {
-        @file_put_contents($file, json_encode($cache[$ip], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
-    }
-    return $cache[$ip];
+    if ($mem[$ip]['region'] === '保留') $mem[$ip]['region'] = '';
+    if ($mem[$ip]['city'] === '保留') $mem[$ip]['city'] = '';
+    qf_geoip_cache_write($ip, $mem[$ip], false);
+    return $mem[$ip];
 }
 
 function qf_is_ajax_request() {

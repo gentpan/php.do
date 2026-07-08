@@ -25,8 +25,25 @@ if (empty($ips)) {
 }
 
 $data = array();
+$from_cache = 0;
 foreach ($ips as $ip) {
-  $data[$ip] = qf_geoip_lookup($ip);
+  // 先试缓存读：用于统计；真正 lookup 仍会走 mem/disk，不会重复打 API
+  $hit = qf_geoip_cache_read($ip);
+  if (is_array($hit)) {
+    $from_cache++;
+    $data[$ip] = $hit;
+  } else {
+    $data[$ip] = qf_geoip_lookup($ip);
+  }
 }
 
-qf_json_response(array('ok' => 1, 'data' => $data));
+// 浏览器也可缓存结果，减少重复进管理页的二次请求
+header('Cache-Control: private, max-age=3600');
+qf_json_response(array(
+  'ok' => 1,
+  'data' => $data,
+  'cache' => array(
+    'hits' => $from_cache,
+    'total' => count($ips),
+  ),
+));
