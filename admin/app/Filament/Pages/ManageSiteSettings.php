@@ -48,7 +48,7 @@ class ManageSiteSettings extends Page
             'register_ip_daily_limit', 'captcha_enabled', 'captcha_reply_free_count',
             's3_enabled', 's3_endpoint', 's3_region', 's3_bucket', 's3_access_key', 's3_secret_key', 's3_cdn_domain', 's3_path_prefix',
             'friend_links_enabled', 'friend_links', 'rewrite_enabled', 'rewrite_nginx_rules',
-            'points_thread', 'points_reply', 'points_floor_reply', 'points_good_bonus',
+            'points_thread', 'points_reply', 'points_floor_reply', 'points_good_bonus', 'download_points_cost',
             'level_thresholds', 'level_names',
         ];
 
@@ -97,6 +97,7 @@ class ManageSiteSettings extends Page
                         TextInput::make('points_reply')->label('回帖分')->numeric(),
                         TextInput::make('points_floor_reply')->label('楼中楼分')->numeric(),
                         TextInput::make('points_good_bonus')->label('加精奖励')->numeric(),
+                        TextInput::make('download_points_cost')->label('下载扣积分')->numeric()->helperText('每个附件首次下载扣的积分，0=不扣费；上传者本人与管理员免费，扣的分转给上传者'),
                         Textarea::make('level_thresholds')->label('等级阈值')->rows(8)->helperText('每行 等级:积分'),
                         Textarea::make('level_names')->label('等级名称')->rows(8)->helperText('每行 等级:名称'),
                     ]),
