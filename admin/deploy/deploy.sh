@@ -31,6 +31,12 @@ if [ ! -f .env ]; then
   echo "Missing $REMOTE_DIR/.env — copy from previous install or .env.example"
   exit 1
 fi
+# 要求 PHP 8.5+
+PHP_OK=\$(php -r 'echo PHP_VERSION_ID >= 80500 ? "1" : "0";')
+if [ "\$PHP_OK" != "1" ]; then
+  echo "PHP 8.5+ required, found: \$(php -r 'echo PHP_VERSION;')"
+  exit 1
+fi
 COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev -o --no-interaction
 php artisan filament:assets --no-interaction
 php artisan optimize
