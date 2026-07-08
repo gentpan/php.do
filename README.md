@@ -84,7 +84,7 @@ FrankenPHP
 | Git 裸仓库 | `/var/www/php.do.git` |
 | Caddy 配置 | `/etc/frankenphp/Caddyfile` |
 | systemd 服务 | `frankenphp.service`（`User=www-data`） |
-| MySQL 数据库 | `pd_forum`（示例） |
+| MySQL 数据库 | `pd_forum`（库名；表前缀 `pd_*`） |
 | 文件属主 | `debian:www-data`（`uploads/`、`storage/` 需 `www-data` 可写） |
 
 ### FrankenPHP 全局 PHP 配置（Caddyfile 片段）
