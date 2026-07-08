@@ -7,7 +7,6 @@ if (!$page) {
     exit('页面不存在');
 }
 $page_title = $page['title'] . ' - ' . SITE_NAME;
-$contact_email = ($slug === 'help') ? pd_contact_email() : '';
 pd_include_header(true);
 ?>
 <div class="pd-info pd-info-page">
@@ -17,27 +16,18 @@ pd_include_header(true);
         <strong><?php echo h($page['title']); ?></strong>
     </div>
 
-    <section class="pd-info-block<?php echo !empty($page['view']) ? ' pd-legal' : ''; ?>">
-        <h1><?php echo h($page['title']); ?></h1>
-        <?php if (!empty($page['view'])) {
-            // 受信任的静态法律文本分部（开发者维护，非用户输入）
-            $view_file = __DIR__ . '/legal/' . preg_replace('/[^a-z0-9_-]+/', '', $page['view']) . '.php';
-            if (is_file($view_file)) { include $view_file; }
-        } else {
-            foreach ($page['body'] as $paragraph) { ?>
-            <p><?php echo h($paragraph); ?></p>
-        <?php }
-        } ?>
-        <?php if ($slug === 'help') { ?>
-            <div class="pd-info-contact">
-                <?php if ($contact_email !== '') { ?>
-                    <a class="pd-info-mail" href="mailto:<?php echo h($contact_email); ?>"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span><?php echo h($contact_email); ?></span></a>
-                <?php } else { ?>
-                    <p class="muted">暂未设置公开联系邮箱，请登录后与管理员联系。</p>
-                <?php } ?>
-            </div>
-        <?php } ?>
-    </section>
+    <?php if (!empty($page['view'])) {
+        // 受信任的静态分部；分部自行输出 .pd-info-block 卡片（可一或多张）
+        $view_file = __DIR__ . '/legal/' . preg_replace('/[^a-z0-9_-]+/', '', $page['view']) . '.php';
+        if (is_file($view_file)) { include $view_file; }
+    } else { ?>
+        <section class="pd-info-block">
+            <h1><?php echo h($page['title']); ?></h1>
+            <?php foreach ($page['body'] as $paragraph) { ?>
+                <p><?php echo h($paragraph); ?></p>
+            <?php } ?>
+        </section>
+    <?php } ?>
 
     <nav class="pd-info-links" aria-label="信息页导航">
         <a href="<?php echo h(pd_url_page('about.php')); ?>">关于</a>

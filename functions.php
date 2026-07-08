@@ -1254,26 +1254,11 @@ function pd_attachment_url($id) {
 }
 
 function pd_static_pages() {
+    // 内容分部在 pages/legal/<view>.php（分部自行输出 .pd-info-block 卡片）
     return array(
-        'rules' => array(
-            'title' => '社区规则',
-            'body' => array(
-                '发帖请尽量补充 PHP 版本、运行环境、错误日志、最小复现代码和已经尝试过的方案。',
-                '不要公开真实密钥、Token、个人隐私、生产库信息。程序发布帖请写清安装步骤、许可证和更新记录。'
-            ),
-        ),
-        'help' => array(
-            'title' => '使用帮助',
-            'body' => array(
-                '帖子支持 Markdown、代码块、图片和附件。版块内可开启分类筛选，点击分类标签会跳转到对应版块的分类列表。',
-                '个人主页展示公开资料、最近主题和回复；个人设置页用于头像、邮箱、签名、密码和 Passkey 管理。',
-                '如果你在使用过程中遇到影响站点的关键问题或紧急事项，欢迎通过下方邮箱与我们取得联系，我们会尽快回复；如发现任何不当内容或需要举报，也可以登录后直接与版主、管理员联系。'
-            ),
-        ),
-        // 长文法律页：内容放在 pages/legal/<view>.php，避免此处臃肿
+        'help' => array('title' => '使用帮助', 'view' => 'help'),
+        'rules' => array('title' => '规则', 'view' => 'rules'),
         'privacy' => array('title' => '隐私政策', 'view' => 'privacy'),
-        'terms' => array('title' => '使用条款', 'view' => 'terms'),
-        'agreement' => array('title' => '服务协议', 'view' => 'agreement'),
     );
 }
 
