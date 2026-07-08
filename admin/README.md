@@ -22,6 +22,6 @@ php artisan serve --host=127.0.0.1 --port=8001
 ## 生产
 
 - 代码路径：`/var/www/php.do/admin`
-- systemd：`phpdo-admin.service`（`php artisan serve` → `127.0.0.1:8001`）
-- Caddy 将 `/admin*`（除 `action.php`）、`/livewire*`、`/css/filament*` 等反代到 8001
-- 前台管理接口仍走 `/admin/action.php`（不经 Laravel）
+- **由 FrankenPHP 直接托管** `admin/public`（Caddy 对 `/admin*`、`/livewire*`、`/css|js|fonts/filament*` 设 root）
+- 不使用 `php artisan serve` / 反代
+- 前台管理接口仍走 `/admin/action.php`（论坛 PHP，优先于 Laravel 处理）

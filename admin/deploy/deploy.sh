@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Filament 后台已并入 php.do/admin/
-# 日常部署请用论坛仓库：git push server main（post-receive 会 composer + restart）
+# 日常部署：git push server main（post-receive 会 composer + optimize + reload FrankenPHP）
 # 本脚本仅用于单独 rsync 调试。
 
 set -euo pipefail
@@ -31,11 +31,11 @@ if [ ! -f .env ]; then
   echo "Missing $REMOTE_DIR/.env — copy from previous install or .env.example"
   exit 1
 fi
-composer install --no-dev -o --no-interaction
+COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev -o --no-interaction
 php artisan filament:assets --no-interaction
 php artisan optimize
 chown -R www-data:www-data storage bootstrap/cache || true
-systemctl restart phpdo-admin
+systemctl reload frankenphp
 EOF
 
 echo "==> Deployed Filament admin at $REMOTE_DIR (https://php.do/admin)"
