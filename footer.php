@@ -7,7 +7,6 @@ if (pd_friend_links_enabled()) {
 }
 $footer_pages = array(
     array('title' => '首页', 'url' => pd_url_page('index.php')),
-    array('title' => '搜索', 'url' => pd_url_page('search.php')),
     array('title' => '关于', 'url' => pd_url_page('about.php')),
     array('title' => '帮助', 'url' => pd_url_page('page.php', array('slug' => 'help'))),
     array('title' => '规则', 'url' => pd_url_page('page.php', array('slug' => 'rules'))),
