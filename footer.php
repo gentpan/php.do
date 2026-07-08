@@ -339,6 +339,8 @@ $online_members = qf_online_members(12);
     });
 })();
 </script>
+<script defer src="https://tongji.giantaccel.com/script.js" data-website-id="ae0c1e6e-e652-480f-a501-5ec214700ddd"></script>
+<script defer src="https://tongji.giantaccel.com/recorder.js" data-website-id="ae0c1e6e-e652-480f-a501-5ec214700ddd"></script>
 <?php echo qf_setting('stats_code', ''); ?>
 </body>
 </html>
