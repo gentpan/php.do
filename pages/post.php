@@ -108,7 +108,7 @@ pd_include_header();
             $editorRows = 22;
             $editorRequired = true;
             $editorCompact = false;
-            include __DIR__ . '/../parts/markdown-editor.php';
+            include __DIR__ . '/../core/vendor/markdown-editor.php';
             ?>
         </div>
         <div class="pd-post-actions">

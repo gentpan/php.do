@@ -223,7 +223,7 @@ if ($me) {
         $editorCompact = true;
         $editorMaxlength = intval(pd_reply_max_chars());
         $editorPlaceholder = '写下你的回复（Markdown）';
-        include __DIR__ . '/../parts/markdown-editor.php';
+        include __DIR__ . '/../core/vendor/markdown-editor.php';
         ?>
         <p class="muted">最多可输入 <?php echo intval(pd_reply_max_chars()); ?> 字。</p>
         <div class="upload-captcha-row">
