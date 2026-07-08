@@ -81,8 +81,8 @@ if (preg_match('/^https?:\/\//i', $path)) {
     exit;
 }
 
-$base_dir = realpath(__DIR__ . '/uploads');
-$file = realpath(__DIR__ . '/' . ltrim($path, '/'));
+$base_dir = realpath(PD_ROOT . '/uploads');
+$file = realpath(PD_ROOT . '/' . ltrim($path, '/'));
 if (!$base_dir || !$file || strpos($file, $base_dir . DIRECTORY_SEPARATOR) !== 0) {
     header('Content-Type: text/html; charset=utf-8', true, 403);
     exit('附件路径不安全');
