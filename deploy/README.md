@@ -20,8 +20,8 @@
 | PHP | 8.5.x | CLI 8.5.4 / FrankenPHP 内嵌 8.5.8 |
 | 进程管理 | systemd | `frankenphp.service`（User=www-data） |
 
-> 注意：本机没有独立的 Caddy 进程，Web 层由 FrankenPHP 内嵌的 Caddy 提供。
-> `/etc/caddy/` 下的文件是历史遗留备份，**生效的是 `/etc/frankenphp/Caddyfile`**。
+> 注意：本机**不安装独立 Caddy**（apt 包 caddy 已卸载，`/etc/caddy/` 已移除）。
+> Web 层完全由 FrankenPHP 内嵌的 Caddy 提供，**生效配置是 `/etc/frankenphp/Caddyfile`**。
 
 ## 文件对应关系
 

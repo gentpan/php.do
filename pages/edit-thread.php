@@ -67,7 +67,7 @@ pd_include_header();
         $editorRows = 18;
         $editorRequired = true;
         $editorCompact = false;
-        include __DIR__ . '/../parts/markdown-editor.php';
+        include __DIR__ . '/../core/vendor/markdown-editor.php';
         ?>
 
         <?php if ($attachments && mysqli_num_rows($attachments) > 0) { ?>
