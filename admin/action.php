@@ -22,17 +22,6 @@ if ($action === 'add_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect(qf_url_page('admin/index.php'));
 }
 
-if ($action === 'edit_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $forum_id = intval($_POST['forum_id']);
-    $name = esc(clean_text($_POST['name'], 60));
-    $desc = esc(clean_text($_POST['description'], 255));
-    $order = intval($_POST['display_order']);
-    if ($forum_id > 0 && $name !== '') {
-        mysqli_query(db(), "UPDATE qf_forums SET name='{$name}', description='{$desc}', display_order={$order} WHERE id={$forum_id}");
-    }
-    redirect(qf_url_page('admin/index.php'));
-}
-
 if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $delete_forums = isset($_POST['delete_forums']) && is_array($_POST['delete_forums']) ? $_POST['delete_forums'] : array();
     foreach ($delete_forums as $forum_id) {

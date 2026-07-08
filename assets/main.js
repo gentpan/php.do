@@ -229,64 +229,6 @@
         });
     }
 
-    function initAuthModal() {
-        var modal = document.getElementById('qf-auth-modal');
-        if (!modal) return;
-
-        function setMode(mode) {
-            var tabs = modal.querySelectorAll('[data-auth-tab]');
-            var panels = modal.querySelectorAll('[data-auth-panel]');
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].classList.toggle('active', tabs[i].getAttribute('data-auth-tab') === mode);
-            }
-            for (var j = 0; j < panels.length; j++) {
-                panels[j].classList.toggle('active', panels[j].getAttribute('data-auth-panel') === mode);
-            }
-        }
-
-        function openAuth(mode) {
-            setMode(mode || 'login');
-            modal.classList.add('is-open');
-            var first = modal.querySelector('.auth-panel.active input');
-            if (first) {
-                setTimeout(function() {
-                    first.focus();
-                }, 40);
-            }
-        }
-
-        function closeAuth() {
-            modal.classList.remove('is-open');
-        }
-
-        document.addEventListener('click', function(e) {
-            var open = e.target.closest('[data-auth-open]');
-            if (open) {
-                e.preventDefault();
-                openAuth(open.getAttribute('data-auth-open'));
-                return;
-            }
-
-            var tab = e.target.closest('[data-auth-tab]');
-            if (tab) {
-                setMode(tab.getAttribute('data-auth-tab'));
-                return;
-            }
-
-            if (e.target.matches('[data-auth-close]') || e.target === modal) {
-                closeAuth();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeAuth();
-        });
-
-        if (modal.getAttribute('data-initial-auth')) {
-            openAuth(modal.getAttribute('data-initial-auth'));
-        }
-    }
-
     function initSearchModal() {
         var modal = document.getElementById('qf-search-modal');
         if (!modal) return;
@@ -1151,7 +1093,6 @@
     window.qfSetLoading = setLoading;
     initNavMore();
     initSideUserMenu();
-    initAuthModal();
     initPasskeys();
     initSearchModal();
     initThreadVotes();

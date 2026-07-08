@@ -27,17 +27,7 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id, t.is_good, 
 <section class="card thread-list">
     <h2 class="phpdo-list-heading">TA 发布的主题</h2>
     <?php $count = 0; while ($threads && ($t = mysqli_fetch_assoc($threads))) { $count++; ?>
-        <div class="thread-row">
-            <span class="phpdo-avatar" aria-hidden="true"><img src="<?php echo h($avatar); ?>" alt=""></span>
-            <div class="thread-main">
-                <a<?php echo qf_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
-                <p><?php echo h($t['forum_name']); ?> · <?php echo h(format_time($t['updated_at'])); ?></p>
-            </div>
-            <div class="thread-count">
-                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
-                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
-            </div>
-        </div>
+        <?php echo qf_render_thread_row($t, array('variant' => 'list', 'meta' => 'user', 'avatar_link' => false)); ?>
     <?php } ?>
     <?php if ($count === 0) { ?><p class="muted phpdo-empty">暂无主题。</p><?php } ?>
 </section>

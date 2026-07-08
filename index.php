@@ -101,39 +101,7 @@ if ($request_path !== '') {
 }
 
 function phpdo_render_thread_row($t) {
-    $avatar = qf_user_avatar($t, 80);
-    $author = ($t['nickname'] !== null && $t['nickname'] !== '') ? $t['nickname'] : $t['username'];
-    $is_new = strtotime($t['created_at']) >= time() - 86400 * 7;
-    ob_start();
-    ?>
-    <article class="phpdo-thread-row">
-        <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
-            <img src="<?php echo h($avatar); ?>" alt="">
-        </a>
-        <div class="phpdo-thread-main">
-            <h2>
-                <?php echo qf_thread_top_badge_html($t); ?>
-                <?php echo qf_thread_good_badge_html($t); ?>
-                <a href="<?php echo h(qf_url_thread($t['id'])); ?>"<?php echo qf_thread_title_attr($t); ?>><?php echo h($t['title']); ?></a>
-                <?php if (intval($t['has_image'])) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
-                <?php if (!empty($t['has_attachment'])) { ?><i class="fa-solid fa-paperclip phpdo-attach-icon" title="含附件" aria-label="含附件"></i><?php } ?>
-                <?php if ($is_new) { ?><i class="fa-solid fa-rectangle-new phpdo-new" title="新帖" aria-label="新帖"></i><?php } ?>
-            </h2>
-            <div class="phpdo-thread-meta">
-                <p>
-                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
-                    <time class="phpdo-time" datetime="<?php echo h(qf_iso8601($t['created_at'])); ?>" title="<?php echo h($t['created_at']); ?>"><?php echo h(qf_time_ago($t['created_at'])); ?></time>
-                    <?php if (!empty($t['forum_name'])) { ?><a class="phpdo-forum-tag phpdo-forum-tag-<?php echo intval($t['forum_id']) % 8; ?>" href="<?php echo h(qf_url_forum(intval($t['forum_id']))); ?>"><?php echo h($t['forum_name']); ?></a><?php } ?>
-                </p>
-                <div class="phpdo-thread-stats" aria-label="帖子统计">
-                    <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
-                    <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
-                </div>
-            </div>
-        </div>
-    </article>
-    <?php
-    return ob_get_clean();
+    return qf_render_thread_row($t, array('variant' => 'feed'));
 }
 
 $page_title = SITE_NAME . ' - 首页';
@@ -162,7 +130,7 @@ if ($filter === 'latest') {
     $latest_order = "t.updated_at DESC";
 }
 
-$phpdo_per_page = 20;
+$phpdo_per_page = qf_home_threads_limit();
 $phpdo_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $phpdo_ajax = isset($_GET['ajax']) ? $_GET['ajax'] : '';
 

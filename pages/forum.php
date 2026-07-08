@@ -40,27 +40,7 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.e
 </nav>
 <section class="card thread-list phpdo-forum-thread-list">
     <?php while ($threads && $t = mysqli_fetch_assoc($threads)) { ?>
-        <?php
-        $avatar = qf_user_avatar($t, 80);
-        $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
-        ?>
-        <div class="thread-row">
-            <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
-                <img src="<?php echo h($avatar); ?>" alt="">
-            </a>
-            <div class="thread-main">
-                <a<?php echo qf_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(qf_url_thread($t['id'])); ?>">
-                    <?php echo qf_thread_top_badge_html($t); ?>
-                    <?php echo qf_thread_good_badge_html($t); ?>
-                    <?php echo h($t['title']); ?>
-                </a>
-                <p><a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo format_time($t['created_at']); ?> · 最后更新 <?php echo format_time($t['updated_at']); ?></p>
-            </div>
-            <div class="thread-count">
-                <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
-                <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
-            </div>
-        </div>
+        <?php echo qf_render_thread_row($t, array('variant' => 'list', 'meta' => 'forum')); ?>
     <?php } ?>
 </section>
 <?php qf_include_footer(); ?>

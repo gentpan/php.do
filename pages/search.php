@@ -25,22 +25,8 @@ qf_include_header();
     <?php if ($found === 0) { ?>
         <div class="phpdo-empty">没有找到相关帖子，可以换一个关键词再试。</div>
     <?php } ?>
-    <?php while ($rs && $t = mysqli_fetch_assoc($rs)) {
-        $avatar = qf_user_avatar($t, 80);
-        $author = $t['nickname'] !== '' ? $t['nickname'] : $t['username'];
-    ?>
-        <div class="thread-row">
-            <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1"><img src="<?php echo h($avatar); ?>" alt=""></a>
-            <div class="thread-main">
-                <a<?php echo qf_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(qf_url_thread($t['id'])); ?>"><?php echo h($t['title']); ?></a>
-                <p>
-                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
-                    <span><?php echo h($t['forum_name']); ?></span>
-                    <span><?php echo format_time($t['updated_at']); ?></span>
-                </p>
-            </div>
-            <div class="thread-count"><span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span><span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span></div>
-        </div>
+    <?php while ($rs && $t = mysqli_fetch_assoc($rs)) { ?>
+        <?php echo qf_render_thread_row($t, array('variant' => 'list', 'meta' => 'search')); ?>
     <?php } ?>
 </section>
 <?php } ?>

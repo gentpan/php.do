@@ -1091,6 +1091,95 @@ function qf_thread_good_badge_html($row) {
     return '<span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span>';
 }
 
+function qf_user_display_name($row) {
+    $nick = isset($row['nickname']) ? $row['nickname'] : '';
+    if ($nick !== null && $nick !== '') {
+        return $nick;
+    }
+    return isset($row['username']) ? $row['username'] : '';
+}
+
+/** 帖子列表行：variant=feed 首页；variant=list 版块/搜索/用户页 */
+function qf_render_thread_row($t, $opts = array()) {
+    $variant = isset($opts['variant']) ? $opts['variant'] : 'feed';
+    $avatar = qf_user_avatar($t, 80);
+    $author = qf_user_display_name($t);
+    $is_new = strtotime($t['created_at']) >= time() - 86400 * 7;
+    $has_image = intval(isset($t['has_image']) ? $t['has_image'] : 0);
+    $has_attachment = !empty($t['has_attachment']);
+
+    if ($variant === 'feed') {
+        ob_start();
+        ?>
+        <article class="phpdo-thread-row">
+            <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
+                <img src="<?php echo h($avatar); ?>" alt="">
+            </a>
+            <div class="phpdo-thread-main">
+                <h2>
+                    <?php echo qf_thread_top_badge_html($t); ?>
+                    <?php echo qf_thread_good_badge_html($t); ?>
+                    <a href="<?php echo h(qf_url_thread($t['id'])); ?>"<?php echo qf_thread_title_attr($t); ?>><?php echo h($t['title']); ?></a>
+                    <?php if ($has_image) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
+                    <?php if ($has_attachment) { ?><i class="fa-solid fa-paperclip phpdo-attach-icon" title="含附件" aria-label="含附件"></i><?php } ?>
+                    <?php if ($is_new) { ?><i class="fa-solid fa-rectangle-new phpdo-new" title="新帖" aria-label="新帖"></i><?php } ?>
+                </h2>
+                <div class="phpdo-thread-meta">
+                    <p>
+                        <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
+                        <time class="phpdo-time" datetime="<?php echo h(qf_iso8601($t['created_at'])); ?>" title="<?php echo h($t['created_at']); ?>"><?php echo h(qf_time_ago($t['created_at'])); ?></time>
+                        <?php if (!empty($t['forum_name'])) { ?><a class="phpdo-forum-tag phpdo-forum-tag-<?php echo intval($t['forum_id']) % 8; ?>" href="<?php echo h(qf_url_forum(intval($t['forum_id']))); ?>"><?php echo h($t['forum_name']); ?></a><?php } ?>
+                    </p>
+                    <div class="phpdo-thread-stats" aria-label="帖子统计">
+                        <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
+                        <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                    </div>
+                </div>
+            </div>
+        </article>
+        <?php
+        return ob_get_clean();
+    }
+
+    $meta = isset($opts['meta']) ? $opts['meta'] : 'forum';
+    $show_counts = !isset($opts['counts']) || $opts['counts'];
+    $avatar_tag = isset($opts['avatar_link']) && $opts['avatar_link'] === false
+        ? '<span class="phpdo-avatar" aria-hidden="true"><img src="' . h($avatar) . '" alt=""></span>'
+        : '<a class="phpdo-avatar" href="' . h(qf_url_thread($t['id'])) . '" aria-hidden="true" tabindex="-1"><img src="' . h($avatar) . '" alt=""></a>';
+
+    ob_start();
+    ?>
+    <div class="thread-row">
+        <?php echo $avatar_tag; ?>
+        <div class="thread-main">
+            <a<?php echo qf_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(qf_url_thread($t['id'])); ?>">
+                <?php echo qf_thread_top_badge_html($t); ?>
+                <?php echo qf_thread_good_badge_html($t); ?>
+                <?php echo h($t['title']); ?>
+            </a>
+            <p>
+                <?php if ($meta === 'search') { ?>
+                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
+                    <span><?php echo h($t['forum_name']); ?></span>
+                    <span><?php echo h(format_time($t['updated_at'])); ?></span>
+                <?php } elseif ($meta === 'user') { ?>
+                    <?php echo h($t['forum_name']); ?> · <?php echo h(format_time($t['updated_at'])); ?>
+                <?php } else { ?>
+                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo h(format_time($t['created_at'])); ?> · 最后更新 <?php echo h(format_time($t['updated_at'])); ?>
+                <?php } ?>
+            </p>
+        </div>
+        <?php if ($show_counts) { ?>
+        <div class="thread-count">
+            <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+            <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
+        </div>
+        <?php } ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
 // 帖子表情反应：5 种类型（key => emoji + 标签）。每人每帖只能选 1 种。
 function qf_reaction_types() {
     return array(
