@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $upload_errors = array();
         $me = current_user();
+        pd_bind_content_attachments($id, 0, intval($me['id']), $content);
         pd_upload_attachments($id, 0, intval($me['id']), $upload_errors);
         if (!empty($upload_errors)) {
             $_SESSION['flash'] = implode("\n", $upload_errors);

@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($ok) {
                 $thread_id = mysqli_insert_id(db());
                 pd_add_user_points($uid, pd_points_for_thread(), 'thread', 'thread', $thread_id);
+                pd_bind_content_attachments($thread_id, 0, $uid, $content);
                 $upload_errors = array();
                 $upload_saved = pd_upload_attachments($thread_id, 0, $uid, $upload_errors);
                 if ($upload_saved > 0 && empty($upload_errors)) {

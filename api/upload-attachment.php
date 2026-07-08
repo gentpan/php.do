@@ -65,6 +65,7 @@ if (!$ok) {
     exit;
 }
 $attach_id = intval(mysqli_insert_id(db()));
+pd_cleanup_orphan_attachments(24); // 顺带清理超过 24h 未发帖绑定的预上传孤儿
 $url = pd_attachment_url($attach_id); // download?id= 附件ID
 
 $tag_name = str_replace(array('[', ']', '(', ')', "\r", "\n"), '', $original);

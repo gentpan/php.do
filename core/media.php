@@ -76,6 +76,45 @@ function pd_attachment_purchased($attachment_id, $user_id) {
     return $rs && mysqli_num_rows($rs) > 0;
 }
 
+// 将正文里引用的、当前用户的孤儿附件（thread_id=0）绑定到帖子/回复。
+// AJAX 预上传（api/upload-attachment.php）会先写入 thread_id=0 的附件并在正文插入下载链接，
+// 发帖/回复/编辑保存时调用本函数把它们正式归属到帖子。
+function pd_bind_content_attachments($thread_id, $post_id, $user_id, $content) {
+    $thread_id = intval($thread_id);
+    $user_id = intval($user_id);
+    if ($thread_id <= 0 || $user_id <= 0) return 0;
+    // 匹配 /download/123 或 download.php?id=123
+    if (!preg_match_all('#download(?:\.php\?id=|/)(\d+)#i', (string)$content, $m)) return 0;
+    $ids = array();
+    foreach ($m[1] as $x) { $x = intval($x); if ($x > 0) $ids[$x] = $x; }
+    if (!$ids) return 0;
+    $in = implode(',', $ids);
+    $post_id = intval($post_id);
+    $ok = mysqli_query(db(), "UPDATE pd_attachments SET thread_id={$thread_id}, post_id={$post_id} WHERE id IN ({$in}) AND user_id={$user_id} AND thread_id=0");
+    return $ok ? mysqli_affected_rows(db()) : 0;
+}
+
+// 清理长时间未绑定的孤儿附件（预上传后未发帖），删本地文件 + 记录
+function pd_cleanup_orphan_attachments($hours = 24) {
+    $hours = max(1, intval($hours));
+    $rs = mysqli_query(db(), "SELECT id, file_path FROM pd_attachments WHERE thread_id=0 AND post_id=0 AND created_at < (NOW() - INTERVAL {$hours} HOUR) LIMIT 200");
+    if (!$rs) return 0;
+    $base = realpath(PD_ROOT . '/uploads');
+    $n = 0;
+    while ($row = mysqli_fetch_assoc($rs)) {
+        $p = (string)$row['file_path'];
+        if ($p !== '' && !preg_match('#^https?://#i', $p)) {
+            $file = realpath(PD_ROOT . '/' . ltrim($p, '/'));
+            if ($base && $file && strpos($file, $base . DIRECTORY_SEPARATOR) === 0 && is_file($file)) {
+                @unlink($file);
+            }
+        }
+        mysqli_query(db(), "DELETE FROM pd_attachments WHERE id=" . intval($row['id']));
+        $n++;
+    }
+    return $n;
+}
+
 function pd_attachment_delete_form($att, $label = '删除附件') {
     if (!pd_can_delete_attachment($att)) {
         return '';

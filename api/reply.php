@@ -27,6 +27,7 @@ $ip = esc(client_ip());
 $content_sql = esc($content);
 mysqli_query(db(), "INSERT INTO pd_posts (thread_id,user_id,content,ip,created_at) VALUES ({$tid},{$uid},'{$content_sql}','{$ip}',NOW())");
 $post_id = mysqli_insert_id(db());
+pd_bind_content_attachments($tid, $post_id, $uid, $content);
 $upload_errors = array();
 $upload_saved = pd_upload_attachments($tid, $post_id, $uid, $upload_errors);
 if ($upload_saved > 0 && empty($upload_errors)) {
