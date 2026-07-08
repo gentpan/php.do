@@ -3361,7 +3361,7 @@ body.theme-pd {
     --pd-shadow-soft: var(--pd-card-shadow);
 
     /* 首页布局 */
-    --pd-home-gap: var(--pd-space-3);
+    --pd-home-gap: 14px;
     --pd-home-cols: minmax(0, 7fr) minmax(0, 3fr);
     --pd-home-side: calc((100% - var(--pd-home-gap)) * 0.3);
 }
@@ -3461,15 +3461,15 @@ body.theme-pd .nav-search-form button:hover {
 
 
 body.theme-pd .pd-home-shell {
-    width: min(1200px, calc(100vw - 48px));
+    width: min(1152px, calc(100vw - 48px));
     margin: 0 auto;
 }
 
 body.theme-pd .pd-category-bar {
     display: flex;
     align-items: center;
-    gap: 28px;
-    min-height: 70px;
+    gap: 22px;
+    min-height: 56px;
     padding: 0 30px;
     overflow-x: auto;
     color: var(--pd-text-title);
@@ -3489,7 +3489,7 @@ body.theme-pd .pd-feed-tabs::-webkit-scrollbar {
 
 body.theme-pd .pd-category-bar a {
     color: #3c3c3c;
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 800;
     text-decoration: none;
 }
@@ -3565,14 +3565,14 @@ body.theme-pd .pd-feed-card {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    padding: 26px;
+    padding: 22px;
 }
 
 body.theme-pd .pd-feed-tabs {
     display: flex;
     align-items: center;
-    gap: 18px;
-    margin-bottom: 18px;
+    gap: 14px;
+    margin-bottom: 14px;
     scrollbar-width: none;
 }
 
@@ -3580,11 +3580,11 @@ body.theme-pd .pd-feed-tabs a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 112px;
-    height: 46px;
-    padding: 0 20px;
+    min-width: 92px;
+    height: 40px;
+    padding: 0 16px;
     color: #333;
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 800;
     text-decoration: none;
     background: #f1f1f1;
@@ -3732,11 +3732,20 @@ body.theme-pd-dark .pd-feed-end { color: #6b7280; }
 body.theme-pd .pd-thread-row {
     display: grid;
     grid-template-columns: 58px minmax(0, 1fr);
-    gap: 16px;
+    gap: 14px;
     align-items: center;
-    min-height: 84px;
-    padding: 16px 0;
+    min-height: 72px;
+    padding: 11px 12px;
     border-bottom: 1px solid var(--pd-line);
+}
+
+/* 斑马纹行：偶数行浅底，hover 高亮，贴近 prosilver 列表观感 */
+body.theme-pd .pd-thread-row:nth-child(even) {
+    background: var(--pd-surface-soft);
+}
+
+body.theme-pd .pd-thread-row:hover {
+    background: var(--pd-line);
 }
 
 body.theme-pd .pd-thread-row:last-child {
@@ -3774,9 +3783,10 @@ body.theme-pd .pd-thread-main h2 {
     align-items: center;
     gap: 8px;
     min-width: 0;
-    margin: 0 0 9px;
+    margin: 0 0 6px;
     color: var(--pd-text-title);
     font-family: var(--pd-content-font), var(--pd-font-sans);
+    font-size: 16px;
     line-height: 1.35;
 }
 
@@ -3800,7 +3810,7 @@ body.theme-pd .pd-thread-main p {
     min-width: 0;
     margin: 0;
     color: #929292;
-    font-size: 15px;
+    font-size: 13px;
     line-height: 1.35;
 }
 
@@ -4012,35 +4022,35 @@ body.theme-pd .pd-thread-stats i {
 
 body.theme-pd .pd-home-sidebar {
     display: grid;
-    gap: 18px;
+    gap: 14px;
 }
 
 body.theme-pd .pd-side-card {
-    padding: 22px 26px;
+    padding: 16px 20px;
 }
 
 body.theme-pd .pd-side-card h2 {
     display: flex;
     align-items: center;
-    gap: 13px;
-    margin: 0 0 17px;
-    padding-bottom: 18px;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding-bottom: 12px;
     color: #424242;
-    font-size: 21px;
-    font-weight: 900;
+    font-size: 16px;
+    font-weight: 700;
     border-bottom: 1px solid var(--pd-line);
 }
 
 body.theme-pd .pd-side-card h2 span {
-    width: 5px;
-    height: 23px;
+    width: 4px;
+    height: 18px;
     background: var(--pd-accent);
     border-radius: 5px;
 }
 
 body.theme-pd .pd-must-read ul {
     display: grid;
-    gap: 14px;
+    gap: 10px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -4050,8 +4060,8 @@ body.theme-pd .pd-must-read li {
     position: relative;
     padding-left: 16px;
     color: #444;
-    font-size: 17px;
-    font-weight: 650;
+    font-size: 13px;
+    font-weight: 500;
     line-height: 1.5;
 }
 
@@ -4071,9 +4081,9 @@ body.theme-pd .pd-post-button {
     align-items: center;
     justify-content: center;
     gap: 9px;
-    height: 60px;
+    height: 46px;
     color: var(--pd-btn-primary-color);
-    font-size: 21px;
+    font-size: 16px;
     font-weight: 900;
     text-decoration: none;
     background: var(--pd-btn-primary-bg);
