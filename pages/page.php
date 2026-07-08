@@ -7,7 +7,7 @@ if (!$page) {
     exit('页面不存在');
 }
 $page_title = $page['title'] . ' - ' . SITE_NAME;
-$contact_email = ($slug === 'contact') ? pd_contact_email() : '';
+$contact_email = ($slug === 'help') ? pd_contact_email() : '';
 pd_include_header(true);
 ?>
 <div class="pd-info pd-info-page">
@@ -28,7 +28,7 @@ pd_include_header(true);
             <p><?php echo h($paragraph); ?></p>
         <?php }
         } ?>
-        <?php if ($slug === 'contact') { ?>
+        <?php if ($slug === 'help') { ?>
             <div class="pd-info-contact">
                 <?php if ($contact_email !== '') { ?>
                     <a class="pd-info-mail" href="mailto:<?php echo h($contact_email); ?>"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span><?php echo h($contact_email); ?></span></a>
