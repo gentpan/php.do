@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Post extends Model
 {
-    protected $table = 'qf_posts';
+    protected $table = 'pd_posts';
 
     public $timestamps = false;
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OnlineDaily extends Model
 {
-    protected $table = 'qf_online_daily';
+    protected $table = 'pd_online_daily';
 
     protected $primaryKey = 'day_date';
 

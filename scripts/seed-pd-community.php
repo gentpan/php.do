@@ -8,34 +8,34 @@ if (PHP_SAPI !== 'cli') {
 
 mt_srand(20260705);
 
-function seed_phpdo_pick($items, $index) {
+function seed_pd_pick($items, $index) {
     return $items[$index % count($items)];
 }
 
-function seed_phpdo_sql($value) {
+function seed_pd_sql($value) {
     return esc($value);
 }
 
-function seed_phpdo_forum($name, $description, $categories, $order, $preferred_id = 0) {
-    $name_sql = seed_phpdo_sql($name);
-    $desc_sql = seed_phpdo_sql($description);
-    $cats_sql = seed_phpdo_sql(implode("\n", $categories));
+function seed_pd_forum($name, $description, $categories, $order, $preferred_id = 0) {
+    $name_sql = seed_pd_sql($name);
+    $desc_sql = seed_pd_sql($description);
+    $cats_sql = seed_pd_sql(implode("\n", $categories));
     $enabled = count($categories) > 0 ? 1 : 0;
     if ($preferred_id > 0) {
-        $rs = mysqli_query(db(), "SELECT id FROM qf_forums WHERE id=" . intval($preferred_id) . " LIMIT 1");
+        $rs = mysqli_query(db(), "SELECT id FROM pd_forums WHERE id=" . intval($preferred_id) . " LIMIT 1");
         if ($rs && mysqli_fetch_assoc($rs)) {
-            mysqli_query(db(), "UPDATE qf_forums SET name='{$name_sql}', description='{$desc_sql}', topic_category_enabled={$enabled}, topic_categories='{$cats_sql}', display_order={$order} WHERE id=" . intval($preferred_id));
+            mysqli_query(db(), "UPDATE pd_forums SET name='{$name_sql}', description='{$desc_sql}', topic_category_enabled={$enabled}, topic_categories='{$cats_sql}', display_order={$order} WHERE id=" . intval($preferred_id));
             return intval($preferred_id);
         }
     }
-    $rs = mysqli_query(db(), "SELECT id FROM qf_forums WHERE name='{$name_sql}' LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id FROM pd_forums WHERE name='{$name_sql}' LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($row) {
         $id = intval($row['id']);
-        mysqli_query(db(), "UPDATE qf_forums SET description='{$desc_sql}', topic_category_enabled={$enabled}, topic_categories='{$cats_sql}', display_order={$order} WHERE id={$id}");
+        mysqli_query(db(), "UPDATE pd_forums SET description='{$desc_sql}', topic_category_enabled={$enabled}, topic_categories='{$cats_sql}', display_order={$order} WHERE id={$id}");
         return $id;
     }
-    mysqli_query(db(), "INSERT INTO qf_forums (name,description,topic_category_enabled,topic_categories,display_order,created_at) VALUES ('{$name_sql}','{$desc_sql}',{$enabled},'{$cats_sql}',{$order},NOW())");
+    mysqli_query(db(), "INSERT INTO pd_forums (name,description,topic_category_enabled,topic_categories,display_order,created_at) VALUES ('{$name_sql}','{$desc_sql}',{$enabled},'{$cats_sql}',{$order},NOW())");
     return intval(mysqli_insert_id(db()));
 }
 
@@ -55,7 +55,7 @@ $forum_specs = array(
 $forums = array();
 $forum_categories = array();
 foreach ($forum_specs as $spec) {
-    $forum_id = seed_phpdo_forum($spec[0], $spec[1], $spec[2], $spec[3], $spec[4]);
+    $forum_id = seed_pd_forum($spec[0], $spec[1], $spec[2], $spec[3], $spec[4]);
     $forums[] = $forum_id;
     $forum_categories[$forum_id] = $spec[2];
 }
@@ -87,27 +87,27 @@ $users = array();
 for ($i = 1; $i <= 30; $i++) {
     $username = $usernames[$i - 1];
     $nickname = $nicknames[$i - 1];
-    $username_sql = seed_phpdo_sql($username);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_users WHERE username='{$username_sql}' LIMIT 1");
+    $username_sql = seed_pd_sql($username);
+    $rs = mysqli_query(db(), "SELECT id FROM pd_users WHERE username='{$username_sql}' LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($row) {
         $users[] = intval($row['id']);
         continue;
     }
-    $nickname_sql = seed_phpdo_sql($nickname);
-    $signature_sql = seed_phpdo_sql(seed_phpdo_pick($signatures, $i));
-    $password_sql = seed_phpdo_sql(qf_password_hash('phpdo123456'));
+    $nickname_sql = seed_pd_sql($nickname);
+    $signature_sql = seed_pd_sql(seed_pd_pick($signatures, $i));
+    $password_sql = seed_pd_sql(pd_password_hash('phpdo123456'));
     $coins = 20 + mt_rand(0, 680);
-    $ip = seed_phpdo_pick(array(
+    $ip = seed_pd_pick(array(
         '8.8.8.8', '1.1.1.1', '223.5.5.5', '119.29.29.29', '210.140.92.187',
         '168.95.1.1', '165.21.83.88', '185.228.168.9', '213.230.114.118',
     ), $i);
-    mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','{$signature_sql}',1,{$coins},0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(2, 160) . " DAY))");
+    mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','{$signature_sql}',1,{$coins},0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(2, 160) . " DAY))");
     $user_id = intval(mysqli_insert_id(db()));
-    $avatar = qf_generate_default_avatar($user_id, $username, $nickname);
+    $avatar = pd_generate_default_avatar($user_id, $username, $nickname);
     if ($avatar !== '') {
-        $avatar_sql = seed_phpdo_sql($avatar);
-        mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$user_id}");
+        $avatar_sql = seed_pd_sql($avatar);
+        mysqli_query(db(), "UPDATE pd_users SET avatar='{$avatar_sql}' WHERE id={$user_id}");
     }
     $users[] = $user_id;
 }
@@ -184,70 +184,70 @@ foreach ($topics as $i => $topic) {
     $forum_id = $forums[$forum_index];
     $category = $topic[2];
     $title = $topic[1];
-    $title_sql = seed_phpdo_sql($title);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_threads WHERE title='{$title_sql}' LIMIT 1");
+    $title_sql = seed_pd_sql($title);
+    $rs = mysqli_query(db(), "SELECT id FROM pd_threads WHERE title='{$title_sql}' LIMIT 1");
     $existing = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($existing) {
         continue;
     }
-    $user_id = seed_phpdo_pick($users, $i * 3 + 1);
+    $user_id = seed_pd_pick($users, $i * 3 + 1);
     $content = implode("\n\n", array(
         $topic[3],
         '我想听听大家在真实项目里的做法，尤其是踩坑、权衡和上线后的维护经验。',
         '环境可以按 PHP 8.3/8.4、Nginx、PHP-FPM、MariaDB/MySQL、Redis 这一类常见组合来讨论。'
     ));
-    $category_sql = seed_phpdo_sql($category);
-    $content_sql = seed_phpdo_sql($content);
+    $category_sql = seed_pd_sql($category);
+    $content_sql = seed_pd_sql($content);
     $views = 80 + mt_rand(0, 4200);
     $is_good = ($i % 7 === 0 || $forum_index === 2) ? 1 : 0;
     $is_top = ($i === 0 || $i === 1) ? 1 : 0;
     $days = mt_rand(0, 35);
-    $ip = seed_phpdo_pick(array(
+    $ip = seed_pd_pick(array(
         '8.8.8.8', '1.1.1.1', '223.5.5.5', '180.76.76.76', '114.114.114.114',
         '210.140.92.187', '168.126.63.1', '202.45.84.58', '165.21.83.88',
         '185.228.168.9', '77.88.8.8', '213.186.33.99', '213.230.114.118',
     ), $i);
-    mysqli_query(db(), "INSERT INTO qf_threads (forum_id,user_id,topic_category,title,content,views,replies,is_top,is_good,is_deleted,ip,created_at,updated_at) VALUES ({$forum_id},{$user_id},'{$category_sql}','{$title_sql}','{$content_sql}',{$views},0,{$is_top},{$is_good},0,'{$ip}',DATE_SUB(NOW(), INTERVAL {$days} DAY),DATE_SUB(NOW(), INTERVAL " . mt_rand(0, min(5, $days)) . " DAY))");
+    mysqli_query(db(), "INSERT INTO pd_threads (forum_id,user_id,topic_category,title,content,views,replies,is_top,is_good,is_deleted,ip,created_at,updated_at) VALUES ({$forum_id},{$user_id},'{$category_sql}','{$title_sql}','{$content_sql}',{$views},0,{$is_top},{$is_good},0,'{$ip}',DATE_SUB(NOW(), INTERVAL {$days} DAY),DATE_SUB(NOW(), INTERVAL " . mt_rand(0, min(5, $days)) . " DAY))");
     $thread_id = intval(mysqli_insert_id(db()));
     $created_threads++;
     $reply_total = 3 + ($i % 5);
     $last_post_id = 0;
     for ($r = 1; $r <= $reply_total; $r++) {
-        $reply_user = seed_phpdo_pick($users, $i + $r * 4);
-        $reply = seed_phpdo_pick($reply_bank, $i + $r) . "\n\n" . '补充：这个回复用于模拟真实技术讨论，让列表、详情和楼中楼评论都有数据。';
-        $reply_sql = seed_phpdo_sql($reply);
-        mysqli_query(db(), "INSERT INTO qf_posts (thread_id,user_id,content,is_deleted,ip,created_at) VALUES ({$thread_id},{$reply_user},'{$reply_sql}',0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(0, max(1, $days)) . " DAY))");
+        $reply_user = seed_pd_pick($users, $i + $r * 4);
+        $reply = seed_pd_pick($reply_bank, $i + $r) . "\n\n" . '补充：这个回复用于模拟真实技术讨论，让列表、详情和楼中楼评论都有数据。';
+        $reply_sql = seed_pd_sql($reply);
+        mysqli_query(db(), "INSERT INTO pd_posts (thread_id,user_id,content,is_deleted,ip,created_at) VALUES ({$thread_id},{$reply_user},'{$reply_sql}',0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(0, max(1, $days)) . " DAY))");
         $post_id = intval(mysqli_insert_id(db()));
         $last_post_id = $post_id;
         $created_posts++;
         if ($r <= 2) {
             $comment_count = 1 + (($i + $r) % 2);
             for ($c = 1; $c <= $comment_count; $c++) {
-                $comment_user = seed_phpdo_pick($users, $i + $r + $c * 7);
-                $comment = seed_phpdo_pick($comment_bank, $i + $r + $c);
-                $comment_sql = seed_phpdo_sql($comment);
-                mysqli_query(db(), "INSERT INTO qf_post_comments (thread_id,post_id,user_id,content,ip,is_deleted,created_at) VALUES ({$thread_id},{$post_id},{$comment_user},'{$comment_sql}','{$ip}',0,DATE_SUB(NOW(), INTERVAL " . mt_rand(0, max(1, $days)) . " DAY))");
+                $comment_user = seed_pd_pick($users, $i + $r + $c * 7);
+                $comment = seed_pd_pick($comment_bank, $i + $r + $c);
+                $comment_sql = seed_pd_sql($comment);
+                mysqli_query(db(), "INSERT INTO pd_post_comments (thread_id,post_id,user_id,content,ip,is_deleted,created_at) VALUES ({$thread_id},{$post_id},{$comment_user},'{$comment_sql}','{$ip}',0,DATE_SUB(NOW(), INTERVAL " . mt_rand(0, max(1, $days)) . " DAY))");
                 $created_comments++;
             }
         }
     }
-    mysqli_query(db(), "UPDATE qf_threads SET replies={$reply_total}, updated_at=(SELECT created_at FROM qf_posts WHERE id={$last_post_id}) WHERE id={$thread_id}");
+    mysqli_query(db(), "UPDATE pd_threads SET replies={$reply_total}, updated_at=(SELECT created_at FROM pd_posts WHERE id={$last_post_id}) WHERE id={$thread_id}");
 }
 
 $user_id_list = implode(',', array_map('intval', $users));
 if ($user_id_list !== '') {
-    mysqli_query(db(), "UPDATE qf_users u SET reply_count=(SELECT COUNT(*) FROM qf_posts p WHERE p.user_id=u.id AND p.is_deleted=0) WHERE u.id IN ({$user_id_list})");
+    mysqli_query(db(), "UPDATE pd_users u SET reply_count=(SELECT COUNT(*) FROM pd_posts p WHERE p.user_id=u.id AND p.is_deleted=0) WHERE u.id IN ({$user_id_list})");
 }
-$nav_tech = seed_phpdo_sql(qf_url_forum($forums[1]));
-$nav_release = seed_phpdo_sql(qf_url_forum($forums[2]));
-$nav_help = seed_phpdo_sql(qf_url_forum($forums[9]));
-mysqli_query(db(), "REPLACE INTO qf_navs (id,title,url,display_order,is_enabled,created_at) VALUES
+$nav_tech = seed_pd_sql(pd_url_forum($forums[1]));
+$nav_release = seed_pd_sql(pd_url_forum($forums[2]));
+$nav_help = seed_pd_sql(pd_url_forum($forums[9]));
+mysqli_query(db(), "REPLACE INTO pd_navs (id,title,url,display_order,is_enabled,created_at) VALUES
     (1,'技术讨论','{$nav_tech}',10,1,NOW()),
     (2,'程序发布','{$nav_release}',20,1,NOW()),
     (3,'代码求助','{$nav_help}',30,1,NOW())");
 
 $summary = array();
-foreach (array('qf_forums', 'qf_users', 'qf_threads', 'qf_posts', 'qf_post_comments') as $table) {
+foreach (array('pd_forums', 'pd_users', 'pd_threads', 'pd_posts', 'pd_post_comments') as $table) {
     $rs = mysqli_query(db(), "SELECT COUNT(*) AS c FROM {$table}");
     $row = $rs ? mysqli_fetch_assoc($rs) : array('c' => 0);
     $summary[$table] = intval($row['c']);
@@ -255,4 +255,4 @@ foreach (array('qf_forums', 'qf_users', 'qf_threads', 'qf_posts', 'qf_post_comme
 
 echo "php.do seed complete\n";
 echo "created_threads={$created_threads} created_posts={$created_posts} created_comments={$created_comments}\n";
-echo "forums={$summary['qf_forums']} users={$summary['qf_users']} threads={$summary['qf_threads']} posts={$summary['qf_posts']} comments={$summary['qf_post_comments']}\n";
+echo "forums={$summary['pd_forums']} users={$summary['pd_users']} threads={$summary['pd_threads']} posts={$summary['pd_posts']} comments={$summary['pd_post_comments']}\n";

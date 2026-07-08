@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SecurityLog extends Model
 {
-    protected $table = 'qf_security_logs';
+    protected $table = 'pd_security_logs';
 
     public $timestamps = false;
 

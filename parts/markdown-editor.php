@@ -7,16 +7,16 @@ $editorPlaceholder = isset($editorPlaceholder) ? $editorPlaceholder : '支持 Ma
 $editorRequired = !isset($editorRequired) || $editorRequired;
 $editorCompact = !empty($editorCompact);
 $editorMaxlength = isset($editorMaxlength) ? intval($editorMaxlength) : 0;
-$editorPreviewUrl = isset($editorPreviewUrl) ? $editorPreviewUrl : qf_url_page('api/markdown-preview.php');
-$editorUploadUrl = isset($editorUploadUrl) ? $editorUploadUrl : qf_url_page('api/upload-image.php');
-$editorAttachUrl = isset($editorAttachUrl) ? $editorAttachUrl : qf_url_page('api/upload-attachment.php');
+$editorPreviewUrl = isset($editorPreviewUrl) ? $editorPreviewUrl : pd_url_page('api/markdown-preview.php');
+$editorUploadUrl = isset($editorUploadUrl) ? $editorUploadUrl : pd_url_page('api/upload-image.php');
+$editorAttachUrl = isset($editorAttachUrl) ? $editorAttachUrl : pd_url_page('api/upload-attachment.php');
 $editorClass = 'markdown-editor' . ($editorCompact ? ' is-compact' : '');
 ?>
 <div class="<?php echo h($editorClass); ?>"
      data-preview-url="<?php echo h($editorPreviewUrl); ?>"
      data-upload-url="<?php echo h($editorUploadUrl); ?>"
      data-attach-url="<?php echo h($editorAttachUrl); ?>"
-     data-csrf="<?php echo h(qf_csrf_token()); ?>">
+     data-csrf="<?php echo h(pd_csrf_token()); ?>">
     <div class="editor-toolbar" aria-label="Markdown 工具栏">
         <span class="editor-toolbar-label"><i class="fa-brands fa-markdown" aria-hidden="true"></i> Markdown</span>
         <div class="editor-heading-menu" data-heading-menu>
@@ -58,7 +58,7 @@ $editorClass = 'markdown-editor' . ($editorCompact ? ' is-compact' : '');
             </button>
         </span>
     </div>
-    <p class="muted upload-tip editor-upload-tip">支持 <?php echo h(qf_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(qf_upload_max_mb()); ?>MB。内容使用 Markdown。</p>
+    <p class="muted upload-tip editor-upload-tip">支持 <?php echo h(pd_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(pd_upload_max_mb()); ?>MB。内容使用 Markdown。</p>
     <div class="editor-pane">
         <textarea name="<?php echo h($editorName); ?>"
                   rows="<?php echo $editorRows; ?>"

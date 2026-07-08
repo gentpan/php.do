@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Forum extends Model
 {
-    protected $table = 'qf_forums';
+    protected $table = 'pd_forums';
 
     public $timestamps = false;
 

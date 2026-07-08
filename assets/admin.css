@@ -447,8 +447,8 @@ table.forum-table {
     object-fit: cover;
 }
 
-.phpdo-group-badge,
-.phpdo-level {
+.pd-group-badge,
+.pd-level {
     display: inline-flex;
     align-items: center;
     height: 1.25rem;
@@ -460,7 +460,7 @@ table.forum-table {
     background: var(--group-color, #4b5563);
     vertical-align: middle;
 }
-.phpdo-level { background: #374151; margin-right: .25rem; }
+.pd-level { background: #374151; margin-right: .25rem; }
 
 .admin-confirm[hidden] { display: none !important; }
 .admin-confirm {

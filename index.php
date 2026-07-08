@@ -23,7 +23,7 @@ if (in_array($request_path, $legacy_admin_paths, true) || strpos($request_path, 
     exit('404 Not Found');
 }
 
-function qf_front_redirect($url) {
+function pd_front_redirect($url) {
     $query = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_QUERY);
     if ($query !== null && $query !== '') {
         $url .= (strpos($url, '?') === false ? '?' : '&') . $query;
@@ -39,10 +39,10 @@ if (preg_match('#^user/([0-9]+)\.html$#', $request_path, $m)) {
     exit;
 }
 if (preg_match('#^pages/([a-z0-9-]+)$#', $request_path, $m)) {
-    qf_front_redirect(qf_url_page('page.php', array('slug' => $m[1])));
+    pd_front_redirect(pd_url_page('page.php', array('slug' => $m[1])));
 }
 if (preg_match('#^([a-z0-9-]+)\.php$#', $request_path, $m)) {
-    $static_pages = qf_static_pages();
+    $static_pages = pd_static_pages();
     if (isset($static_pages[$m[1]])) {
         $_GET['slug'] = $m[1];
         $_SERVER['SCRIPT_NAME'] = '/page.php';
@@ -50,7 +50,7 @@ if (preg_match('#^([a-z0-9-]+)\.php$#', $request_path, $m)) {
         exit;
     }
 }
-$forum_slug_id = qf_forum_id_by_slug($request_path);
+$forum_slug_id = pd_forum_id_by_slug($request_path);
 if ($forum_slug_id > 0) {
     $_GET['id'] = $forum_slug_id;
     $_SERVER['SCRIPT_NAME'] = '/forum.php';
@@ -63,8 +63,8 @@ if ($request_path === 'feed' || $request_path === 'feed.php' || $request_path ==
     exit;
 }
 if ($request_path === 'about' || $request_path === 'about.php') {
-    if ($request_path === 'about' && qf_rewrite_enabled()) {
-        qf_front_redirect(qf_url_page('about.php'));
+    if ($request_path === 'about' && pd_rewrite_enabled()) {
+        pd_front_redirect(pd_url_page('about.php'));
     }
     $_SERVER['SCRIPT_NAME'] = '/about.php';
     require __DIR__ . '/pages/about.php';
@@ -90,7 +90,7 @@ foreach ($front_routes as $front_path => $front_script) {
 }
 if (isset($front_routes[$request_path])) {
     if (substr($request_path, -4) !== '.php') {
-        qf_front_redirect(qf_url_page($front_routes[$request_path]));
+        pd_front_redirect(pd_url_page($front_routes[$request_path]));
     }
     $_SERVER['SCRIPT_NAME'] = '/' . str_replace('-', '_', $front_routes[$request_path]);
     require __DIR__ . '/pages/' . $front_routes[$request_path];
@@ -101,8 +101,8 @@ if ($request_path !== '') {
     exit('404 Not Found');
 }
 
-function phpdo_render_thread_row($t) {
-    return qf_render_thread_row($t, array('variant' => 'feed'));
+function pd_render_thread_row($t) {
+    return pd_render_thread_row($t, array('variant' => 'feed'));
 }
 
 $page_title = SITE_NAME . ' - 首页';
@@ -131,26 +131,26 @@ if ($filter === 'latest') {
     $latest_order = "t.updated_at DESC";
 }
 
-$phpdo_per_page = qf_home_threads_limit();
-$phpdo_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$phpdo_ajax = isset($_GET['ajax']) ? $_GET['ajax'] : '';
+$pd_per_page = pd_home_threads_limit();
+$pd_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$pd_ajax = isset($_GET['ajax']) ? $_GET['ajax'] : '';
 
-$phpdo_thread_select = "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email,
-    (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM qf_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image,
-    (CASE WHEN EXISTS (SELECT 1 FROM qf_attachments a2 WHERE a2.thread_id=t.id AND a2.file_ext NOT IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_attachment
-    FROM qf_threads t
-    LEFT JOIN qf_forums f ON t.forum_id=f.id
-    LEFT JOIN qf_users u ON t.user_id=u.id
+$pd_thread_select = "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email,
+    (CASE WHEN t.content LIKE '%[img]%' OR EXISTS (SELECT 1 FROM pd_attachments a WHERE a.thread_id=t.id AND a.file_ext IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_image,
+    (CASE WHEN EXISTS (SELECT 1 FROM pd_attachments a2 WHERE a2.thread_id=t.id AND a2.file_ext NOT IN ('jpg','jpeg','png','gif','webp') LIMIT 1) THEN 1 ELSE 0 END) AS has_attachment
+    FROM pd_threads t
+    LEFT JOIN pd_forums f ON t.forum_id=f.id
+    LEFT JOIN pd_users u ON t.user_id=u.id
     WHERE {$latest_where}
     ORDER BY {$latest_order}";
 
 // AJAX：轮询是否有新增/更新的话题
-if ($phpdo_ajax === 'check') {
+if ($pd_ajax === 'check') {
     $since = isset($_GET['since']) ? trim((string)$_GET['since']) : '';
     $count = 0;
     if ($since !== '' && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $since)) {
         $since_sql = esc($since);
-        $cr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_threads t WHERE {$latest_where} AND {$latest_ts_col} > '{$since_sql}'");
+        $cr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM pd_threads t WHERE {$latest_where} AND {$latest_ts_col} > '{$since_sql}'");
         $crow = $cr ? mysqli_fetch_assoc($cr) : null;
         $count = $crow ? intval($crow['c']) : 0;
     }
@@ -160,36 +160,36 @@ if ($phpdo_ajax === 'check') {
 }
 
 // AJAX：分页加载更多帖子行
-if ($phpdo_ajax === 'rows') {
-    $offset = ($phpdo_page - 1) * $phpdo_per_page;
-    $rs = mysqli_query(db(), $phpdo_thread_select . " LIMIT " . ($phpdo_per_page + 1) . " OFFSET " . intval($offset));
+if ($pd_ajax === 'rows') {
+    $offset = ($pd_page - 1) * $pd_per_page;
+    $rs = mysqli_query(db(), $pd_thread_select . " LIMIT " . ($pd_per_page + 1) . " OFFSET " . intval($offset));
     $rows = array();
     while ($rs && ($t = mysqli_fetch_assoc($rs))) { $rows[] = $t; }
-    $has_more = count($rows) > $phpdo_per_page;
+    $has_more = count($rows) > $pd_per_page;
     if ($has_more) { array_pop($rows); }
     header('Content-Type: text/html; charset=utf-8');
     header('X-Has-More: ' . ($has_more ? '1' : '0'));
-    foreach ($rows as $t) { echo phpdo_render_thread_row($t); }
+    foreach ($rows as $t) { echo pd_render_thread_row($t); }
     exit;
 }
 
 $forums = mysqli_query(db(), "SELECT f.*,
-    (SELECT COUNT(*) FROM qf_threads t WHERE t.forum_id=f.id AND t.is_deleted=0) AS thread_count,
-    (SELECT COUNT(*) FROM qf_posts p INNER JOIN qf_threads t2 ON p.thread_id=t2.id WHERE t2.forum_id=f.id AND p.is_deleted=0 AND t2.is_deleted=0) AS post_count
-    FROM qf_forums f ORDER BY f.display_order ASC, f.id ASC");
+    (SELECT COUNT(*) FROM pd_threads t WHERE t.forum_id=f.id AND t.is_deleted=0) AS thread_count,
+    (SELECT COUNT(*) FROM pd_posts p INNER JOIN pd_threads t2 ON p.thread_id=t2.id WHERE t2.forum_id=f.id AND p.is_deleted=0 AND t2.is_deleted=0) AS post_count
+    FROM pd_forums f ORDER BY f.display_order ASC, f.id ASC");
 $forum_rows = array();
 while ($forums && ($forum = mysqli_fetch_assoc($forums))) {
     $forum_rows[] = $forum;
 }
 
-$latest_rs = mysqli_query(db(), $phpdo_thread_select . " LIMIT " . ($phpdo_per_page + 1));
+$latest_rs = mysqli_query(db(), $pd_thread_select . " LIMIT " . ($pd_per_page + 1));
 $latest_rows = array();
 while ($latest_rs && ($t = mysqli_fetch_assoc($latest_rs))) { $latest_rows[] = $t; }
-$phpdo_has_more = count($latest_rows) > $phpdo_per_page;
-if ($phpdo_has_more) { array_pop($latest_rows); }
+$pd_has_more = count($latest_rows) > $pd_per_page;
+if ($pd_has_more) { array_pop($latest_rows); }
 
-$maxr = mysqli_query(db(), "SELECT MAX({$latest_ts_col}) AS m FROM qf_threads t WHERE {$latest_where}");
-$phpdo_latest_ts = ($maxr && ($mr = mysqli_fetch_assoc($maxr))) ? (string)$mr['m'] : '';
+$maxr = mysqli_query(db(), "SELECT MAX({$latest_ts_col}) AS m FROM pd_threads t WHERE {$latest_where}");
+$pd_latest_ts = ($maxr && ($mr = mysqli_fetch_assoc($maxr))) ? (string)$mr['m'] : '';
 
 $must_reads = array(
     'PHP 提问模板：版本、环境、日志、最小复现',
@@ -202,48 +202,48 @@ $must_reads = array(
     '开源项目更新欢迎同步 changelog 和仓库地址',
 );
 
-$community_stats = qf_community_stats();
-$latest_users = qf_latest_users(8);
+$community_stats = pd_community_stats();
+$latest_users = pd_latest_users(8);
 
-qf_include_header();
+pd_include_header();
 ?>
-<div class="phpdo-home-shell">
-    <?php echo qf_render_ad('top'); ?>
+<div class="pd-home-shell">
+    <?php echo pd_render_ad('top'); ?>
 
-    <div class="phpdo-home-layout">
-        <section class="phpdo-feed-card" aria-label="帖子列表">
-            <div class="phpdo-feed-tabs">
+    <div class="pd-home-layout">
+        <section class="pd-feed-card" aria-label="帖子列表">
+            <div class="pd-feed-tabs">
                 <?php foreach ($filter_labels as $key => $label) { ?>
-                    <a class="<?php echo $filter === $key ? 'active' : ''; ?>" href="<?php echo h(qf_url_page('index.php')); ?>" data-feed-filter="<?php echo h($key); ?>"><?php echo h($label); ?></a>
+                    <a class="<?php echo $filter === $key ? 'active' : ''; ?>" href="<?php echo h(pd_url_page('index.php')); ?>" data-feed-filter="<?php echo h($key); ?>"><?php echo h($label); ?></a>
                 <?php } ?>
             </div>
-            <button type="button" class="phpdo-new-topics" data-new-topics hidden>
+            <button type="button" class="pd-new-topics" data-new-topics hidden>
                 查看 <b data-new-count>0</b> 个新的或更新的话题
             </button>
-            <div class="phpdo-thread-list latest-list" data-feed-list data-filter="<?php echo h($filter); ?>" data-per-page="<?php echo intval($phpdo_per_page); ?>" data-has-more="<?php echo $phpdo_has_more ? '1' : '0'; ?>" data-latest-ts="<?php echo h($phpdo_latest_ts); ?>">
+            <div class="pd-thread-list latest-list" data-feed-list data-filter="<?php echo h($filter); ?>" data-per-page="<?php echo intval($pd_per_page); ?>" data-has-more="<?php echo $pd_has_more ? '1' : '0'; ?>" data-latest-ts="<?php echo h($pd_latest_ts); ?>">
                 <?php if (!empty($latest_rows)) { ?>
-                    <?php foreach ($latest_rows as $t) { echo phpdo_render_thread_row($t); } ?>
+                    <?php foreach ($latest_rows as $t) { echo pd_render_thread_row($t); } ?>
                 <?php } else { ?>
-                    <article class="phpdo-thread-row">
-                        <div class="phpdo-thread-main">
-                            <h2><a href="<?php echo h(qf_url_page('post.php')); ?>">还没有帖子，发布第一篇 PHP 技术讨论</a></h2>
-                            <p><span><?php echo h(qf_site_name()); ?></span><span>等待新的讨论</span></p>
+                    <article class="pd-thread-row">
+                        <div class="pd-thread-main">
+                            <h2><a href="<?php echo h(pd_url_page('post.php')); ?>">还没有帖子，发布第一篇 PHP 技术讨论</a></h2>
+                            <p><span><?php echo h(pd_site_name()); ?></span><span>等待新的讨论</span></p>
                         </div>
                     </article>
                 <?php } ?>
             </div>
-            <div class="phpdo-feed-more" data-feed-more>
-                <button type="button" class="phpdo-more-btn" data-load-more<?php echo $phpdo_has_more ? '' : ' hidden'; ?>>
-                    <span class="phpdo-more-label">加载更多</span>
-                    <span class="phpdo-more-spin" aria-hidden="true"></span>
+            <div class="pd-feed-more" data-feed-more>
+                <button type="button" class="pd-more-btn" data-load-more<?php echo $pd_has_more ? '' : ' hidden'; ?>>
+                    <span class="pd-more-label">加载更多</span>
+                    <span class="pd-more-spin" aria-hidden="true"></span>
                 </button>
-                <div class="phpdo-feed-end" data-feed-end<?php echo (!empty($latest_rows) && !$phpdo_has_more) ? '' : ' hidden'; ?>>没有更多话题了</div>
+                <div class="pd-feed-end" data-feed-end<?php echo (!empty($latest_rows) && !$pd_has_more) ? '' : ' hidden'; ?>>没有更多话题了</div>
             </div>
         </section>
 
-        <aside class="phpdo-home-sidebar" aria-label="侧边栏">
-            <a class="phpdo-post-button" href="<?php echo h(qf_url_page('post.php')); ?>"><i class="fa-solid fa-plus" aria-hidden="true"></i>我要发帖</a>
-            <section class="phpdo-side-card phpdo-must-read">
+        <aside class="pd-home-sidebar" aria-label="侧边栏">
+            <a class="pd-post-button" href="<?php echo h(pd_url_page('post.php')); ?>"><i class="fa-solid fa-plus" aria-hidden="true"></i>我要发帖</a>
+            <section class="pd-side-card pd-must-read">
                 <h2><span></span>入站必看</h2>
                 <ul>
                     <?php foreach ($must_reads as $item) { ?>
@@ -251,49 +251,49 @@ qf_include_header();
                     <?php } ?>
                 </ul>
             </section>
-            <section class="phpdo-side-card phpdo-community-card">
+            <section class="pd-side-card pd-community-card">
                 <h2><span></span>关于社区</h2>
-                <p class="phpdo-community-slogan"><?php echo h(qf_site_slogan()); ?></p>
-                <div class="phpdo-community-stats">
-                    <div><b><?php echo qf_format_compact_number($community_stats['members']); ?></b><span>成员</span></div>
-                    <div><b><?php echo qf_format_compact_number($community_stats['topics_7d']); ?></b><span>近7天话题</span></div>
-                    <div><b><?php echo qf_format_compact_number($community_stats['active_7d']); ?></b><span>近7天活跃</span></div>
+                <p class="pd-community-slogan"><?php echo h(pd_site_slogan()); ?></p>
+                <div class="pd-community-stats">
+                    <div><b><?php echo pd_format_compact_number($community_stats['members']); ?></b><span>成员</span></div>
+                    <div><b><?php echo pd_format_compact_number($community_stats['topics_7d']); ?></b><span>近7天话题</span></div>
+                    <div><b><?php echo pd_format_compact_number($community_stats['active_7d']); ?></b><span>近7天活跃</span></div>
                 </div>
-                <a class="phpdo-community-link" href="<?php echo h(qf_url_page('about.php')); ?>">了解本站 <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></a>
+                <a class="pd-community-link" href="<?php echo h(pd_url_page('about.php')); ?>">了解本站 <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></a>
             </section>
             <?php if (!empty($latest_users)) { ?>
-            <section class="phpdo-side-card phpdo-newuser-card">
+            <section class="pd-side-card pd-newuser-card">
                 <h2><span></span>用户数目</h2>
-                <p class="phpdo-newuser-total">目前论坛共有 <b><?php echo qf_format_compact_number($community_stats['members']); ?></b> 位<?php echo h(qf_member_noun()); ?></p>
-                <h3 class="phpdo-newuser-sub">欢迎新用户</h3>
-                <div class="phpdo-newuser-grid">
+                <p class="pd-newuser-total">目前论坛共有 <b><?php echo pd_format_compact_number($community_stats['members']); ?></b> 位<?php echo h(pd_member_noun()); ?></p>
+                <h3 class="pd-newuser-sub">欢迎新用户</h3>
+                <div class="pd-newuser-grid">
                     <?php foreach ($latest_users as $nu) {
-                        $nu_name = qf_user_display_name($nu);
+                        $nu_name = pd_user_display_name($nu);
                     ?>
-                        <a class="phpdo-newuser" href="<?php echo h(qf_url_user($nu['id'])); ?>" title="<?php echo h($nu_name); ?>">
-                            <img src="<?php echo h(qf_user_avatar($nu, 96)); ?>" alt="" loading="lazy">
+                        <a class="pd-newuser" href="<?php echo h(pd_url_user($nu['id'])); ?>" title="<?php echo h($nu_name); ?>">
+                            <img src="<?php echo h(pd_user_avatar($nu, 96)); ?>" alt="" loading="lazy">
                             <span><?php echo h($nu_name); ?></span>
                         </a>
                     <?php } ?>
                 </div>
             </section>
             <?php } ?>
-            <section class="phpdo-ad phpdo-ad-warm">
+            <section class="pd-ad pd-ad-warm">
                 <strong>PHP 项目发布</strong>
                 <span>开源程序 / 插件扩展 / 版本更新</span>
                 <em>欢迎展示你的作品</em>
             </section>
-            <section class="phpdo-ad phpdo-ad-dark">
+            <section class="pd-ad pd-ad-dark">
                 <strong>Composer 包推荐</strong>
                 <span>稳定依赖 · 自动加载 · SDK 设计</span>
             </section>
-            <section class="phpdo-ad phpdo-ad-cyan">
+            <section class="pd-ad pd-ad-cyan">
                 <strong>部署与性能</strong>
                 <span>PHP-FPM / Opcache / Redis / Nginx</span>
             </section>
-            <?php echo qf_render_ad('sidebar'); ?>
+            <?php echo pd_render_ad('sidebar'); ?>
         </aside>
     </div>
 </div>
-<?php echo qf_render_ad('footer'); ?>
-<?php qf_include_footer(); ?>
+<?php echo pd_render_ad('footer'); ?>
+<?php pd_include_footer(); ?>

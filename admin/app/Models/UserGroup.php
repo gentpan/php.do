@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserGroup extends Model
 {
-    protected $table = 'qf_user_groups';
+    protected $table = 'pd_user_groups';
 
     public $timestamps = false;
 

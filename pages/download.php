@@ -2,16 +2,16 @@
 require_once __DIR__ . '/../functions.php';
 $download_user = current_user();
 
-function qf_safe_download_name($name) {
+function pd_safe_download_name($name) {
     $name = basename(str_replace(array("\r", "\n", '"'), '', (string)$name));
     return $name !== '' ? $name : 'download';
 }
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id < 1) {
-    $id = qf_path_id();
+    $id = pd_path_id();
 }
-$rs = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE id={$id} LIMIT 1");
+$rs = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE id={$id} LIMIT 1");
 $att = $rs ? mysqli_fetch_assoc($rs) : null;
 if (!$att) {
     exit('附件不存在');
@@ -21,7 +21,7 @@ $path = $att['file_path'];
 $name = $att['original_name'] !== '' ? $att['original_name'] : basename($path);
 $ext = strtolower($att['file_ext']);
 $compressed_exts = array('zip', 'rar');
-if (!$download_user && !qf_guest_download_allowed() && in_array($ext, $compressed_exts)) {
+if (!$download_user && !pd_guest_download_allowed() && in_array($ext, $compressed_exts)) {
     header('Content-Type: text/html; charset=utf-8');
     ?>
     <!doctype html>
@@ -35,7 +35,7 @@ if (!$download_user && !qf_guest_download_allowed() && in_array($ext, $compresse
     <main class="wrap narrow">
         <section class="card">
             <div class="alert">需要登录才能进行此操作</div>
-            <p><a class="btn" href="<?php echo h(qf_url_page('register.php')); ?>">去注册</a> <a class="btn btn-light" href="<?php echo h(qf_url_page('login.php')); ?>">已有账号，去登录</a></p>
+            <p><a class="btn" href="<?php echo h(pd_url_page('register.php')); ?>">去注册</a> <a class="btn btn-light" href="<?php echo h(pd_url_page('login.php')); ?>">已有账号，去登录</a></p>
         </section>
     </main>
     </body>
@@ -44,7 +44,7 @@ if (!$download_user && !qf_guest_download_allowed() && in_array($ext, $compresse
     exit;
 }
 
-mysqli_query(db(), "UPDATE qf_attachments SET download_count=download_count+1 WHERE id={$id}");
+mysqli_query(db(), "UPDATE pd_attachments SET download_count=download_count+1 WHERE id={$id}");
 if (preg_match('/^https?:\/\//i', $path)) {
     header('Location: ' . $path);
     exit;
@@ -59,7 +59,7 @@ if (!$base_dir || !$file || strpos($file, $base_dir . DIRECTORY_SEPARATOR) !== 0
 if (!is_file($file)) {
     exit('附件文件不存在');
 }
-$safe_name = qf_safe_download_name($name);
+$safe_name = pd_safe_download_name($name);
 header('X-Content-Type-Options: nosniff');
 $image_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 if (in_array($ext, $image_exts)) {

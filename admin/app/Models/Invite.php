@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Invite extends Model
 {
-    protected $table = 'qf_invites';
+    protected $table = 'pd_invites';
 
     public $timestamps = false;
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Nav extends Model
 {
-    protected $table = 'qf_navs';
+    protected $table = 'pd_navs';
 
     public $timestamps = false;
 

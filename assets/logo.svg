@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 336 82" role="img" aria-labelledby="phpdo-logo-title">
-  <title id="phpdo-logo-title">php.do</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 336 82" role="img" aria-labelledby="pd-logo-title">
+  <title id="pd-logo-title">php.do</title>
   <defs>
-    <linearGradient id="phpdo-badge-purple" x1="282" y1="9" x2="346" y2="73" gradientUnits="userSpaceOnUse">
+    <linearGradient id="pd-badge-purple" x1="282" y1="9" x2="346" y2="73" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#616da6"/>
       <stop offset="1" stop-color="#505b93"/>
     </linearGradient>
-    <filter id="phpdo-badge-shadow" x="-12%" y="-12%" width="124%" height="124%">
+    <filter id="pd-badge-shadow" x="-12%" y="-12%" width="124%" height="124%">
       <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#505b93" flood-opacity=".16"/>
     </filter>
   </defs>
@@ -26,7 +26,7 @@
   <circle cx="233" cy="58" r="6.5" fill="#0d0d11"/>
 
   <g transform="translate(-24 0)">
-    <path filter="url(#phpdo-badge-shadow)" fill="url(#phpdo-badge-purple)" d="M298 9
+    <path filter="url(#pd-badge-shadow)" fill="url(#pd-badge-purple)" d="M298 9
       C282 9 274 17 274 33
       L274 49
       C274 65 282 73 298 73

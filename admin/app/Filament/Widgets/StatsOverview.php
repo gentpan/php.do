@@ -46,9 +46,9 @@ class StatsOverview extends StatsOverviewWidget
             ->count();
         $activeWeek = (int) DB::scalar(
             'SELECT COUNT(DISTINCT user_id) FROM (
-                SELECT user_id, created_at FROM qf_threads WHERE is_deleted = 0
+                SELECT user_id, created_at FROM pd_threads WHERE is_deleted = 0
                 UNION ALL
-                SELECT user_id, created_at FROM qf_posts WHERE is_deleted = 0
+                SELECT user_id, created_at FROM pd_posts WHERE is_deleted = 0
             ) x WHERE created_at >= ?',
             [now()->subDays(7)],
         );

@@ -4,7 +4,7 @@ $u = require_login();
 if (ip_banned(client_ip())) exit('当前 IP 已被封禁');
 $fid = isset($_GET['fid']) ? intval($_GET['fid']) : 0;
 $error = '';
-$mute_message = qf_user_mute_message($u);
+$mute_message = pd_user_mute_message($u);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($mute_message !== '') {
         $error = $mute_message;
@@ -13,9 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $fid = intval($_POST['forum_id']);
         $topic_category = '';
-        if (qf_topic_category_enabled($fid)) {
+        if (pd_topic_category_enabled($fid)) {
             $candidate = clean_text(isset($_POST['topic_category']) ? $_POST['topic_category'] : '', 40);
-            if (in_array($candidate, qf_topic_categories($fid))) {
+            if (in_array($candidate, pd_topic_categories($fid))) {
                 $topic_category = $candidate;
             }
         }
@@ -23,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $content = clean_text($_POST['content'], 10000);
         if ($fid < 1 || $title === '' || $content === '') {
             $error = '请完整填写版块、标题和内容。';
-        } elseif (qf_captcha_required('post', $u) && !qf_verify_captcha()) {
+        } elseif (pd_captcha_required('post', $u) && !pd_verify_captcha()) {
             $error = '验证码错误，请重新输入。';
-        } elseif (!qf_forum_post_allowed($fid, intval($u['id']))) {
+        } elseif (!pd_forum_post_allowed($fid, intval($u['id']))) {
             $error = '只有指定用户ID可以在该版块发帖。';
         } else {
             $uid = intval($u['id']);
@@ -33,12 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $topic_category_sql = esc($topic_category);
             $title_sql = esc($title);
             $content_sql = esc($content);
-            $ok = mysqli_query(db(), "INSERT INTO qf_threads (forum_id,user_id,topic_category,title,content,ip,created_at,updated_at) VALUES ({$fid},{$uid},'{$topic_category_sql}','{$title_sql}','{$content_sql}','{$ip}',NOW(),NOW())");
+            $ok = mysqli_query(db(), "INSERT INTO pd_threads (forum_id,user_id,topic_category,title,content,ip,created_at,updated_at) VALUES ({$fid},{$uid},'{$topic_category_sql}','{$title_sql}','{$content_sql}','{$ip}',NOW(),NOW())");
             if ($ok) {
                 $thread_id = mysqli_insert_id(db());
-                qf_add_user_points($uid, qf_points_for_thread(), 'thread', 'thread', $thread_id);
+                pd_add_user_points($uid, pd_points_for_thread(), 'thread', 'thread', $thread_id);
                 $upload_errors = array();
-                $upload_saved = qf_upload_attachments($thread_id, 0, $uid, $upload_errors);
+                $upload_saved = pd_upload_attachments($thread_id, 0, $uid, $upload_errors);
                 if ($upload_saved > 0 && empty($upload_errors)) {
                     $_SESSION['flash'] = '发帖成功，附件/图片上传成功';
                 } elseif ($upload_saved > 0 && !empty($upload_errors)) {
@@ -49,39 +49,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['flash'] = '发帖成功';
                 }
                 $_SESSION['last_post_at'] = time();
-                redirect(qf_url_thread($thread_id));
+                redirect(pd_url_thread($thread_id));
             } else {
                 $error = '发布失败：' . mysqli_error(db());
             }
         }
     }
 }
-$forums = mysqli_query(db(), "SELECT * FROM qf_forums ORDER BY display_order ASC, id ASC");
+$forums = mysqli_query(db(), "SELECT * FROM pd_forums ORDER BY display_order ASC, id ASC");
 $forum_rows = array();
 $forum_category_map = array();
 while ($forums && $f = mysqli_fetch_assoc($forums)) {
     $forum_rows[] = $f;
-    $forum_category_map[intval($f['id'])] = intval($f['topic_category_enabled']) ? qf_topic_categories(intval($f['id'])) : array();
+    $forum_category_map[intval($f['id'])] = intval($f['topic_category_enabled']) ? pd_topic_categories(intval($f['id'])) : array();
 }
 $page_title = '发布新帖 - ' . SITE_NAME;
-qf_include_header();
+pd_include_header();
 ?>
-<nav class="phpdo-thread-breadcrumb" aria-label="面包屑导航">
-    <div class="phpdo-crumb-trail">
-        <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
-        <span class="phpdo-crumb-sep">›</span>
-        <span class="phpdo-crumb-current">发布新帖</span>
+<nav class="pd-thread-breadcrumb" aria-label="面包屑导航">
+    <div class="pd-crumb-trail">
+        <a href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
+        <span class="pd-crumb-sep">›</span>
+        <span class="pd-crumb-current">发布新帖</span>
     </div>
 </nav>
-<section class="phpdo-post-page">
+<section class="pd-post-page">
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
-    <form class="phpdo-post-form" method="post" enctype="multipart/form-data">
-        <div class="phpdo-post-meta">
-            <div class="phpdo-post-field phpdo-post-field-title">
+    <form class="pd-post-form" method="post" enctype="multipart/form-data">
+        <div class="pd-post-meta">
+            <div class="pd-post-field pd-post-field-title">
                 <label for="post-title">标题</label>
                 <input id="post-title" type="text" name="title" maxlength="100" required placeholder="一句话说清主题">
             </div>
-            <div class="phpdo-post-field phpdo-post-field-forum">
+            <div class="pd-post-field pd-post-field-forum">
                 <label for="post-forum-id">版块</label>
                 <select id="post-forum-id" name="forum_id" required>
                     <?php foreach ($forum_rows as $f) { ?>
@@ -89,17 +89,17 @@ qf_include_header();
                     <?php } ?>
                 </select>
             </div>
-            <div id="topic-category-box" class="phpdo-post-field phpdo-post-field-category forum-category-map">
+            <div id="topic-category-box" class="pd-post-field pd-post-field-category forum-category-map">
                 <label for="topic-category-select">主题分类</label>
                 <select name="topic_category" id="topic-category-select">
                     <option value="">不选择分类</option>
-                    <?php foreach (qf_topic_categories($fid) as $cat) { ?>
+                    <?php foreach (pd_topic_categories($fid) as $cat) { ?>
                         <option value="<?php echo h($cat); ?>"><?php echo h($cat); ?></option>
                     <?php } ?>
                 </select>
             </div>
         </div>
-        <div class="phpdo-post-editor">
+        <div class="pd-post-editor">
             <label for="post-content-textarea">内容</label>
             <?php
             $editorId = 'post-content-textarea';
@@ -111,14 +111,14 @@ qf_include_header();
             include __DIR__ . '/../parts/markdown-editor.php';
             ?>
         </div>
-        <div class="phpdo-post-actions">
+        <div class="pd-post-actions">
             <div class="upload-captcha-row">
-                <div class="captcha-col"><?php if (qf_captcha_required('post', $u)) { echo qf_render_captcha(); } ?></div>
+                <div class="captcha-col"><?php if (pd_captcha_required('post', $u)) { echo pd_render_captcha(); } ?></div>
             </div>
             <button class="btn" type="submit">发布帖子</button>
         </div>
     </form>
 </section>
-<script>window.qfForumCategories = <?php echo json_encode($forum_category_map); ?>;</script>
-<script src="<?php echo h(qf_asset_js('admin')); ?>"></script>
-<?php qf_include_footer(); ?>
+<script>window.pdForumCategories = <?php echo json_encode($forum_category_map); ?>;</script>
+<script src="<?php echo h(pd_asset_js('admin')); ?>"></script>
+<?php pd_include_footer(); ?>

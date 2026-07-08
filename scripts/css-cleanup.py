@@ -111,8 +111,8 @@ def main():
 
     # Forum index: drop ineffective background (outer frame uses php.net texture)
     s = re.sub(
-        r'body\.theme-php \{\n    color: var\(--phpdo-text\);\n    background:\n        linear-gradient[^\}]+\}\n',
-        'body.theme-php {\n    color: var(--phpdo-text);\n    font-family: var(--qf-content-font), var(--phpdo-font-sans);\n}\n',
+        r'body\.theme-pd \{\n    color: var\(--pd-text\);\n    background:\n        linear-gradient[^\}]+\}\n',
+        'body.theme-pd {\n    color: var(--pd-text);\n    font-family: var(--pd-content-font), var(--pd-font-sans);\n}\n',
         s,
         count=1,
     )

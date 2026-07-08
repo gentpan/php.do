@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\SecurityLogs\Pages;
 
 use App\Filament\Resources\SecurityLogs\SecurityLogResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageSecurityLogs extends ManageRecords
@@ -12,8 +11,6 @@ class ManageSecurityLogs extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
     }
 }

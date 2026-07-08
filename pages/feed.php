@@ -6,8 +6,8 @@ $host = isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_
 $base = $scheme . '://' . $host;
 
 $rows = mysqli_query(db(), "SELECT t.id, t.title, t.content, t.created_at, u.nickname, u.username
-    FROM qf_threads t
-    LEFT JOIN qf_users u ON t.user_id=u.id
+    FROM pd_threads t
+    LEFT JOIN pd_users u ON t.user_id=u.id
     WHERE t.is_deleted=0 AND t.is_top<>2
     ORDER BY t.created_at DESC
     LIMIT 30");
@@ -17,20 +17,20 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-<title><?php echo h(qf_site_name()); ?></title>
+<title><?php echo h(pd_site_name()); ?></title>
 <link><?php echo h($base); ?>/</link>
 <atom:link href="<?php echo h($base); ?>/feed" rel="self" type="application/rss+xml" />
-<description><?php echo h(qf_site_desc()); ?></description>
+<description><?php echo h(pd_site_desc()); ?></description>
 <language>zh-CN</language>
-<generator><?php echo h(qf_site_name()); ?></generator>
+<generator><?php echo h(pd_site_name()); ?></generator>
 <?php while ($rows && ($r = mysqli_fetch_assoc($rows))) {
-    $url = $base . '/' . ltrim(qf_url_thread(intval($r['id'])), '/');
-    $author = qf_user_display_name($r);
+    $url = $base . '/' . ltrim(pd_url_thread(intval($r['id'])), '/');
+    $author = pd_user_display_name($r);
     $text = (string)$r['content'];
     $text = preg_replace('/\[[^\]]{0,40}\]/u', '', $text);
     $text = trim(strip_tags($text));
     $excerpt = function_exists('mb_substr') ? mb_substr($text, 0, 200, 'UTF-8') : substr($text, 0, 200);
-    $pub_ts = qf_parse_utc_timestamp($r['created_at']);
+    $pub_ts = pd_parse_utc_timestamp($r['created_at']);
     $pub = $pub_ts !== false ? gmdate(DATE_RSS, $pub_ts) : '';
 ?>
 <item>

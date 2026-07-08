@@ -10,13 +10,13 @@
     }
 
     function notify(message, type) {
-        if (window.qfToast) {
-            window.qfToast(message, type || 'info');
+        if (window.pdToast) {
+            window.pdToast(message, type || 'info');
         }
     }
 
     function initForumCategories() {
-        var categories = window.qfForumCategories || null;
+        var categories = window.pdForumCategories || null;
         var forumSelect = document.querySelector('select[name="forum_id"]');
         var categoryBox = document.getElementById('topic-category-box');
         var categorySelect = document.getElementById('topic-category-select');
@@ -39,11 +39,11 @@
     }
 
     function ensureUploadProgress() {
-        var panel = document.querySelector('.qf-upload-progress');
+        var panel = document.querySelector('.pd-upload-progress');
         if (panel) return panel;
         panel = document.createElement('div');
-        panel.className = 'qf-upload-progress';
-        panel.innerHTML = '<div class="qf-upload-progress-title"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>上传中</span></div><div class="qf-upload-progress-name"></div><div class="qf-upload-progress-track"><span></span></div><div class="qf-upload-progress-text">0%</div>';
+        panel.className = 'pd-upload-progress';
+        panel.innerHTML = '<div class="pd-upload-progress-title"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>上传中</span></div><div class="pd-upload-progress-name"></div><div class="pd-upload-progress-track"><span></span></div><div class="pd-upload-progress-text">0%</div>';
         document.body.appendChild(panel);
         return panel;
     }
@@ -53,9 +53,9 @@
         panel.classList.add('is-visible');
         panel.classList.toggle('is-error', state === 'error');
         panel.classList.toggle('is-done', state === 'done');
-        panel.querySelector('.qf-upload-progress-name').textContent = fileName || '';
-        panel.querySelector('.qf-upload-progress-track span').style.width = Math.max(0, Math.min(100, percent || 0)) + '%';
-        panel.querySelector('.qf-upload-progress-text').textContent = state === 'done' ? '完成' : (state === 'error' ? '失败' : Math.round(percent || 0) + '%');
+        panel.querySelector('.pd-upload-progress-name').textContent = fileName || '';
+        panel.querySelector('.pd-upload-progress-track span').style.width = Math.max(0, Math.min(100, percent || 0)) + '%';
+        panel.querySelector('.pd-upload-progress-text').textContent = state === 'done' ? '完成' : (state === 'error' ? '失败' : Math.round(percent || 0) + '%');
         if (state === 'done' || state === 'error') {
             window.setTimeout(function() {
                 panel.classList.remove('is-visible', 'is-error', 'is-done');
@@ -64,10 +64,10 @@
     }
 
     function requestAttachmentDescription(callback) {
-        var modal = document.getElementById('qf-attachment-dialog');
+        var modal = document.getElementById('pd-attachment-dialog');
         if (!modal) {
             modal = document.createElement('div');
-            modal.id = 'qf-attachment-dialog';
+            modal.id = 'pd-attachment-dialog';
             modal.className = 'editor-dialog-overlay';
             modal.innerHTML = '<div class="editor-dialog-box" role="dialog" aria-modal="true"><button class="editor-dialog-close" type="button" data-attachment-close aria-label="关闭">×</button><h2>附件描述</h2><form data-attachment-form><label>描述</label><input type="text" name="description" maxlength="120" placeholder="可留空"><div class="editor-dialog-actions"><button class="btn btn-light" type="button" data-attachment-close>取消</button><button class="btn" type="submit">继续上传</button></div></form></div>';
             document.body.appendChild(modal);
@@ -145,7 +145,7 @@
         var previewUrl = root.getAttribute('data-preview-url') || '';
         var uploadUrl = root.getAttribute('data-upload-url') || 'api/upload-image';
         var attachUrl = root.getAttribute('data-attach-url') || 'api/upload-attachment';
-        var csrf = root.getAttribute('data-csrf') || window.qfCsrfToken || '';
+        var csrf = root.getAttribute('data-csrf') || window.pdCsrfToken || '';
 
         function insert(before, after, placeholder) {
             var start = textarea.selectionStart || 0;
@@ -259,19 +259,19 @@
         }
 
         function ensurePreviewModal() {
-            var modal = document.getElementById('qf-md-preview-dialog');
+            var modal = document.getElementById('pd-md-preview-dialog');
             if (modal) return modal;
             modal = document.createElement('div');
-            modal.id = 'qf-md-preview-dialog';
+            modal.id = 'pd-md-preview-dialog';
             modal.className = 'editor-dialog-overlay md-preview-overlay';
             modal.innerHTML = [
-                '<div class="editor-dialog-box md-preview-box" role="dialog" aria-modal="true" aria-labelledby="qf-md-preview-title">',
+                '<div class="editor-dialog-box md-preview-box" role="dialog" aria-modal="true" aria-labelledby="pd-md-preview-title">',
                 '<button class="editor-dialog-close" type="button" data-md-preview-close aria-label="关闭">×</button>',
                 '<div class="md-preview-head">',
-                '<h2 id="qf-md-preview-title">预览</h2>',
+                '<h2 id="pd-md-preview-title">预览</h2>',
                 '<span class="md-preview-badge"><i class="fa-brands fa-markdown" aria-hidden="true"></i> Markdown</span>',
                 '</div>',
-                '<div class="md-preview-body qf-md-body" data-md-preview-body><div class="empty">加载中…</div></div>',
+                '<div class="md-preview-body pd-md-body" data-md-preview-body><div class="empty">加载中…</div></div>',
                 '<div class="editor-dialog-actions">',
                 '<button class="btn btn-light" type="button" data-md-preview-close>关闭</button>',
                 '</div>',
@@ -320,7 +320,7 @@
                 return res.ok ? res.json() : Promise.reject();
             }).then(function(data) {
                 body.innerHTML = (data && data.html) ? data.html : '<div class="empty">暂无内容</div>';
-                if (window.qfEnhanceMedia) window.qfEnhanceMedia(body);
+                if (window.pdEnhanceMedia) window.pdEnhanceMedia(body);
             }).catch(function() {
                 body.innerHTML = '<div class="empty">预览暂时不可用</div>';
             });
@@ -361,14 +361,14 @@
                 var data = new FormData();
                 data.append('csrf_token', csrf);
                 data.append('image', file);
-                if (window.qfSetLoading) window.qfSetLoading(true);
+                if (window.pdSetLoading) window.pdSetLoading(true);
                 xhrUpload(uploadUrl, data, file, function(json) {
                     insert('![', '](' + json.url + ')', file.name.replace(/\.[^.]+$/, '') || '图片');
                     notify('图片上传成功', 'success');
-                    if (window.qfSetLoading) window.qfSetLoading(false);
+                    if (window.pdSetLoading) window.pdSetLoading(false);
                 }, function(error) {
                     notify(error, 'error');
-                    if (window.qfSetLoading) window.qfSetLoading(false);
+                    if (window.pdSetLoading) window.pdSetLoading(false);
                 });
                 imagePicker.value = '';
             });
@@ -383,14 +383,14 @@
                     data.append('csrf_token', csrf);
                     data.append('attachment', file);
                     data.append('attachment_description', description || '');
-                    if (window.qfSetLoading) window.qfSetLoading(true);
+                    if (window.pdSetLoading) window.pdSetLoading(true);
                     xhrUpload(attachUrl, data, file, function(json) {
                         insertText(textarea, '\n' + (json.tag || ('[' + (json.name || '附件') + '](' + json.url + ')')) + '\n');
                         notify('附件上传成功', 'success');
-                        if (window.qfSetLoading) window.qfSetLoading(false);
+                        if (window.pdSetLoading) window.pdSetLoading(false);
                     }, function(error) {
                         notify(error, 'error');
-                        if (window.qfSetLoading) window.qfSetLoading(false);
+                        if (window.pdSetLoading) window.pdSetLoading(false);
                     });
                 });
                 attachPicker.value = '';
@@ -425,7 +425,7 @@
         });
     }
 
-    window.qfInsertText = insertText;
+    window.pdInsertText = insertText;
 
     initForumCategories();
     document.querySelectorAll('.markdown-editor').forEach(initMarkdownEditor);

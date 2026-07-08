@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PointsLog extends Model
 {
-    protected $table = 'qf_points_log';
+    protected $table = 'pd_points_log';
 
     public $timestamps = false;
 

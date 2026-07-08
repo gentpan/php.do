@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Thread extends Model
 {
-    protected $table = 'qf_threads';
+    protected $table = 'pd_threads';
 
     public $timestamps = false;
 

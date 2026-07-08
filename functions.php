@@ -1,6 +1,6 @@
 <?php
-if (!defined('QF_START')) {
-    define('QF_START', microtime(true));
+if (!defined('PD_START')) {
+    define('PD_START', microtime(true));
 }
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/compat.php';
@@ -19,12 +19,12 @@ if (PHP_SAPI !== 'cli') {
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-XSS-Protection: 0');
     // 使用应用自有 session 目录，避免系统 /var/lib/php/sessions 无读权限导致 GC opendir 失败
-    $qf_session_dir = __DIR__ . '/storage/sessions';
-    if (!is_dir($qf_session_dir)) {
-        @mkdir($qf_session_dir, 0775, true);
+    $pd_session_dir = __DIR__ . '/storage/sessions';
+    if (!is_dir($pd_session_dir)) {
+        @mkdir($pd_session_dir, 0775, true);
     }
-    if (is_dir($qf_session_dir) && is_writable($qf_session_dir)) {
-        session_save_path($qf_session_dir);
+    if (is_dir($pd_session_dir) && is_writable($pd_session_dir)) {
+        session_save_path($pd_session_dir);
     }
 }
 session_start();
@@ -39,7 +39,7 @@ function db() {
         header('Content-Type: text/html; charset=utf-8');
         exit('数据库连接失败：' . mysqli_connect_error());
     }
-    qf_assert_mysql_runtime($conn);
+    pd_assert_mysql_runtime($conn);
     mysqli_set_charset($conn, DB_CHARSET);
     // 统一数据库会话时区为 UTC，保证 NOW() 与 PHP 时区一致（全站按 UTC 存储）
     mysqli_query($conn, "SET time_zone = '+00:00'");
@@ -47,12 +47,12 @@ function db() {
 }
 
 // 页面渲染耗时（秒），用于页脚性能徽章
-function qf_perf_seconds() {
-    return defined('QF_START') ? (microtime(true) - QF_START) : 0.0;
+function pd_perf_seconds() {
+    return defined('PD_START') ? (microtime(true) - PD_START) : 0.0;
 }
 
 // 本次请求执行的 SQL 语句数（基于连接会话状态 Questions）
-function qf_perf_sql_count() {
+function pd_perf_sql_count() {
     $rs = @mysqli_query(db(), "SHOW SESSION STATUS LIKE 'Questions'");
     if ($rs && ($row = mysqli_fetch_assoc($rs))) {
         return max(0, intval($row['Value']) - 1); // 扣除这条 SHOW 自身
@@ -77,23 +77,23 @@ function esc($str) {
     return mysqli_real_escape_string(db(), (string)$str);
 }
 
-function qf_password_hash($password) {
+function pd_password_hash($password) {
     return password_hash($password, PASSWORD_DEFAULT);
 }
 
-function qf_password_verify($password, $hash) {
+function pd_password_verify($password, $hash) {
     return password_verify($password, $hash);
 }
 
-function qf_default_avatar_dir() {
+function pd_default_avatar_dir() {
     return __DIR__ . '/assets/avatars';
 }
 
-function qf_default_avatar_public_path($user_id) {
+function pd_default_avatar_public_path($user_id) {
     return 'assets/avatars/user-' . intval($user_id) . '.svg';
 }
 
-function qf_avatar_initial($nickname, $username) {
+function pd_avatar_initial($nickname, $username) {
     $label = trim((string)$nickname);
     if ($label === '') {
         $label = trim((string)$username);
@@ -104,35 +104,35 @@ function qf_avatar_initial($nickname, $username) {
     return function_exists('mb_substr') ? mb_substr($label, 0, 1, 'UTF-8') : strtoupper(substr($label, 0, 1));
 }
 
-function qf_is_generated_avatar_path($avatar) {
+function pd_is_generated_avatar_path($avatar) {
     $avatar = (string)$avatar;
     return preg_match('#^assets/avatars/(user|demo|pick)-[a-zA-Z0-9_-]+\.svg$#', $avatar) === 1;
 }
 
 // 用户主动选择的“随机卡通头像”，用 pick- 前缀区别于注册时自动生成的 user- 默认头像。
-function qf_is_chosen_cartoon_path($avatar) {
+function pd_is_chosen_cartoon_path($avatar) {
     return preg_match('#^assets/avatars/pick-[a-zA-Z0-9_-]+\.svg$#', (string)$avatar) === 1;
 }
 
-function qf_avatar_gravatar_enabled() {
-    return intval(qf_setting('avatar_gravatar_enabled', '1')) === 1;
+function pd_avatar_gravatar_enabled() {
+    return intval(pd_setting('avatar_gravatar_enabled', '1')) === 1;
 }
 
-function qf_avatar_upload_enabled() {
-    return intval(qf_setting('avatar_upload_enabled', '1')) === 1;
+function pd_avatar_upload_enabled() {
+    return intval(pd_setting('avatar_upload_enabled', '1')) === 1;
 }
 
-function qf_avatar_cartoon_enabled() {
-    return intval(qf_setting('avatar_cartoon_enabled', '1')) === 1;
+function pd_avatar_cartoon_enabled() {
+    return intval(pd_setting('avatar_cartoon_enabled', '1')) === 1;
 }
 
 // 按名称稳定地给分类分配一个配色变体 class（同名恒定同色）
-function qf_topic_tag_class($name) {
-    $variants = array('phpdo-pill-blue', 'phpdo-pill-green', 'phpdo-pill-amber', 'phpdo-pill-red', 'phpdo-pill-purple', 'phpdo-pill-cyan', 'phpdo-pill-slate');
+function pd_topic_tag_class($name) {
+    $variants = array('pd-pill-blue', 'pd-pill-green', 'pd-pill-amber', 'pd-pill-red', 'pd-pill-purple', 'pd-pill-cyan', 'pd-pill-slate');
     return $variants[abs(crc32((string)$name)) % count($variants)];
 }
 
-function qf_gravatar_url($email, $size = 160) {
+function pd_gravatar_url($email, $size = 160) {
     $hash = md5(strtolower(trim((string)$email)));
     return 'https://gravatar.bluecdn.com/avatar/' . $hash . '?s=' . intval($size) . '&d=identicon';
 }
@@ -146,12 +146,12 @@ function qf_gravatar_url($email, $size = 160) {
  * 5) 兜底默认图
  * 传入的数组需含 avatar，可选 email。
  */
-function qf_user_avatar($user, $size = 160) {
+function pd_user_avatar($user, $size = 160) {
     $avatar = isset($user['avatar']) ? (string)$user['avatar'] : '';
-    if ($avatar !== '' && !qf_is_generated_avatar_path($avatar)) {
+    if ($avatar !== '' && !pd_is_generated_avatar_path($avatar)) {
         return $avatar;
     }
-    if (qf_is_chosen_cartoon_path($avatar)) {
+    if (pd_is_chosen_cartoon_path($avatar)) {
         return $avatar;
     }
     $email = '';
@@ -160,26 +160,26 @@ function qf_user_avatar($user, $size = 160) {
     } elseif (isset($user['user_email'])) {
         $email = trim((string)$user['user_email']);
     }
-    if ($email !== '' && qf_avatar_gravatar_enabled()) {
-        return qf_gravatar_url($email, $size);
+    if ($email !== '' && pd_avatar_gravatar_enabled()) {
+        return pd_gravatar_url($email, $size);
     }
     return $avatar !== '' ? $avatar : 'assets/avatar-default.svg';
 }
 
-function qf_pick_avatar_part($items, $hash, $shift = 0) {
+function pd_pick_avatar_part($items, $hash, $shift = 0) {
     return $items[($hash >> $shift) % count($items)];
 }
 
-function qf_cartoon_default_avatar_svg($user_id, $username, $nickname, $seed = '') {
+function pd_cartoon_default_avatar_svg($user_id, $username, $nickname, $seed = '') {
     $hash = crc32($user_id . '|' . $username . '|' . $nickname . '|' . $seed);
     $backgrounds = array('#ff4f9a', '#5d29f0', '#bfaaff', '#d9d1ff', '#ffd34f', '#ff8da3', '#cbbcff', '#b990ff');
     $skins = array('#ffd2ba', '#f2b893', '#e9a978', '#ffe0c9', '#d8986d');
     $hair_colors = array('#1f2430', '#5d29f0', '#ffe67a', '#a868ff', '#f05b6a', '#6b3c23');
     $shirt_colors = array('#f5d7e9', '#ffd7c5', '#e4dcff', '#ffe47a', '#e4dcff', '#e9ddff');
-    $bg = qf_pick_avatar_part($backgrounds, $hash, 0);
-    $skin = qf_pick_avatar_part($skins, $hash, 3);
-    $hair = qf_pick_avatar_part($hair_colors, $hash, 6);
-    $shirt = qf_pick_avatar_part($shirt_colors, $hash, 9);
+    $bg = pd_pick_avatar_part($backgrounds, $hash, 0);
+    $skin = pd_pick_avatar_part($skins, $hash, 3);
+    $hair = pd_pick_avatar_part($hair_colors, $hash, 6);
+    $shirt = pd_pick_avatar_part($shirt_colors, $hash, 9);
     $hair_style = ($hash >> 12) % 6;
     $glasses = (($hash >> 16) % 100) < 64;
     $mouth = ($hash >> 18) % 4;
@@ -226,34 +226,34 @@ function qf_cartoon_default_avatar_svg($user_id, $username, $nickname, $seed = '
         . '</svg>';
 }
 
-function qf_generate_default_avatar($user_id, $username, $nickname) {
+function pd_generate_default_avatar($user_id, $username, $nickname) {
     $user_id = intval($user_id);
     if ($user_id < 1) {
         return '';
     }
-    $dir = qf_default_avatar_dir();
+    $dir = pd_default_avatar_dir();
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
         return '';
     }
-    $svg = qf_cartoon_default_avatar_svg($user_id, $username, $nickname);
+    $svg = pd_cartoon_default_avatar_svg($user_id, $username, $nickname);
     $path = $dir . '/user-' . $user_id . '.svg';
     if (file_put_contents($path, $svg) === false) {
         return '';
     }
-    return qf_default_avatar_public_path($user_id);
+    return pd_default_avatar_public_path($user_id);
 }
 
 // 保存用户主动选择的随机卡通头像（pick- 前缀），$seed 决定长相，返回公开路径或 ''。
-function qf_save_chosen_cartoon($user_id, $username, $nickname, $seed = '') {
+function pd_save_chosen_cartoon($user_id, $username, $nickname, $seed = '') {
     $user_id = intval($user_id);
     if ($user_id < 1) {
         return '';
     }
-    $dir = qf_default_avatar_dir();
+    $dir = pd_default_avatar_dir();
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
         return '';
     }
-    $svg = qf_cartoon_default_avatar_svg($user_id, $username, $nickname, (string)$seed);
+    $svg = pd_cartoon_default_avatar_svg($user_id, $username, $nickname, (string)$seed);
     $path = $dir . '/pick-' . $user_id . '.svg';
     if (file_put_contents($path, $svg) === false) {
         return '';
@@ -261,7 +261,7 @@ function qf_save_chosen_cartoon($user_id, $username, $nickname, $seed = '') {
     return 'assets/avatars/pick-' . $user_id . '.svg';
 }
 
-function qf_setting($key, $default = '') {
+function pd_setting($key, $default = '') {
     static $cache = null;
     if ($key === null) {
         $cache = null;
@@ -269,9 +269,9 @@ function qf_setting($key, $default = '') {
     }
     if ($cache === null) {
         $cache = array();
-        $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_settings'");
+        $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_settings'");
         if ($table && mysqli_num_rows($table) > 0) {
-            $rs = mysqli_query(db(), "SELECT setting_key, setting_value FROM qf_settings");
+            $rs = mysqli_query(db(), "SELECT setting_key, setting_value FROM pd_settings");
             while ($rs && $row = mysqli_fetch_assoc($rs)) {
                 $cache[$row['setting_key']] = $row['setting_value'];
             }
@@ -280,62 +280,62 @@ function qf_setting($key, $default = '') {
     return isset($cache[$key]) ? $cache[$key] : $default;
 }
 
-function qf_update_setting($key, $value) {
+function pd_update_setting($key, $value) {
     $key_sql = esc($key);
     $value_sql = esc($value);
-    $ok = mysqli_query(db(), "REPLACE INTO qf_settings (setting_key, setting_value) VALUES ('{$key_sql}', '{$value_sql}')");
+    $ok = mysqli_query(db(), "REPLACE INTO pd_settings (setting_key, setting_value) VALUES ('{$key_sql}', '{$value_sql}')");
     if ($ok) {
-        qf_setting(null);
+        pd_setting(null);
     }
     return $ok;
 }
 
-function qf_csrf_token() {
+function pd_csrf_token() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $_SESSION['csrf_token'];
 }
 
-function qf_csrf_field() {
-    return '<input type="hidden" name="csrf_token" value="' . h(qf_csrf_token()) . '">';
+function pd_csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' . h(pd_csrf_token()) . '">';
 }
 
-function qf_verify_csrf() {
+function pd_verify_csrf() {
     $sent = isset($_POST['csrf_token']) ? (string)$_POST['csrf_token'] : '';
     if ($sent === '' && isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
         $sent = (string)$_SERVER['HTTP_X_CSRF_TOKEN'];
     }
-    return $sent !== '' && hash_equals(qf_csrf_token(), $sent);
+    return $sent !== '' && hash_equals(pd_csrf_token(), $sent);
 }
 
-function qf_require_csrf() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !qf_verify_csrf()) {
+function pd_require_csrf() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !pd_verify_csrf()) {
         header('Content-Type: text/html; charset=utf-8', true, 403);
         exit('请求已过期或来源不正确，请返回上一页刷新后重试。');
     }
 }
 
-function qf_action_token($action, $id, $extra = '') {
-    return hash_hmac('sha256', $action . '|' . intval($id) . '|' . $extra, qf_csrf_token());
+function pd_action_token($action, $id, $extra = '') {
+    return hash_hmac('sha256', $action . '|' . intval($id) . '|' . $extra, pd_csrf_token());
 }
 
-function qf_require_action_token($action, $id, $extra = '') {
+function pd_require_action_token($action, $id, $extra = '') {
     $sent = isset($_GET['token']) ? (string)$_GET['token'] : '';
-    if ($sent === '' || !hash_equals(qf_action_token($action, $id, $extra), $sent)) {
+    if ($sent === '' || !hash_equals(pd_action_token($action, $id, $extra), $sent)) {
         header('Content-Type: text/html; charset=utf-8', true, 403);
         exit('操作链接已过期或来源不正确，请返回上一页刷新后重试。');
     }
 }
 
-function qf_inject_csrf_fields($html) {
+function pd_inject_csrf_fields($html) {
     if (stripos($html, '<form') === false || stripos($html, 'method="post"') === false) {
         return $html;
     }
-    return preg_replace('/(<form\b[^>]*method=["\']post["\'][^>]*>)/i', '$1' . qf_csrf_field(), $html);
+    return preg_replace('/(<form\b[^>]*method=["\']post["\'][^>]*>)/i', '$1' . pd_csrf_field(), $html);
 }
 
-function qf_ensure_upload_protection() {
+function pd_ensure_upload_protection() {
     $dir = __DIR__ . '/uploads';
     if (!is_dir($dir)) {
         return;
@@ -352,27 +352,27 @@ function qf_ensure_upload_protection() {
     }
 }
 
-function qf_site_name() {
-    return qf_setting('site_name', SITE_NAME);
+function pd_site_name() {
+    return pd_setting('site_name', SITE_NAME);
 }
 
-function qf_site_desc() {
-    return qf_setting('site_desc', SITE_DESC);
+function pd_site_desc() {
+    return pd_setting('site_desc', SITE_DESC);
 }
 
-function qf_site_keywords() {
-    return qf_setting('site_keywords', '');
+function pd_site_keywords() {
+    return pd_setting('site_keywords', '');
 }
 
 // ===== 用户积分、等级与用户组 =====
-function qf_ensure_points_schema() {
+function pd_ensure_points_schema() {
     static $done = false;
     if ($done) {
         return true;
     }
     $done = true;
 
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_user_groups (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_user_groups (
       id int(11) NOT NULL AUTO_INCREMENT,
       name varchar(60) NOT NULL DEFAULT '',
       slug varchar(40) NOT NULL DEFAULT '',
@@ -386,7 +386,7 @@ function qf_ensure_points_schema() {
       KEY min_points (min_points)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_points_log (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_points_log (
       id int(11) NOT NULL AUTO_INCREMENT,
       user_id int(11) NOT NULL DEFAULT '0',
       delta int(11) NOT NULL DEFAULT '0',
@@ -403,15 +403,15 @@ function qf_ensure_points_schema() {
       KEY reason (reason)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-    if (!qf_table_has_column('qf_users', 'points')) {
-        mysqli_query(db(), "ALTER TABLE qf_users ADD points int(11) NOT NULL DEFAULT '0' AFTER reply_count");
-        mysqli_query(db(), "UPDATE qf_users u SET u.points = u.reply_count * 3 + IFNULL((SELECT COUNT(*) FROM qf_threads t WHERE t.user_id = u.id AND t.is_deleted = 0), 0) * 10");
+    if (!pd_table_has_column('pd_users', 'points')) {
+        mysqli_query(db(), "ALTER TABLE pd_users ADD points int(11) NOT NULL DEFAULT '0' AFTER reply_count");
+        mysqli_query(db(), "UPDATE pd_users u SET u.points = u.reply_count * 3 + IFNULL((SELECT COUNT(*) FROM pd_threads t WHERE t.user_id = u.id AND t.is_deleted = 0), 0) * 10");
     }
-    if (!qf_table_has_column('qf_users', 'group_id')) {
-        mysqli_query(db(), "ALTER TABLE qf_users ADD group_id int(11) NOT NULL DEFAULT '0' AFTER points");
+    if (!pd_table_has_column('pd_users', 'group_id')) {
+        mysqli_query(db(), "ALTER TABLE pd_users ADD group_id int(11) NOT NULL DEFAULT '0' AFTER points");
     }
 
-    $cnt_rs = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_user_groups");
+    $cnt_rs = mysqli_query(db(), "SELECT COUNT(*) AS c FROM pd_user_groups");
     $cnt_row = $cnt_rs ? mysqli_fetch_assoc($cnt_rs) : null;
     if (!$cnt_row || intval($cnt_row['c']) === 0) {
         $defaults = array(
@@ -427,41 +427,41 @@ function qf_ensure_points_schema() {
             $color = esc($g['color']);
             $min = intval($g['min_points']);
             $order = intval($g['order']);
-            mysqli_query(db(), "INSERT INTO qf_user_groups (name,slug,color,min_points,is_system,display_order,created_at) VALUES ('{$name}','{$slug}','{$color}',{$min},1,{$order},NOW())");
+            mysqli_query(db(), "INSERT INTO pd_user_groups (name,slug,color,min_points,is_system,display_order,created_at) VALUES ('{$name}','{$slug}','{$color}',{$min},1,{$order},NOW())");
         }
     }
 
-    if (qf_setting('points_thread', '') === '') qf_update_setting('points_thread', '10');
-    if (qf_setting('points_reply', '') === '') qf_update_setting('points_reply', '3');
-    if (qf_setting('points_floor_reply', '') === '') qf_update_setting('points_floor_reply', '1');
-    if (qf_setting('points_good_bonus', '') === '') qf_update_setting('points_good_bonus', '20');
-    if (qf_setting('level_thresholds', '') === '') {
-        qf_update_setting('level_thresholds', "1:0\n2:30\n3:100\n4:250\n5:500\n6:1000\n7:2000\n8:3500\n9:6000\n10:10000");
+    if (pd_setting('points_thread', '') === '') pd_update_setting('points_thread', '10');
+    if (pd_setting('points_reply', '') === '') pd_update_setting('points_reply', '3');
+    if (pd_setting('points_floor_reply', '') === '') pd_update_setting('points_floor_reply', '1');
+    if (pd_setting('points_good_bonus', '') === '') pd_update_setting('points_good_bonus', '20');
+    if (pd_setting('level_thresholds', '') === '') {
+        pd_update_setting('level_thresholds', "1:0\n2:30\n3:100\n4:250\n5:500\n6:1000\n7:2000\n8:3500\n9:6000\n10:10000");
     }
-    if (qf_setting('level_names', '') === '') {
-        qf_update_setting('level_names', "1:新手\n2:入门\n3:熟练\n4:进阶\n5:老手\n6:达人\n7:精英\n8:大神\n9:宗师\n10:传奇");
+    if (pd_setting('level_names', '') === '') {
+        pd_update_setting('level_names', "1:新手\n2:入门\n3:熟练\n4:进阶\n5:老手\n6:达人\n7:精英\n8:大神\n9:宗师\n10:传奇");
     }
 
-    mysqli_query(db(), "UPDATE qf_users u
-        LEFT JOIN qf_user_groups g ON g.id = (
-            SELECT g2.id FROM qf_user_groups g2 WHERE g2.min_points <= u.points ORDER BY g2.min_points DESC, g2.display_order ASC, g2.id ASC LIMIT 1
+    mysqli_query(db(), "UPDATE pd_users u
+        LEFT JOIN pd_user_groups g ON g.id = (
+            SELECT g2.id FROM pd_user_groups g2 WHERE g2.min_points <= u.points ORDER BY g2.min_points DESC, g2.display_order ASC, g2.id ASC LIMIT 1
         )
         SET u.group_id = IFNULL(g.id, 0)
         WHERE u.group_id = 0");
     return true;
 }
 
-function qf_points_for_thread() { return qf_setting_int('points_thread', 10, 0, 100000); }
-function qf_points_for_reply() { return qf_setting_int('points_reply', 3, 0, 100000); }
-function qf_points_for_floor_reply() { return qf_setting_int('points_floor_reply', 1, 0, 100000); }
-function qf_points_for_good() { return qf_setting_int('points_good_bonus', 20, 0, 100000); }
+function pd_points_for_thread() { return pd_setting_int('points_thread', 10, 0, 100000); }
+function pd_points_for_reply() { return pd_setting_int('points_reply', 3, 0, 100000); }
+function pd_points_for_floor_reply() { return pd_setting_int('points_floor_reply', 1, 0, 100000); }
+function pd_points_for_good() { return pd_setting_int('points_good_bonus', 20, 0, 100000); }
 
-function qf_default_level_thresholds() {
+function pd_default_level_thresholds() {
     return array(1 => 0, 2 => 30, 3 => 100, 4 => 250, 5 => 500, 6 => 1000, 7 => 2000, 8 => 3500, 9 => 6000, 10 => 10000);
 }
 
-function qf_level_thresholds() {
-    $raw = trim((string)qf_setting('level_thresholds', ''));
+function pd_level_thresholds() {
+    $raw = trim((string)pd_setting('level_thresholds', ''));
     $out = array();
     if ($raw !== '') {
         foreach (preg_split('/\r\n|\r|\n/', $raw) as $line) {
@@ -473,13 +473,13 @@ function qf_level_thresholds() {
             if ($lv >= 1 && $lv <= 50) $out[$lv] = max(0, $need);
         }
     }
-    if (empty($out)) $out = qf_default_level_thresholds();
+    if (empty($out)) $out = pd_default_level_thresholds();
     ksort($out, SORT_NUMERIC);
     return $out;
 }
 
-function qf_level_names() {
-    $raw = trim((string)qf_setting('level_names', ''));
+function pd_level_names() {
+    $raw = trim((string)pd_setting('level_names', ''));
     $out = array();
     if ($raw === '') return $out;
     foreach (preg_split('/\r\n|\r|\n/', $raw) as $line) {
@@ -493,34 +493,34 @@ function qf_level_names() {
     return $out;
 }
 
-function qf_level_name($level) {
-    $names = qf_level_names();
+function pd_level_name($level) {
+    $names = pd_level_names();
     $level = intval($level);
     return isset($names[$level]) ? $names[$level] : ('Lv.' . $level);
 }
 
-function qf_user_level($points) {
+function pd_user_level($points) {
     $points = intval($points);
     $level = 1;
-    foreach (qf_level_thresholds() as $lv => $need) {
+    foreach (pd_level_thresholds() as $lv => $need) {
         if ($points >= $need) $level = $lv;
         else break;
     }
     return $level;
 }
 
-function qf_points_to_next_level($points) {
+function pd_points_to_next_level($points) {
     $points = intval($points);
-    $thresholds = qf_level_thresholds();
-    $current = qf_user_level($points);
+    $thresholds = pd_level_thresholds();
+    $current = pd_user_level($points);
     if (!isset($thresholds[$current + 1])) return 0;
     return max(0, intval($thresholds[$current + 1]) - $points);
 }
 
-function qf_level_progress($points) {
+function pd_level_progress($points) {
     $points = intval($points);
-    $thresholds = qf_level_thresholds();
-    $level = qf_user_level($points);
+    $thresholds = pd_level_thresholds();
+    $level = pd_user_level($points);
     $curr_need = isset($thresholds[$level]) ? intval($thresholds[$level]) : 0;
     if (!isset($thresholds[$level + 1])) {
         return array('level' => $level, 'current' => $points, 'start' => $curr_need, 'next' => 0, 'remain' => 0, 'percent' => 100, 'max' => true);
@@ -539,7 +539,7 @@ function qf_level_progress($points) {
     );
 }
 
-function qf_points_reason_label($reason) {
+function pd_points_reason_label($reason) {
     $map = array(
         'thread' => '发布主题', 'reply' => '发表回复', 'floor_reply' => '楼中楼回复',
         'del_thread' => '主题被删除', 'del_post' => '回复被删除',
@@ -549,64 +549,64 @@ function qf_points_reason_label($reason) {
     return isset($map[$reason]) ? $map[$reason] : $reason;
 }
 
-function qf_sync_user_group($user_id) {
+function pd_sync_user_group($user_id) {
     $user_id = intval($user_id);
     if ($user_id <= 0) return 0;
-    $rs = mysqli_query(db(), "SELECT points FROM qf_users WHERE id={$user_id} LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT points FROM pd_users WHERE id={$user_id} LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if (!$row) return 0;
     $points = intval($row['points']);
-    $g = mysqli_query(db(), "SELECT id FROM qf_user_groups WHERE min_points <= {$points} ORDER BY min_points DESC, display_order ASC, id ASC LIMIT 1");
+    $g = mysqli_query(db(), "SELECT id FROM pd_user_groups WHERE min_points <= {$points} ORDER BY min_points DESC, display_order ASC, id ASC LIMIT 1");
     $group = $g ? mysqli_fetch_assoc($g) : null;
     $gid = $group ? intval($group['id']) : 0;
-    mysqli_query(db(), "UPDATE qf_users SET group_id={$gid} WHERE id={$user_id}");
+    mysqli_query(db(), "UPDATE pd_users SET group_id={$gid} WHERE id={$user_id}");
     return $gid;
 }
 
-function qf_user_group($user_or_id) {
-    qf_ensure_points_schema();
+function pd_user_group($user_or_id) {
+    pd_ensure_points_schema();
     if (is_array($user_or_id)) {
         $gid = intval(isset($user_or_id['group_id']) ? $user_or_id['group_id'] : 0);
         $points = intval(isset($user_or_id['points']) ? $user_or_id['points'] : 0);
     } else {
         $uid = intval($user_or_id);
         if ($uid <= 0) return null;
-        $rs = mysqli_query(db(), "SELECT points, group_id FROM qf_users WHERE id={$uid} LIMIT 1");
+        $rs = mysqli_query(db(), "SELECT points, group_id FROM pd_users WHERE id={$uid} LIMIT 1");
         $row = $rs ? mysqli_fetch_assoc($rs) : null;
         if (!$row) return null;
         $gid = intval($row['group_id']);
         $points = intval($row['points']);
     }
     if ($gid > 0) {
-        $gr = mysqli_query(db(), "SELECT * FROM qf_user_groups WHERE id={$gid} LIMIT 1");
+        $gr = mysqli_query(db(), "SELECT * FROM pd_user_groups WHERE id={$gid} LIMIT 1");
         $group = $gr ? mysqli_fetch_assoc($gr) : null;
         if ($group) return $group;
     }
-    $gr = mysqli_query(db(), "SELECT * FROM qf_user_groups WHERE min_points <= {$points} ORDER BY min_points DESC, display_order ASC, id ASC LIMIT 1");
+    $gr = mysqli_query(db(), "SELECT * FROM pd_user_groups WHERE min_points <= {$points} ORDER BY min_points DESC, display_order ASC, id ASC LIMIT 1");
     return $gr ? mysqli_fetch_assoc($gr) : null;
 }
 
-function qf_user_group_badge_html($user_or_id) {
-    $group = qf_user_group($user_or_id);
+function pd_user_group_badge_html($user_or_id) {
+    $group = pd_user_group($user_or_id);
     if (!$group) return '';
     $color = preg_match('/^#[0-9a-fA-F]{3,8}$/', $group['color']) ? $group['color'] : '#505b93';
-    return '<span class="phpdo-group-badge" style="--group-color:' . h($color) . '">' . h($group['name']) . '</span>';
+    return '<span class="pd-group-badge" style="--group-color:' . h($color) . '">' . h($group['name']) . '</span>';
 }
 
-function qf_level_badge_html($points, $show_name = false) {
-    $level = qf_user_level($points);
-    $html = '<span class="phpdo-level">Lv.' . intval($level) . '</span>';
-    if ($show_name) $html .= ' <span class="phpdo-level-name">' . h(qf_level_name($level)) . '</span>';
+function pd_level_badge_html($points, $show_name = false) {
+    $level = pd_user_level($points);
+    $html = '<span class="pd-level">Lv.' . intval($level) . '</span>';
+    if ($show_name) $html .= ' <span class="pd-level-name">' . h(pd_level_name($level)) . '</span>';
     return $html;
 }
 
-function qf_add_user_points($user_id, $delta, $reason = '', $ref_type = '', $ref_id = 0, $note = '', $operator_id = 0) {
-    qf_ensure_points_schema();
+function pd_add_user_points($user_id, $delta, $reason = '', $ref_type = '', $ref_id = 0, $note = '', $operator_id = 0) {
+    pd_ensure_points_schema();
     $user_id = intval($user_id);
     $delta = intval($delta);
     if ($user_id <= 0 || $delta === 0) return false;
-    mysqli_query(db(), "UPDATE qf_users SET points = GREATEST(0, points + ({$delta})) WHERE id={$user_id}");
-    $rs = mysqli_query(db(), "SELECT points FROM qf_users WHERE id={$user_id} LIMIT 1");
+    mysqli_query(db(), "UPDATE pd_users SET points = GREATEST(0, points + ({$delta})) WHERE id={$user_id}");
+    $rs = mysqli_query(db(), "SELECT points FROM pd_users WHERE id={$user_id} LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     $balance = $row ? intval($row['points']) : 0;
     $reason_sql = esc(clean_text($reason, 40));
@@ -614,57 +614,57 @@ function qf_add_user_points($user_id, $delta, $reason = '', $ref_type = '', $ref
     $ref_id = intval($ref_id);
     $note_sql = esc(clean_text($note, 255));
     $operator_id = intval($operator_id);
-    mysqli_query(db(), "INSERT INTO qf_points_log (user_id,delta,balance,reason,ref_type,ref_id,note,operator_id,created_at) VALUES ({$user_id},{$delta},{$balance},'{$reason_sql}','{$ref_type_sql}',{$ref_id},'{$note_sql}',{$operator_id},NOW())");
-    qf_sync_user_group($user_id);
+    mysqli_query(db(), "INSERT INTO pd_points_log (user_id,delta,balance,reason,ref_type,ref_id,note,operator_id,created_at) VALUES ({$user_id},{$delta},{$balance},'{$reason_sql}','{$ref_type_sql}',{$ref_id},'{$note_sql}',{$operator_id},NOW())");
+    pd_sync_user_group($user_id);
     return true;
 }
 
-function qf_recalc_user_points($user_id) {
+function pd_recalc_user_points($user_id) {
     $user_id = intval($user_id);
     if ($user_id <= 0) return 0;
-    $thread_pts = qf_points_for_thread();
-    $reply_pts = qf_points_for_reply();
-    $floor_pts = qf_points_for_floor_reply();
-    $good_pts = qf_points_for_good();
-    $tr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_threads WHERE user_id={$user_id} AND is_deleted=0");
+    $thread_pts = pd_points_for_thread();
+    $reply_pts = pd_points_for_reply();
+    $floor_pts = pd_points_for_floor_reply();
+    $good_pts = pd_points_for_good();
+    $tr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM pd_threads WHERE user_id={$user_id} AND is_deleted=0");
     $trow = $tr ? mysqli_fetch_assoc($tr) : null;
-    $pr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_posts WHERE user_id={$user_id} AND is_deleted=0");
+    $pr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM pd_posts WHERE user_id={$user_id} AND is_deleted=0");
     $prow = $pr ? mysqli_fetch_assoc($pr) : null;
-    $fr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_post_comments WHERE user_id={$user_id} AND is_deleted=0");
+    $fr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM pd_post_comments WHERE user_id={$user_id} AND is_deleted=0");
     $frow = $fr ? mysqli_fetch_assoc($fr) : null;
-    $gr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_threads WHERE user_id={$user_id} AND is_deleted=0 AND is_good=1");
+    $gr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM pd_threads WHERE user_id={$user_id} AND is_deleted=0 AND is_good=1");
     $grow = $gr ? mysqli_fetch_assoc($gr) : null;
     $total = intval($trow['c']) * $thread_pts + intval($prow['c']) * $reply_pts + intval($frow['c']) * $floor_pts + intval($grow['c']) * $good_pts;
-    $cur = mysqli_query(db(), "SELECT points FROM qf_users WHERE id={$user_id} LIMIT 1");
+    $cur = mysqli_query(db(), "SELECT points FROM pd_users WHERE id={$user_id} LIMIT 1");
     $crow = $cur ? mysqli_fetch_assoc($cur) : null;
     $old = $crow ? intval($crow['points']) : 0;
     $delta = $total - $old;
-    if ($delta !== 0) qf_add_user_points($user_id, $delta, 'recalc', 'user', $user_id, '按发帖回复重算');
-    else qf_sync_user_group($user_id);
+    if ($delta !== 0) pd_add_user_points($user_id, $delta, 'recalc', 'user', $user_id, '按发帖回复重算');
+    else pd_sync_user_group($user_id);
     return $total;
 }
 
-function qf_list_user_groups() {
-    qf_ensure_points_schema();
-    $rs = mysqli_query(db(), "SELECT * FROM qf_user_groups ORDER BY min_points ASC, display_order ASC, id ASC");
+function pd_list_user_groups() {
+    pd_ensure_points_schema();
+    $rs = mysqli_query(db(), "SELECT * FROM pd_user_groups ORDER BY min_points ASC, display_order ASC, id ASC");
     $rows = array();
     while ($rs && $row = mysqli_fetch_assoc($rs)) $rows[] = $row;
     return $rows;
 }
 
-function qf_theme_options() {
+function pd_theme_options() {
     return array(
         'php' => 'PHP 官方风格 · 浅色',
         'php-dark' => 'PHP 官方风格 · 深色',
     );
 }
 
-function qf_theme() {
+function pd_theme() {
     // 深浅色改为客户端三态（light/dark/system），服务端固定 php 基础主题
     return 'php';
 }
 
-function qf_font_options() {
+function pd_font_options() {
     return array(
         'system' => array(
             'label' => '系统默认',
@@ -699,26 +699,26 @@ function qf_font_options() {
     );
 }
 
-function qf_font_key($setting_key, $default = 'system') {
-    $options = qf_font_options();
-    $font_key = qf_setting($setting_key, $default);
+function pd_font_key($setting_key, $default = 'system') {
+    $options = pd_font_options();
+    $font_key = pd_setting($setting_key, $default);
     if (!isset($options[$font_key])) {
         $font_key = isset($options[$default]) ? $default : 'system';
     }
     return $font_key;
 }
 
-function qf_font_family($setting_key, $default = 'system') {
-    $options = qf_font_options();
-    $font_key = qf_font_key($setting_key, $default);
+function pd_font_family($setting_key, $default = 'system') {
+    $options = pd_font_options();
+    $font_key = pd_font_key($setting_key, $default);
     return $options[$font_key]['family'];
 }
 
-function qf_selected_font_urls() {
-    $options = qf_font_options();
+function pd_selected_font_urls() {
+    $options = pd_font_options();
     $urls = array();
     foreach (array('title_font', 'content_font') as $setting_key) {
-        $font_key = qf_font_key($setting_key);
+        $font_key = pd_font_key($setting_key);
         $url = isset($options[$font_key]['url']) ? $options[$font_key]['url'] : '';
         if ($url !== '') {
             $urls[$url] = $url;
@@ -727,7 +727,7 @@ function qf_selected_font_urls() {
     return array_values($urls);
 }
 
-function qf_default_nginx_rewrite_rules() {
+function pd_default_nginx_rewrite_rules() {
     return "rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;\n"
         . "rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;\n"
         . "rewrite ^/api/([a-z-]+)$ /api/$1.php last;\n"
@@ -735,7 +735,7 @@ function qf_default_nginx_rewrite_rules() {
         . "try_files \$uri \$uri/ /index.php?\$query_string;";
 }
 
-function qf_base_href() {
+function pd_base_href() {
     $script_name = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
     $dir = str_replace('\\', '/', dirname($script_name));
     if (in_array(basename($dir), array('admin', 'api', 'pages'), true)) {
@@ -747,19 +747,19 @@ function qf_base_href() {
     return rtrim($dir, '/') . '/';
 }
 
-function qf_theme_file($file) {
+function pd_theme_file($file) {
     return __DIR__ . '/' . ltrim($file, '/');
 }
 
-function qf_include_header() {
-    include qf_theme_file('header.php');
+function pd_include_header() {
+    include pd_theme_file('header.php');
 }
 
-function qf_include_footer() {
-    include qf_theme_file('footer.php');
+function pd_include_footer() {
+    include pd_theme_file('footer.php');
 }
 
-function qf_admin_nav_items() {
+function pd_admin_nav_items() {
     return array(
         array(
             'label' => '概览',
@@ -796,15 +796,15 @@ function qf_admin_nav_items() {
     );
 }
 
-function qf_include_admin_header() {
-    include qf_theme_file('admin/_layout_header.php');
+function pd_include_admin_header() {
+    include pd_theme_file('admin/_layout_header.php');
 }
 
-function qf_include_admin_footer() {
-    include qf_theme_file('admin/_layout_footer.php');
+function pd_include_admin_footer() {
+    include pd_theme_file('admin/_layout_footer.php');
 }
 
-function qf_asset_js($name, $base = 'assets/js/') {
+function pd_asset_js($name, $base = 'assets/js/') {
     $name = trim((string)$name, '/');
     $base = rtrim((string)$base, '/') . '/';
     $source = $base . $name . '.js';
@@ -817,11 +817,11 @@ function qf_asset_js($name, $base = 'assets/js/') {
     return $path . '?v=' . $version;
 }
 
-function qf_rewrite_enabled() {
-    return intval(qf_setting('rewrite_enabled', '0')) === 1;
+function pd_rewrite_enabled() {
+    return intval(pd_setting('rewrite_enabled', '0')) === 1;
 }
 
-function qf_append_url_parts($path, $params = array(), $fragment = '') {
+function pd_append_url_parts($path, $params = array(), $fragment = '') {
     $query = '';
     if (!empty($params)) {
         $query = http_build_query($params);
@@ -829,23 +829,62 @@ function qf_append_url_parts($path, $params = array(), $fragment = '') {
     return $path . ($query !== '' ? '?' . $query : '') . ($fragment !== '' ? '#' . ltrim($fragment, '#') : '');
 }
 
-function qf_migrate_forum_nav_plan_a() {
+function pd_migrate_schema_prefix_from_qf() {
     static $ran = false;
     if ($ran) {
         return true;
     }
     $ran = true;
-    if (qf_setting('forum_nav_plan_a') === '1') {
+    if (pd_setting('schema_prefix_pd') === '1') {
         return true;
     }
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_forums'");
+    $conn = db();
+    $tables = array(
+        'users', 'passkeys', 'forums', 'threads', 'thread_votes', 'thread_reactions',
+        'posts', 'post_votes', 'bans', 'security_logs', 'moderator_logs', 'moderator_forums',
+        'attachments', 'post_comments', 'notifications', 'settings', 'signins', 'ads', 'navs',
+        'invites', 'oauth', 'user_groups', 'points_log', 'pm_threads', 'pm_messages',
+        'online', 'online_daily',
+    );
+    $renamed = false;
+    foreach ($tables as $name) {
+        $from = 'qf_' . $name;
+        $to = 'pd_' . $name;
+        $rs = mysqli_query($conn, "SHOW TABLES LIKE '{$from}'");
+        if (!$rs || mysqli_num_rows($rs) === 0) {
+            continue;
+        }
+        $rs2 = mysqli_query($conn, "SHOW TABLES LIKE '{$to}'");
+        if ($rs2 && mysqli_num_rows($rs2) > 0) {
+            continue;
+        }
+        if (mysqli_query($conn, "RENAME TABLE `{$from}` TO `{$to}`")) {
+            $renamed = true;
+        }
+    }
+    if ($renamed || mysqli_num_rows(mysqli_query($conn, "SHOW TABLES LIKE 'pd_settings'")) > 0) {
+        pd_update_setting('schema_prefix_pd', '1');
+    }
+    return true;
+}
+
+function pd_migrate_forum_nav_plan_a() {
+    static $ran = false;
+    if ($ran) {
+        return true;
+    }
+    $ran = true;
+    if (pd_setting('forum_nav_plan_a') === '1') {
+        return true;
+    }
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_forums'");
     if (!$table || mysqli_num_rows($table) === 0) {
         return false;
     }
 
     $forum_id = function ($name) {
         $name_sql = esc($name);
-        $rs = mysqli_query(db(), "SELECT id FROM qf_forums WHERE name='{$name_sql}' LIMIT 1");
+        $rs = mysqli_query(db(), "SELECT id FROM pd_forums WHERE name='{$name_sql}' LIMIT 1");
         $row = $rs ? mysqli_fetch_assoc($rs) : null;
         return $row ? intval($row['id']) : 0;
     };
@@ -856,7 +895,7 @@ function qf_migrate_forum_nav_plan_a() {
         if ($from_id < 1 || $to_id < 1 || $from_id === $to_id) {
             return;
         }
-        mysqli_query(db(), "UPDATE qf_threads SET forum_id={$to_id} WHERE forum_id={$from_id} AND is_deleted=0");
+        mysqli_query(db(), "UPDATE pd_threads SET forum_id={$to_id} WHERE forum_id={$from_id} AND is_deleted=0");
     };
 
     $delete_forum = function ($id) {
@@ -864,13 +903,13 @@ function qf_migrate_forum_nav_plan_a() {
         if ($id < 1) {
             return;
         }
-        mysqli_query(db(), "DELETE FROM qf_moderator_forums WHERE forum_id={$id}");
-        mysqli_query(db(), "DELETE FROM qf_forums WHERE id={$id}");
+        mysqli_query(db(), "DELETE FROM pd_moderator_forums WHERE forum_id={$id}");
+        mysqli_query(db(), "DELETE FROM pd_forums WHERE id={$id}");
     };
 
     $perf_id = $forum_id('性能优化');
     if ($perf_id > 0) {
-        mysqli_query(db(), "UPDATE qf_forums SET name='数据库与缓存', description='MySQL、MariaDB、PostgreSQL、Redis、队列和缓存设计。', display_order=40 WHERE id={$perf_id}");
+        mysqli_query(db(), "UPDATE pd_forums SET name='数据库与缓存', description='MySQL、MariaDB、PostgreSQL、Redis、队列和缓存设计。', display_order=40 WHERE id={$perf_id}");
     }
 
     $chat_id = $forum_id('综合交流');
@@ -878,7 +917,7 @@ function qf_migrate_forum_nav_plan_a() {
         $chat_id = $forum_id('灌水闲聊');
     }
     if ($chat_id > 0) {
-        mysqli_query(db(), "UPDATE qf_forums SET name='综合闲聊', description='日常灌水、闲聊与技术之外的话题讨论。', display_order=70 WHERE id={$chat_id}");
+        mysqli_query(db(), "UPDATE pd_forums SET name='综合闲聊', description='日常灌水、闲聊与技术之外的话题讨论。', display_order=70 WHERE id={$chat_id}");
     }
 
     $release_id = $forum_id('程序发布');
@@ -913,25 +952,25 @@ function qf_migrate_forum_nav_plan_a() {
     foreach ($orders as $name => $order) {
         $fid = $forum_id($name);
         if ($fid > 0) {
-            mysqli_query(db(), "UPDATE qf_forums SET display_order=" . intval($order) . " WHERE id={$fid}");
+            mysqli_query(db(), "UPDATE pd_forums SET display_order=" . intval($order) . " WHERE id={$fid}");
         }
     }
 
     if ($release_id > 0) {
         $cats = esc("开源项目\n商业程序\n插件扩展\n个站展示\n版本更新");
-        mysqli_query(db(), "UPDATE qf_forums SET topic_category_enabled=1, topic_categories='{$cats}' WHERE id={$release_id}");
+        mysqli_query(db(), "UPDATE pd_forums SET topic_category_enabled=1, topic_categories='{$cats}' WHERE id={$release_id}");
     }
 
     $announce_id = $forum_id('站务公告');
     if ($announce_id > 0) {
-        qf_update_setting('nav_hidden_forums', (string)$announce_id);
+        pd_update_setting('nav_hidden_forums', (string)$announce_id);
     }
 
-    qf_update_setting('forum_nav_plan_a', '1');
+    pd_update_setting('forum_nav_plan_a', '1');
     return true;
 }
 
-function qf_forum_slug_map() {
+function pd_forum_slug_map() {
     return array(
         '站务公告' => 'announcements',
         '技术问答' => 'qa',
@@ -944,7 +983,7 @@ function qf_forum_slug_map() {
     );
 }
 
-function qf_forum_slug_by_id($id) {
+function pd_forum_slug_by_id($id) {
     static $cache = array();
     $id = intval($id);
     if ($id < 1) {
@@ -953,14 +992,14 @@ function qf_forum_slug_by_id($id) {
     if (isset($cache[$id])) {
         return $cache[$id];
     }
-    $rs = mysqli_query(db(), "SELECT name FROM qf_forums WHERE id={$id} LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT name FROM pd_forums WHERE id={$id} LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
-    $map = qf_forum_slug_map();
+    $map = pd_forum_slug_map();
     $cache[$id] = ($row && isset($map[$row['name']])) ? $map[$row['name']] : '';
     return $cache[$id];
 }
 
-function qf_forum_id_by_slug($slug) {
+function pd_forum_id_by_slug($slug) {
     static $cache = array();
     $slug = strtolower(trim((string)$slug, '/'));
     if ($slug === '') {
@@ -970,7 +1009,7 @@ function qf_forum_id_by_slug($slug) {
         return $cache[$slug];
     }
     $name = '';
-    foreach (qf_forum_slug_map() as $forum_name => $forum_slug) {
+    foreach (pd_forum_slug_map() as $forum_name => $forum_slug) {
         if ($forum_slug === $slug) {
             $name = $forum_name;
             break;
@@ -981,13 +1020,13 @@ function qf_forum_id_by_slug($slug) {
         return 0;
     }
     $name_sql = esc($name);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_forums WHERE name='{$name_sql}' LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id FROM pd_forums WHERE name='{$name_sql}' LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     $cache[$slug] = $row ? intval($row['id']) : 0;
     return $cache[$slug];
 }
 
-function qf_route_script($script, &$params = array()) {
+function pd_route_script($script, &$params = array()) {
     $map = array(
         'ad.php' => 'api/ad.php',
         'captcha.php' => 'api/captcha.php',
@@ -1025,7 +1064,7 @@ function qf_route_script($script, &$params = array()) {
     return isset($map[$script]) ? $map[$script] : $script;
 }
 
-function qf_clean_route_path($script) {
+function pd_clean_route_path($script) {
     $map = array(
         'pages/download.php' => 'download.php',
         'pages/edit-thread.php' => 'edit-thread.php',
@@ -1061,61 +1100,61 @@ function qf_clean_route_path($script) {
     return isset($map[$script]) ? $map[$script] : $script;
 }
 
-function qf_url_page($script, $params = array(), $fragment = '') {
+function pd_url_page($script, $params = array(), $fragment = '') {
     $script = ltrim((string)$script, '/');
     $params = is_array($params) ? $params : array();
     $logical_script = $script;
-    $script = qf_route_script($script, $params);
-    if (!qf_rewrite_enabled()) {
-        return qf_append_url_parts($script, $params, $fragment);
+    $script = pd_route_script($script, $params);
+    if (!pd_rewrite_enabled()) {
+        return pd_append_url_parts($script, $params, $fragment);
     }
     if ($script === 'index.php' || $script === '') {
-        return qf_append_url_parts('/', $params, $fragment);
+        return pd_append_url_parts('/', $params, $fragment);
     }
     if (strpos($script, 'api/') === 0 || strpos($script, 'admin/') === 0) {
-        return qf_append_url_parts('/' . $script, $params, $fragment);
+        return pd_append_url_parts('/' . $script, $params, $fragment);
     }
     if (($logical_script === 'thread.php' || $script === 'pages/thread.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
-        return qf_append_url_parts('/thread/' . $id . '.html', $params, $fragment);
+        return pd_append_url_parts('/thread/' . $id . '.html', $params, $fragment);
     }
     if (($logical_script === 'forum.php' || $script === 'pages/forum.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
-        $slug = qf_forum_slug_by_id($id);
-        return qf_append_url_parts('/' . ($slug !== '' ? $slug : 'forum/' . $id), $params, $fragment);
+        $slug = pd_forum_slug_by_id($id);
+        return pd_append_url_parts('/' . ($slug !== '' ? $slug : 'forum/' . $id), $params, $fragment);
     }
     if (($logical_script === 'user.php' || $script === 'pages/user.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
-        return qf_append_url_parts('/user/' . $id . '.html', $params, $fragment);
+        return pd_append_url_parts('/user/' . $id . '.html', $params, $fragment);
     }
     if (($logical_script === 'page.php' || $script === 'pages/page.php') && isset($params['slug'])) {
         $slug = preg_replace('/[^a-z0-9-]+/', '', strtolower((string)$params['slug']));
         unset($params['slug']);
-        return qf_append_url_parts('/' . $slug . '.php', $params, $fragment);
+        return pd_append_url_parts('/' . $slug . '.php', $params, $fragment);
     }
     // 关于页规范地址保留 .php 扩展名（与 /rules.php、/help.php 等静态页一致）
     if ($logical_script === 'about.php' || $script === 'pages/about.php') {
-        return qf_append_url_parts('/about.php', $params, $fragment);
+        return pd_append_url_parts('/about.php', $params, $fragment);
     }
     if (($logical_script === 'download.php' || $script === 'pages/download.php') && isset($params['id'])) {
         $id = intval($params['id']);
         unset($params['id']);
-        return qf_append_url_parts('/download/' . $id, $params, $fragment);
+        return pd_append_url_parts('/download/' . $id, $params, $fragment);
     }
-    $clean = qf_clean_route_path($script);
+    $clean = pd_clean_route_path($script);
     if ($clean !== $script) {
-        return qf_append_url_parts('/' . $clean, $params, $fragment);
+        return pd_append_url_parts('/' . $clean, $params, $fragment);
     }
     if (substr($script, -4) === '.php') {
         $script = substr($script, 0, -4);
     }
-    return qf_append_url_parts('/' . $script, $params, $fragment);
+    return pd_append_url_parts('/' . $script, $params, $fragment);
 }
 
-function qf_url_nav($url) {
+function pd_url_nav($url) {
     $url = trim((string)$url);
     if ($url === '' || preg_match('/^[a-z][a-z0-9+\-.]*:\/\//i', $url) || strpos($url, '//') === 0 || strpos($url, '#') === 0) {
         return $url;
@@ -1133,24 +1172,24 @@ function qf_url_nav($url) {
         parse_str($parts['query'], $params);
     }
     $fragment = isset($parts['fragment']) ? $parts['fragment'] : '';
-    return qf_url_page($path, $params, $fragment);
+    return pd_url_page($path, $params, $fragment);
 }
 
-function qf_url_thread($id) {
+function pd_url_thread($id) {
     $id = intval($id);
-    return qf_rewrite_enabled() ? '/thread/' . $id . '.html' : qf_url_page('thread.php', array('id' => $id));
+    return pd_rewrite_enabled() ? '/thread/' . $id . '.html' : pd_url_page('thread.php', array('id' => $id));
 }
 
-function qf_url_forum($id) {
+function pd_url_forum($id) {
     $id = intval($id);
-    return qf_url_page('forum.php', array('id' => $id));
+    return pd_url_page('forum.php', array('id' => $id));
 }
 
-function qf_url_user($id) {
-    return qf_url_page('user.php', array('id' => intval($id)));
+function pd_url_user($id) {
+    return pd_url_page('user.php', array('id' => intval($id)));
 }
 
-function qf_format_compact_number($number) {
+function pd_format_compact_number($number) {
     $number = max(0, intval($number));
     if ($number < 1000) {
         return (string)$number;
@@ -1163,7 +1202,7 @@ function qf_format_compact_number($number) {
     return $formatted . 'k';
 }
 
-function qf_path_id() {
+function pd_path_id() {
     if (isset($_GET['id'])) {
         return intval($_GET['id']);
     }
@@ -1178,11 +1217,11 @@ function qf_path_id() {
     return 0;
 }
 
-function qf_attachment_url($id) {
-    return qf_url_page('download.php', array('id' => intval($id)));
+function pd_attachment_url($id) {
+    return pd_url_page('download.php', array('id' => intval($id)));
 }
 
-function qf_static_pages() {
+function pd_static_pages() {
     return array(
         'rules' => array(
             'title' => '社区规则',
@@ -1201,29 +1240,29 @@ function qf_static_pages() {
     );
 }
 
-function qf_static_page($slug) {
+function pd_static_page($slug) {
     $slug = strtolower(trim((string)$slug, '/'));
-    $pages = qf_static_pages();
+    $pages = pd_static_pages();
     return isset($pages[$slug]) ? $pages[$slug] : null;
 }
 
 // ===== 社区“关于”页数据 =====
-function qf_site_slogan() {
-    return qf_setting('site_slogan', 'where possible begins · 让分享回到互联网');
+function pd_site_slogan() {
+    return pd_setting('site_slogan', 'where possible begins · 让分享回到互联网');
 }
 
-function qf_site_about_text() {
+function pd_site_about_text() {
     $default = "行色匆匆的旅人啊，你是否还记得十多年前互联网的模样？\n那时候的人们乐于分享自己的见识，不以有钱为成功标准。\n来这里，拓一方净土，重现互联网精神，这里什么都可能。";
-    return qf_setting('site_about', $default);
+    return pd_setting('site_about', $default);
 }
 
-function qf_site_founded_text() {
-    $set = trim((string)qf_setting('site_founded', ''));
+function pd_site_founded_text() {
+    $set = trim((string)pd_setting('site_founded', ''));
     $ts = 0;
     if ($set !== '' && ($t = strtotime($set)) !== false) {
         $ts = $t;
     } else {
-        $r = mysqli_query(db(), "SELECT MIN(created_at) AS m FROM qf_users");
+        $r = mysqli_query(db(), "SELECT MIN(created_at) AS m FROM pd_users");
         $row = $r ? mysqli_fetch_assoc($r) : null;
         if ($row && $row['m']) {
             $ts = strtotime($row['m']);
@@ -1244,37 +1283,37 @@ function qf_site_founded_text() {
     return '不到 1 个月';
 }
 
-function qf_contact_email() {
-    $e = trim((string)qf_setting('contact_email', ''));
+function pd_contact_email() {
+    $e = trim((string)pd_setting('contact_email', ''));
     if ($e !== '') {
         return $e;
     }
-    $r = mysqli_query(db(), "SELECT email FROM qf_users WHERE is_admin=1 AND email<>'' ORDER BY id ASC LIMIT 1");
+    $r = mysqli_query(db(), "SELECT email FROM pd_users WHERE is_admin=1 AND email<>'' ORDER BY id ASC LIMIT 1");
     $row = $r ? mysqli_fetch_assoc($r) : null;
     return ($row && $row['email']) ? $row['email'] : '';
 }
 
-function qf_community_stats() {
+function pd_community_stats() {
     static $cache = null;
     if ($cache !== null) {
         return $cache;
     }
     $cache = array(
-        'members'      => count_rows("SELECT COUNT(*) FROM qf_users"),
-        'admins'       => count_rows("SELECT COUNT(*) FROM qf_users WHERE is_admin=1"),
-        'moderators'   => count_rows("SELECT COUNT(*) FROM qf_users WHERE is_moderator=1 AND is_admin=0"),
-        'topics_7d'    => count_rows("SELECT COUNT(*) FROM qf_threads WHERE is_deleted=0 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
-        'posts_today'  => count_rows("SELECT COUNT(*) FROM qf_posts WHERE is_deleted=0 AND created_at >= CURDATE()"),
-        'active_7d'    => count_rows("SELECT COUNT(DISTINCT user_id) FROM (SELECT user_id, created_at FROM qf_threads WHERE is_deleted=0 UNION ALL SELECT user_id, created_at FROM qf_posts WHERE is_deleted=0) x WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
-        'registers_7d' => count_rows("SELECT COUNT(*) FROM qf_users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
-        'likes_total'  => count_rows("SELECT COALESCE(SUM(upvotes),0) FROM qf_threads WHERE is_deleted=0"),
-        'posts_total'  => count_rows("SELECT COUNT(*) FROM qf_posts WHERE is_deleted=0"),
+        'members'      => count_rows("SELECT COUNT(*) FROM pd_users"),
+        'admins'       => count_rows("SELECT COUNT(*) FROM pd_users WHERE is_admin=1"),
+        'moderators'   => count_rows("SELECT COUNT(*) FROM pd_users WHERE is_moderator=1 AND is_admin=0"),
+        'topics_7d'    => count_rows("SELECT COUNT(*) FROM pd_threads WHERE is_deleted=0 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
+        'posts_today'  => count_rows("SELECT COUNT(*) FROM pd_posts WHERE is_deleted=0 AND created_at >= CURDATE()"),
+        'active_7d'    => count_rows("SELECT COUNT(DISTINCT user_id) FROM (SELECT user_id, created_at FROM pd_threads WHERE is_deleted=0 UNION ALL SELECT user_id, created_at FROM pd_posts WHERE is_deleted=0) x WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
+        'registers_7d' => count_rows("SELECT COUNT(*) FROM pd_users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
+        'likes_total'  => count_rows("SELECT COALESCE(SUM(upvotes),0) FROM pd_threads WHERE is_deleted=0"),
+        'posts_total'  => count_rows("SELECT COUNT(*) FROM pd_posts WHERE is_deleted=0"),
     );
     return $cache;
 }
 
 // 首页可选 banner 列表：扫描 assets/banner/ 下以数字命名（1,2,3…）的图，优先 webp。返回 [ key => 相对路径 ]。
-function qf_home_banner_options() {
+function pd_home_banner_options() {
     $dir = 'assets/banner/';
     $base = __DIR__ . '/' . $dir;
     $options = array();
@@ -1290,12 +1329,12 @@ function qf_home_banner_options() {
 }
 
 // 首页当前选定的 banner 路径（后台可切换）。无匹配时回退第一张，全无则 ''。
-function qf_home_banner_src() {
-    $options = qf_home_banner_options();
+function pd_home_banner_src() {
+    $options = pd_home_banner_options();
     if (empty($options)) {
         return '';
     }
-    $selected = (string)qf_setting('home_banner', '1');
+    $selected = (string)pd_setting('home_banner', '1');
     if (isset($options[$selected])) {
         return $options[$selected];
     }
@@ -1303,7 +1342,7 @@ function qf_home_banner_src() {
 }
 
 // 头部 banner：每个页面固定用对应图，首页用后台选定的 banner；优先 webp。返回本地路径或 ''。
-function qf_header_banner_src($script, $slug = '') {
+function pd_header_banner_src($script, $slug = '') {
     $dir = 'assets/banner/';
     $base = __DIR__ . '/' . $dir;
     $first_existing = function ($files) use ($dir, $base) {
@@ -1315,28 +1354,28 @@ function qf_header_banner_src($script, $slug = '') {
         return '';
     };
     if ($script === 'about.php') {
-        return $first_existing(array('aboutphpdo.webp', 'aboutphpdo.png'));
+        return $first_existing(array('aboutpd.webp', 'aboutpd.png', 'aboutphpdo.webp', 'aboutphpdo.png'));
     }
     if ($script === 'page.php' && $slug === 'rules') {
-        return $first_existing(array('rulesphpdo.webp', 'rulesphpdo.png'));
+        return $first_existing(array('rulespd.webp', 'rulespd.png', 'rulesphpdo.webp', 'rulesphpdo.png'));
     }
     if ($script === 'page.php' && $slug === 'help') {
-        return $first_existing(array('helpphpdo.webp', 'helpphpdo.png'));
+        return $first_existing(array('helppd.webp', 'helppd.png', 'helpphpdo.webp', 'helpphpdo.png'));
     }
     if ($script === 'index.php') {
-        return qf_home_banner_src();
+        return pd_home_banner_src();
     }
     return '';
 }
 
-function qf_member_noun() {
-    $n = trim((string)qf_setting('member_noun', ''));
+function pd_member_noun() {
+    $n = trim((string)pd_setting('member_noun', ''));
     return $n !== '' ? $n : '成员';
 }
 
-function qf_latest_users($limit = 8) {
+function pd_latest_users($limit = 8) {
     $limit = max(1, min(24, intval($limit)));
-    $rs = mysqli_query(db(), "SELECT id, username, nickname, avatar, email FROM qf_users ORDER BY id DESC LIMIT {$limit}");
+    $rs = mysqli_query(db(), "SELECT id, username, nickname, avatar, email FROM pd_users ORDER BY id DESC LIMIT {$limit}");
     $out = array();
     while ($rs && ($r = mysqli_fetch_assoc($rs))) {
         $out[] = $r;
@@ -1344,9 +1383,9 @@ function qf_latest_users($limit = 8) {
     return $out;
 }
 
-function qf_staff_list($role) {
+function pd_staff_list($role) {
     $where = ($role === 'admin') ? 'is_admin=1' : 'is_moderator=1 AND is_admin=0';
-    $rs = mysqli_query(db(), "SELECT id, username, nickname, avatar, email, signature FROM qf_users WHERE {$where} ORDER BY id ASC LIMIT 60");
+    $rs = mysqli_query(db(), "SELECT id, username, nickname, avatar, email, signature FROM pd_users WHERE {$where} ORDER BY id ASC LIMIT 60");
     $out = array();
     while ($rs && ($r = mysqli_fetch_assoc($rs))) {
         $out[] = $r;
@@ -1354,20 +1393,20 @@ function qf_staff_list($role) {
     return $out;
 }
 
-function qf_ensure_thread_vote_schema() {
-    $threads = mysqli_query(db(), "SHOW TABLES LIKE 'qf_threads'");
+function pd_ensure_thread_vote_schema() {
+    $threads = mysqli_query(db(), "SHOW TABLES LIKE 'pd_threads'");
     if (!$threads || mysqli_num_rows($threads) == 0) {
         return;
     }
-    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_threads LIKE 'upvotes'");
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_threads LIKE 'upvotes'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE qf_threads ADD upvotes int(11) NOT NULL DEFAULT '0' AFTER replies");
+        mysqli_query(db(), "ALTER TABLE pd_threads ADD upvotes int(11) NOT NULL DEFAULT '0' AFTER replies");
     }
-    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_threads LIKE 'downvotes'");
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_threads LIKE 'downvotes'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE qf_threads ADD downvotes int(11) NOT NULL DEFAULT '0' AFTER upvotes");
+        mysqli_query(db(), "ALTER TABLE pd_threads ADD downvotes int(11) NOT NULL DEFAULT '0' AFTER upvotes");
     }
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_thread_votes (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_thread_votes (
       id int(11) NOT NULL AUTO_INCREMENT,
       thread_id int(11) NOT NULL DEFAULT '0',
       user_id int(11) NOT NULL DEFAULT '0',
@@ -1381,30 +1420,30 @@ function qf_ensure_thread_vote_schema() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
-function qf_recount_thread_votes($thread_id) {
+function pd_recount_thread_votes($thread_id) {
     $thread_id = intval($thread_id);
-    qf_ensure_thread_vote_schema();
-    $up = count_rows("SELECT COUNT(*) FROM qf_thread_votes WHERE thread_id={$thread_id} AND vote=1");
-    $down = count_rows("SELECT COUNT(*) FROM qf_thread_votes WHERE thread_id={$thread_id} AND vote=-1");
-    mysqli_query(db(), "UPDATE qf_threads SET upvotes={$up}, downvotes={$down} WHERE id={$thread_id}");
+    pd_ensure_thread_vote_schema();
+    $up = count_rows("SELECT COUNT(*) FROM pd_thread_votes WHERE thread_id={$thread_id} AND vote=1");
+    $down = count_rows("SELECT COUNT(*) FROM pd_thread_votes WHERE thread_id={$thread_id} AND vote=-1");
+    mysqli_query(db(), "UPDATE pd_threads SET upvotes={$up}, downvotes={$down} WHERE id={$thread_id}");
     return array('upvotes' => $up, 'downvotes' => $down);
 }
 
-// 评论（楼层回复）顶/踩：qf_posts 增加 upvotes/downvotes 列 + qf_post_votes 记录每人每评论投票。
-function qf_ensure_post_vote_schema() {
-    $posts = mysqli_query(db(), "SHOW TABLES LIKE 'qf_posts'");
+// 评论（楼层回复）顶/踩：pd_posts 增加 upvotes/downvotes 列 + pd_post_votes 记录每人每评论投票。
+function pd_ensure_post_vote_schema() {
+    $posts = mysqli_query(db(), "SHOW TABLES LIKE 'pd_posts'");
     if (!$posts || mysqli_num_rows($posts) == 0) {
         return;
     }
-    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_posts LIKE 'upvotes'");
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_posts LIKE 'upvotes'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE qf_posts ADD upvotes int(11) NOT NULL DEFAULT '0'");
+        mysqli_query(db(), "ALTER TABLE pd_posts ADD upvotes int(11) NOT NULL DEFAULT '0'");
     }
-    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_posts LIKE 'downvotes'");
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_posts LIKE 'downvotes'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE qf_posts ADD downvotes int(11) NOT NULL DEFAULT '0'");
+        mysqli_query(db(), "ALTER TABLE pd_posts ADD downvotes int(11) NOT NULL DEFAULT '0'");
     }
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_post_votes (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_post_votes (
       id int(11) NOT NULL AUTO_INCREMENT,
       post_id int(11) NOT NULL DEFAULT '0',
       user_id int(11) NOT NULL DEFAULT '0',
@@ -1418,60 +1457,60 @@ function qf_ensure_post_vote_schema() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
-function qf_recount_post_votes($post_id) {
+function pd_recount_post_votes($post_id) {
     $post_id = intval($post_id);
-    qf_ensure_post_vote_schema();
-    $up = count_rows("SELECT COUNT(*) FROM qf_post_votes WHERE post_id={$post_id} AND vote=1");
-    $down = count_rows("SELECT COUNT(*) FROM qf_post_votes WHERE post_id={$post_id} AND vote=-1");
-    mysqli_query(db(), "UPDATE qf_posts SET upvotes={$up}, downvotes={$down} WHERE id={$post_id}");
+    pd_ensure_post_vote_schema();
+    $up = count_rows("SELECT COUNT(*) FROM pd_post_votes WHERE post_id={$post_id} AND vote=1");
+    $down = count_rows("SELECT COUNT(*) FROM pd_post_votes WHERE post_id={$post_id} AND vote=-1");
+    mysqli_query(db(), "UPDATE pd_posts SET upvotes={$up}, downvotes={$down} WHERE id={$post_id}");
     return array('upvotes' => $up, 'downvotes' => $down);
 }
 
 // 帖子列表/详情：置顶与精华标题 class、徽章 HTML（全站 is_top=1 / 版块 is_top=2）
-function qf_thread_title_classes($row) {
+function pd_thread_title_classes($row) {
     $classes = array();
     $is_top = intval(isset($row['is_top']) ? $row['is_top'] : 0);
     if ($is_top === 1) {
-        $classes[] = 'phpdo-title-top';
-        $classes[] = 'phpdo-title-top-global';
+        $classes[] = 'pd-title-top';
+        $classes[] = 'pd-title-top-global';
     } elseif ($is_top === 2) {
-        $classes[] = 'phpdo-title-top';
-        $classes[] = 'phpdo-title-top-board';
+        $classes[] = 'pd-title-top';
+        $classes[] = 'pd-title-top-board';
     }
     if (intval(isset($row['is_good']) ? $row['is_good'] : 0)) {
-        $classes[] = 'phpdo-title-good';
+        $classes[] = 'pd-title-good';
     }
     return implode(' ', $classes);
 }
 
-function qf_thread_title_attr($row, $base_classes = '') {
+function pd_thread_title_attr($row, $base_classes = '') {
     $classes = trim((string)$base_classes);
-    $extra = qf_thread_title_classes($row);
+    $extra = pd_thread_title_classes($row);
     if ($extra !== '') {
         $classes = $classes === '' ? $extra : $classes . ' ' . $extra;
     }
     return $classes === '' ? '' : ' class="' . h($classes) . '"';
 }
 
-function qf_thread_top_badge_html($row) {
+function pd_thread_top_badge_html($row) {
     $is_top = intval(isset($row['is_top']) ? $row['is_top'] : 0);
     if ($is_top === 1) {
-        return '<span class="phpdo-badge-sq phpdo-badge-top phpdo-badge-top-global" title="全站置顶" aria-label="全站置顶"><i class="fa-solid fa-up-long" aria-hidden="true"></i></span>';
+        return '<span class="pd-badge-sq pd-badge-top pd-badge-top-global" title="全站置顶" aria-label="全站置顶"><i class="fa-solid fa-up-long" aria-hidden="true"></i></span>';
     }
     if ($is_top === 2) {
-        return '<span class="phpdo-badge-sq phpdo-badge-top phpdo-badge-top-board" title="版块置顶" aria-label="版块置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span>';
+        return '<span class="pd-badge-sq pd-badge-top pd-badge-top-board" title="版块置顶" aria-label="版块置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span>';
     }
     return '';
 }
 
-function qf_thread_good_badge_html($row) {
+function pd_thread_good_badge_html($row) {
     if (!intval(isset($row['is_good']) ? $row['is_good'] : 0)) {
         return '';
     }
-    return '<span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span>';
+    return '<span class="pd-badge-sq pd-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span>';
 }
 
-function qf_user_display_name($row) {
+function pd_user_display_name($row) {
     $nick = isset($row['nickname']) ? $row['nickname'] : '';
     if ($nick !== null && $nick !== '') {
         return $nick;
@@ -1480,39 +1519,39 @@ function qf_user_display_name($row) {
 }
 
 /** 帖子列表行：variant=feed 首页；variant=list 版块/搜索/用户页 */
-function qf_render_thread_row($t, $opts = array()) {
+function pd_render_thread_row($t, $opts = array()) {
     $variant = isset($opts['variant']) ? $opts['variant'] : 'feed';
-    $avatar = qf_user_avatar($t, 80);
-    $author = qf_user_display_name($t);
-    $is_new = qf_parse_utc_timestamp($t['created_at']) >= time() - 86400 * 7;
+    $avatar = pd_user_avatar($t, 80);
+    $author = pd_user_display_name($t);
+    $is_new = pd_parse_utc_timestamp($t['created_at']) >= time() - 86400 * 7;
     $has_image = intval(isset($t['has_image']) ? $t['has_image'] : 0);
     $has_attachment = !empty($t['has_attachment']);
 
     if ($variant === 'feed') {
         ob_start();
         ?>
-        <article class="phpdo-thread-row">
-            <a class="phpdo-avatar" href="<?php echo h(qf_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
+        <article class="pd-thread-row">
+            <a class="pd-avatar" href="<?php echo h(pd_url_thread($t['id'])); ?>" aria-hidden="true" tabindex="-1">
                 <img src="<?php echo h($avatar); ?>" alt="">
             </a>
-            <div class="phpdo-thread-main">
+            <div class="pd-thread-main">
                 <h2>
-                    <?php echo qf_thread_top_badge_html($t); ?>
-                    <?php echo qf_thread_good_badge_html($t); ?>
-                    <a href="<?php echo h(qf_url_thread($t['id'])); ?>"<?php echo qf_thread_title_attr($t); ?>><?php echo h($t['title']); ?></a>
-                    <?php if ($has_image) { ?><i class="fa-regular fa-image phpdo-image-icon" aria-hidden="true"></i><?php } ?>
-                    <?php if ($has_attachment) { ?><i class="fa-solid fa-paperclip phpdo-attach-icon" title="含附件" aria-label="含附件"></i><?php } ?>
-                    <?php if ($is_new) { ?><i class="fa-solid fa-rectangle-new phpdo-new" title="新帖" aria-label="新帖"></i><?php } ?>
+                    <?php echo pd_thread_top_badge_html($t); ?>
+                    <?php echo pd_thread_good_badge_html($t); ?>
+                    <a href="<?php echo h(pd_url_thread($t['id'])); ?>"<?php echo pd_thread_title_attr($t); ?>><?php echo h($t['title']); ?></a>
+                    <?php if ($has_image) { ?><i class="fa-regular fa-image pd-image-icon" aria-hidden="true"></i><?php } ?>
+                    <?php if ($has_attachment) { ?><i class="fa-solid fa-paperclip pd-attach-icon" title="含附件" aria-label="含附件"></i><?php } ?>
+                    <?php if ($is_new) { ?><i class="fa-solid fa-rectangle-new pd-new" title="新帖" aria-label="新帖"></i><?php } ?>
                 </h2>
-                <div class="phpdo-thread-meta">
+                <div class="pd-thread-meta">
                     <p>
-                        <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
-                        <?php echo qf_time_html($t['created_at']); ?>
-                        <?php if (!empty($t['forum_name'])) { ?><a class="phpdo-forum-tag phpdo-forum-tag-<?php echo intval($t['forum_id']) % 8; ?>" href="<?php echo h(qf_url_forum(intval($t['forum_id']))); ?>"><?php echo h($t['forum_name']); ?></a><?php } ?>
+                        <a class="pd-author-link" href="<?php echo h(pd_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
+                        <?php echo pd_time_html($t['created_at']); ?>
+                        <?php if (!empty($t['forum_name'])) { ?><a class="pd-forum-tag pd-forum-tag-<?php echo intval($t['forum_id']) % 8; ?>" href="<?php echo h(pd_url_forum(intval($t['forum_id']))); ?>"><?php echo h($t['forum_name']); ?></a><?php } ?>
                     </p>
-                    <div class="phpdo-thread-stats" aria-label="帖子统计">
-                        <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
-                        <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
+                    <div class="pd-thread-stats" aria-label="帖子统计">
+                        <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo pd_format_compact_number($t['views']); ?></span>
+                        <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo pd_format_compact_number($t['replies']); ?></span>
                     </div>
                 </div>
             </div>
@@ -1524,35 +1563,35 @@ function qf_render_thread_row($t, $opts = array()) {
     $meta = isset($opts['meta']) ? $opts['meta'] : 'forum';
     $show_counts = !isset($opts['counts']) || $opts['counts'];
     $avatar_tag = isset($opts['avatar_link']) && $opts['avatar_link'] === false
-        ? '<span class="phpdo-avatar" aria-hidden="true"><img src="' . h($avatar) . '" alt=""></span>'
-        : '<a class="phpdo-avatar" href="' . h(qf_url_thread($t['id'])) . '" aria-hidden="true" tabindex="-1"><img src="' . h($avatar) . '" alt=""></a>';
+        ? '<span class="pd-avatar" aria-hidden="true"><img src="' . h($avatar) . '" alt=""></span>'
+        : '<a class="pd-avatar" href="' . h(pd_url_thread($t['id'])) . '" aria-hidden="true" tabindex="-1"><img src="' . h($avatar) . '" alt=""></a>';
 
     ob_start();
     ?>
     <div class="thread-row">
         <?php echo $avatar_tag; ?>
         <div class="thread-main">
-            <a<?php echo qf_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(qf_url_thread($t['id'])); ?>">
-                <?php echo qf_thread_top_badge_html($t); ?>
-                <?php echo qf_thread_good_badge_html($t); ?>
+            <a<?php echo pd_thread_title_attr($t, 'thread-title'); ?> href="<?php echo h(pd_url_thread($t['id'])); ?>">
+                <?php echo pd_thread_top_badge_html($t); ?>
+                <?php echo pd_thread_good_badge_html($t); ?>
                 <?php echo h($t['title']); ?>
             </a>
             <p>
                 <?php if ($meta === 'search') { ?>
-                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
+                    <a class="pd-author-link" href="<?php echo h(pd_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
                     <span><?php echo h($t['forum_name']); ?></span>
-                    <span><?php echo qf_time_html($t['updated_at']); ?></span>
+                    <span><?php echo pd_time_html($t['updated_at']); ?></span>
                 <?php } elseif ($meta === 'user') { ?>
-                    <?php echo h($t['forum_name']); ?> · <?php echo qf_time_html($t['updated_at']); ?>
+                    <?php echo h($t['forum_name']); ?> · <?php echo pd_time_html($t['updated_at']); ?>
                 <?php } else { ?>
-                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo qf_time_html($t['created_at']); ?> · 最后更新 <?php echo qf_time_html($t['updated_at']); ?>
+                    <a class="pd-author-link" href="<?php echo h(pd_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo pd_time_html($t['created_at']); ?> · 最后更新 <?php echo pd_time_html($t['updated_at']); ?>
                 <?php } ?>
             </p>
         </div>
         <?php if ($show_counts) { ?>
         <div class="thread-count">
-            <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo qf_format_compact_number($t['replies']); ?></span>
-            <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo qf_format_compact_number($t['views']); ?></span>
+            <span><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><?php echo pd_format_compact_number($t['replies']); ?></span>
+            <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo pd_format_compact_number($t['views']); ?></span>
         </div>
         <?php } ?>
     </div>
@@ -1561,7 +1600,7 @@ function qf_render_thread_row($t, $opts = array()) {
 }
 
 // 帖子表情反应：5 种类型（key => emoji + 标签）。每人每帖只能选 1 种。
-function qf_reaction_types() {
+function pd_reaction_types() {
     return array(
         'like'       => array('emoji' => '👍',   'label' => 'Like'),
         'cheer'      => array('emoji' => '👏🏻', 'label' => 'Cheer'),
@@ -1571,12 +1610,12 @@ function qf_reaction_types() {
     );
 }
 
-function qf_ensure_thread_reaction_schema() {
-    $threads = mysqli_query(db(), "SHOW TABLES LIKE 'qf_threads'");
+function pd_ensure_thread_reaction_schema() {
+    $threads = mysqli_query(db(), "SHOW TABLES LIKE 'pd_threads'");
     if (!$threads || mysqli_num_rows($threads) == 0) {
         return;
     }
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_thread_reactions (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_thread_reactions (
       id int(11) NOT NULL AUTO_INCREMENT,
       thread_id int(11) NOT NULL DEFAULT '0',
       user_id int(11) NOT NULL DEFAULT '0',
@@ -1590,14 +1629,14 @@ function qf_ensure_thread_reaction_schema() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
-function qf_thread_reaction_counts($thread_id) {
+function pd_thread_reaction_counts($thread_id) {
     $thread_id = intval($thread_id);
-    qf_ensure_thread_reaction_schema();
+    pd_ensure_thread_reaction_schema();
     $counts = array();
-    foreach (qf_reaction_types() as $key => $info) {
+    foreach (pd_reaction_types() as $key => $info) {
         $counts[$key] = 0;
     }
-    $rs = mysqli_query(db(), "SELECT reaction, COUNT(*) AS c FROM qf_thread_reactions WHERE thread_id={$thread_id} GROUP BY reaction");
+    $rs = mysqli_query(db(), "SELECT reaction, COUNT(*) AS c FROM pd_thread_reactions WHERE thread_id={$thread_id} GROUP BY reaction");
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $k = (string)$row['reaction'];
         if (array_key_exists($k, $counts)) {
@@ -1607,25 +1646,25 @@ function qf_thread_reaction_counts($thread_id) {
     return $counts;
 }
 
-function qf_user_thread_reaction($thread_id, $user_id) {
+function pd_user_thread_reaction($thread_id, $user_id) {
     $thread_id = intval($thread_id);
     $user_id = intval($user_id);
     if ($user_id <= 0) {
         return '';
     }
-    $rs = mysqli_query(db(), "SELECT reaction FROM qf_thread_reactions WHERE thread_id={$thread_id} AND user_id={$user_id} LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT reaction FROM pd_thread_reactions WHERE thread_id={$thread_id} AND user_id={$user_id} LIMIT 1");
     if ($rs && ($row = mysqli_fetch_assoc($rs))) {
         return (string)$row['reaction'];
     }
     return '';
 }
 
-function qf_protected_attachment_dir() {
+function pd_protected_attachment_dir() {
     return __DIR__ . '/uploads/protected';
 }
 
-function qf_protected_attachment_path($ext = 'dat') {
-    $dir = qf_protected_attachment_dir();
+function pd_protected_attachment_path($ext = 'dat') {
+    $dir = pd_protected_attachment_dir();
     if (!is_dir($dir)) {
         @mkdir($dir, 0755, true);
     }
@@ -1645,9 +1684,9 @@ function qf_protected_attachment_path($ext = 'dat') {
     return array($dir . '/' . $name, 'uploads/protected/' . $name);
 }
 
-function qf_store_uploaded_attachment_file($tmp_name, $ext, &$file_path) {
+function pd_store_uploaded_attachment_file($tmp_name, $ext, &$file_path) {
     if (in_array(strtolower($ext), array('zip', 'rar'))) {
-        list($target, $relative) = qf_protected_attachment_path($ext);
+        list($target, $relative) = pd_protected_attachment_path($ext);
         if (!move_uploaded_file($tmp_name, $target)) {
             return false;
         }
@@ -1667,7 +1706,7 @@ function qf_store_uploaded_attachment_file($tmp_name, $ext, &$file_path) {
     return true;
 }
 
-function qf_migrate_attachment_to_protected_storage($att) {
+function pd_migrate_attachment_to_protected_storage($att) {
     if (!$att || !in_array(strtolower($att['file_ext']), array('zip', 'rar'))) {
         return $att;
     }
@@ -1680,7 +1719,7 @@ function qf_migrate_attachment_to_protected_storage($att) {
     if (!$base_dir || !$old_file || strpos($old_file, $base_dir . DIRECTORY_SEPARATOR) !== 0 || !is_file($old_file)) {
         return $att;
     }
-    list($target, $relative) = qf_protected_attachment_path($att['file_ext']);
+    list($target, $relative) = pd_protected_attachment_path($att['file_ext']);
     if (!rename($old_file, $target)) {
         if (!copy($old_file, $target)) {
             return $att;
@@ -1688,24 +1727,24 @@ function qf_migrate_attachment_to_protected_storage($att) {
         @unlink($old_file);
     }
     $relative_sql = esc($relative);
-    mysqli_query(db(), "UPDATE qf_attachments SET file_path='{$relative_sql}' WHERE id=" . intval($att['id']));
+    mysqli_query(db(), "UPDATE pd_attachments SET file_path='{$relative_sql}' WHERE id=" . intval($att['id']));
     $att['file_path'] = $relative;
     return $att;
 }
 
-function qf_resolve_attachment_from_url($url) {
+function pd_resolve_attachment_from_url($url) {
     $raw_url = html_entity_decode((string)$url, ENT_QUOTES, 'UTF-8');
     if (preg_match('/download\.php\?id=([0-9]+)/i', $raw_url, $m)) {
         $aid = intval($m[1]);
-        $rs = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE id={$aid} LIMIT 1");
-        return $rs ? qf_migrate_attachment_to_protected_storage(mysqli_fetch_assoc($rs)) : null;
+        $rs = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE id={$aid} LIMIT 1");
+        return $rs ? pd_migrate_attachment_to_protected_storage(mysqli_fetch_assoc($rs)) : null;
     }
     if (preg_match('/^\/?uploads\/[^?#]+/i', $raw_url, $m)) {
         $path = ltrim($m[0], '/');
         $path_sql = esc($path);
-        $rs = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE file_path='{$path_sql}' LIMIT 1");
+        $rs = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE file_path='{$path_sql}' LIMIT 1");
         if ($rs && ($att = mysqli_fetch_assoc($rs))) {
-            return qf_migrate_attachment_to_protected_storage($att);
+            return pd_migrate_attachment_to_protected_storage($att);
         }
         $full_path = realpath(__DIR__ . '/' . $path);
         $base_dir = realpath(__DIR__ . '/uploads');
@@ -1716,14 +1755,14 @@ function qf_resolve_attachment_from_url($url) {
                 $original_sql = esc($original);
                 $ext_sql = esc($ext);
                 $size = intval(filesize($full_path));
-                list($target, $relative) = qf_protected_attachment_path($ext);
+                list($target, $relative) = pd_protected_attachment_path($ext);
                 if (rename($full_path, $target) || (copy($full_path, $target) && @unlink($full_path))) {
                     $path_sql = esc($relative);
                 }
-                mysqli_query(db(), "INSERT INTO qf_attachments (thread_id,post_id,user_id,file_path,original_name,file_ext,file_size,created_at) VALUES (0,0,0,'{$path_sql}','{$original_sql}','{$ext_sql}',{$size},NOW())");
+                mysqli_query(db(), "INSERT INTO pd_attachments (thread_id,post_id,user_id,file_path,original_name,file_ext,file_size,created_at) VALUES (0,0,0,'{$path_sql}','{$original_sql}','{$ext_sql}',{$size},NOW())");
                 $new_id = intval(mysqli_insert_id(db()));
                 if ($new_id > 0) {
-                    $new_rs = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE id={$new_id} LIMIT 1");
+                    $new_rs = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE id={$new_id} LIMIT 1");
                     return $new_rs ? mysqli_fetch_assoc($new_rs) : null;
                 }
             }
@@ -1732,7 +1771,7 @@ function qf_resolve_attachment_from_url($url) {
     return null;
 }
 
-function qf_can_delete_attachment($att, $user = null) {
+function pd_can_delete_attachment($att, $user = null) {
     if (!$att) {
         return false;
     }
@@ -1745,41 +1784,41 @@ function qf_can_delete_attachment($att, $user = null) {
     return intval($user['is_admin']) === 1 || intval($att['user_id']) === intval($user['id']);
 }
 
-function qf_attachment_delete_form($att, $label = '删除附件') {
-    if (!qf_can_delete_attachment($att)) {
+function pd_attachment_delete_form($att, $label = '删除附件') {
+    if (!pd_can_delete_attachment($att)) {
         return '';
     }
-    $redirect = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : qf_url_page('index.php');
-    return '<form class="attachment-delete-form" method="post" action="' . h(qf_url_page('delete_attachment.php')) . '" data-confirm="确定删除这个附件？删除后服务器文件也会被删除。">'
-        . qf_csrf_field()
+    $redirect = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : pd_url_page('index.php');
+    return '<form class="attachment-delete-form" method="post" action="' . h(pd_url_page('delete_attachment.php')) . '" data-confirm="确定删除这个附件？删除后服务器文件也会被删除。">'
+        . pd_csrf_field()
         . '<input type="hidden" name="id" value="' . intval($att['id']) . '">'
         . '<input type="hidden" name="redirect" value="' . h($redirect) . '">'
         . '<button class="action-badge action-badge-danger" type="submit" title="' . h($label) . '" aria-label="' . h($label) . '" data-tooltip="' . h($label) . '"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>' . h($label) . '</span></button>'
         . '</form>';
 }
 
-function qf_soft_delete_post($post_id, $thread_id) {
+function pd_soft_delete_post($post_id, $thread_id) {
     $post_id = intval($post_id);
     $thread_id = intval($thread_id);
     if ($post_id <= 0 || $thread_id <= 0) {
         return false;
     }
-    $rs = mysqli_query(db(), "SELECT user_id, is_deleted FROM qf_posts WHERE id={$post_id} LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT user_id, is_deleted FROM pd_posts WHERE id={$post_id} LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
-    mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE id={$post_id}");
-    mysqli_query(db(), "UPDATE qf_threads SET replies=GREATEST(replies-1,0) WHERE id={$thread_id}");
+    mysqli_query(db(), "UPDATE pd_posts SET is_deleted=1 WHERE id={$post_id}");
+    mysqli_query(db(), "UPDATE pd_threads SET replies=GREATEST(replies-1,0) WHERE id={$thread_id}");
     if ($row && intval($row['is_deleted']) === 0 && intval($row['user_id']) > 0) {
-        $delta = -qf_points_for_reply();
+        $delta = -pd_points_for_reply();
         if ($delta !== 0) {
-            qf_add_user_points(intval($row['user_id']), $delta, 'del_post', 'post', $post_id);
+            pd_add_user_points(intval($row['user_id']), $delta, 'del_post', 'post', $post_id);
         }
-        mysqli_query(db(), "UPDATE qf_users SET reply_count=GREATEST(reply_count-1,0) WHERE id=" . intval($row['user_id']));
+        mysqli_query(db(), "UPDATE pd_users SET reply_count=GREATEST(reply_count-1,0) WHERE id=" . intval($row['user_id']));
     }
     return true;
 }
 
 /** 渲染附件列表（主楼/回复共用） */
-function qf_render_attachment_list($attachments, $opts = array()) {
+function pd_render_attachment_list($attachments, $opts = array()) {
     if (!$attachments) {
         return '';
     }
@@ -1806,16 +1845,16 @@ function qf_render_attachment_list($attachments, $opts = array()) {
         <?php foreach ($rows as $att) {
             $ext = strtolower($att['file_ext']);
             if (in_array($ext, $image_exts, true)) { ?>
-                <a href="<?php echo h(qf_attachment_url($att['id'])); ?>" target="_blank">
-                    <img class="attachment-img" src="<?php echo h(qf_attachment_url($att['id'])); ?>" alt="<?php echo h($att['original_name']); ?>">
+                <a href="<?php echo h(pd_attachment_url($att['id'])); ?>" target="_blank">
+                    <img class="attachment-img" src="<?php echo h(pd_attachment_url($att['id'])); ?>" alt="<?php echo h($att['original_name']); ?>">
                 </a>
-                <?php echo qf_attachment_delete_form($att); ?>
+                <?php echo pd_attachment_delete_form($att); ?>
             <?php } else {
                 $zip_blocked = $guest_zip_blocked && in_array($ext, $compressed_exts, true); ?>
-                <a class="attachment-file" href="<?php echo h($zip_blocked ? qf_url_page('register.php') : qf_attachment_url($att['id'])); ?>" target="_blank" <?php if ($zip_blocked) echo qf_guest_download_confirm_onclick(); ?>>
+                <a class="attachment-file" href="<?php echo h($zip_blocked ? pd_url_page('register.php') : pd_attachment_url($att['id'])); ?>" target="_blank" <?php if ($zip_blocked) echo pd_guest_download_confirm_onclick(); ?>>
                     <?php echo h($att['original_name']); ?> · <?php echo h(strtoupper($att['file_ext'])); ?> · <?php echo round(intval($att['file_size']) / 1024, 1); ?>KB · 下载次数 <?php echo intval(isset($att['download_count']) ? $att['download_count'] : 0); ?>
                 </a>
-                <?php echo qf_attachment_delete_form($att);
+                <?php echo pd_attachment_delete_form($att);
             }
         } ?>
     </div>
@@ -1823,21 +1862,21 @@ function qf_render_attachment_list($attachments, $opts = array()) {
     return ob_get_clean();
 }
 
-function qf_action_badge($href, $label, $icon, $extra_class = '', $attrs = '') {
+function pd_action_badge($href, $label, $icon, $extra_class = '', $attrs = '') {
     $class = trim('action-badge ' . $extra_class);
     return '<a class="' . h($class) . '" href="' . h($href) . '" title="' . h($label) . '" aria-label="' . h($label) . '" data-tooltip="' . h($label) . '" ' . trim($attrs) . '><i class="' . h($icon) . '" aria-hidden="true"></i><span>' . h($label) . '</span></a>';
 }
 
 // IP 徽章 HTML（带 data-ip-geo，供前端异步查询地理位置与国旗）
-function qf_ip_badge_html($ip) {
+function pd_ip_badge_html($ip) {
     $ip = trim((string)$ip);
     if ($ip === '') {
         return '';
     }
-    return '<span class="action-badge action-badge-static phpdo-ip-badge" data-ip-geo="' . h($ip) . '" title="IP: ' . h($ip) . '"><i class="fa-solid fa-network-wired phpdo-ip-icon" aria-hidden="true"></i><span class="phpdo-ip-flag-wrap" hidden></span><span class="phpdo-ip-detail">IP: ' . h($ip) . '</span></span>';
+    return '<span class="action-badge action-badge-static pd-ip-badge" data-ip-geo="' . h($ip) . '" title="IP: ' . h($ip) . '"><i class="fa-solid fa-network-wired pd-ip-icon" aria-hidden="true"></i><span class="pd-ip-flag-wrap" hidden></span><span class="pd-ip-detail">IP: ' . h($ip) . '</span></span>';
 }
 
-function qf_geoip_cache_dir() {
+function pd_geoip_cache_dir() {
     $dir = __DIR__ . '/storage/geoip';
     if (!is_dir($dir)) {
         @mkdir($dir, 0775, true);
@@ -1845,12 +1884,12 @@ function qf_geoip_cache_dir() {
     return $dir;
 }
 
-function qf_geoip_cache_file($ip) {
-    return qf_geoip_cache_dir() . '/' . hash('sha256', $ip) . '.json';
+function pd_geoip_cache_file($ip) {
+    return pd_geoip_cache_dir() . '/' . hash('sha256', $ip) . '.json';
 }
 
-function qf_geoip_cache_read($ip) {
-    $file = qf_geoip_cache_file($ip);
+function pd_geoip_cache_read($ip) {
+    $file = pd_geoip_cache_file($ip);
     if (!is_file($file)) {
         return null;
     }
@@ -1867,8 +1906,8 @@ function qf_geoip_cache_read($ip) {
     return $cached;
 }
 
-function qf_geoip_cache_write($ip, $data, $is_miss = false) {
-    $dir = qf_geoip_cache_dir();
+function pd_geoip_cache_write($ip, $data, $is_miss = false) {
+    $dir = pd_geoip_cache_dir();
     if (!is_dir($dir) || !is_writable($dir)) {
         return false;
     }
@@ -1877,7 +1916,7 @@ function qf_geoip_cache_write($ip, $data, $is_miss = false) {
     if ($is_miss) {
         $payload['_miss'] = 1;
     }
-    $file = qf_geoip_cache_file($ip);
+    $file = pd_geoip_cache_file($ip);
     $tmp = $file . '.' . getmypid() . '.tmp';
     $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($json === false || @file_put_contents($tmp, $json, LOCK_EX) === false) {
@@ -1887,7 +1926,7 @@ function qf_geoip_cache_write($ip, $data, $is_miss = false) {
     return @rename($tmp, $file);
 }
 
-function qf_geoip_lookup($ip) {
+function pd_geoip_lookup($ip) {
     static $mem = array();
     $ip = trim((string)$ip);
     $empty = array('ip' => $ip, 'country' => '', 'country_code' => '', 'region' => '', 'city' => '', 'isp' => '', 'flag' => '');
@@ -1898,16 +1937,16 @@ function qf_geoip_lookup($ip) {
         return $mem[$ip];
     }
 
-    $cached = qf_geoip_cache_read($ip);
+    $cached = pd_geoip_cache_read($ip);
     if (is_array($cached)) {
         $mem[$ip] = $cached;
         return $mem[$ip];
     }
 
     // 私网/保留地址不打外部 API，直接落盘，避免无意义的远程请求
-    if (qf_ip_is_private_or_local($ip)) {
+    if (pd_ip_is_private_or_local($ip)) {
         $mem[$ip] = $empty;
-        qf_geoip_cache_write($ip, $empty, false);
+        pd_geoip_cache_write($ip, $empty, false);
         return $mem[$ip];
     }
 
@@ -1932,7 +1971,7 @@ function qf_geoip_lookup($ip) {
     $json = $raw !== '' ? json_decode($raw, true) : null;
     if (!is_array($json)) {
         $mem[$ip] = $empty;
-        qf_geoip_cache_write($ip, $empty, true); // 负缓存 1 小时，避免反复打 API
+        pd_geoip_cache_write($ip, $empty, true); // 负缓存 1 小时，避免反复打 API
         return $mem[$ip];
     }
     $country = trim((string)(isset($json['country']) ? $json['country'] : ''));
@@ -1955,11 +1994,11 @@ function qf_geoip_lookup($ip) {
     );
     if ($mem[$ip]['region'] === '保留') $mem[$ip]['region'] = '';
     if ($mem[$ip]['city'] === '保留') $mem[$ip]['city'] = '';
-    qf_geoip_cache_write($ip, $mem[$ip], false);
+    pd_geoip_cache_write($ip, $mem[$ip], false);
     return $mem[$ip];
 }
 
-function qf_is_ajax_request() {
+function pd_is_ajax_request() {
     if (isset($_GET['ajax']) && $_GET['ajax'] !== '') {
         return true;
     }
@@ -1971,44 +2010,44 @@ function qf_is_ajax_request() {
 }
 
 // 生成帖子面包屑右侧的管理/版主工具栏内层 HTML（供 thread.php 首次渲染与 AJAX 局部刷新复用）
-function qf_thread_admin_tools_html($thread) {
+function pd_thread_admin_tools_html($thread) {
     $tid = intval($thread['id']);
     $out = '';
     if (is_admin()) {
         $is_top = intval(isset($thread['is_top']) ? $thread['is_top'] : 0);
         $is_good = intval(isset($thread['is_good']) ? $thread['is_good'] : 0);
-        $out .= qf_ip_badge_html(isset($thread['ip']) ? $thread['ip'] : '');
-        $out .= qf_action_badge(qf_url_page('edit_thread.php', array('id' => $tid)), '编辑', 'fa-solid fa-pen-to-square', 'action-badge-edit');
-        $out .= qf_action_badge(qf_url_page('move_thread.php', array('id' => $tid)), '移动', 'fa-solid fa-arrow-right-arrow-left', 'action-badge-move');
-        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_board', 'id' => $tid, 'token' => qf_action_token('top_board', $tid))), '本版块置顶', 'fa-solid fa-thumbtack', 'action-badge-pin' . ($is_top === 2 ? ' is-active' : ''), 'data-ajax="1"');
-        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'top_global', 'id' => $tid, 'token' => qf_action_token('top_global', $tid))), '全站置顶', 'fa-solid fa-up-long', 'action-badge-pin' . ($is_top === 1 ? ' is-active' : ''), 'data-ajax="1"');
+        $out .= pd_ip_badge_html(isset($thread['ip']) ? $thread['ip'] : '');
+        $out .= pd_action_badge(pd_url_page('edit_thread.php', array('id' => $tid)), '编辑', 'fa-solid fa-pen-to-square', 'action-badge-edit');
+        $out .= pd_action_badge(pd_url_page('move_thread.php', array('id' => $tid)), '移动', 'fa-solid fa-arrow-right-arrow-left', 'action-badge-move');
+        $out .= pd_action_badge(pd_url_page('admin/action.php', array('action' => 'top_board', 'id' => $tid, 'token' => pd_action_token('top_board', $tid))), '本版块置顶', 'fa-solid fa-thumbtack', 'action-badge-pin' . ($is_top === 2 ? ' is-active' : ''), 'data-ajax="1"');
+        $out .= pd_action_badge(pd_url_page('admin/action.php', array('action' => 'top_global', 'id' => $tid, 'token' => pd_action_token('top_global', $tid))), '全站置顶', 'fa-solid fa-up-long', 'action-badge-pin' . ($is_top === 1 ? ' is-active' : ''), 'data-ajax="1"');
         if ($is_top > 0) {
-            $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'cancel_top', 'id' => $tid, 'token' => qf_action_token('cancel_top', $tid))), '取消置顶', 'fa-solid fa-ban', 'action-badge-muted', 'data-ajax="1"');
+            $out .= pd_action_badge(pd_url_page('admin/action.php', array('action' => 'cancel_top', 'id' => $tid, 'token' => pd_action_token('cancel_top', $tid))), '取消置顶', 'fa-solid fa-ban', 'action-badge-muted', 'data-ajax="1"');
         }
-        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'good', 'id' => $tid, 'token' => qf_action_token('good', $tid))), $is_good ? '取消加精' : '加精', $is_good ? 'fa-solid fa-star' : 'fa-regular fa-star', 'action-badge-feature' . ($is_good ? ' is-active' : ''), 'data-ajax="1"');
-        $out .= qf_action_badge(qf_url_page('admin/action.php', array('action' => 'del_thread', 'id' => $tid, 'token' => qf_action_token('del_thread', $tid))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？" data-ajax="1"');
-    } elseif (qf_can_moderator_delete_thread(current_user(), $thread)) {
-        $out .= qf_action_badge(qf_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => $tid, 'token' => qf_action_token('mod_del_thread', $tid))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？" data-ajax="1"');
+        $out .= pd_action_badge(pd_url_page('admin/action.php', array('action' => 'good', 'id' => $tid, 'token' => pd_action_token('good', $tid))), $is_good ? '取消加精' : '加精', $is_good ? 'fa-solid fa-star' : 'fa-regular fa-star', 'action-badge-feature' . ($is_good ? ' is-active' : ''), 'data-ajax="1"');
+        $out .= pd_action_badge(pd_url_page('admin/action.php', array('action' => 'del_thread', 'id' => $tid, 'token' => pd_action_token('del_thread', $tid))), '删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除？" data-ajax="1"');
+    } elseif (pd_can_moderator_delete_thread(current_user(), $thread)) {
+        $out .= pd_action_badge(pd_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => $tid, 'token' => pd_action_token('mod_del_thread', $tid))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？" data-ajax="1"');
     }
     return $out;
 }
 
-function qf_guest_download_confirm_onclick() {
-    return 'data-login-required="1" data-login-url="' . h(qf_url_page('register.php')) . '"';
+function pd_guest_download_confirm_onclick() {
+    return 'data-login-required="1" data-login-url="' . h(pd_url_page('register.php')) . '"';
 }
 
-function qf_remove_attachment_tag_from_content($content, $attachment_id) {
-    $needle = preg_quote(qf_attachment_url($attachment_id), '/');
+function pd_remove_attachment_tag_from_content($content, $attachment_id) {
+    $needle = preg_quote(pd_attachment_url($attachment_id), '/');
     $content = preg_replace('/\s*\[file\s+url=(["\'])' . $needle . '\1\s+name=(["\']).*?\2\].*?\[\/file\]\s*/is', "\n", $content);
     return trim($content);
 }
 
-function qf_nav_table_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_navs'");
+function pd_nav_table_ready() {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_navs'");
     return $table && mysqli_num_rows($table) > 0;
 }
 
-function qf_valid_nav_url($url) {
+function pd_valid_nav_url($url) {
     $url = trim((string)$url);
     if ($url === '') {
         return false;
@@ -2022,15 +2061,15 @@ function qf_valid_nav_url($url) {
     return false;
 }
 
-function qf_nav_target($url) {
+function pd_nav_target($url) {
     return preg_match('/^https?:\/\//i', (string)$url) ? ' target="_blank" rel="nofollow noopener"' : '';
 }
 
-function qf_main_navs() {
-    if (!qf_nav_table_ready()) {
+function pd_main_navs() {
+    if (!pd_nav_table_ready()) {
         return array();
     }
-    $rs = mysqli_query(db(), "SELECT * FROM qf_navs WHERE is_enabled=1 ORDER BY display_order ASC, id ASC");
+    $rs = mysqli_query(db(), "SELECT * FROM pd_navs WHERE is_enabled=1 ORDER BY display_order ASC, id ASC");
     $rows = array();
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $rows[] = $row;
@@ -2038,26 +2077,26 @@ function qf_main_navs() {
     return $rows;
 }
 
-function qf_ensure_forum_nav_schema() {
+function pd_ensure_forum_nav_schema() {
     static $done = false;
     if ($done) {
         return true;
     }
     $done = true;
-    if (!qf_table_has_column('qf_forums', 'show_in_nav')) {
-        mysqli_query(db(), "ALTER TABLE qf_forums ADD show_in_nav tinyint(1) NOT NULL DEFAULT 1 AFTER display_order");
-        $hidden = array_filter(array_map('intval', explode(',', qf_setting('nav_hidden_forums', ''))));
+    if (!pd_table_has_column('pd_forums', 'show_in_nav')) {
+        mysqli_query(db(), "ALTER TABLE pd_forums ADD show_in_nav tinyint(1) NOT NULL DEFAULT 1 AFTER display_order");
+        $hidden = array_filter(array_map('intval', explode(',', pd_setting('nav_hidden_forums', ''))));
         if (!empty($hidden)) {
             $ids = implode(',', $hidden);
-            mysqli_query(db(), "UPDATE qf_forums SET show_in_nav=0 WHERE id IN ({$ids})");
+            mysqli_query(db(), "UPDATE pd_forums SET show_in_nav=0 WHERE id IN ({$ids})");
         }
     }
     return true;
 }
 
-function qf_header_nav_forums() {
-    qf_ensure_forum_nav_schema();
-    $rs = mysqli_query(db(), "SELECT id, name FROM qf_forums WHERE show_in_nav=1 ORDER BY display_order ASC, id ASC");
+function pd_header_nav_forums() {
+    pd_ensure_forum_nav_schema();
+    $rs = mysqli_query(db(), "SELECT id, name FROM pd_forums WHERE show_in_nav=1 ORDER BY display_order ASC, id ASC");
     $rows = array();
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $rows[] = $row;
@@ -2065,9 +2104,9 @@ function qf_header_nav_forums() {
     return $rows;
 }
 
-function qf_footer_nav_forums() {
-    qf_ensure_forum_nav_schema();
-    $rs = mysqli_query(db(), "SELECT id, name FROM qf_forums WHERE show_in_nav=0 ORDER BY display_order ASC, id ASC");
+function pd_footer_nav_forums() {
+    pd_ensure_forum_nav_schema();
+    $rs = mysqli_query(db(), "SELECT id, name FROM pd_forums WHERE show_in_nav=0 ORDER BY display_order ASC, id ASC");
     $rows = array();
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $rows[] = $row;
@@ -2075,22 +2114,22 @@ function qf_footer_nav_forums() {
     return $rows;
 }
 
-function qf_table_has_column($table, $column) {
+function pd_table_has_column($table, $column) {
     $table = preg_replace('/[^a-z0-9_]/i', '', (string)$table);
     $column_sql = esc((string)$column);
     $rs = mysqli_query(db(), "SHOW COLUMNS FROM {$table} LIKE '{$column_sql}'");
     return $rs && mysqli_num_rows($rs) > 0;
 }
 
-function qf_nav_icon_columns_ready() {
+function pd_nav_icon_columns_ready() {
     static $ready = null;
     if ($ready === null) {
-        $ready = qf_nav_table_ready() && qf_table_has_column('qf_navs', 'icon_type');
+        $ready = pd_nav_table_ready() && pd_table_has_column('pd_navs', 'icon_type');
     }
     return $ready;
 }
 
-function qf_nav_icon_types() {
+function pd_nav_icon_types() {
     return array(
         'fa' => 'Font Awesome 图标类名',
         'svg' => 'SVG 代码',
@@ -2098,7 +2137,7 @@ function qf_nav_icon_types() {
     );
 }
 
-function qf_sanitize_nav_svg($svg) {
+function pd_sanitize_nav_svg($svg) {
     $svg = trim((string)$svg);
     if ($svg === '' || stripos($svg, '<svg') === false) {
         return '';
@@ -2109,28 +2148,28 @@ function qf_sanitize_nav_svg($svg) {
     return $svg;
 }
 
-function qf_nav_icon_html($nav) {
+function pd_nav_icon_html($nav) {
     $type = isset($nav['icon_type']) ? $nav['icon_type'] : '';
     $value = isset($nav['icon_value']) ? trim((string)$nav['icon_value']) : '';
     if ($type === 'img' && $value !== '') {
-        return '<img class="qf-cat-icon qf-cat-icon-img" src="' . h($value) . '" alt="" aria-hidden="true">';
+        return '<img class="pd-cat-icon pd-cat-icon-img" src="' . h($value) . '" alt="" aria-hidden="true">';
     }
     if ($type === 'svg') {
-        $clean = qf_sanitize_nav_svg($value);
+        $clean = pd_sanitize_nav_svg($value);
         if ($clean !== '') {
-            return '<span class="qf-cat-icon qf-cat-icon-svg" aria-hidden="true">' . $clean . '</span>';
+            return '<span class="pd-cat-icon pd-cat-icon-svg" aria-hidden="true">' . $clean . '</span>';
         }
     }
     if ($type === 'fa' && $value !== '') {
         $cls = trim(preg_replace('/[^a-z0-9 _-]/i', '', $value));
         if ($cls !== '') {
-            return '<i class="qf-cat-icon ' . h($cls) . '" aria-hidden="true"></i>';
+            return '<i class="pd-cat-icon ' . h($cls) . '" aria-hidden="true"></i>';
         }
     }
-    return '<i class="qf-cat-icon fa-regular fa-compass" aria-hidden="true"></i>';
+    return '<i class="pd-cat-icon fa-regular fa-compass" aria-hidden="true"></i>';
 }
 
-function qf_delete_attachment_file($path) {
+function pd_delete_attachment_file($path) {
     if ($path === '' || preg_match('/^https?:\/\//i', $path)) {
         return true;
     }
@@ -2145,42 +2184,42 @@ function qf_delete_attachment_file($path) {
     return true;
 }
 
-function qf_notifications_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_notifications'");
+function pd_notifications_ready() {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_notifications'");
     return $table && mysqli_num_rows($table) > 0;
 }
 
-function qf_post_comments_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_post_comments'");
+function pd_post_comments_ready() {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_post_comments'");
     return $table && mysqli_num_rows($table) > 0;
 }
 
-function qf_unread_notifications_count($user_id) {
-    if (!$user_id || !qf_notifications_ready()) {
+function pd_unread_notifications_count($user_id) {
+    if (!$user_id || !pd_notifications_ready()) {
         return 0;
     }
     $user_id = intval($user_id);
-    return count_rows("SELECT COUNT(*) FROM qf_notifications WHERE user_id={$user_id} AND is_read=0");
+    return count_rows("SELECT COUNT(*) FROM pd_notifications WHERE user_id={$user_id} AND is_read=0");
 }
 
-function qf_notify_user($user_id, $thread_id, $post_id, $message) {
+function pd_notify_user($user_id, $thread_id, $post_id, $message) {
     $user_id = intval($user_id);
     $thread_id = intval($thread_id);
     $post_id = intval($post_id);
-    if ($user_id < 1 || !qf_notifications_ready()) {
+    if ($user_id < 1 || !pd_notifications_ready()) {
         return false;
     }
     $message_sql = esc(clean_text($message, 180));
-    return mysqli_query(db(), "INSERT INTO qf_notifications (user_id,thread_id,post_id,message,is_read,created_at) VALUES ({$user_id},{$thread_id},{$post_id},'{$message_sql}',0,NOW())");
+    return mysqli_query(db(), "INSERT INTO pd_notifications (user_id,thread_id,post_id,message,is_read,created_at) VALUES ({$user_id},{$thread_id},{$post_id},'{$message_sql}',0,NOW())");
 }
 
-function qf_ensure_pm_schema() {
+function pd_ensure_pm_schema() {
     static $done = false;
     if ($done) {
         return;
     }
     $done = true;
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_pm_threads (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_pm_threads (
         id INT UNSIGNED NOT NULL AUTO_INCREMENT,
         user1_id INT UNSIGNED NOT NULL,
         user2_id INT UNSIGNED NOT NULL,
@@ -2193,7 +2232,7 @@ function qf_ensure_pm_schema() {
         KEY idx_user1_updated (user1_id, updated_at),
         KEY idx_user2_updated (user2_id, updated_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_pm_messages (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_pm_messages (
         id INT UNSIGNED NOT NULL AUTO_INCREMENT,
         thread_id INT UNSIGNED NOT NULL,
         sender_id INT UNSIGNED NOT NULL,
@@ -2207,50 +2246,50 @@ function qf_ensure_pm_schema() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
-function qf_pm_ready() {
+function pd_pm_ready() {
     static $ready = null;
     if ($ready !== null) {
         return $ready;
     }
-    qf_ensure_pm_schema();
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_pm_threads'");
+    pd_ensure_pm_schema();
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_pm_threads'");
     $ready = $table && mysqli_num_rows($table) > 0;
     return $ready;
 }
 
-function qf_pm_pair_ids($user_a, $user_b) {
+function pd_pm_pair_ids($user_a, $user_b) {
     $user_a = intval($user_a);
     $user_b = intval($user_b);
     return $user_a < $user_b ? array($user_a, $user_b) : array($user_b, $user_a);
 }
 
-function qf_pm_unread_count($user_id) {
-    if (!$user_id || !qf_pm_ready()) {
+function pd_pm_unread_count($user_id) {
+    if (!$user_id || !pd_pm_ready()) {
         return 0;
     }
     $user_id = intval($user_id);
-    return count_rows("SELECT COUNT(*) FROM qf_pm_messages WHERE recipient_id={$user_id} AND is_read=0");
+    return count_rows("SELECT COUNT(*) FROM pd_pm_messages WHERE recipient_id={$user_id} AND is_read=0");
 }
 
-function qf_pm_user_brief($user_id) {
+function pd_pm_user_brief($user_id) {
     $user_id = intval($user_id);
     if ($user_id < 1) {
         return null;
     }
-    $rs = mysqli_query(db(), "SELECT id,username,nickname,avatar FROM qf_users WHERE id={$user_id} AND status=1 LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id,username,nickname,avatar FROM pd_users WHERE id={$user_id} AND status=1 LIMIT 1");
     return $rs ? mysqli_fetch_assoc($rs) : null;
 }
 
-function qf_pm_get_thread_row($thread_id) {
+function pd_pm_get_thread_row($thread_id) {
     $thread_id = intval($thread_id);
-    if ($thread_id < 1 || !qf_pm_ready()) {
+    if ($thread_id < 1 || !pd_pm_ready()) {
         return null;
     }
-    $rs = mysqli_query(db(), "SELECT * FROM qf_pm_threads WHERE id={$thread_id} LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT * FROM pd_pm_threads WHERE id={$thread_id} LIMIT 1");
     return $rs ? mysqli_fetch_assoc($rs) : null;
 }
 
-function qf_pm_thread_peer_id($thread, $user_id) {
+function pd_pm_thread_peer_id($thread, $user_id) {
     $user_id = intval($user_id);
     if (!$thread) {
         return 0;
@@ -2264,24 +2303,24 @@ function qf_pm_thread_peer_id($thread, $user_id) {
     return 0;
 }
 
-function qf_pm_user_in_thread($thread, $user_id) {
-    return qf_pm_thread_peer_id($thread, $user_id) > 0;
+function pd_pm_user_in_thread($thread, $user_id) {
+    return pd_pm_thread_peer_id($thread, $user_id) > 0;
 }
 
-function qf_pm_unhide_thread($thread_id, $user_id) {
-    $thread = qf_pm_get_thread_row($thread_id);
+function pd_pm_unhide_thread($thread_id, $user_id) {
+    $thread = pd_pm_get_thread_row($thread_id);
     $user_id = intval($user_id);
-    if (!$thread || !qf_pm_user_in_thread($thread, $user_id)) {
+    if (!$thread || !pd_pm_user_in_thread($thread, $user_id)) {
         return false;
     }
     if (intval($thread['user1_id']) === $user_id) {
-        return mysqli_query(db(), "UPDATE qf_pm_threads SET user1_hidden=0 WHERE id=" . intval($thread_id));
+        return mysqli_query(db(), "UPDATE pd_pm_threads SET user1_hidden=0 WHERE id=" . intval($thread_id));
     }
-    return mysqli_query(db(), "UPDATE qf_pm_threads SET user2_hidden=0 WHERE id=" . intval($thread_id));
+    return mysqli_query(db(), "UPDATE pd_pm_threads SET user2_hidden=0 WHERE id=" . intval($thread_id));
 }
 
-function qf_pm_get_or_create_thread($user_a, $user_b) {
-    if (!qf_pm_ready()) {
+function pd_pm_get_or_create_thread($user_a, $user_b) {
+    if (!pd_pm_ready()) {
         return 0;
     }
     $user_a = intval($user_a);
@@ -2289,21 +2328,21 @@ function qf_pm_get_or_create_thread($user_a, $user_b) {
     if ($user_a < 1 || $user_b < 1 || $user_a === $user_b) {
         return 0;
     }
-    list($low, $high) = qf_pm_pair_ids($user_a, $user_b);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_pm_threads WHERE user1_id={$low} AND user2_id={$high} LIMIT 1");
+    list($low, $high) = pd_pm_pair_ids($user_a, $user_b);
+    $rs = mysqli_query(db(), "SELECT id FROM pd_pm_threads WHERE user1_id={$low} AND user2_id={$high} LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($row) {
         return intval($row['id']);
     }
-    if (!qf_pm_user_brief($low) || !qf_pm_user_brief($high)) {
+    if (!pd_pm_user_brief($low) || !pd_pm_user_brief($high)) {
         return 0;
     }
-    mysqli_query(db(), "INSERT INTO qf_pm_threads (user1_id,user2_id,last_message_id,updated_at,user1_hidden,user2_hidden) VALUES ({$low},{$high},0,NOW(),0,0)");
+    mysqli_query(db(), "INSERT INTO pd_pm_threads (user1_id,user2_id,last_message_id,updated_at,user1_hidden,user2_hidden) VALUES ({$low},{$high},0,NOW(),0,0)");
     return intval(mysqli_insert_id(db()));
 }
 
-function qf_pm_send_message($sender_id, $recipient_id, $body, $thread_id = 0) {
-    if (!qf_pm_ready()) {
+function pd_pm_send_message($sender_id, $recipient_id, $body, $thread_id = 0) {
+    if (!pd_pm_ready()) {
         return array('ok' => false, 'error' => '私信功能未就绪。');
     }
     $sender_id = intval($sender_id);
@@ -2315,52 +2354,52 @@ function qf_pm_send_message($sender_id, $recipient_id, $body, $thread_id = 0) {
     if ($body === '') {
         return array('ok' => false, 'error' => '消息不能为空。');
     }
-    if (!qf_pm_user_brief($recipient_id)) {
+    if (!pd_pm_user_brief($recipient_id)) {
         return array('ok' => false, 'error' => '用户不存在。');
     }
     if ($thread_id < 1) {
-        $thread_id = qf_pm_get_or_create_thread($sender_id, $recipient_id);
+        $thread_id = pd_pm_get_or_create_thread($sender_id, $recipient_id);
     }
-    $thread = qf_pm_get_thread_row($thread_id);
-    if (!$thread || !qf_pm_user_in_thread($thread, $sender_id) || qf_pm_thread_peer_id($thread, $sender_id) !== $recipient_id) {
+    $thread = pd_pm_get_thread_row($thread_id);
+    if (!$thread || !pd_pm_user_in_thread($thread, $sender_id) || pd_pm_thread_peer_id($thread, $sender_id) !== $recipient_id) {
         return array('ok' => false, 'error' => '会话不存在。');
     }
-    qf_pm_unhide_thread($thread_id, $sender_id);
-    qf_pm_unhide_thread($thread_id, $recipient_id);
+    pd_pm_unhide_thread($thread_id, $sender_id);
+    pd_pm_unhide_thread($thread_id, $recipient_id);
     $body_sql = esc($body);
     $thread_id = intval($thread_id);
-    $ok = mysqli_query(db(), "INSERT INTO qf_pm_messages (thread_id,sender_id,recipient_id,body,is_read,created_at) VALUES ({$thread_id},{$sender_id},{$recipient_id},'{$body_sql}',0,NOW())");
+    $ok = mysqli_query(db(), "INSERT INTO pd_pm_messages (thread_id,sender_id,recipient_id,body,is_read,created_at) VALUES ({$thread_id},{$sender_id},{$recipient_id},'{$body_sql}',0,NOW())");
     if (!$ok) {
         return array('ok' => false, 'error' => '发送失败，请稍后重试。');
     }
     $message_id = intval(mysqli_insert_id(db()));
-    mysqli_query(db(), "UPDATE qf_pm_threads SET last_message_id={$message_id}, updated_at=NOW() WHERE id={$thread_id}");
+    mysqli_query(db(), "UPDATE pd_pm_threads SET last_message_id={$message_id}, updated_at=NOW() WHERE id={$thread_id}");
     return array('ok' => true, 'thread_id' => $thread_id, 'message_id' => $message_id);
 }
 
-function qf_pm_mark_thread_read($thread_id, $user_id) {
+function pd_pm_mark_thread_read($thread_id, $user_id) {
     $thread_id = intval($thread_id);
     $user_id = intval($user_id);
-    if ($thread_id < 1 || $user_id < 1 || !qf_pm_ready()) {
+    if ($thread_id < 1 || $user_id < 1 || !pd_pm_ready()) {
         return;
     }
-    mysqli_query(db(), "UPDATE qf_pm_messages SET is_read=1 WHERE thread_id={$thread_id} AND recipient_id={$user_id} AND is_read=0");
+    mysqli_query(db(), "UPDATE pd_pm_messages SET is_read=1 WHERE thread_id={$thread_id} AND recipient_id={$user_id} AND is_read=0");
 }
 
-function qf_pm_hide_thread($thread_id, $user_id) {
-    $thread = qf_pm_get_thread_row($thread_id);
+function pd_pm_hide_thread($thread_id, $user_id) {
+    $thread = pd_pm_get_thread_row($thread_id);
     $user_id = intval($user_id);
-    if (!$thread || !qf_pm_user_in_thread($thread, $user_id)) {
+    if (!$thread || !pd_pm_user_in_thread($thread, $user_id)) {
         return false;
     }
     if (intval($thread['user1_id']) === $user_id) {
-        return mysqli_query(db(), "UPDATE qf_pm_threads SET user1_hidden=1 WHERE id=" . intval($thread_id));
+        return mysqli_query(db(), "UPDATE pd_pm_threads SET user1_hidden=1 WHERE id=" . intval($thread_id));
     }
-    return mysqli_query(db(), "UPDATE qf_pm_threads SET user2_hidden=1 WHERE id=" . intval($thread_id));
+    return mysqli_query(db(), "UPDATE pd_pm_threads SET user2_hidden=1 WHERE id=" . intval($thread_id));
 }
 
-function qf_pm_fetch_threads($user_id, $limit = 40) {
-    if (!qf_pm_ready()) {
+function pd_pm_fetch_threads($user_id, $limit = 40) {
+    if (!pd_pm_ready()) {
         return array();
     }
     $user_id = intval($user_id);
@@ -2369,9 +2408,9 @@ function qf_pm_fetch_threads($user_id, $limit = 40) {
         m.body AS last_body,
         m.sender_id AS last_sender_id,
         m.created_at AS last_at,
-        (SELECT COUNT(*) FROM qf_pm_messages um WHERE um.thread_id=t.id AND um.recipient_id={$user_id} AND um.is_read=0) AS unread_count
-        FROM qf_pm_threads t
-        LEFT JOIN qf_pm_messages m ON m.id=t.last_message_id
+        (SELECT COUNT(*) FROM pd_pm_messages um WHERE um.thread_id=t.id AND um.recipient_id={$user_id} AND um.is_read=0) AS unread_count
+        FROM pd_pm_threads t
+        LEFT JOIN pd_pm_messages m ON m.id=t.last_message_id
         WHERE (t.user1_id={$user_id} AND t.user1_hidden=0) OR (t.user2_id={$user_id} AND t.user2_hidden=0)
         ORDER BY t.updated_at DESC
         LIMIT {$limit}";
@@ -2383,14 +2422,14 @@ function qf_pm_fetch_threads($user_id, $limit = 40) {
     return $rows;
 }
 
-function qf_pm_fetch_messages($thread_id, $user_id, $limit = 80) {
-    $thread = qf_pm_get_thread_row($thread_id);
-    if (!$thread || !qf_pm_user_in_thread($thread, $user_id)) {
+function pd_pm_fetch_messages($thread_id, $user_id, $limit = 80) {
+    $thread = pd_pm_get_thread_row($thread_id);
+    if (!$thread || !pd_pm_user_in_thread($thread, $user_id)) {
         return array();
     }
     $thread_id = intval($thread_id);
     $limit = max(1, min(200, intval($limit)));
-    $rs = mysqli_query(db(), "SELECT * FROM qf_pm_messages WHERE thread_id={$thread_id} ORDER BY id DESC LIMIT {$limit}");
+    $rs = mysqli_query(db(), "SELECT * FROM pd_pm_messages WHERE thread_id={$thread_id} ORDER BY id DESC LIMIT {$limit}");
     $rows = array();
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $rows[] = $row;
@@ -2398,17 +2437,17 @@ function qf_pm_fetch_messages($thread_id, $user_id, $limit = 80) {
     return array_reverse($rows);
 }
 
-function qf_url_messages($thread_id = 0, $to_user_id = 0) {
+function pd_url_messages($thread_id = 0, $to_user_id = 0) {
     $params = array();
     if ($thread_id > 0) {
         $params['thread'] = intval($thread_id);
     } elseif ($to_user_id > 0) {
         $params['to'] = intval($to_user_id);
     }
-    return qf_url_page('messages.php', $params);
+    return pd_url_page('messages.php', $params);
 }
 
-function qf_pm_excerpt($text, $max = 42) {
+function pd_pm_excerpt($text, $max = 42) {
     $text = trim(preg_replace('/\s+/u', ' ', strip_tags((string)$text)));
     if ($text === '') {
         return '';
@@ -2422,7 +2461,7 @@ function qf_pm_excerpt($text, $max = 42) {
     return $text;
 }
 
-function qf_floor_name($floor) {
+function pd_floor_name($floor) {
     $floor = intval($floor);
     if ($floor === 1) return '沙发';
     if ($floor === 2) return '椅子';
@@ -2430,7 +2469,7 @@ function qf_floor_name($floor) {
     return $floor . '楼';
 }
 
-function qf_floor_icon($floor) {
+function pd_floor_icon($floor) {
     $floor = intval($floor);
     if ($floor === 1) return '🛋';
     if ($floor === 2) return '🪑';
@@ -2438,20 +2477,20 @@ function qf_floor_icon($floor) {
     return '';
 }
 
-function qf_notification_sound_enabled($user) {
+function pd_notification_sound_enabled($user) {
     if (!$user) {
         return false;
     }
     return intval(isset($user['notification_sound_enabled']) ? $user['notification_sound_enabled'] : 1) === 1;
 }
 
-function qf_guest_download_allowed() {
-    return intval(qf_setting('guest_download_enabled', '0')) === 1;
+function pd_guest_download_allowed() {
+    return intval(pd_setting('guest_download_enabled', '0')) === 1;
 }
 
 /** 读取整型站点设置并限制在 [min, max] */
-function qf_setting_int($key, $default, $min = null, $max = null) {
-    $value = intval(qf_setting($key, (string)$default));
+function pd_setting_int($key, $default, $min = null, $max = null) {
+    $value = intval(pd_setting($key, (string)$default));
     if ($min !== null && $value < $min) {
         $value = $min;
     }
@@ -2461,44 +2500,44 @@ function qf_setting_int($key, $default, $min = null, $max = null) {
     return $value;
 }
 
-function qf_home_threads_limit() {
-    return qf_setting_int('home_threads_per_page', 12, 1, 100);
+function pd_home_threads_limit() {
+    return pd_setting_int('home_threads_per_page', 12, 1, 100);
 }
 
-function qf_forum_threads_limit() {
-    return qf_setting_int('forum_threads_per_page', 60, 1, 200);
+function pd_forum_threads_limit() {
+    return pd_setting_int('forum_threads_per_page', 60, 1, 200);
 }
 
-function qf_signin_base_coins() {
-    return qf_setting_int('signin_base_coins', 5, 0, 100000);
+function pd_signin_base_coins() {
+    return pd_setting_int('signin_base_coins', 5, 0, 100000);
 }
 
-function qf_signin_streak_bonus() {
-    return qf_setting_int('signin_streak_bonus', 2, 0, 100000);
+function pd_signin_streak_bonus() {
+    return pd_setting_int('signin_streak_bonus', 2, 0, 100000);
 }
 
-function qf_moderator_daily_delete_limit() {
-    return qf_setting_int('moderator_daily_delete_limit', 20, 0, 10000);
+function pd_moderator_daily_delete_limit() {
+    return pd_setting_int('moderator_daily_delete_limit', 20, 0, 10000);
 }
 
-function qf_thread_page_chars() {
-    return qf_setting_int('thread_page_chars', 4000, 500, 50000);
+function pd_thread_page_chars() {
+    return pd_setting_int('thread_page_chars', 4000, 500, 50000);
 }
 
-function qf_reply_max_chars() {
-    return qf_setting_int('reply_max_chars', 1000, 100, 50000);
+function pd_reply_max_chars() {
+    return pd_setting_int('reply_max_chars', 1000, 100, 50000);
 }
 
-function qf_replies_per_page() {
-    return qf_setting_int('replies_per_page', 20, 5, 100);
+function pd_replies_per_page() {
+    return pd_setting_int('replies_per_page', 20, 5, 100);
 }
 
-function qf_friend_links_enabled() {
-    return intval(qf_setting('friend_links_enabled', '0')) === 1;
+function pd_friend_links_enabled() {
+    return intval(pd_setting('friend_links_enabled', '0')) === 1;
 }
 
-function qf_friend_links() {
-    $raw = qf_setting('friend_links', '');
+function pd_friend_links() {
+    $raw = pd_setting('friend_links', '');
     $lines = preg_split('/\r\n|\r|\n/', $raw);
     $items = array();
     foreach ($lines as $line) {
@@ -2519,40 +2558,40 @@ function qf_friend_links() {
     return $items;
 }
 
-function qf_captcha_enabled() {
-    return intval(qf_setting('captcha_enabled', '1')) === 1;
+function pd_captcha_enabled() {
+    return intval(pd_setting('captcha_enabled', '1')) === 1;
 }
 
-function qf_captcha_free_count() {
-    return qf_setting_int('captcha_reply_free_count', 10, 0, 10000);
+function pd_captcha_free_count() {
+    return pd_setting_int('captcha_reply_free_count', 10, 0, 10000);
 }
 
-function qf_captcha_required($scene, $user = null) {
-    if (!qf_captcha_enabled()) {
+function pd_captcha_required($scene, $user = null) {
+    if (!pd_captcha_enabled()) {
         return false;
     }
     if ($scene === 'register') {
         return true;
     }
-    $free_count = qf_captcha_free_count();
+    $free_count = pd_captcha_free_count();
     if ($user && intval($user['reply_count']) >= $free_count) {
         return false;
     }
     return true;
 }
 
-function qf_prepare_form_guard() {
-    if (empty($_SESSION['qf_form_started_at'])) {
-        $_SESSION['qf_form_started_at'] = time();
+function pd_prepare_form_guard() {
+    if (empty($_SESSION['pd_form_started_at'])) {
+        $_SESSION['pd_form_started_at'] = time();
     }
-    if (empty($_SESSION['qf_hp_field'])) {
-        $_SESSION['qf_hp_field'] = 'website_' . mt_rand(1000, 9999);
+    if (empty($_SESSION['pd_hp_field'])) {
+        $_SESSION['pd_hp_field'] = 'website_' . mt_rand(1000, 9999);
     }
 }
 
-function qf_render_captcha() {
-    qf_prepare_form_guard();
-    $hp = $_SESSION['qf_hp_field'];
+function pd_render_captcha() {
+    pd_prepare_form_guard();
+    $hp = $_SESSION['pd_hp_field'];
     return '<div class="hp-field"><label>网址</label><input type="text" name="' . h($hp) . '" value=""></div>'
         . '<div class="captcha-box"><label>验证码</label><div class="captcha-row">'
         . '<input type="text" name="captcha_code" maxlength="4" autocomplete="off" required placeholder="4位字符">'
@@ -2560,43 +2599,43 @@ function qf_render_captcha() {
         . '</div><p class="muted">看不清可点击图片刷新。</p></div>';
 }
 
-function qf_verify_captcha() {
-    qf_prepare_form_guard();
-    $hp = $_SESSION['qf_hp_field'];
+function pd_verify_captcha() {
+    pd_prepare_form_guard();
+    $hp = $_SESSION['pd_hp_field'];
     if (!empty($_POST[$hp])) {
         return false;
     }
-    if (empty($_SESSION['qf_form_started_at']) || time() - intval($_SESSION['qf_form_started_at']) < 2) {
+    if (empty($_SESSION['pd_form_started_at']) || time() - intval($_SESSION['pd_form_started_at']) < 2) {
         return false;
     }
     $input = strtoupper(trim((string)(isset($_POST['captcha_code']) ? $_POST['captcha_code'] : '')));
-    $answer = strtoupper((string)(isset($_SESSION['qf_captcha_answer']) ? $_SESSION['qf_captcha_answer'] : ''));
-    unset($_SESSION['qf_captcha_answer']);
-    unset($_SESSION['qf_form_started_at']);
-    unset($_SESSION['qf_hp_field']);
+    $answer = strtoupper((string)(isset($_SESSION['pd_captcha_answer']) ? $_SESSION['pd_captcha_answer'] : ''));
+    unset($_SESSION['pd_captcha_answer']);
+    unset($_SESSION['pd_form_started_at']);
+    unset($_SESSION['pd_hp_field']);
     return $input !== '' && $answer !== '' && hash_equals($answer, $input);
 }
 
-function qf_forum_info($forum_id) {
+function pd_forum_info($forum_id) {
     static $cache = array();
     $forum_id = intval($forum_id);
     if ($forum_id < 1) {
         return null;
     }
     if (!isset($cache[$forum_id])) {
-        $rs = mysqli_query(db(), "SELECT * FROM qf_forums WHERE id={$forum_id} LIMIT 1");
+        $rs = mysqli_query(db(), "SELECT * FROM pd_forums WHERE id={$forum_id} LIMIT 1");
         $cache[$forum_id] = $rs ? mysqli_fetch_assoc($rs) : null;
     }
     return $cache[$forum_id];
 }
 
-function qf_topic_category_enabled($forum_id) {
-    $forum = qf_forum_info($forum_id);
+function pd_topic_category_enabled($forum_id) {
+    $forum = pd_forum_info($forum_id);
     return $forum && intval($forum['topic_category_enabled']) === 1;
 }
 
-function qf_topic_categories($forum_id) {
-    $forum = qf_forum_info($forum_id);
+function pd_topic_categories($forum_id) {
+    $forum = pd_forum_info($forum_id);
     $raw = $forum ? $forum['topic_categories'] : '';
     $parts = preg_split('/[\r\n,，、|]+/', $raw);
     $items = array();
@@ -2609,8 +2648,8 @@ function qf_topic_categories($forum_id) {
     return array_values(array_unique($items));
 }
 
-function qf_forum_post_allowed($forum_id, $user_id) {
-    $forum = qf_forum_info($forum_id);
+function pd_forum_post_allowed($forum_id, $user_id) {
+    $forum = pd_forum_info($forum_id);
     if (!$forum || intval($forum['post_user_limit_enabled']) !== 1) {
         return true;
     }
@@ -2625,12 +2664,12 @@ function qf_forum_post_allowed($forum_id, $user_id) {
     return in_array(intval($user_id), $allowed);
 }
 
-function qf_upload_max_mb() {
-    return qf_setting_int('upload_max_mb', 5, 1, 50);
+function pd_upload_max_mb() {
+    return pd_setting_int('upload_max_mb', 5, 1, 50);
 }
 
-function qf_upload_allowed_exts() {
-    $raw = strtolower(qf_setting('upload_allowed_exts', 'jpg,jpeg,png,gif,webp,zip,rar'));
+function pd_upload_allowed_exts() {
+    $raw = strtolower(pd_setting('upload_allowed_exts', 'jpg,jpeg,png,gif,webp,zip,rar'));
     $parts = preg_split('/[\s,，|]+/', $raw);
     $exts = array();
     foreach ($parts as $ext) {
@@ -2647,45 +2686,45 @@ function qf_upload_allowed_exts() {
     return $exts;
 }
 
-function qf_upload_allowed_exts_label() {
-    return implode('、', qf_upload_allowed_exts());
+function pd_upload_allowed_exts_label() {
+    return implode('、', pd_upload_allowed_exts());
 }
 
-function qf_s3_enabled() {
-    return intval(qf_setting('s3_enabled', '0')) === 1;
+function pd_s3_enabled() {
+    return intval(pd_setting('s3_enabled', '0')) === 1;
 }
 
-function qf_s3_setting($key, $default = '') {
-    return trim((string)qf_setting($key, $default));
+function pd_s3_setting($key, $default = '') {
+    return trim((string)pd_setting($key, $default));
 }
 
-function qf_s3_key($safe_name) {
-    $prefix = trim(qf_s3_setting('s3_path_prefix', 'litebbs'), "/ \t\n\r\0\x0B");
+function pd_s3_key($safe_name) {
+    $prefix = trim(pd_s3_setting('s3_path_prefix', 'litebbs'), "/ \t\n\r\0\x0B");
     $prefix = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $prefix);
     $date_path = date('Y/m/d');
     return ($prefix !== '' ? $prefix . '/' : '') . $date_path . '/' . ltrim($safe_name, '/');
 }
 
-function qf_s3_public_url($key) {
-    $cdn = rtrim(qf_s3_setting('s3_cdn_domain', ''), '/');
+function pd_s3_public_url($key) {
+    $cdn = rtrim(pd_s3_setting('s3_cdn_domain', ''), '/');
     if ($cdn !== '') {
         return $cdn . '/' . ltrim($key, '/');
     }
-    $endpoint = rtrim(qf_s3_setting('s3_endpoint', ''), '/');
-    $bucket = qf_s3_setting('s3_bucket', '');
+    $endpoint = rtrim(pd_s3_setting('s3_endpoint', ''), '/');
+    $bucket = pd_s3_setting('s3_bucket', '');
     return $endpoint . '/' . rawurlencode($bucket) . '/' . str_replace('%2F', '/', rawurlencode(ltrim($key, '/')));
 }
 
-function qf_s3_upload_bytes($body, $key, $content_type, &$error) {
+function pd_s3_upload_bytes($body, $key, $content_type, &$error) {
     if (!function_exists('curl_init')) {
         $error = '服务器未开启 PHP cURL，无法上传到 S3/R2。';
         return '';
     }
-    $endpoint = rtrim(qf_s3_setting('s3_endpoint', ''), '/');
-    $bucket = qf_s3_setting('s3_bucket', '');
-    $region = qf_s3_setting('s3_region', 'auto');
-    $access_key = qf_s3_setting('s3_access_key', '');
-    $secret_key = qf_s3_setting('s3_secret_key', '');
+    $endpoint = rtrim(pd_s3_setting('s3_endpoint', ''), '/');
+    $bucket = pd_s3_setting('s3_bucket', '');
+    $region = pd_s3_setting('s3_region', 'auto');
+    $access_key = pd_s3_setting('s3_access_key', '');
+    $secret_key = pd_s3_setting('s3_secret_key', '');
     if ($endpoint === '' || $bucket === '' || $region === '' || $access_key === '' || $secret_key === '') {
         $error = 'S3/R2 配置不完整，请填写 Endpoint、Bucket、Region、Access Key 和 Secret Key。';
         return '';
@@ -2744,22 +2783,22 @@ function qf_s3_upload_bytes($body, $key, $content_type, &$error) {
         $error = 'S3/R2 上传失败：' . ($curl_error !== '' ? $curl_error : ('HTTP ' . $http_code . ' ' . $response));
         return '';
     }
-    return qf_s3_public_url($key);
+    return pd_s3_public_url($key);
 }
 
-function qf_s3_upload_file($tmp_name, $key, $content_type, &$error) {
+function pd_s3_upload_file($tmp_name, $key, $content_type, &$error) {
     $body = @file_get_contents($tmp_name);
     if ($body === false) {
         $error = '读取上传文件失败。';
         return '';
     }
-    return qf_s3_upload_bytes($body, $key, $content_type, $error);
+    return pd_s3_upload_bytes($body, $key, $content_type, $error);
 }
 
-function qf_s3_test(&$message) {
-    $key = qf_s3_key('test_' . date('YmdHis') . '_' . mt_rand(1000, 9999) . '.txt');
+function pd_s3_test(&$message) {
+    $key = pd_s3_key('test_' . date('YmdHis') . '_' . mt_rand(1000, 9999) . '.txt');
     $error = '';
-    $url = qf_s3_upload_bytes("LiteBBS S3/R2 test " . date('c') . "\n", $key, 'text/plain; charset=utf-8', $error);
+    $url = pd_s3_upload_bytes("LiteBBS S3/R2 test " . date('c') . "\n", $key, 'text/plain; charset=utf-8', $error);
     if ($url === '') {
         $message = $error;
         return false;
@@ -2768,28 +2807,28 @@ function qf_s3_test(&$message) {
     return true;
 }
 
-function qf_remote_upload_file($tmp_name, $safe_name, $content_type, &$error) {
-    if (qf_s3_enabled()) {
-        return qf_s3_upload_file($tmp_name, qf_s3_key($safe_name), $content_type, $error);
+function pd_remote_upload_file($tmp_name, $safe_name, $content_type, &$error) {
+    if (pd_s3_enabled()) {
+        return pd_s3_upload_file($tmp_name, pd_s3_key($safe_name), $content_type, $error);
     }
     return '';
 }
 
-function qf_browser_title($page_title) {
-    $site_title = qf_setting('site_title', SITE_NAME);
+function pd_browser_title($page_title) {
+    $site_title = pd_setting('site_title', SITE_NAME);
     if ($page_title === SITE_NAME) {
         return $site_title;
     }
     return str_replace(SITE_NAME, $site_title, $page_title);
 }
 
-function qf_render_ad($position) {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_ads'");
+function pd_render_ad($position) {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_ads'");
     if (!$table || mysqli_num_rows($table) == 0) {
         return '';
     }
     $pos = esc($position);
-    $rs = mysqli_query(db(), "SELECT * FROM qf_ads WHERE position='{$pos}' AND is_enabled=1 LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT * FROM pd_ads WHERE position='{$pos}' AND is_enabled=1 LIMIT 1");
     $ad = $rs ? mysqli_fetch_assoc($rs) : null;
     if (!$ad || $ad['image_path'] === '') {
         return '';
@@ -2809,69 +2848,69 @@ function qf_render_ad($position) {
 }
 
 function current_user() {
-    if (empty($_SESSION['qf_uid'])) {
+    if (empty($_SESSION['pd_uid'])) {
         return null;
     }
-    $uid = intval($_SESSION['qf_uid']);
-    $rs = mysqli_query(db(), "SELECT * FROM qf_users WHERE id={$uid} LIMIT 1");
+    $uid = intval($_SESSION['pd_uid']);
+    $rs = mysqli_query(db(), "SELECT * FROM pd_users WHERE id={$uid} LIMIT 1");
     return $rs ? mysqli_fetch_assoc($rs) : null;
 }
 
-function qf_signin_table_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_signins'");
+function pd_signin_table_ready() {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_signins'");
     return $table && mysqli_num_rows($table) > 0;
 }
 
-function qf_user_coins_ready() {
-    $column = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'coins'");
+function pd_user_coins_ready() {
+    $column = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'coins'");
     return $column && mysqli_num_rows($column) > 0;
 }
 
-function qf_user_signed_today($user_id) {
-    if (!$user_id || !qf_signin_table_ready()) {
+function pd_user_signed_today($user_id) {
+    if (!$user_id || !pd_signin_table_ready()) {
         return false;
     }
     $user_id = intval($user_id);
-    $today = esc(qf_user_today_ymd($user_id));
-    $rs = mysqli_query(db(), "SELECT id FROM qf_signins WHERE user_id={$user_id} AND signin_date='{$today}' LIMIT 1");
+    $today = esc(pd_user_today_ymd($user_id));
+    $rs = mysqli_query(db(), "SELECT id FROM pd_signins WHERE user_id={$user_id} AND signin_date='{$today}' LIMIT 1");
     return $rs && mysqli_num_rows($rs) > 0;
 }
 
-function qf_signin_reward($user_id, &$message) {
+function pd_signin_reward($user_id, &$message) {
     $user_id = intval($user_id);
     if ($user_id < 1) {
         $message = '请先登录后再签到。';
         return false;
     }
-    if (!qf_signin_table_ready()) {
+    if (!pd_signin_table_ready()) {
         $message = '签到表不存在，请先访问 install/upgrade.php 升级数据库。';
         return false;
     }
-    if (!qf_user_coins_ready()) {
+    if (!pd_user_coins_ready()) {
         $message = '金币字段不存在，请先访问 install/upgrade.php 升级数据库。';
         return false;
     }
-    if (qf_user_signed_today($user_id)) {
+    if (pd_user_signed_today($user_id)) {
         $message = '今天已经签到过了。';
         return false;
     }
     $continuous_days = 1;
-    $today = esc(qf_user_today_ymd($user_id));
+    $today = esc(pd_user_today_ymd($user_id));
     try {
         $yesterday_ymd = esc((new DateTimeImmutable($today, new DateTimeZone('UTC')))->sub(new DateInterval('P1D'))->format('Y-m-d'));
     } catch (Exception $e) {
         $yesterday_ymd = esc(gmdate('Y-m-d', strtotime($today . ' -1 day')));
     }
-    $yesterday = mysqli_query(db(), "SELECT continuous_days FROM qf_signins WHERE user_id={$user_id} AND signin_date='{$yesterday_ymd}' LIMIT 1");
+    $yesterday = mysqli_query(db(), "SELECT continuous_days FROM pd_signins WHERE user_id={$user_id} AND signin_date='{$yesterday_ymd}' LIMIT 1");
     if ($yesterday && ($row = mysqli_fetch_assoc($yesterday))) {
         $continuous_days = intval($row['continuous_days']) + 1;
     }
-    $reward = qf_signin_base_coins();
+    $reward = pd_signin_base_coins();
     if ($continuous_days > 1) {
-        $reward += qf_signin_streak_bonus();
+        $reward += pd_signin_streak_bonus();
     }
-    mysqli_query(db(), "INSERT INTO qf_signins (user_id, signin_date, continuous_days, reward_coins, created_at) VALUES ({$user_id}, '{$today}', {$continuous_days}, {$reward}, NOW())");
-    mysqli_query(db(), "UPDATE qf_users SET coins=coins+{$reward} WHERE id={$user_id}");
+    mysqli_query(db(), "INSERT INTO pd_signins (user_id, signin_date, continuous_days, reward_coins, created_at) VALUES ({$user_id}, '{$today}', {$continuous_days}, {$reward}, NOW())");
+    mysqli_query(db(), "UPDATE pd_users SET coins=coins+{$reward} WHERE id={$user_id}");
     $message = '签到成功，获得 ' . $reward . ' 金币，连续签到 ' . $continuous_days . ' 天。';
     return true;
 }
@@ -2888,25 +2927,25 @@ function is_moderator_user($user = null) {
     return $user && (intval($user['is_admin']) === 1 || intval(isset($user['is_moderator']) ? $user['is_moderator'] : 0) === 1);
 }
 
-function qf_ensure_account_auth_schema() {
+function pd_ensure_account_auth_schema() {
     static $done = false;
     if ($done) {
         return;
     }
     $done = true;
-    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'email'");
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'email'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE qf_users ADD email varchar(190) NOT NULL DEFAULT '' AFTER nickname");
+        mysqli_query(db(), "ALTER TABLE pd_users ADD email varchar(190) NOT NULL DEFAULT '' AFTER nickname");
     }
-    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'email_bound_at'");
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'email_bound_at'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE qf_users ADD email_bound_at datetime DEFAULT NULL AFTER email");
+        mysqli_query(db(), "ALTER TABLE pd_users ADD email_bound_at datetime DEFAULT NULL AFTER email");
     }
-    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'timezone'");
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'timezone'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE qf_users ADD timezone varchar(64) NOT NULL DEFAULT ''");
+        mysqli_query(db(), "ALTER TABLE pd_users ADD timezone varchar(64) NOT NULL DEFAULT ''");
     }
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_passkeys (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_passkeys (
       id int(11) NOT NULL AUTO_INCREMENT,
       user_id int(11) NOT NULL DEFAULT '0',
       credential_id varchar(255) NOT NULL DEFAULT '',
@@ -2922,11 +2961,11 @@ function qf_ensure_account_auth_schema() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
-function qf_b64url_encode($data) {
+function pd_b64url_encode($data) {
     return rtrim(strtr(base64_encode((string)$data), '+/', '-_'), '=');
 }
 
-function qf_b64url_decode($data) {
+function pd_b64url_decode($data) {
     $data = strtr((string)$data, '-_', '+/');
     $pad = strlen($data) % 4;
     if ($pad) {
@@ -2935,28 +2974,28 @@ function qf_b64url_decode($data) {
     return base64_decode($data, true);
 }
 
-function qf_json_response($data, $status = 200) {
+function pd_json_response($data, $status = 200) {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-function qf_json_input() {
+function pd_json_input() {
     $raw = file_get_contents('php://input');
     $json = json_decode($raw ? $raw : '{}', true);
     return is_array($json) ? $json : array();
 }
 
-function qf_webauthn_rp_id() {
+function pd_webauthn_rp_id() {
     $host = isset($_SERVER['HTTP_HOST']) ? strtolower((string)$_SERVER['HTTP_HOST']) : '';
     $host = preg_replace('/:\d+$/', '', $host);
     return $host !== '' ? $host : 'localhost';
 }
 
-function qf_webauthn_origin() {
+function pd_webauthn_origin() {
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-    return ($https ? 'https://' : 'http://') . qf_webauthn_rp_id();
+    return ($https ? 'https://' : 'http://') . pd_webauthn_rp_id();
 }
 
 class QfCborReader {
@@ -3028,12 +3067,12 @@ class QfCborReader {
     }
 }
 
-function qf_cbor_decode($data) {
+function pd_cbor_decode($data) {
     $reader = new QfCborReader((string)$data);
     return $reader->read();
 }
 
-function qf_der_len($len) {
+function pd_der_len($len) {
     if ($len < 128) return chr($len);
     $bytes = '';
     while ($len > 0) {
@@ -3043,15 +3082,15 @@ function qf_der_len($len) {
     return chr(0x80 | strlen($bytes)) . $bytes;
 }
 
-function qf_der_seq($body) {
-    return "\x30" . qf_der_len(strlen($body)) . $body;
+function pd_der_seq($body) {
+    return "\x30" . pd_der_len(strlen($body)) . $body;
 }
 
-function qf_der_bit_string($body) {
-    return "\x03" . qf_der_len(strlen($body) + 1) . "\x00" . $body;
+function pd_der_bit_string($body) {
+    return "\x03" . pd_der_len(strlen($body) + 1) . "\x00" . $body;
 }
 
-function qf_der_oid($oid) {
+function pd_der_oid($oid) {
     $parts = array_map('intval', explode('.', $oid));
     $body = chr($parts[0] * 40 + $parts[1]);
     for ($i = 2; $i < count($parts); $i++) {
@@ -3062,20 +3101,20 @@ function qf_der_oid($oid) {
         }
         $body .= $chunk;
     }
-    return "\x06" . qf_der_len(strlen($body)) . $body;
+    return "\x06" . pd_der_len(strlen($body)) . $body;
 }
 
-function qf_webauthn_ec2_pem($cose) {
+function pd_webauthn_ec2_pem($cose) {
     if (!isset($cose[-2], $cose[-3]) || strlen($cose[-2]) !== 32 || strlen($cose[-3]) !== 32) {
         return '';
     }
-    $algorithm = qf_der_seq(qf_der_oid('1.2.840.10045.2.1') . qf_der_oid('1.2.840.10045.3.1.7'));
+    $algorithm = pd_der_seq(pd_der_oid('1.2.840.10045.2.1') . pd_der_oid('1.2.840.10045.3.1.7'));
     $point = "\x04" . $cose[-2] . $cose[-3];
-    $spki = qf_der_seq($algorithm . qf_der_bit_string($point));
+    $spki = pd_der_seq($algorithm . pd_der_bit_string($point));
     return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($spki), 64, "\n") . "-----END PUBLIC KEY-----\n";
 }
 
-function qf_webauthn_rsa_pem($cose) {
+function pd_webauthn_rsa_pem($cose) {
     if (!isset($cose[-1], $cose[-2])) {
         return '';
     }
@@ -3084,63 +3123,63 @@ function qf_webauthn_rsa_pem($cose) {
     if ($n === '' || $e === '') return '';
     if ((ord($n[0]) & 0x80) !== 0) $n = "\x00" . $n;
     if ((ord($e[0]) & 0x80) !== 0) $e = "\x00" . $e;
-    $rsa_public_key = qf_der_seq("\x02" . qf_der_len(strlen($n)) . $n . "\x02" . qf_der_len(strlen($e)) . $e);
-    $algorithm = qf_der_seq(qf_der_oid('1.2.840.113549.1.1.1') . "\x05\x00");
-    $spki = qf_der_seq($algorithm . qf_der_bit_string($rsa_public_key));
+    $rsa_public_key = pd_der_seq("\x02" . pd_der_len(strlen($n)) . $n . "\x02" . pd_der_len(strlen($e)) . $e);
+    $algorithm = pd_der_seq(pd_der_oid('1.2.840.113549.1.1.1') . "\x05\x00");
+    $spki = pd_der_seq($algorithm . pd_der_bit_string($rsa_public_key));
     return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($spki), 64, "\n") . "-----END PUBLIC KEY-----\n";
 }
 
-function qf_webauthn_public_key_pem($cose_raw) {
-    $cose = qf_cbor_decode($cose_raw);
+function pd_webauthn_public_key_pem($cose_raw) {
+    $cose = pd_cbor_decode($cose_raw);
     if (!is_array($cose) || !isset($cose[1])) return '';
-    if (intval($cose[1]) === 2) return qf_webauthn_ec2_pem($cose);
-    if (intval($cose[1]) === 3) return qf_webauthn_rsa_pem($cose);
+    if (intval($cose[1]) === 2) return pd_webauthn_ec2_pem($cose);
+    if (intval($cose[1]) === 3) return pd_webauthn_rsa_pem($cose);
     return '';
 }
 
-function qf_webauthn_verify_client($client_data_json, $expected_type, $expected_challenge) {
+function pd_webauthn_verify_client($client_data_json, $expected_type, $expected_challenge) {
     $client = json_decode($client_data_json, true);
     if (!is_array($client) || !isset($client['type'], $client['challenge'], $client['origin'])) return false;
     if ($client['type'] !== $expected_type) return false;
     if (!hash_equals($expected_challenge, (string)$client['challenge'])) return false;
-    return hash_equals(qf_webauthn_origin(), (string)$client['origin']);
+    return hash_equals(pd_webauthn_origin(), (string)$client['origin']);
 }
 
-function qf_webauthn_auth_data_info($auth_data) {
+function pd_webauthn_auth_data_info($auth_data) {
     if (strlen($auth_data) < 37) {
         throw new Exception('认证器数据不完整。');
     }
-    if (!hash_equals(hash('sha256', qf_webauthn_rp_id(), true), substr($auth_data, 0, 32))) {
+    if (!hash_equals(hash('sha256', pd_webauthn_rp_id(), true), substr($auth_data, 0, 32))) {
         throw new Exception('Passkey 域名不匹配。');
     }
     $counter = unpack('N', substr($auth_data, 33, 4));
     return array('flags' => ord($auth_data[32]), 'sign_count' => intval($counter[1]));
 }
 
-function qf_passkey_count($user_id) {
-    qf_ensure_account_auth_schema();
-    return count_rows("SELECT COUNT(*) FROM qf_passkeys WHERE user_id=" . intval($user_id));
+function pd_passkey_count($user_id) {
+    pd_ensure_account_auth_schema();
+    return count_rows("SELECT COUNT(*) FROM pd_passkeys WHERE user_id=" . intval($user_id));
 }
 
 function require_login() {
     $u = current_user();
     if (!$u) {
-        header('Location: ' . qf_url_page('login.php'));
+        header('Location: ' . pd_url_page('login.php'));
         exit;
     }
     return $u;
 }
 
-function qf_invite_table_ready() {
-    $t = mysqli_query(db(), "SHOW TABLES LIKE 'qf_invites'");
+function pd_invite_table_ready() {
+    $t = mysqli_query(db(), "SHOW TABLES LIKE 'pd_invites'");
     return $t && mysqli_num_rows($t) > 0;
 }
 
-function qf_require_invite() {
-    return qf_invite_table_ready() && intval(qf_setting('require_invite', '0')) === 1;
+function pd_require_invite() {
+    return pd_invite_table_ready() && intval(pd_setting('require_invite', '0')) === 1;
 }
 
-function qf_generate_invite_code() {
+function pd_generate_invite_code() {
     $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     $max = strlen($chars) - 1;
     $code = '';
@@ -3150,8 +3189,8 @@ function qf_generate_invite_code() {
     return $code;
 }
 
-function qf_invite_valid($code) {
-    if (!qf_invite_table_ready()) {
+function pd_invite_valid($code) {
+    if (!pd_invite_table_ready()) {
         return null;
     }
     $code = trim((string)$code);
@@ -3159,26 +3198,26 @@ function qf_invite_valid($code) {
         return null;
     }
     $code_sql = esc($code);
-    $rs = mysqli_query(db(), "SELECT * FROM qf_invites WHERE code='{$code_sql}' AND used_by=0 AND (expires_at IS NULL OR expires_at > NOW()) LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT * FROM pd_invites WHERE code='{$code_sql}' AND used_by=0 AND (expires_at IS NULL OR expires_at > NOW()) LIMIT 1");
     return $rs ? mysqli_fetch_assoc($rs) : null;
 }
 
-function qf_consume_invite($code, $user_id) {
-    if (!qf_invite_table_ready()) {
+function pd_consume_invite($code, $user_id) {
+    if (!pd_invite_table_ready()) {
         return false;
     }
     $code_sql = esc(trim((string)$code));
     $uid = intval($user_id);
-    mysqli_query(db(), "UPDATE qf_invites SET used_by={$uid}, used_at=NOW() WHERE code='{$code_sql}' AND used_by=0 AND (expires_at IS NULL OR expires_at > NOW())");
+    mysqli_query(db(), "UPDATE pd_invites SET used_by={$uid}, used_at=NOW() WHERE code='{$code_sql}' AND used_by=0 AND (expires_at IS NULL OR expires_at > NOW())");
     return mysqli_affected_rows(db()) > 0;
 }
 
-function qf_oauth_table_ready() {
-    $t = mysqli_query(db(), "SHOW TABLES LIKE 'qf_oauth'");
+function pd_oauth_table_ready() {
+    $t = mysqli_query(db(), "SHOW TABLES LIKE 'pd_oauth'");
     return $t && mysqli_num_rows($t) > 0;
 }
 
-function qf_oauth_providers() {
+function pd_oauth_providers() {
     return array(
         'github' => array(
             'label' => 'GitHub',
@@ -3197,34 +3236,34 @@ function qf_oauth_providers() {
     );
 }
 
-function qf_oauth_enabled($provider) {
-    $providers = qf_oauth_providers();
+function pd_oauth_enabled($provider) {
+    $providers = pd_oauth_providers();
     if (!isset($providers[$provider])) {
         return false;
     }
-    return intval(qf_setting('oauth_' . $provider . '_enabled', '0')) === 1
-        && trim(qf_setting('oauth_' . $provider . '_client_id', '')) !== ''
-        && trim(qf_setting('oauth_' . $provider . '_client_secret', '')) !== '';
+    return intval(pd_setting('oauth_' . $provider . '_enabled', '0')) === 1
+        && trim(pd_setting('oauth_' . $provider . '_client_id', '')) !== ''
+        && trim(pd_setting('oauth_' . $provider . '_client_secret', '')) !== '';
 }
 
-function qf_oauth_any_enabled() {
-    foreach (array_keys(qf_oauth_providers()) as $p) {
-        if (qf_oauth_enabled($p)) {
+function pd_oauth_any_enabled() {
+    foreach (array_keys(pd_oauth_providers()) as $p) {
+        if (pd_oauth_enabled($p)) {
             return true;
         }
     }
     return false;
 }
 
-function qf_oauth_redirect_uri($provider) {
+function pd_oauth_redirect_uri($provider) {
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
     $scheme = $https ? 'https' : 'http';
     $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'php.do';
-    return $scheme . '://' . $host . qf_url_page('api/oauth.php', array('provider' => $provider, 'action' => 'callback'));
+    return $scheme . '://' . $host . pd_url_page('api/oauth.php', array('provider' => $provider, 'action' => 'callback'));
 }
 
-function qf_http_request($method, $url, $data = null, $headers = array()) {
+function pd_http_request($method, $url, $data = null, $headers = array()) {
     $method = strtoupper($method);
     if (function_exists('curl_init')) {
         $ch = curl_init($url);
@@ -3255,16 +3294,16 @@ function qf_http_request($method, $url, $data = null, $headers = array()) {
     return array('code' => 200, 'body' => $body === false ? '' : $body);
 }
 
-function qf_oauth_login_or_register($provider, $provider_uid, $login, $name, $email) {
-    if (!qf_oauth_table_ready() || $provider_uid === '') {
+function pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email) {
+    if (!pd_oauth_table_ready() || $provider_uid === '') {
         return 0;
     }
     $p_sql = esc($provider);
     $uid_sql = esc($provider_uid);
-    $rs = mysqli_query(db(), "SELECT user_id FROM qf_oauth WHERE provider='{$p_sql}' AND provider_uid='{$uid_sql}' LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT user_id FROM pd_oauth WHERE provider='{$p_sql}' AND provider_uid='{$uid_sql}' LIMIT 1");
     if ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $uid = intval($row['user_id']);
-        $ur = mysqli_query(db(), "SELECT id FROM qf_users WHERE id={$uid} AND status=1 LIMIT 1");
+        $ur = mysqli_query(db(), "SELECT id FROM pd_users WHERE id={$uid} AND status=1 LIMIT 1");
         return ($ur && mysqli_num_rows($ur) > 0) ? $uid : 0;
     }
     $base = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$login);
@@ -3276,7 +3315,7 @@ function qf_oauth_login_or_register($provider, $provider_uid, $login, $name, $em
     $n = 0;
     while (true) {
         $u_sql = esc($username);
-        $chk = mysqli_query(db(), "SELECT id FROM qf_users WHERE username='{$u_sql}' LIMIT 1");
+        $chk = mysqli_query(db(), "SELECT id FROM pd_users WHERE username='{$u_sql}' LIMIT 1");
         if (!$chk || mysqli_num_rows($chk) === 0) {
             break;
         }
@@ -3293,43 +3332,43 @@ function qf_oauth_login_or_register($provider, $provider_uid, $login, $name, $em
     $u_sql = esc($username);
     $n_sql = esc($nickname);
     $ip = esc(client_ip());
-    $random_pw = qf_password_hash(bin2hex(random_bytes(18)));
-    if (qf_table_has_column('qf_users', 'email') && $email !== '') {
+    $random_pw = pd_password_hash(bin2hex(random_bytes(18)));
+    if (pd_table_has_column('pd_users', 'email') && $email !== '') {
         $email_sql = esc(clean_text($email, 190));
-        $ok = mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,email,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$email_sql}','{$ip}',NOW())");
+        $ok = mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,email,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$email_sql}','{$ip}',NOW())");
     } else {
-        $ok = mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$ip}',NOW())");
+        $ok = mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$ip}',NOW())");
     }
     if (!$ok) {
         return 0;
     }
     $new_id = intval(mysqli_insert_id(db()));
-    $avatar = qf_generate_default_avatar($new_id, $username, $nickname);
+    $avatar = pd_generate_default_avatar($new_id, $username, $nickname);
     if ($avatar !== '') {
         $a_sql = esc($avatar);
-        mysqli_query(db(), "UPDATE qf_users SET avatar='{$a_sql}' WHERE id={$new_id}");
+        mysqli_query(db(), "UPDATE pd_users SET avatar='{$a_sql}' WHERE id={$new_id}");
     }
-    mysqli_query(db(), "INSERT INTO qf_oauth (user_id,provider,provider_uid,created_at) VALUES ({$new_id},'{$p_sql}','{$uid_sql}',NOW())");
+    mysqli_query(db(), "INSERT INTO pd_oauth (user_id,provider,provider_uid,created_at) VALUES ({$new_id},'{$p_sql}','{$uid_sql}',NOW())");
     return $new_id;
 }
 
-function qf_handle_oauth_action() {
+function pd_handle_oauth_action() {
     $provider = isset($_GET['provider']) ? preg_replace('/[^a-z]/', '', $_GET['provider']) : '';
     $action = isset($_GET['action']) ? clean_text($_GET['action'], 20) : 'start';
-    $providers = qf_oauth_providers();
-    if (!isset($providers[$provider]) || !qf_oauth_enabled($provider)) {
+    $providers = pd_oauth_providers();
+    if (!isset($providers[$provider]) || !pd_oauth_enabled($provider)) {
         $_SESSION['auth_error'] = '该第三方登录未启用。';
-        redirect(qf_url_page('login.php'));
+        redirect(pd_url_page('login.php'));
     }
-    $client_id = trim(qf_setting('oauth_' . $provider . '_client_id', ''));
-    $client_secret = trim(qf_setting('oauth_' . $provider . '_client_secret', ''));
+    $client_id = trim(pd_setting('oauth_' . $provider . '_client_id', ''));
+    $client_secret = trim(pd_setting('oauth_' . $provider . '_client_secret', ''));
 
     if ($action === 'start') {
         $state = bin2hex(random_bytes(16));
         $_SESSION['oauth_state'] = $state;
         $params = array(
             'client_id' => $client_id,
-            'redirect_uri' => qf_oauth_redirect_uri($provider),
+            'redirect_uri' => pd_oauth_redirect_uri($provider),
             'scope' => $providers[$provider]['scope'],
             'state' => $state,
             'response_type' => 'code',
@@ -3345,28 +3384,28 @@ function qf_handle_oauth_action() {
     if (empty($_SESSION['oauth_state']) || !hash_equals((string)$_SESSION['oauth_state'], $state)) {
         unset($_SESSION['oauth_state']);
         $_SESSION['auth_error'] = '登录校验失败（state 不匹配），请重试。';
-        redirect(qf_url_page('login.php'));
+        redirect(pd_url_page('login.php'));
     }
     unset($_SESSION['oauth_state']);
 
     $code = isset($_GET['code']) ? (string)$_GET['code'] : '';
     if ($code === '') {
         $_SESSION['auth_error'] = '第三方未返回授权码，登录取消。';
-        redirect(qf_url_page('login.php'));
+        redirect(pd_url_page('login.php'));
     }
 
-    $token_resp = qf_http_request('POST', $providers[$provider]['token'], array(
+    $token_resp = pd_http_request('POST', $providers[$provider]['token'], array(
         'client_id' => $client_id,
         'client_secret' => $client_secret,
         'code' => $code,
-        'redirect_uri' => qf_oauth_redirect_uri($provider),
+        'redirect_uri' => pd_oauth_redirect_uri($provider),
         'grant_type' => 'authorization_code',
     ), array('Accept: application/json'));
     $token_data = json_decode($token_resp['body'], true);
     $access_token = is_array($token_data) && isset($token_data['access_token']) ? $token_data['access_token'] : '';
     if ($access_token === '') {
         $_SESSION['auth_error'] = '获取访问令牌失败，请检查后台的 Client ID/Secret。';
-        redirect(qf_url_page('login.php'));
+        redirect(pd_url_page('login.php'));
     }
 
     $provider_uid = '';
@@ -3374,7 +3413,7 @@ function qf_handle_oauth_action() {
     $name = '';
     $email = '';
     if ($provider === 'github') {
-        $ures = qf_http_request('GET', 'https://api.github.com/user', null, array(
+        $ures = pd_http_request('GET', 'https://api.github.com/user', null, array(
             'Authorization: Bearer ' . $access_token,
             'User-Agent: php.do',
             'Accept: application/json',
@@ -3387,7 +3426,7 @@ function qf_handle_oauth_action() {
             $email = isset($profile['email']) && $profile['email'] !== null ? $profile['email'] : '';
         }
         if ($provider_uid !== '' && $email === '') {
-            $eres = qf_http_request('GET', 'https://api.github.com/user/emails', null, array(
+            $eres = pd_http_request('GET', 'https://api.github.com/user/emails', null, array(
                 'Authorization: Bearer ' . $access_token,
                 'User-Agent: php.do',
                 'Accept: application/json',
@@ -3403,7 +3442,7 @@ function qf_handle_oauth_action() {
             }
         }
     } elseif ($provider === 'google') {
-        $ures = qf_http_request('GET', 'https://openidconnect.googleapis.com/v1/userinfo', null, array(
+        $ures = pd_http_request('GET', 'https://openidconnect.googleapis.com/v1/userinfo', null, array(
             'Authorization: Bearer ' . $access_token,
         ));
         $profile = json_decode($ures['body'], true);
@@ -3417,83 +3456,83 @@ function qf_handle_oauth_action() {
 
     if ($provider_uid === '') {
         $_SESSION['auth_error'] = '读取第三方账号信息失败，请重试。';
-        redirect(qf_url_page('login.php'));
+        redirect(pd_url_page('login.php'));
     }
 
-    $user_id = qf_oauth_login_or_register($provider, $provider_uid, $login, $name, $email);
+    $user_id = pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email);
     if ($user_id > 0) {
         session_regenerate_id(true);
-        $_SESSION['qf_uid'] = $user_id;
-        redirect(qf_url_page('index.php'));
+        $_SESSION['pd_uid'] = $user_id;
+        redirect(pd_url_page('index.php'));
     }
     $_SESSION['auth_error'] = '第三方登录失败，请稍后重试。';
-    redirect(qf_url_page('login.php'));
+    redirect(pd_url_page('login.php'));
 }
 
-function qf_handle_login() {
+function pd_handle_login() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        redirect(qf_url_page('login.php'));
+        redirect(pd_url_page('login.php'));
     }
     $username_raw = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
     $username = esc($username_raw);
     $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
-    $rs = mysqli_query(db(), "SELECT * FROM qf_users WHERE username='{$username}' AND status=1 LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT * FROM pd_users WHERE username='{$username}' AND status=1 LIMIT 1");
     $u = $rs ? mysqli_fetch_assoc($rs) : null;
-    if ($u && qf_password_verify($password, $u['password'])) {
+    if ($u && pd_password_verify($password, $u['password'])) {
         session_regenerate_id(true);
-        $_SESSION['qf_uid'] = intval($u['id']);
-        redirect(qf_url_page('index.php'));
+        $_SESSION['pd_uid'] = intval($u['id']);
+        redirect(pd_url_page('index.php'));
     }
     $_SESSION['auth_error'] = '用户名或密码错误。';
     $_SESSION['auth_login_username'] = $username_raw;
-    redirect(qf_url_page('login.php'));
+    redirect(pd_url_page('login.php'));
 }
 
-function qf_handle_register() {
+function pd_handle_register() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        redirect(qf_url_page('register.php'));
+        redirect(pd_url_page('register.php'));
     }
     $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
     $nickname = clean_text(isset($_POST['nickname']) ? $_POST['nickname'] : '', 30);
     $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
     $invite_code = clean_text(isset($_POST['invite_code']) ? $_POST['invite_code'] : '', 32);
     $error = '';
-    if (qf_captcha_required('register') && !qf_verify_captcha()) {
+    if (pd_captcha_required('register') && !pd_verify_captcha()) {
         $error = '验证码错误，请重新输入。';
     } elseif (!preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
         $error = '用户名只能使用字母、数字、下划线，长度 3-30。';
     } elseif ($nickname === '' || strlen($password) < 6) {
         $error = '昵称不能为空，密码至少 6 位。';
-    } elseif (qf_require_invite() && !qf_invite_valid($invite_code)) {
+    } elseif (pd_require_invite() && !pd_invite_valid($invite_code)) {
         $error = '邀请码无效或已被使用，请检查后重试。';
     } else {
-        $daily_limit = intval(qf_setting('register_ip_daily_limit', '5'));
+        $daily_limit = intval(pd_setting('register_ip_daily_limit', '5'));
         if ($daily_limit < 1) {
             $daily_limit = 5;
         }
         $ip_raw = client_ip();
         $ip_check = esc($ip_raw);
-        $today_count = count_rows("SELECT COUNT(*) FROM qf_users WHERE ip='{$ip_check}' AND created_at >= CURDATE()");
+        $today_count = count_rows("SELECT COUNT(*) FROM pd_users WHERE ip='{$ip_check}' AND created_at >= CURDATE()");
         if ($today_count >= $daily_limit) {
             $error = '当前 IP 今天注册次数已达到上限。';
         } else {
             $u = esc($username);
             $n = esc($nickname);
-            $p = qf_password_hash($password);
+            $p = pd_password_hash($password);
             $ip = esc($ip_raw);
-            if (mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$ip}',NOW())")) {
+            if (mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$ip}',NOW())")) {
                 $new_user_id = intval(mysqli_insert_id(db()));
-                $avatar = qf_generate_default_avatar($new_user_id, $username, $nickname);
+                $avatar = pd_generate_default_avatar($new_user_id, $username, $nickname);
                 if ($avatar !== '') {
                     $avatar_sql = esc($avatar);
-                    mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$new_user_id}");
+                    mysqli_query(db(), "UPDATE pd_users SET avatar='{$avatar_sql}' WHERE id={$new_user_id}");
                 }
-                if (qf_require_invite()) {
-                    qf_consume_invite($invite_code, $new_user_id);
+                if (pd_require_invite()) {
+                    pd_consume_invite($invite_code, $new_user_id);
                 }
                 session_regenerate_id(true);
-                $_SESSION['qf_uid'] = $new_user_id;
-                redirect(qf_url_page('index.php'));
+                $_SESSION['pd_uid'] = $new_user_id;
+                redirect(pd_url_page('index.php'));
             }
             $error = '注册失败，用户名可能已存在。';
         }
@@ -3501,33 +3540,33 @@ function qf_handle_register() {
     $_SESSION['auth_error'] = $error;
     $_SESSION['auth_register_username'] = $username;
     $_SESSION['auth_register_nickname'] = $nickname;
-    redirect(qf_url_page('register.php'));
+    redirect(pd_url_page('register.php'));
 }
 
-function qf_handle_logout() {
-    unset($_SESSION['qf_uid']);
+function pd_handle_logout() {
+    unset($_SESSION['pd_uid']);
     session_regenerate_id(true);
-    redirect(qf_url_page('index.php'));
+    redirect(pd_url_page('index.php'));
 }
 
-function qf_handle_auth_action() {
+function pd_handle_auth_action() {
     $action = isset($_GET['action']) ? clean_text($_GET['action'], 20) : '';
     if ($action === '' && isset($_POST['action'])) {
         $action = clean_text($_POST['action'], 20);
     }
     if ($action === 'login') {
-        qf_handle_login();
+        pd_handle_login();
     } elseif ($action === 'register') {
-        qf_handle_register();
+        pd_handle_register();
     } elseif ($action === 'logout') {
-        qf_handle_logout();
+        pd_handle_logout();
     }
-    redirect(qf_url_page('index.php'));
+    redirect(pd_url_page('index.php'));
 }
 
 function require_admin() {
     if (!is_admin()) {
-        header('Location: ' . qf_url_page('index.php'));
+        header('Location: ' . pd_url_page('index.php'));
         exit;
     }
 }
@@ -3536,7 +3575,7 @@ function client_ip() {
     $remote = isset($_SERVER['REMOTE_ADDR']) ? trim((string)$_SERVER['REMOTE_ADDR']) : '';
     $candidates = array();
     // Cloudflare / 反代：优先取真实访客 IP（仅当直连地址为私网或本机时采纳，防伪造）
-    if (qf_ip_is_private_or_local($remote)) {
+    if (pd_ip_is_private_or_local($remote)) {
         if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
             $candidates[] = trim((string)$_SERVER['HTTP_CF_CONNECTING_IP']);
         }
@@ -3553,14 +3592,14 @@ function client_ip() {
         }
     }
     foreach ($candidates as $ip) {
-        if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP) && !qf_ip_is_private_or_local($ip)) {
+        if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP) && !pd_ip_is_private_or_local($ip)) {
             return $ip;
         }
     }
     return $remote;
 }
 
-function qf_ip_is_private_or_local($ip) {
+function pd_ip_is_private_or_local($ip) {
     $ip = trim((string)$ip);
     if ($ip === '' || !filter_var($ip, FILTER_VALIDATE_IP)) {
         return true;
@@ -3570,26 +3609,26 @@ function qf_ip_is_private_or_local($ip) {
 
 function ip_banned($ip) {
     $ip = esc($ip);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_bans WHERE ip='{$ip}' AND (expires_at IS NULL OR expires_at > NOW()) LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id FROM pd_bans WHERE ip='{$ip}' AND (expires_at IS NULL OR expires_at > NOW()) LIMIT 1");
     return $rs && mysqli_num_rows($rs) > 0;
 }
 
-function qf_moderator_logs_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_moderator_logs'");
+function pd_moderator_logs_ready() {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_moderator_logs'");
     return $table && mysqli_num_rows($table) > 0;
 }
 
-function qf_moderator_forums_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_moderator_forums'");
+function pd_moderator_forums_ready() {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_moderator_forums'");
     return $table && mysqli_num_rows($table) > 0;
 }
 
-function qf_moderator_forum_ids($user_id) {
-    if (!qf_moderator_forums_ready()) {
+function pd_moderator_forum_ids($user_id) {
+    if (!pd_moderator_forums_ready()) {
         return array();
     }
     $user_id = intval($user_id);
-    $rs = mysqli_query(db(), "SELECT forum_id FROM qf_moderator_forums WHERE user_id={$user_id}");
+    $rs = mysqli_query(db(), "SELECT forum_id FROM pd_moderator_forums WHERE user_id={$user_id}");
     $ids = array();
     while ($rs && $row = mysqli_fetch_assoc($rs)) {
         $ids[] = intval($row['forum_id']);
@@ -3597,130 +3636,130 @@ function qf_moderator_forum_ids($user_id) {
     return $ids;
 }
 
-function qf_moderator_assigned_to_forum($user_id, $forum_id) {
-    if (!qf_moderator_forums_ready()) {
+function pd_moderator_assigned_to_forum($user_id, $forum_id) {
+    if (!pd_moderator_forums_ready()) {
         return false;
     }
     $user_id = intval($user_id);
     $forum_id = intval($forum_id);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_moderator_forums WHERE user_id={$user_id} AND forum_id={$forum_id} LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id FROM pd_moderator_forums WHERE user_id={$user_id} AND forum_id={$forum_id} LIMIT 1");
     return $rs && mysqli_num_rows($rs) > 0;
 }
 
-function qf_moderator_delete_count_today($moderator_id) {
-    if (!qf_moderator_logs_ready()) {
+function pd_moderator_delete_count_today($moderator_id) {
+    if (!pd_moderator_logs_ready()) {
         return 0;
     }
     $moderator_id = intval($moderator_id);
-    return count_rows("SELECT COUNT(*) FROM qf_moderator_logs WHERE moderator_id={$moderator_id} AND created_at >= CURDATE()");
+    return count_rows("SELECT COUNT(*) FROM pd_moderator_logs WHERE moderator_id={$moderator_id} AND created_at >= CURDATE()");
 }
 
-function qf_moderator_delete_limit_for_user($moderator) {
+function pd_moderator_delete_limit_for_user($moderator) {
     $limit = intval(isset($moderator['moderator_delete_limit']) ? $moderator['moderator_delete_limit'] : 0);
-    return $limit > 0 ? $limit : qf_moderator_daily_delete_limit();
+    return $limit > 0 ? $limit : pd_moderator_daily_delete_limit();
 }
 
-function qf_moderator_delete_allowed($moderator) {
+function pd_moderator_delete_allowed($moderator) {
     $moderator_id = intval(is_array($moderator) ? $moderator['id'] : $moderator);
-    $limit = is_array($moderator) ? qf_moderator_delete_limit_for_user($moderator) : qf_moderator_daily_delete_limit();
-    return qf_moderator_delete_count_today($moderator_id) < $limit;
+    $limit = is_array($moderator) ? pd_moderator_delete_limit_for_user($moderator) : pd_moderator_daily_delete_limit();
+    return pd_moderator_delete_count_today($moderator_id) < $limit;
 }
 
-function qf_log_moderator_delete($moderator_id, $target_type, $target_id) {
-    if (!qf_moderator_logs_ready()) {
+function pd_log_moderator_delete($moderator_id, $target_type, $target_id) {
+    if (!pd_moderator_logs_ready()) {
         return;
     }
     $moderator_id = intval($moderator_id);
     $target_type = esc($target_type);
     $target_id = intval($target_id);
-    mysqli_query(db(), "INSERT INTO qf_moderator_logs (moderator_id,target_type,target_id,created_at) VALUES ({$moderator_id},'{$target_type}',{$target_id},NOW())");
+    mysqli_query(db(), "INSERT INTO pd_moderator_logs (moderator_id,target_type,target_id,created_at) VALUES ({$moderator_id},'{$target_type}',{$target_id},NOW())");
 }
 
-function qf_can_moderator_delete_thread($moderator, $thread) {
+function pd_can_moderator_delete_thread($moderator, $thread) {
     if (!$moderator || !$thread || intval(isset($moderator['is_moderator']) ? $moderator['is_moderator'] : 0) !== 1 || intval($moderator['is_admin']) === 1) {
         return false;
     }
     if (intval(isset($thread['author_is_admin']) ? $thread['author_is_admin'] : 0) === 1) {
         return false;
     }
-    if (!qf_moderator_assigned_to_forum(intval($moderator['id']), intval($thread['forum_id']))) {
+    if (!pd_moderator_assigned_to_forum(intval($moderator['id']), intval($thread['forum_id']))) {
         return false;
     }
-    return qf_moderator_delete_allowed($moderator);
+    return pd_moderator_delete_allowed($moderator);
 }
 
-function qf_can_moderator_delete_post($moderator, $post) {
+function pd_can_moderator_delete_post($moderator, $post) {
     if (!$moderator || !$post || intval(isset($moderator['is_moderator']) ? $moderator['is_moderator'] : 0) !== 1 || intval($moderator['is_admin']) === 1) {
         return false;
     }
     if (intval(isset($post['author_is_admin']) ? $post['author_is_admin'] : 0) === 1) {
         return false;
     }
-    if (!qf_moderator_assigned_to_forum(intval($moderator['id']), intval($post['forum_id']))) {
+    if (!pd_moderator_assigned_to_forum(intval($moderator['id']), intval($post['forum_id']))) {
         return false;
     }
-    return qf_moderator_delete_allowed($moderator);
+    return pd_moderator_delete_allowed($moderator);
 }
 
-function qf_security_logs_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_security_logs'");
+function pd_security_logs_ready() {
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_security_logs'");
     return $table && mysqli_num_rows($table) > 0;
 }
 
-function qf_security_guard() {
+function pd_security_guard() {
     if (PHP_SAPI === 'cli') {
         return;
     }
     $ip = client_ip();
-    if ($ip === '' || intval(qf_setting('cc_enabled', '0')) !== 1) {
+    if ($ip === '' || intval(pd_setting('cc_enabled', '0')) !== 1) {
         return;
     }
-    if (!qf_security_logs_ready()) {
+    if (!pd_security_logs_ready()) {
         return;
     }
     if (ip_banned($ip)) {
         header('Content-Type: text/html; charset=utf-8', true, 403);
         exit('当前 IP 已被封禁，请稍后再访问。');
     }
-    $window = intval(qf_setting('cc_window_seconds', '60'));
-    $limit = intval(qf_setting('cc_limit_count', '60'));
-    $ban_hours = intval(qf_setting('cc_ban_hours', '2'));
+    $window = intval(pd_setting('cc_window_seconds', '60'));
+    $limit = intval(pd_setting('cc_limit_count', '60'));
+    $ban_hours = intval(pd_setting('cc_ban_hours', '2'));
     if ($window < 10) $window = 60;
     if ($limit < 5) $limit = 60;
     if ($ban_hours < 1) $ban_hours = 2;
     $ip_sql = esc($ip);
     $uri = isset($_SERVER['REQUEST_URI']) ? clean_text($_SERVER['REQUEST_URI'], 255) : '';
     $uri_sql = esc($uri);
-    mysqli_query(db(), "INSERT INTO qf_security_logs (ip, uri, created_at) VALUES ('{$ip_sql}', '{$uri_sql}', NOW())");
-    mysqli_query(db(), "DELETE FROM qf_security_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 DAY)");
-    $count = count_rows("SELECT COUNT(*) FROM qf_security_logs WHERE ip='{$ip_sql}' AND created_at >= DATE_SUB(NOW(), INTERVAL {$window} SECOND)");
+    mysqli_query(db(), "INSERT INTO pd_security_logs (ip, uri, created_at) VALUES ('{$ip_sql}', '{$uri_sql}', NOW())");
+    mysqli_query(db(), "DELETE FROM pd_security_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 DAY)");
+    $count = count_rows("SELECT COUNT(*) FROM pd_security_logs WHERE ip='{$ip_sql}' AND created_at >= DATE_SUB(NOW(), INTERVAL {$window} SECOND)");
     if ($count > $limit) {
         $reason = esc('防CC自动封禁：' . $window . '秒内访问' . $count . '次');
-        mysqli_query(db(), "INSERT INTO qf_bans (ip, reason, expires_at, created_at) VALUES ('{$ip_sql}', '{$reason}', DATE_ADD(NOW(), INTERVAL {$ban_hours} HOUR), NOW())");
+        mysqli_query(db(), "INSERT INTO pd_bans (ip, reason, expires_at, created_at) VALUES ('{$ip_sql}', '{$reason}', DATE_ADD(NOW(), INTERVAL {$ban_hours} HOUR), NOW())");
         header('Content-Type: text/html; charset=utf-8', true, 429);
         exit('访问过于频繁，当前 IP 已被临时封禁。');
     }
 }
 
-function qf_user_mute_message($user) {
+function pd_user_mute_message($user) {
     if (!$user || empty($user['mute_until'])) {
         return '';
     }
-    $until = qf_parse_utc_timestamp($user['mute_until']);
+    $until = pd_parse_utc_timestamp($user['mute_until']);
     if ($until && $until > time()) {
-        return '你已被禁止发言，到期时间：' . qf_format_absolute($user['mute_until']);
+        return '你已被禁止发言，到期时间：' . pd_format_absolute($user['mute_until']);
     }
     return '';
 }
 
-function qf_ensure_online_schema() {
+function pd_ensure_online_schema() {
     static $done = false;
     if ($done) {
         return true;
     }
     $done = true;
 
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_online (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_online (
       session_id varchar(64) NOT NULL DEFAULT '',
       user_id int(11) NOT NULL DEFAULT '0',
       ip varchar(45) NOT NULL DEFAULT '',
@@ -3731,7 +3770,7 @@ function qf_ensure_online_schema() {
       KEY user_id (user_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_online_daily (
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS pd_online_daily (
       day_date date NOT NULL,
       peak_total int(11) NOT NULL DEFAULT '0',
       peak_members int(11) NOT NULL DEFAULT '0',
@@ -3744,22 +3783,22 @@ function qf_ensure_online_schema() {
     return true;
 }
 
-function qf_online_window_seconds() {
+function pd_online_window_seconds() {
     return 900; // 15 分钟内算在线
 }
 
-function qf_online_touch($force = false) {
+function pd_online_touch($force = false) {
     if (PHP_SAPI === 'cli') {
         return;
     }
-    qf_ensure_online_schema();
+    pd_ensure_online_schema();
 
     $now = time();
-    $last = isset($_SESSION['qf_online_touched_at']) ? intval($_SESSION['qf_online_touched_at']) : 0;
+    $last = isset($_SESSION['pd_online_touched_at']) ? intval($_SESSION['pd_online_touched_at']) : 0;
     if (!$force && $last > 0 && ($now - $last) < 60) {
         return;
     }
-    $_SESSION['qf_online_touched_at'] = $now;
+    $_SESSION['pd_online_touched_at'] = $now;
 
     $sid = session_id();
     if ($sid === '') {
@@ -3772,28 +3811,28 @@ function qf_online_touch($force = false) {
     $ua = isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : '';
     $ua_sql = esc(substr($ua, 0, 255));
 
-    mysqli_query(db(), "INSERT INTO qf_online (session_id,user_id,ip,user_agent,last_seen)
+    mysqli_query(db(), "INSERT INTO pd_online (session_id,user_id,ip,user_agent,last_seen)
         VALUES ('{$sid_sql}',{$uid},'{$ip_sql}','{$ua_sql}',NOW())
         ON DUPLICATE KEY UPDATE user_id={$uid}, ip='{$ip_sql}', user_agent='{$ua_sql}', last_seen=NOW()");
 
     // 偶尔清理过期会话，降低表膨胀
     if (mt_rand(1, 40) === 1) {
-        $ttl = qf_online_window_seconds() * 4;
-        mysqli_query(db(), "DELETE FROM qf_online WHERE last_seen < DATE_SUB(NOW(), INTERVAL {$ttl} SECOND)");
+        $ttl = pd_online_window_seconds() * 4;
+        mysqli_query(db(), "DELETE FROM pd_online WHERE last_seen < DATE_SUB(NOW(), INTERVAL {$ttl} SECOND)");
     }
 
-    qf_online_record_daily_peak();
+    pd_online_record_daily_peak();
 }
 
-function qf_online_counts() {
+function pd_online_counts() {
     static $cache = null;
     if ($cache !== null) {
         return $cache;
     }
-    qf_ensure_online_schema();
-    $win = qf_online_window_seconds();
-    $members = count_rows("SELECT COUNT(DISTINCT user_id) FROM qf_online WHERE user_id > 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
-    $guests = count_rows("SELECT COUNT(*) FROM qf_online WHERE user_id = 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
+    pd_ensure_online_schema();
+    $win = pd_online_window_seconds();
+    $members = count_rows("SELECT COUNT(DISTINCT user_id) FROM pd_online WHERE user_id > 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
+    $guests = count_rows("SELECT COUNT(*) FROM pd_online WHERE user_id = 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
     $cache = array(
         'members' => $members,
         'guests' => $guests,
@@ -3802,13 +3841,13 @@ function qf_online_counts() {
     return $cache;
 }
 
-function qf_online_members($limit = 20) {
-    qf_ensure_online_schema();
-    $win = qf_online_window_seconds();
+function pd_online_members($limit = 20) {
+    pd_ensure_online_schema();
+    $win = pd_online_window_seconds();
     $limit = max(1, min(50, intval($limit)));
     $rs = mysqli_query(db(), "SELECT u.id, u.nickname, u.username, MAX(o.last_seen) AS last_seen
-        FROM qf_online o
-        INNER JOIN qf_users u ON u.id = o.user_id
+        FROM pd_online o
+        INNER JOIN pd_users u ON u.id = o.user_id
         WHERE o.user_id > 0 AND o.last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND) AND u.status=1
         GROUP BY u.id, u.nickname, u.username
         ORDER BY last_seen DESC
@@ -3820,7 +3859,7 @@ function qf_online_members($limit = 20) {
     return $rows;
 }
 
-function qf_online_stat_day() {
+function pd_online_stat_day() {
     $timezone = 'Asia/Shanghai';
     try {
         return (new DateTimeImmutable('now', new DateTimeZone('UTC')))
@@ -3831,13 +3870,13 @@ function qf_online_stat_day() {
     }
 }
 
-function qf_online_record_daily_peak() {
-    $counts = qf_online_counts();
-    $day = esc(qf_online_stat_day());
+function pd_online_record_daily_peak() {
+    $counts = pd_online_counts();
+    $day = esc(pd_online_stat_day());
     $total = intval($counts['total']);
     $members = intval($counts['members']);
     $guests = intval($counts['guests']);
-    mysqli_query(db(), "INSERT INTO qf_online_daily (day_date,peak_total,peak_members,peak_guests,peak_at,updated_at)
+    mysqli_query(db(), "INSERT INTO pd_online_daily (day_date,peak_total,peak_members,peak_guests,peak_at,updated_at)
         VALUES ('{$day}',{$total},{$members},{$guests},NOW(),NOW())
         ON DUPLICATE KEY UPDATE
           peak_members = IF(VALUES(peak_total) > peak_total, VALUES(peak_members), peak_members),
@@ -3847,15 +3886,15 @@ function qf_online_record_daily_peak() {
           updated_at = NOW()");
 }
 
-function qf_online_today_peak() {
-    qf_ensure_online_schema();
-    $day = esc(qf_online_stat_day());
-    $rs = mysqli_query(db(), "SELECT * FROM qf_online_daily WHERE day_date='{$day}' LIMIT 1");
+function pd_online_today_peak() {
+    pd_ensure_online_schema();
+    $day = esc(pd_online_stat_day());
+    $rs = mysqli_query(db(), "SELECT * FROM pd_online_daily WHERE day_date='{$day}' LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($row) {
         return $row;
     }
-    $counts = qf_online_counts();
+    $counts = pd_online_counts();
     return array(
         'day_date' => $day,
         'peak_total' => intval($counts['total']),
@@ -3865,44 +3904,44 @@ function qf_online_today_peak() {
     );
 }
 
-function qf_ensure_timezone_schema() {
+function pd_ensure_timezone_schema() {
     static $done = false;
     if ($done) {
         return;
     }
     $done = true;
-    qf_ensure_account_auth_schema();
-    qf_ensure_points_schema();
-    qf_ensure_online_schema();
-    qf_ensure_pm_schema();
-    qf_migrate_storage_to_utc();
+    pd_ensure_account_auth_schema();
+    pd_ensure_points_schema();
+    pd_ensure_online_schema();
+    pd_ensure_pm_schema();
+    pd_migrate_storage_to_utc();
 }
 
-function qf_migrate_storage_to_utc() {
-    if (intval(qf_setting('data_timezone_utc_migrated', '0')) === 1) {
+function pd_migrate_storage_to_utc() {
+    if (intval(pd_setting('data_timezone_utc_migrated', '0')) === 1) {
         return;
     }
     $migrations = array(
-        'qf_users' => array('created_at', 'mute_until', 'email_bound_at'),
-        'qf_passkeys' => array('created_at', 'last_used_at'),
-        'qf_forums' => array('created_at'),
-        'qf_threads' => array('created_at', 'updated_at'),
-        'qf_thread_votes' => array('created_at', 'updated_at'),
-        'qf_thread_reactions' => array('created_at', 'updated_at'),
-        'qf_posts' => array('created_at'),
-        'qf_post_votes' => array('created_at', 'updated_at'),
-        'qf_bans' => array('expires_at', 'created_at'),
-        'qf_security_logs' => array('created_at'),
-        'qf_moderator_logs' => array('created_at'),
-        'qf_moderator_forums' => array('created_at'),
-        'qf_attachments' => array('created_at'),
-        'qf_post_comments' => array('created_at'),
-        'qf_notifications' => array('created_at'),
-        'qf_signins' => array('created_at'),
-        'qf_ads' => array('updated_at'),
-        'qf_navs' => array('created_at'),
-        'qf_invites' => array('used_at', 'expires_at', 'created_at'),
-        'qf_oauth' => array('created_at'),
+        'pd_users' => array('created_at', 'mute_until', 'email_bound_at'),
+        'pd_passkeys' => array('created_at', 'last_used_at'),
+        'pd_forums' => array('created_at'),
+        'pd_threads' => array('created_at', 'updated_at'),
+        'pd_thread_votes' => array('created_at', 'updated_at'),
+        'pd_thread_reactions' => array('created_at', 'updated_at'),
+        'pd_posts' => array('created_at'),
+        'pd_post_votes' => array('created_at', 'updated_at'),
+        'pd_bans' => array('expires_at', 'created_at'),
+        'pd_security_logs' => array('created_at'),
+        'pd_moderator_logs' => array('created_at'),
+        'pd_moderator_forums' => array('created_at'),
+        'pd_attachments' => array('created_at'),
+        'pd_post_comments' => array('created_at'),
+        'pd_notifications' => array('created_at'),
+        'pd_signins' => array('created_at'),
+        'pd_ads' => array('updated_at'),
+        'pd_navs' => array('created_at'),
+        'pd_invites' => array('used_at', 'expires_at', 'created_at'),
+        'pd_oauth' => array('created_at'),
     );
     foreach ($migrations as $table => $cols) {
         $table_check = mysqli_query(db(), "SHOW TABLES LIKE '" . esc($table) . "'");
@@ -3917,10 +3956,10 @@ function qf_migrate_storage_to_utc() {
             mysqli_query(db(), "UPDATE `{$table}` SET `{$col}` = DATE_SUB(`{$col}`, INTERVAL 8 HOUR) WHERE `{$col}` IS NOT NULL AND `{$col}` > '0000-00-00 00:00:00'");
         }
     }
-    qf_update_setting('data_timezone_utc_migrated', '1');
+    pd_update_setting('data_timezone_utc_migrated', '1');
 }
 
-function qf_timezone_choices() {
+function pd_timezone_choices() {
     return array(
         '' => '跟随浏览器（自动）',
         'Asia/Shanghai' => '中国（北京时间 UTC+8）',
@@ -3936,7 +3975,7 @@ function qf_timezone_choices() {
     );
 }
 
-function qf_valid_timezone($timezone) {
+function pd_valid_timezone($timezone) {
     $timezone = trim((string)$timezone);
     if ($timezone === '') {
         return true;
@@ -3949,7 +3988,7 @@ function qf_valid_timezone($timezone) {
     }
 }
 
-function qf_user_timezone($user = null) {
+function pd_user_timezone($user = null) {
     if ($user === null) {
         $user = current_user();
     }
@@ -3957,15 +3996,15 @@ function qf_user_timezone($user = null) {
         return '';
     }
     $timezone = isset($user['timezone']) ? trim((string)$user['timezone']) : '';
-    return qf_valid_timezone($timezone) ? $timezone : '';
+    return pd_valid_timezone($timezone) ? $timezone : '';
 }
 
-function qf_user_today_ymd($user = null) {
+function pd_user_today_ymd($user = null) {
     if (is_int($user) || (is_string($user) && $user !== '' && ctype_digit($user))) {
-        $rs = mysqli_query(db(), 'SELECT timezone FROM qf_users WHERE id=' . intval($user) . ' LIMIT 1');
+        $rs = mysqli_query(db(), 'SELECT timezone FROM pd_users WHERE id=' . intval($user) . ' LIMIT 1');
         $user = $rs ? mysqli_fetch_assoc($rs) : null;
     }
-    $timezone = qf_user_timezone($user);
+    $timezone = pd_user_timezone($user);
     if ($timezone === '') {
         $timezone = 'Asia/Shanghai';
     }
@@ -3978,7 +4017,7 @@ function qf_user_today_ymd($user = null) {
     }
 }
 
-function qf_parse_utc_timestamp($dt) {
+function pd_parse_utc_timestamp($dt) {
     $dt = trim((string)$dt);
     if ($dt === '' || strpos($dt, '0000-00-00') === 0) {
         return false;
@@ -3990,16 +4029,16 @@ function qf_parse_utc_timestamp($dt) {
     }
 }
 
-function qf_iso8601($dt) {
-    $ts = qf_parse_utc_timestamp($dt);
+function pd_iso8601($dt) {
+    $ts = pd_parse_utc_timestamp($dt);
     if ($ts === false) {
         return '';
     }
     return gmdate('Y-m-d\TH:i:s\Z', $ts);
 }
 
-function qf_time_ago($dt) {
-    $ts = qf_parse_utc_timestamp($dt);
+function pd_time_ago($dt) {
+    $ts = pd_parse_utc_timestamp($dt);
     if ($ts === false) {
         return '';
     }
@@ -4015,7 +4054,7 @@ function qf_time_ago($dt) {
     return floor($diff / 31536000) . ' 年前';
 }
 
-function qf_format_absolute($dt, $timezone = null) {
+function pd_format_absolute($dt, $timezone = null) {
     $dt = trim((string)$dt);
     if ($dt === '' || strpos($dt, '0000-00-00') === 0) {
         return '';
@@ -4023,7 +4062,7 @@ function qf_format_absolute($dt, $timezone = null) {
     try {
         $utc = new DateTimeImmutable($dt, new DateTimeZone('UTC'));
         if ($timezone === null) {
-            $timezone = qf_user_timezone();
+            $timezone = pd_user_timezone();
         }
         if ($timezone === '') {
             return $utc->format('Y-m-d H:i') . ' UTC';
@@ -4034,12 +4073,12 @@ function qf_format_absolute($dt, $timezone = null) {
     }
 }
 
-function qf_time_html($dt, $attrs = array()) {
-    $iso = qf_iso8601($dt);
+function pd_time_html($dt, $attrs = array()) {
+    $iso = pd_iso8601($dt);
     if ($iso === '') {
         return '';
     }
-    $class = isset($attrs['class']) ? (string)$attrs['class'] : 'phpdo-time';
+    $class = isset($attrs['class']) ? (string)$attrs['class'] : 'pd-time';
     $extra = '';
     foreach ($attrs as $key => $value) {
         if ($key === 'class') {
@@ -4047,18 +4086,18 @@ function qf_time_html($dt, $attrs = array()) {
         }
         $extra .= ' ' . h($key) . '="' . h((string)$value) . '"';
     }
-    return '<time class="' . h($class) . '" datetime="' . h($iso) . '" title="' . h(qf_format_absolute($dt)) . '"' . $extra . '>' . h(qf_time_ago($dt)) . '</time>';
+    return '<time class="' . h($class) . '" datetime="' . h($iso) . '" title="' . h(pd_format_absolute($dt)) . '"' . $extra . '>' . h(pd_time_ago($dt)) . '</time>';
 }
 
 function format_time($time) {
-    return qf_time_ago($time);
+    return pd_time_ago($time);
 }
 
-function qf_content_looks_like_bbcode($content) {
+function pd_content_looks_like_bbcode($content) {
     return (bool)preg_match('/\[(?:b|img|url|size|font|file)\b/i', (string)$content);
 }
 
-function qf_markdown($text) {
+function pd_markdown($text) {
     $text = (string)$text;
     if (trim($text) === '') {
         return '';
@@ -4091,20 +4130,20 @@ function qf_markdown($text) {
     return $html;
 }
 
-function qf_render_bbcode_content($content) {
+function pd_render_bbcode_content($content) {
     $html = nl2br(h($content));
     $html = preg_replace_callback('/\[file url=&quot;([^&]+)&quot; name=&quot;([^&]*)&quot; desc=&quot;([^&]*)&quot;\](.*?)\[\/file\]/is', function($m) {
-        return qf_render_file_tag($m[1], $m[2], $m[3]);
+        return pd_render_file_tag($m[1], $m[2], $m[3]);
     }, $html);
     $html = preg_replace_callback('/\[file url=&quot;([^&]+)&quot; name=&quot;([^&]*)&quot;\](.*?)\[\/file\]/is', function($m) {
-        return qf_render_file_tag($m[1], $m[2], $m[3]);
+        return pd_render_file_tag($m[1], $m[2], $m[3]);
     }, $html);
     $html = preg_replace_callback('/\[img\]((?:https?:\/\/|\/|uploads\/)[^\]\s]+)\[\/img\]/i', function($m) {
         $url = h($m[1]);
         return '<img class="remote-img" src="' . $url . '" alt="远程图片">';
     }, $html);
     $html = preg_replace_callback('/\[url=(&quot;)?((?:https?:\/\/)[^&\]\s]+)(&quot;)?\](.*?)\[\/url\]/is', function($m) {
-        return qf_render_url_tag($m[2], $m[4]);
+        return pd_render_url_tag($m[2], $m[4]);
     }, $html);
     $html = preg_replace('/\[b\](.*?)\[\/b\]/is', '<strong>$1</strong>', $html);
     $html = preg_replace('/\[size=([0-9]{1,2})\](.*?)\[\/size\]/is', '<span style="font-size:$1px">$2</span>', $html);
@@ -4112,14 +4151,14 @@ function qf_render_bbcode_content($content) {
     return $html;
 }
 
-function qf_render_content($content) {
-    if (qf_content_looks_like_bbcode($content)) {
-        return qf_render_bbcode_content($content);
+function pd_render_content($content) {
+    if (pd_content_looks_like_bbcode($content)) {
+        return pd_render_bbcode_content($content);
     }
-    return qf_markdown($content);
+    return pd_markdown($content);
 }
 
-function qf_render_url_tag($url, $text) {
+function pd_render_url_tag($url, $text) {
     $safe_url = h(html_entity_decode($url, ENT_QUOTES, 'UTF-8'));
     if (!preg_match('/^https?:\/\//i', $safe_url)) {
         return h($text);
@@ -4128,7 +4167,7 @@ function qf_render_url_tag($url, $text) {
     return '<a class="content-link" href="' . $safe_url . '" target="_blank" rel="nofollow noopener">' . $safe_text . '</a>';
 }
 
-function qf_paginate_content($content, $page_chars, $page) {
+function pd_paginate_content($content, $page_chars, $page) {
     $plain_len = function_exists('mb_strlen') ? mb_strlen($content, 'UTF-8') : strlen($content);
     $page_chars = intval($page_chars);
     if ($plain_len <= $page_chars) {
@@ -4147,7 +4186,7 @@ function qf_paginate_content($content, $page_chars, $page) {
     return array('content' => $slice, 'page' => $page, 'total' => $total);
 }
 
-function qf_render_file_tag($url, $name, $description) {
+function pd_render_file_tag($url, $name, $description) {
     $safe_url = h(html_entity_decode($url, ENT_QUOTES, 'UTF-8'));
     $safe_name = h(html_entity_decode($name, ENT_QUOTES, 'UTF-8'));
     $safe_description = h(trim(html_entity_decode($description, ENT_QUOTES, 'UTF-8')));
@@ -4156,18 +4195,18 @@ function qf_render_file_tag($url, $name, $description) {
     $delete_form = '';
     $link_attr = '';
     $raw_url = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
-    $att = qf_resolve_attachment_from_url($raw_url);
+    $att = pd_resolve_attachment_from_url($raw_url);
     if ($att) {
-        $safe_url = h(qf_attachment_url($att['id']));
+        $safe_url = h(pd_attachment_url($att['id']));
         $download_count = intval($att['download_count']);
-        $delete_form = qf_attachment_delete_form($att);
-        if (!current_user() && !qf_guest_download_allowed() && in_array(strtolower($att['file_ext']), array('zip', 'rar'))) {
-            $safe_url = h(qf_url_page('register.php'));
-            $link_attr = ' ' . qf_guest_download_confirm_onclick();
+        $delete_form = pd_attachment_delete_form($att);
+        if (!current_user() && !pd_guest_download_allowed() && in_array(strtolower($att['file_ext']), array('zip', 'rar'))) {
+            $safe_url = h(pd_url_page('register.php'));
+            $link_attr = ' ' . pd_guest_download_confirm_onclick();
         }
-    } elseif (preg_match('/^\/?uploads\/.*\.(zip|rar)$/i', $raw_url) && !current_user() && !qf_guest_download_allowed()) {
-        $safe_url = h(qf_url_page('register.php'));
-        $link_attr = ' ' . qf_guest_download_confirm_onclick();
+    } elseif (preg_match('/^\/?uploads\/.*\.(zip|rar)$/i', $raw_url) && !current_user() && !pd_guest_download_allowed()) {
+        $safe_url = h(pd_url_page('register.php'));
+        $link_attr = ' ' . pd_guest_download_confirm_onclick();
     }
     return '<div class="attachment-inline-card">'
         . '<a class="attachment-inline-link" href="' . $safe_url . '" target="_blank" rel="noopener"' . $link_attr . '>'
@@ -4190,7 +4229,7 @@ function redirect($url) {
     exit;
 }
 
-function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
+function pd_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
     if (empty($_FILES['attachments']) || !is_array($_FILES['attachments']['name'])) {
         return 0;
     }
@@ -4206,14 +4245,14 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
         return 0;
     }
 
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_attachments'");
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_attachments'");
     if (!$table || mysqli_num_rows($table) == 0) {
         $errors[] = '附件表不存在，请先访问 install/upgrade.php 升级数据库。';
         return 0;
     }
 
-    $allow_exts = qf_upload_allowed_exts();
-    $use_remote = qf_s3_enabled();
+    $allow_exts = pd_upload_allowed_exts();
+    $use_remote = pd_s3_enabled();
     $upload_dir = __DIR__ . '/uploads';
     if (!$use_remote) {
         if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
@@ -4235,7 +4274,7 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
             $errors[] = $_FILES['attachments']['name'][$i] . ' 上传失败，错误码：' . intval($_FILES['attachments']['error'][$i]);
             continue;
         }
-        $max_mb = qf_upload_max_mb();
+        $max_mb = pd_upload_max_mb();
         if ($_FILES['attachments']['size'][$i] > $max_mb * 1024 * 1024) {
             $errors[] = $_FILES['attachments']['name'][$i] . ' 超过 ' . $max_mb . 'MB，已跳过。';
             continue;
@@ -4253,14 +4292,14 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
         $safe_name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
         if ($use_remote) {
             $remote_error = '';
-            $file_path = qf_remote_upload_file($_FILES['attachments']['tmp_name'][$i], $safe_name, 'application/octet-stream', $remote_error);
+            $file_path = pd_remote_upload_file($_FILES['attachments']['tmp_name'][$i], $safe_name, 'application/octet-stream', $remote_error);
             if ($file_path === '') {
                 $errors[] = $original . ' ' . $remote_error;
                 continue;
             }
         } else {
-            qf_ensure_upload_protection();
-            if (!qf_store_uploaded_attachment_file($_FILES['attachments']['tmp_name'][$i], $ext, $file_path)) {
+            pd_ensure_upload_protection();
+            if (!pd_store_uploaded_attachment_file($_FILES['attachments']['tmp_name'][$i], $ext, $file_path)) {
                 $errors[] = $original . ' 保存失败，请检查 uploads 权限。';
                 continue;
             }
@@ -4272,7 +4311,7 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
         $thread_id = intval($thread_id);
         $post_id = intval($post_id);
         $user_id = intval($user_id);
-        $ok = mysqli_query(db(), "INSERT INTO qf_attachments (thread_id,post_id,user_id,file_path,original_name,file_ext,file_size,created_at) VALUES ({$thread_id},{$post_id},{$user_id},'{$path_sql}','{$original_sql}','{$ext_sql}',{$size},NOW())");
+        $ok = mysqli_query(db(), "INSERT INTO pd_attachments (thread_id,post_id,user_id,file_path,original_name,file_ext,file_size,created_at) VALUES ({$thread_id},{$post_id},{$user_id},'{$path_sql}','{$original_sql}','{$ext_sql}',{$size},NOW())");
         if ($ok) {
             $saved++;
         } else {
@@ -4282,9 +4321,9 @@ function qf_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
     return $saved;
 }
 if (PHP_SAPI !== 'cli') {
-    ob_start('qf_inject_csrf_fields');
-    qf_ensure_upload_protection();
-    qf_require_csrf();
+    ob_start('pd_inject_csrf_fields');
+    pd_ensure_upload_protection();
+    pd_require_csrf();
 }
-qf_security_guard();
+pd_security_guard();
 ?>

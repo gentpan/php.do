@@ -14,7 +14,7 @@ if ($file['error'] !== UPLOAD_ERR_OK) {
     exit;
 }
 
-$max_mb = qf_upload_max_mb();
+$max_mb = pd_upload_max_mb();
 if ($file['size'] > $max_mb * 1024 * 1024) {
     echo json_encode(array('ok' => 0, 'error' => '图片上传失败，文件超过 ' . $max_mb . 'MB。'));
     exit;
@@ -23,7 +23,7 @@ if ($file['size'] > $max_mb * 1024 * 1024) {
 $original = $file['name'];
 $ext = strtolower(pathinfo($original, PATHINFO_EXTENSION));
 $image_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
-if (!in_array($ext, $image_exts) || !in_array($ext, qf_upload_allowed_exts())) {
+if (!in_array($ext, $image_exts) || !in_array($ext, pd_upload_allowed_exts())) {
     echo json_encode(array('ok' => 0, 'error' => '图片上传失败，格式不支持。'));
     exit;
 }
@@ -33,13 +33,13 @@ if (@getimagesize($file['tmp_name']) === false) {
 }
 
 $safe_name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
-if (qf_s3_enabled()) {
+if (pd_s3_enabled()) {
     $remote_error = '';
     $content_type = function_exists('mime_content_type') ? mime_content_type($file['tmp_name']) : 'application/octet-stream';
     if (!$content_type || strpos($content_type, 'image/') !== 0) {
         $content_type = 'image/' . ($ext === 'jpg' ? 'jpeg' : $ext);
     }
-    $url = qf_remote_upload_file($file['tmp_name'], $safe_name, $content_type, $remote_error);
+    $url = pd_remote_upload_file($file['tmp_name'], $safe_name, $content_type, $remote_error);
     if ($url === '') {
         echo json_encode(array('ok' => 0, 'error' => '图片上传失败，' . $remote_error));
         exit;
@@ -54,7 +54,7 @@ if (qf_s3_enabled()) {
         echo json_encode(array('ok' => 0, 'error' => '图片上传失败，uploads 目录不可写。'));
         exit;
     }
-    qf_ensure_upload_protection();
+    pd_ensure_upload_protection();
     $target = $upload_dir . '/' . $safe_name;
     if (!move_uploaded_file($file['tmp_name'], $target)) {
         echo json_encode(array('ok' => 0, 'error' => '图片上传失败，保存失败。'));

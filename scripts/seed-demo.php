@@ -48,7 +48,7 @@ $reply_parts = array('赞同这个方向。', '这个信息很有用，收藏了
 $forums = array();
 foreach ($forum_names as $i => $forum) {
     $name = seed_sql($forum[0]);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_forums WHERE name='{$name}' LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id FROM pd_forums WHERE name='{$name}' LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($row) {
         $forums[] = intval($row['id']);
@@ -56,7 +56,7 @@ foreach ($forum_names as $i => $forum) {
     }
     $desc = seed_sql($forum[1]);
     $order = ($i + 1) * 10;
-    mysqli_query(db(), "INSERT INTO qf_forums (name,description,display_order,created_at) VALUES ('{$name}','{$desc}',{$order},NOW())");
+    mysqli_query(db(), "INSERT INTO pd_forums (name,description,display_order,created_at) VALUES ('{$name}','{$desc}',{$order},NOW())");
     $forums[] = intval(mysqli_insert_id(db()));
 }
 
@@ -65,27 +65,27 @@ for ($i = 1; $i <= 48; $i++) {
     $username = 'blue_demo_' . str_pad((string)$i, 3, '0', STR_PAD_LEFT);
     $nickname = seed_pick($nick_prefixes, $i) . seed_pick($nick_suffixes, $i * 3);
     $username_sql = seed_sql($username);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_users WHERE username='{$username_sql}' LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id FROM pd_users WHERE username='{$username_sql}' LIMIT 1");
     $row = $rs ? mysqli_fetch_assoc($rs) : null;
     if (!$row) {
         $nickname_sql = seed_sql($nickname);
-        $password_sql = seed_sql(qf_password_hash('demo123456'));
+        $password_sql = seed_sql(pd_password_hash('demo123456'));
         $ip_pool = array('8.8.8.8', '1.1.1.1', '223.5.5.5', '180.76.76.76', '210.140.92.187', '168.126.63.1', '165.21.83.88', '213.230.114.118');
         $ip = $ip_pool[$i % count($ip_pool)];
-        mysqli_query(db(), "INSERT INTO qf_users (username,password,nickname,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','这里是 Blue 演示用户',1," . mt_rand(0, 280) . ",0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(3, 80) . " DAY))");
+        mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,signature,status,coins,reply_count,ip,created_at) VALUES ('{$username_sql}','{$password_sql}','{$nickname_sql}','这里是 Blue 演示用户',1," . mt_rand(0, 280) . ",0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(3, 80) . " DAY))");
         $user_id = intval(mysqli_insert_id(db()));
-        $avatar = qf_generate_default_avatar($user_id, $username, $nickname);
+        $avatar = pd_generate_default_avatar($user_id, $username, $nickname);
         if ($avatar !== '') {
             $avatar_sql = seed_sql($avatar);
-            mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$user_id}");
+            mysqli_query(db(), "UPDATE pd_users SET avatar='{$avatar_sql}' WHERE id={$user_id}");
         }
         $users[] = $user_id;
     } else {
         $user_id = intval($row['id']);
-        $avatar = qf_generate_default_avatar($user_id, $username, $nickname);
+        $avatar = pd_generate_default_avatar($user_id, $username, $nickname);
         if ($avatar !== '') {
             $avatar_sql = seed_sql($avatar);
-            mysqli_query(db(), "UPDATE qf_users SET avatar='{$avatar_sql}' WHERE id={$user_id} AND avatar LIKE 'assets/avatars/%'");
+            mysqli_query(db(), "UPDATE pd_users SET avatar='{$avatar_sql}' WHERE id={$user_id} AND avatar LIKE 'assets/avatars/%'");
         }
         $users[] = $user_id;
     }
@@ -94,7 +94,7 @@ for ($i = 1; $i <= 48; $i++) {
 for ($i = 1; $i <= 160; $i++) {
     $title = seed_pick($title_starts, $i) . seed_pick($title_topics, $i * 5) . ' #' . str_pad((string)$i, 3, '0', STR_PAD_LEFT);
     $title_sql = seed_sql($title);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_threads WHERE title='{$title_sql}' LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT id FROM pd_threads WHERE title='{$title_sql}' LIMIT 1");
     $thread = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($thread) {
         continue;
@@ -114,26 +114,26 @@ for ($i = 1; $i <= 160; $i++) {
     $days = mt_rand(0, 45);
     $ip_pool = array('8.8.8.8', '1.1.1.1', '223.5.5.5', '114.114.114.114', '210.140.92.187', '168.95.1.1', '185.228.168.9', '213.230.114.118');
     $ip = $ip_pool[$i % count($ip_pool)];
-    mysqli_query(db(), "INSERT INTO qf_threads (forum_id,user_id,title,content,views,replies,is_top,is_good,is_deleted,ip,created_at,updated_at) VALUES ({$forum_id},{$user_id},'{$title_sql}','{$content_sql}',{$views},0,{$is_top},{$is_good},0,'{$ip}',DATE_SUB(NOW(), INTERVAL {$days} DAY),DATE_SUB(NOW(), INTERVAL " . max(0, $days - mt_rand(0, 3)) . " DAY))");
+    mysqli_query(db(), "INSERT INTO pd_threads (forum_id,user_id,title,content,views,replies,is_top,is_good,is_deleted,ip,created_at,updated_at) VALUES ({$forum_id},{$user_id},'{$title_sql}','{$content_sql}',{$views},0,{$is_top},{$is_good},0,'{$ip}',DATE_SUB(NOW(), INTERVAL {$days} DAY),DATE_SUB(NOW(), INTERVAL " . max(0, $days - mt_rand(0, 3)) . " DAY))");
     $thread_id = intval(mysqli_insert_id(db()));
     $reply_count = mt_rand(0, 8);
     for ($r = 1; $r <= $reply_count; $r++) {
         $reply_user = seed_pick($users, $i + $r * 9);
         $reply = seed_pick($reply_parts, $i + $r) . ' 演示回复 ' . $r . '。';
         $reply_sql = seed_sql($reply);
-        mysqli_query(db(), "INSERT INTO qf_posts (thread_id,user_id,content,is_deleted,ip,created_at) VALUES ({$thread_id},{$reply_user},'{$reply_sql}',0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(0, max(1, $days)) . " DAY))");
+        mysqli_query(db(), "INSERT INTO pd_posts (thread_id,user_id,content,is_deleted,ip,created_at) VALUES ({$thread_id},{$reply_user},'{$reply_sql}',0,'{$ip}',DATE_SUB(NOW(), INTERVAL " . mt_rand(0, max(1, $days)) . " DAY))");
     }
-    mysqli_query(db(), "UPDATE qf_threads SET replies={$reply_count} WHERE id={$thread_id}");
+    mysqli_query(db(), "UPDATE pd_threads SET replies={$reply_count} WHERE id={$thread_id}");
 }
 
-mysqli_query(db(), "UPDATE qf_users u SET reply_count=(SELECT COUNT(*) FROM qf_posts p WHERE p.user_id=u.id AND p.is_deleted=0) WHERE u.username LIKE 'blue_demo_%'");
+mysqli_query(db(), "UPDATE pd_users u SET reply_count=(SELECT COUNT(*) FROM pd_posts p WHERE p.user_id=u.id AND p.is_deleted=0) WHERE u.username LIKE 'blue_demo_%'");
 
 $counts = array();
-foreach (array('qf_forums', 'qf_users', 'qf_threads', 'qf_posts') as $table) {
+foreach (array('pd_forums', 'pd_users', 'pd_threads', 'pd_posts') as $table) {
     $rs = mysqli_query(db(), "SELECT COUNT(*) AS c FROM {$table}");
     $row = $rs ? mysqli_fetch_assoc($rs) : array('c' => 0);
     $counts[$table] = intval($row['c']);
 }
 
 echo "Demo seed complete\n";
-echo "forums={$counts['qf_forums']} users={$counts['qf_users']} threads={$counts['qf_threads']} posts={$counts['qf_posts']}\n";
+echo "forums={$counts['pd_forums']} users={$counts['pd_users']} threads={$counts['pd_threads']} posts={$counts['pd_posts']}\n";

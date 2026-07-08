@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 
-qf_ensure_account_auth_schema();
+pd_ensure_account_auth_schema();
 
-function qf_passkey_options_for_user($user) {
+function pd_passkey_options_for_user($user) {
     $allow = array();
     $uid = intval($user['id']);
-    $rs = mysqli_query(db(), "SELECT credential_id, transports FROM qf_passkeys WHERE user_id={$uid} ORDER BY id ASC");
+    $rs = mysqli_query(db(), "SELECT credential_id, transports FROM pd_passkeys WHERE user_id={$uid} ORDER BY id ASC");
     while ($rs && $row = mysqli_fetch_assoc($rs)) {
         $item = array('type' => 'public-key', 'id' => $row['credential_id']);
         $transports = array_values(array_filter(array_map('trim', explode(',', (string)$row['transports']))));
@@ -16,8 +16,8 @@ function qf_passkey_options_for_user($user) {
     return $allow;
 }
 
-function qf_passkey_attested_credential($auth_data) {
-    $info = qf_webauthn_auth_data_info($auth_data);
+function pd_passkey_attested_credential($auth_data) {
+    $info = pd_webauthn_auth_data_info($auth_data);
     if (($info['flags'] & 0x01) !== 0x01) {
         throw new Exception('请确认设备上的 Passkey 操作。');
     }
@@ -37,7 +37,7 @@ function qf_passkey_attested_credential($auth_data) {
     if ($credential_id === '' || $cose === '') {
         throw new Exception('Passkey 凭据为空。');
     }
-    qf_webauthn_public_key_pem($cose);
+    pd_webauthn_public_key_pem($cose);
     return array(
         'credential_id' => $credential_id,
         'public_key_cose' => $cose,
@@ -45,17 +45,17 @@ function qf_passkey_attested_credential($auth_data) {
     );
 }
 
-function qf_passkey_register_options() {
+function pd_passkey_register_options() {
     $u = require_login();
-    $challenge = qf_b64url_encode(random_bytes(32));
-    $_SESSION['qf_passkey_register_challenge'] = $challenge;
-    qf_json_response(array(
+    $challenge = pd_b64url_encode(random_bytes(32));
+    $_SESSION['pd_passkey_register_challenge'] = $challenge;
+    pd_json_response(array(
         'ok' => true,
         'publicKey' => array(
             'challenge' => $challenge,
-            'rp' => array('name' => qf_site_name(), 'id' => qf_webauthn_rp_id()),
+            'rp' => array('name' => pd_site_name(), 'id' => pd_webauthn_rp_id()),
             'user' => array(
-                'id' => qf_b64url_encode('user-' . intval($u['id'])),
+                'id' => pd_b64url_encode('user-' . intval($u['id'])),
                 'name' => $u['username'],
                 'displayName' => $u['nickname'] !== '' ? $u['nickname'] : $u['username']
             ),
@@ -65,7 +65,7 @@ function qf_passkey_register_options() {
             ),
             'timeout' => 60000,
             'attestation' => 'none',
-            'excludeCredentials' => qf_passkey_options_for_user($u),
+            'excludeCredentials' => pd_passkey_options_for_user($u),
             'authenticatorSelection' => array(
                 'residentKey' => 'preferred',
                 'userVerification' => 'preferred'
@@ -74,31 +74,31 @@ function qf_passkey_register_options() {
     ));
 }
 
-function qf_passkey_register_verify() {
+function pd_passkey_register_verify() {
     $u = require_login();
-    $input = qf_json_input();
-    $expected = isset($_SESSION['qf_passkey_register_challenge']) ? (string)$_SESSION['qf_passkey_register_challenge'] : '';
-    unset($_SESSION['qf_passkey_register_challenge']);
+    $input = pd_json_input();
+    $expected = isset($_SESSION['pd_passkey_register_challenge']) ? (string)$_SESSION['pd_passkey_register_challenge'] : '';
+    unset($_SESSION['pd_passkey_register_challenge']);
     try {
-        $raw_id = qf_b64url_decode(isset($input['rawId']) ? $input['rawId'] : '');
-        $client_data = qf_b64url_decode(isset($input['clientDataJSON']) ? $input['clientDataJSON'] : '');
-        $attestation_raw = qf_b64url_decode(isset($input['attestationObject']) ? $input['attestationObject'] : '');
+        $raw_id = pd_b64url_decode(isset($input['rawId']) ? $input['rawId'] : '');
+        $client_data = pd_b64url_decode(isset($input['clientDataJSON']) ? $input['clientDataJSON'] : '');
+        $attestation_raw = pd_b64url_decode(isset($input['attestationObject']) ? $input['attestationObject'] : '');
         if ($raw_id === false || $client_data === false || $attestation_raw === false || $expected === '') {
             throw new Exception('Passkey 注册请求已过期。');
         }
-        if (!qf_webauthn_verify_client($client_data, 'webauthn.create', $expected)) {
+        if (!pd_webauthn_verify_client($client_data, 'webauthn.create', $expected)) {
             throw new Exception('Passkey 注册来源验证失败。');
         }
-        $attestation = qf_cbor_decode($attestation_raw);
+        $attestation = pd_cbor_decode($attestation_raw);
         if (!is_array($attestation) || !isset($attestation['authData'])) {
             throw new Exception('Passkey 注册数据无法读取。');
         }
-        $credential = qf_passkey_attested_credential($attestation['authData']);
+        $credential = pd_passkey_attested_credential($attestation['authData']);
         if (!hash_equals($raw_id, $credential['credential_id'])) {
             throw new Exception('Passkey 凭据不一致。');
         }
-        $credential_id = esc(qf_b64url_encode($credential['credential_id']));
-        $public_key = esc(qf_b64url_encode($credential['public_key_cose']));
+        $credential_id = esc(pd_b64url_encode($credential['credential_id']));
+        $public_key = esc(pd_b64url_encode($credential['public_key_cose']));
         $label = clean_text(isset($input['label']) ? $input['label'] : '', 80);
         if ($label === '') $label = 'Passkey';
         $label_sql = esc($label);
@@ -109,37 +109,37 @@ function qf_passkey_register_verify() {
         $transports_sql = esc($transports);
         $uid = intval($u['id']);
         $count = intval($credential['sign_count']);
-        mysqli_query(db(), "INSERT INTO qf_passkeys (user_id, credential_id, public_key_cose, sign_count, label, transports, created_at) VALUES ({$uid}, '{$credential_id}', '{$public_key}', {$count}, '{$label_sql}', '{$transports_sql}', NOW()) ON DUPLICATE KEY UPDATE user_id=VALUES(user_id), public_key_cose=VALUES(public_key_cose), label=VALUES(label), transports=VALUES(transports)");
-        qf_json_response(array('ok' => true, 'message' => 'Passkey 已添加。'));
+        mysqli_query(db(), "INSERT INTO pd_passkeys (user_id, credential_id, public_key_cose, sign_count, label, transports, created_at) VALUES ({$uid}, '{$credential_id}', '{$public_key}', {$count}, '{$label_sql}', '{$transports_sql}', NOW()) ON DUPLICATE KEY UPDATE user_id=VALUES(user_id), public_key_cose=VALUES(public_key_cose), label=VALUES(label), transports=VALUES(transports)");
+        pd_json_response(array('ok' => true, 'message' => 'Passkey 已添加。'));
     } catch (Throwable $e) {
-        qf_json_response(array('ok' => false, 'error' => $e->getMessage()), 400);
+        pd_json_response(array('ok' => false, 'error' => $e->getMessage()), 400);
     }
 }
 
-function qf_passkey_login_options() {
-    $input = qf_json_input();
+function pd_passkey_login_options() {
+    $input = pd_json_input();
     $username = clean_text(isset($input['username']) ? $input['username'] : '', 30);
     if ($username === '') {
-        qf_json_response(array('ok' => false, 'error' => '请先输入用户名。'), 400);
+        pd_json_response(array('ok' => false, 'error' => '请先输入用户名。'), 400);
     }
     $username_sql = esc($username);
-    $rs = mysqli_query(db(), "SELECT * FROM qf_users WHERE username='{$username_sql}' AND status=1 LIMIT 1");
+    $rs = mysqli_query(db(), "SELECT * FROM pd_users WHERE username='{$username_sql}' AND status=1 LIMIT 1");
     $u = $rs ? mysqli_fetch_assoc($rs) : null;
     if (!$u) {
-        qf_json_response(array('ok' => false, 'error' => '没有找到这个用户。'), 404);
+        pd_json_response(array('ok' => false, 'error' => '没有找到这个用户。'), 404);
     }
-    $allow = qf_passkey_options_for_user($u);
+    $allow = pd_passkey_options_for_user($u);
     if (!$allow) {
-        qf_json_response(array('ok' => false, 'error' => '这个账号还没有绑定 Passkey。'), 404);
+        pd_json_response(array('ok' => false, 'error' => '这个账号还没有绑定 Passkey。'), 404);
     }
-    $challenge = qf_b64url_encode(random_bytes(32));
-    $_SESSION['qf_passkey_login_challenge'] = $challenge;
-    $_SESSION['qf_passkey_login_user'] = intval($u['id']);
-    qf_json_response(array(
+    $challenge = pd_b64url_encode(random_bytes(32));
+    $_SESSION['pd_passkey_login_challenge'] = $challenge;
+    $_SESSION['pd_passkey_login_user'] = intval($u['id']);
+    pd_json_response(array(
         'ok' => true,
         'publicKey' => array(
             'challenge' => $challenge,
-            'rpId' => qf_webauthn_rp_id(),
+            'rpId' => pd_webauthn_rp_id(),
             'allowCredentials' => $allow,
             'timeout' => 60000,
             'userVerification' => 'preferred'
@@ -147,37 +147,37 @@ function qf_passkey_login_options() {
     ));
 }
 
-function qf_passkey_login_verify() {
-    $input = qf_json_input();
-    $expected = isset($_SESSION['qf_passkey_login_challenge']) ? (string)$_SESSION['qf_passkey_login_challenge'] : '';
-    $expected_user = isset($_SESSION['qf_passkey_login_user']) ? intval($_SESSION['qf_passkey_login_user']) : 0;
-    unset($_SESSION['qf_passkey_login_challenge'], $_SESSION['qf_passkey_login_user']);
+function pd_passkey_login_verify() {
+    $input = pd_json_input();
+    $expected = isset($_SESSION['pd_passkey_login_challenge']) ? (string)$_SESSION['pd_passkey_login_challenge'] : '';
+    $expected_user = isset($_SESSION['pd_passkey_login_user']) ? intval($_SESSION['pd_passkey_login_user']) : 0;
+    unset($_SESSION['pd_passkey_login_challenge'], $_SESSION['pd_passkey_login_user']);
     try {
         $raw_id_b64 = isset($input['rawId']) ? (string)$input['rawId'] : '';
-        $client_data = qf_b64url_decode(isset($input['clientDataJSON']) ? $input['clientDataJSON'] : '');
-        $auth_data = qf_b64url_decode(isset($input['authenticatorData']) ? $input['authenticatorData'] : '');
-        $signature = qf_b64url_decode(isset($input['signature']) ? $input['signature'] : '');
+        $client_data = pd_b64url_decode(isset($input['clientDataJSON']) ? $input['clientDataJSON'] : '');
+        $auth_data = pd_b64url_decode(isset($input['authenticatorData']) ? $input['authenticatorData'] : '');
+        $signature = pd_b64url_decode(isset($input['signature']) ? $input['signature'] : '');
         if ($client_data === false || $auth_data === false || $signature === false || $expected === '' || $expected_user < 1) {
             throw new Exception('Passkey 登录请求已过期。');
         }
-        if (!qf_webauthn_verify_client($client_data, 'webauthn.get', $expected)) {
+        if (!pd_webauthn_verify_client($client_data, 'webauthn.get', $expected)) {
             throw new Exception('Passkey 登录来源验证失败。');
         }
         $credential_sql = esc($raw_id_b64);
-        $rs = mysqli_query(db(), "SELECT p.*, u.status FROM qf_passkeys p LEFT JOIN qf_users u ON u.id=p.user_id WHERE p.credential_id='{$credential_sql}' LIMIT 1");
+        $rs = mysqli_query(db(), "SELECT p.*, u.status FROM pd_passkeys p LEFT JOIN pd_users u ON u.id=p.user_id WHERE p.credential_id='{$credential_sql}' LIMIT 1");
         $passkey = $rs ? mysqli_fetch_assoc($rs) : null;
         if (!$passkey || intval($passkey['user_id']) !== $expected_user || intval($passkey['status']) !== 1) {
             throw new Exception('Passkey 不属于这个账号。');
         }
-        $info = qf_webauthn_auth_data_info($auth_data);
+        $info = pd_webauthn_auth_data_info($auth_data);
         if (($info['flags'] & 0x01) !== 0x01) {
             throw new Exception('请确认设备上的 Passkey 操作。');
         }
-        $public_key_cose = qf_b64url_decode($passkey['public_key_cose']);
+        $public_key_cose = pd_b64url_decode($passkey['public_key_cose']);
         if ($public_key_cose === false) {
             throw new Exception('Passkey 公钥读取失败。');
         }
-        $pem = qf_webauthn_public_key_pem($public_key_cose);
+        $pem = pd_webauthn_public_key_pem($public_key_cose);
         if ($pem === '') {
             throw new Exception('Passkey 公钥格式不支持。');
         }
@@ -187,30 +187,30 @@ function qf_passkey_login_verify() {
         }
         $pid = intval($passkey['id']);
         $counter = intval($info['sign_count']);
-        mysqli_query(db(), "UPDATE qf_passkeys SET sign_count={$counter}, last_used_at=NOW() WHERE id={$pid}");
+        mysqli_query(db(), "UPDATE pd_passkeys SET sign_count={$counter}, last_used_at=NOW() WHERE id={$pid}");
         session_regenerate_id(true);
-        $_SESSION['qf_uid'] = intval($passkey['user_id']);
-        qf_json_response(array('ok' => true, 'redirect' => qf_url_page('index.php')));
+        $_SESSION['pd_uid'] = intval($passkey['user_id']);
+        pd_json_response(array('ok' => true, 'redirect' => pd_url_page('index.php')));
     } catch (Throwable $e) {
-        qf_json_response(array('ok' => false, 'error' => $e->getMessage()), 400);
+        pd_json_response(array('ok' => false, 'error' => $e->getMessage()), 400);
     }
 }
 
-function qf_passkey_delete() {
+function pd_passkey_delete() {
     $u = require_login();
-    $input = qf_json_input();
+    $input = pd_json_input();
     $id = intval(isset($input['id']) ? $input['id'] : 0);
     if ($id < 1) {
-        qf_json_response(array('ok' => false, 'error' => '请选择要删除的 Passkey。'), 400);
+        pd_json_response(array('ok' => false, 'error' => '请选择要删除的 Passkey。'), 400);
     }
-    mysqli_query(db(), "DELETE FROM qf_passkeys WHERE id={$id} AND user_id=" . intval($u['id']));
-    qf_json_response(array('ok' => true, 'message' => 'Passkey 已删除。'));
+    mysqli_query(db(), "DELETE FROM pd_passkeys WHERE id={$id} AND user_id=" . intval($u['id']));
+    pd_json_response(array('ok' => true, 'message' => 'Passkey 已删除。'));
 }
 
 $action = isset($_GET['action']) ? clean_text($_GET['action'], 30) : '';
-if ($action === 'register-options') qf_passkey_register_options();
-if ($action === 'register-verify') qf_passkey_register_verify();
-if ($action === 'login-options') qf_passkey_login_options();
-if ($action === 'login-verify') qf_passkey_login_verify();
-if ($action === 'delete') qf_passkey_delete();
-qf_json_response(array('ok' => false, 'error' => '未知 Passkey 操作。'), 404);
+if ($action === 'register-options') pd_passkey_register_options();
+if ($action === 'register-verify') pd_passkey_register_verify();
+if ($action === 'login-options') pd_passkey_login_options();
+if ($action === 'login-verify') pd_passkey_login_verify();
+if ($action === 'delete') pd_passkey_delete();
+pd_json_response(array('ok' => false, 'error' => '未知 Passkey 操作。'), 404);

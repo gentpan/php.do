@@ -15,7 +15,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
 {
     use Notifiable;
 
-    protected $table = 'qf_users';
+    protected $table = 'pd_users';
 
     public $timestamps = false;
 
@@ -103,7 +103,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
 
     public function setRememberToken($value): void
     {
-        // qf_users has no remember_token column
+        // pd_users has no remember_token column
     }
 
     public function getRememberTokenName(): ?string

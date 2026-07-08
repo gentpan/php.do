@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ad extends Model
 {
-    protected $table = 'qf_ads';
+    protected $table = 'pd_ads';
 
     const CREATED_AT = null;
 

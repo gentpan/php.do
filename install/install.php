@@ -5,14 +5,14 @@ $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
 if (!$conn) {
     exit('数据库连接失败：' . mysqli_connect_error());
 }
-qf_assert_mysql_runtime($conn);
+pd_assert_mysql_runtime($conn);
 mysqli_query($conn, "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
 mysqli_select_db($conn, DB_NAME);
 mysqli_set_charset($conn, DB_CHARSET);
 mysqli_query($conn, "SET time_zone = '+00:00'");
 
 $sqls = array();
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_users (
   id int(11) NOT NULL AUTO_INCREMENT,
   username varchar(32) NOT NULL DEFAULT '',
   password varchar(255) NOT NULL DEFAULT '',
@@ -39,7 +39,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
   UNIQUE KEY username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_passkeys (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_passkeys (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL DEFAULT '0',
   credential_id varchar(255) NOT NULL DEFAULT '',
@@ -54,7 +54,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_passkeys (
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_forums (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_forums (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(60) NOT NULL DEFAULT '',
   description varchar(255) NOT NULL DEFAULT '',
@@ -69,7 +69,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_forums (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_threads (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_threads (
   id int(11) NOT NULL AUTO_INCREMENT,
   forum_id int(11) NOT NULL DEFAULT '0',
   user_id int(11) NOT NULL DEFAULT '0',
@@ -92,7 +92,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_threads (
   KEY is_top (is_top)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_thread_votes (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_thread_votes (
   id int(11) NOT NULL AUTO_INCREMENT,
   thread_id int(11) NOT NULL DEFAULT '0',
   user_id int(11) NOT NULL DEFAULT '0',
@@ -105,7 +105,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_thread_votes (
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_thread_reactions (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_thread_reactions (
   id int(11) NOT NULL AUTO_INCREMENT,
   thread_id int(11) NOT NULL DEFAULT '0',
   user_id int(11) NOT NULL DEFAULT '0',
@@ -118,7 +118,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_thread_reactions (
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_posts (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_posts (
   id int(11) NOT NULL AUTO_INCREMENT,
   thread_id int(11) NOT NULL DEFAULT '0',
   user_id int(11) NOT NULL DEFAULT '0',
@@ -133,7 +133,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_posts (
   KEY created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_post_votes (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_post_votes (
   id int(11) NOT NULL AUTO_INCREMENT,
   post_id int(11) NOT NULL DEFAULT '0',
   user_id int(11) NOT NULL DEFAULT '0',
@@ -146,7 +146,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_post_votes (
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_bans (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_bans (
   id int(11) NOT NULL AUTO_INCREMENT,
   ip varchar(45) NOT NULL DEFAULT '',
   reason varchar(255) NOT NULL DEFAULT '',
@@ -156,7 +156,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_bans (
   KEY ip (ip)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_security_logs (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_security_logs (
   id int(11) NOT NULL AUTO_INCREMENT,
   ip varchar(45) NOT NULL DEFAULT '',
   uri varchar(255) NOT NULL DEFAULT '',
@@ -166,7 +166,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_security_logs (
   KEY created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_moderator_logs (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_moderator_logs (
   id int(11) NOT NULL AUTO_INCREMENT,
   moderator_id int(11) NOT NULL DEFAULT '0',
   target_type varchar(20) NOT NULL DEFAULT '',
@@ -176,7 +176,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_moderator_logs (
   KEY moderator_created (moderator_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_moderator_forums (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_moderator_forums (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL DEFAULT '0',
   forum_id int(11) NOT NULL DEFAULT '0',
@@ -186,7 +186,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_moderator_forums (
   KEY forum_id (forum_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_attachments (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_attachments (
   id int(11) NOT NULL AUTO_INCREMENT,
   thread_id int(11) NOT NULL DEFAULT '0',
   post_id int(11) NOT NULL DEFAULT '0',
@@ -203,7 +203,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_attachments (
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_post_comments (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_post_comments (
   id int(11) NOT NULL AUTO_INCREMENT,
   thread_id int(11) NOT NULL DEFAULT '0',
   post_id int(11) NOT NULL DEFAULT '0',
@@ -218,7 +218,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_post_comments (
   KEY created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_notifications (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_notifications (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL DEFAULT '0',
   thread_id int(11) NOT NULL DEFAULT '0',
@@ -231,13 +231,13 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_notifications (
   KEY created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_settings (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_settings (
   setting_key varchar(60) NOT NULL DEFAULT '',
   setting_value text NOT NULL,
   PRIMARY KEY (setting_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_signins (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_signins (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL DEFAULT '0',
   signin_date date NOT NULL,
@@ -250,7 +250,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_signins (
   KEY signin_date (signin_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_ads (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_ads (
   id int(11) NOT NULL AUTO_INCREMENT,
   position varchar(30) NOT NULL DEFAULT '',
   title varchar(80) NOT NULL DEFAULT '',
@@ -264,7 +264,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_ads (
   UNIQUE KEY position (position)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_navs (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_navs (
   id int(11) NOT NULL AUTO_INCREMENT,
   title varchar(40) NOT NULL DEFAULT '',
   url varchar(255) NOT NULL DEFAULT '',
@@ -277,7 +277,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_navs (
   KEY enabled_order (is_enabled, display_order, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_invites (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_invites (
   id int(11) NOT NULL AUTO_INCREMENT,
   code varchar(32) NOT NULL,
   created_by int(11) NOT NULL DEFAULT '0',
@@ -291,7 +291,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_invites (
   KEY used_by (used_by)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-$sqls[] = "CREATE TABLE IF NOT EXISTS qf_oauth (
+$sqls[] = "CREATE TABLE IF NOT EXISTS pd_oauth (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL,
   provider varchar(20) NOT NULL,
@@ -314,26 +314,26 @@ foreach ($sqls as $sql) {
 if ($ok) {
     require_once __DIR__ . '/../functions.php';
     $forum_count = 0;
-    $rs = mysqli_query($conn, "SELECT COUNT(*) FROM qf_forums");
+    $rs = mysqli_query($conn, "SELECT COUNT(*) FROM pd_forums");
     if ($rs) {
         $row = mysqli_fetch_row($rs);
         $forum_count = intval($row[0]);
     }
     if ($forum_count === 0) {
-        mysqli_query($conn, "INSERT INTO qf_forums (name, description, topic_category_enabled, topic_categories, post_user_limit_enabled, post_user_ids, display_order, created_at) VALUES
+        mysqli_query($conn, "INSERT INTO pd_forums (name, description, topic_category_enabled, topic_categories, post_user_limit_enabled, post_user_ids, display_order, created_at) VALUES
             ('站务公告', '网站公告、规则和反馈', 0, '', 0, '', 1, NOW()),
             ('闲聊灌水', '轻松交流，分享日常', 0, '', 0, '', 2, NOW()),
             ('本地生活', '同城信息、吃喝玩乐和生活交流', 0, '', 0, '', 3, NOW())");
     }
     $admin_count = 0;
-    $rs = mysqli_query($conn, "SELECT COUNT(*) FROM qf_users WHERE is_admin=1");
+    $rs = mysqli_query($conn, "SELECT COUNT(*) FROM pd_users WHERE is_admin=1");
     if ($rs) {
         $row = mysqli_fetch_row($rs);
         $admin_count = intval($row[0]);
     }
     if ($admin_count === 0) {
-        $pass = qf_password_hash('admin123');
-        mysqli_query($conn, "INSERT INTO qf_users (username, password, nickname, is_admin, ip, created_at) VALUES ('admin', '{$pass}', '管理员', 1, '', NOW())");
+        $pass = pd_password_hash('admin123');
+        mysqli_query($conn, "INSERT INTO pd_users (username, password, nickname, is_admin, ip, created_at) VALUES ('admin', '{$pass}', '管理员', 1, '', NOW())");
     }
     $settings = array(
         'site_title' => SITE_NAME,
@@ -384,13 +384,13 @@ try_files $uri $uri/ /index.php?$query_string;'
     foreach ($settings as $k => $v) {
         $k_sql = mysqli_real_escape_string($conn, $k);
         $v_sql = mysqli_real_escape_string($conn, $v);
-        mysqli_query($conn, "INSERT IGNORE INTO qf_settings (setting_key, setting_value) VALUES ('{$k_sql}', '{$v_sql}')");
+        mysqli_query($conn, "INSERT IGNORE INTO pd_settings (setting_key, setting_value) VALUES ('{$k_sql}', '{$v_sql}')");
     }
     $ads = array('top' => '顶部广告', 'sidebar' => '右侧板块上方广告', 'footer' => '底部广告');
     foreach ($ads as $pos => $title) {
         $pos_sql = mysqli_real_escape_string($conn, $pos);
         $title_sql = mysqli_real_escape_string($conn, $title);
-        mysqli_query($conn, "INSERT IGNORE INTO qf_ads (position,title,updated_at) VALUES ('{$pos_sql}','{$title_sql}',NOW())");
+        mysqli_query($conn, "INSERT IGNORE INTO pd_ads (position,title,updated_at) VALUES ('{$pos_sql}','{$title_sql}',NOW())");
     }
 }
 ?>

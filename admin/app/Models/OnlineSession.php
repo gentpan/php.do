@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OnlineSession extends Model
 {
-    protected $table = 'qf_online';
+    protected $table = 'pd_online';
 
     protected $primaryKey = 'session_id';
 

@@ -1,60 +1,60 @@
 </main>
-</div><!-- /qf-page-frame -->
+</div><!-- /pd-page-frame -->
 <?php
 $footer_friend_links = array();
-if (qf_friend_links_enabled()) {
-    $footer_friend_links = qf_friend_links();
+if (pd_friend_links_enabled()) {
+    $footer_friend_links = pd_friend_links();
 }
 $footer_pages = array(
-    array('title' => '首页', 'url' => qf_url_page('index.php')),
-    array('title' => '搜索', 'url' => qf_url_page('search.php')),
-    array('title' => '关于', 'url' => qf_url_page('about.php')),
-    array('title' => '规则', 'url' => qf_url_page('page.php', array('slug' => 'rules'))),
-    array('title' => '帮助', 'url' => qf_url_page('page.php', array('slug' => 'help'))),
+    array('title' => '首页', 'url' => pd_url_page('index.php')),
+    array('title' => '搜索', 'url' => pd_url_page('search.php')),
+    array('title' => '关于', 'url' => pd_url_page('about.php')),
+    array('title' => '规则', 'url' => pd_url_page('page.php', array('slug' => 'rules'))),
+    array('title' => '帮助', 'url' => pd_url_page('page.php', array('slug' => 'help'))),
 );
-foreach (qf_footer_nav_forums() as $footer_forum) {
-    $footer_pages[] = array('title' => $footer_forum['name'], 'url' => qf_url_forum(intval($footer_forum['id'])));
+foreach (pd_footer_nav_forums() as $footer_forum) {
+    $footer_pages[] = array('title' => $footer_forum['name'], 'url' => pd_url_forum(intval($footer_forum['id'])));
 }
 $footer_social_links = array(
     array('title' => 'GitHub', 'url' => 'https://github.com/gentpan/php.do', 'icon' => 'fa-brands fa-github'),
     array('title' => 'Issues', 'url' => 'https://github.com/gentpan/php.do/issues', 'icon' => 'fa-regular fa-circle-question'),
 );
 $footer_user = current_user();
-qf_ensure_pm_schema();
+pd_ensure_pm_schema();
 if (!isset($current_script)) {
     $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 }
-$footer_unread_pm = $footer_user ? qf_pm_unread_count(intval($footer_user['id'])) : 0;
-$footer_unread_notifications = $footer_user ? qf_unread_notifications_count(intval($footer_user['id'])) : 0;
-$footer_signed_today = $footer_user ? qf_user_signed_today(intval($footer_user['id'])) : false;
+$footer_unread_pm = $footer_user ? pd_pm_unread_count(intval($footer_user['id'])) : 0;
+$footer_unread_notifications = $footer_user ? pd_unread_notifications_count(intval($footer_user['id'])) : 0;
+$footer_signed_today = $footer_user ? pd_user_signed_today(intval($footer_user['id'])) : false;
 $footer_is_admin = $footer_user && intval($footer_user['is_admin']) === 1;
-$footer_login_url = qf_url_page('login.php');
-$footer_home_url = qf_url_page('index.php');
-$footer_user_url = $footer_user ? qf_url_user(intval($footer_user['id'])) : $footer_login_url;
-$footer_messages_url = $footer_user ? qf_url_messages() : $footer_login_url;
-$footer_notifications_url = $footer_user ? qf_url_page('notifications.php') : $footer_login_url;
-$footer_profile_url = $footer_user ? qf_url_page('profile.php') : $footer_login_url;
-$footer_post_url = $footer_user ? qf_url_page('post.php') : $footer_login_url;
-$footer_signin_url = $footer_user ? qf_url_page('signin.php') : $footer_login_url;
-$footer_logout_url = $footer_user ? qf_url_page('logout.php') : $footer_login_url;
+$footer_login_url = pd_url_page('login.php');
+$footer_home_url = pd_url_page('index.php');
+$footer_user_url = $footer_user ? pd_url_user(intval($footer_user['id'])) : $footer_login_url;
+$footer_messages_url = $footer_user ? pd_url_messages() : $footer_login_url;
+$footer_notifications_url = $footer_user ? pd_url_page('notifications.php') : $footer_login_url;
+$footer_profile_url = $footer_user ? pd_url_page('profile.php') : $footer_login_url;
+$footer_post_url = $footer_user ? pd_url_page('post.php') : $footer_login_url;
+$footer_signin_url = $footer_user ? pd_url_page('signin.php') : $footer_login_url;
+$footer_logout_url = $footer_user ? pd_url_page('logout.php') : $footer_login_url;
 $footer_admin_url = '/admin';
-$footer_user_page_id = ($current_script === 'user.php') ? (function_exists('qf_path_id') ? qf_path_id() : intval(isset($_GET['id']) ? $_GET['id'] : 0)) : 0;
+$footer_user_page_id = ($current_script === 'user.php') ? (function_exists('pd_path_id') ? pd_path_id() : intval(isset($_GET['id']) ? $_GET['id'] : 0)) : 0;
 $footer_rail_home_active = ($current_script === 'index.php');
 $footer_rail_user_active = ($footer_user && $current_script === 'user.php' && $footer_user_page_id === intval($footer_user['id']));
 $footer_rail_messages_active = ($current_script === 'messages.php');
 $footer_rail_notifications_active = ($current_script === 'notifications.php');
 $footer_rail_profile_active = ($current_script === 'profile.php');
-$footer_icp = trim(qf_setting('icp_code', ''));
-$online = qf_online_counts();
+$footer_icp = trim(pd_setting('icp_code', ''));
+$online = pd_online_counts();
 ?>
 <footer class="site-footer">
     <div class="site-footer-inner">
         <div class="site-footer-top">
             <div class="site-footer-brand">
-                <a class="site-footer-logo" href="<?php echo h(qf_url_page('index.php')); ?>" aria-label="<?php echo h(qf_site_name()); ?>">
-                    <img src="assets/logo-white.svg" alt="<?php echo h(qf_site_name()); ?>" draggable="false" oncontextmenu="return false;">
+                <a class="site-footer-logo" href="<?php echo h(pd_url_page('index.php')); ?>" aria-label="<?php echo h(pd_site_name()); ?>">
+                    <img src="assets/logo-white.svg" alt="<?php echo h(pd_site_name()); ?>" draggable="false" oncontextmenu="return false;">
                 </a>
-                <p class="site-footer-desc"><?php echo h(qf_site_desc()); ?></p>
+                <p class="site-footer-desc"><?php echo h(pd_site_desc()); ?></p>
             </div>
             <div class="site-footer-social">
                 <?php foreach ($footer_social_links as $link) { ?>
@@ -79,44 +79,44 @@ $online = qf_online_counts();
         <?php } ?>
         <div class="site-footer-bottom">
             <div class="site-footer-meta">
-                <span class="qf-stat-chip qf-stat-chip--time" title="页面生成耗时">
-                    <span class="qf-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span>
-                    <span class="qf-stat-chip__body">
-                        <span class="qf-stat-chip__k">耗时</span>
-                        <span class="qf-stat-chip__v"><?php echo number_format(qf_perf_seconds(), 3); ?>s</span>
+                <span class="pd-stat-chip pd-stat-chip--time" title="页面生成耗时">
+                    <span class="pd-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span>
+                    <span class="pd-stat-chip__body">
+                        <span class="pd-stat-chip__k">耗时</span>
+                        <span class="pd-stat-chip__v"><?php echo number_format(pd_perf_seconds(), 3); ?>s</span>
                     </span>
                 </span>
-                <span class="qf-stat-chip qf-stat-chip--sql" title="数据库查询次数">
-                    <span class="qf-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-database"></i></span>
-                    <span class="qf-stat-chip__body">
-                        <span class="qf-stat-chip__k">SQL</span>
-                        <span class="qf-stat-chip__v"><?php echo intval(qf_perf_sql_count()); ?></span>
+                <span class="pd-stat-chip pd-stat-chip--sql" title="数据库查询次数">
+                    <span class="pd-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-database"></i></span>
+                    <span class="pd-stat-chip__body">
+                        <span class="pd-stat-chip__k">SQL</span>
+                        <span class="pd-stat-chip__v"><?php echo intval(pd_perf_sql_count()); ?></span>
                     </span>
                 </span>
-                <span class="qf-stat-chip qf-stat-chip--online" title="当前在线人数">
-                    <span class="qf-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-signal"></i></span>
-                    <span class="qf-stat-chip__body">
-                        <span class="qf-stat-chip__k">在线</span>
-                        <span class="qf-stat-chip__v"><?php echo intval($online['total']); ?></span>
+                <span class="pd-stat-chip pd-stat-chip--online" title="当前在线人数">
+                    <span class="pd-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-signal"></i></span>
+                    <span class="pd-stat-chip__body">
+                        <span class="pd-stat-chip__k">在线</span>
+                        <span class="pd-stat-chip__v"><?php echo intval($online['total']); ?></span>
                     </span>
                 </span>
                 <?php if ($footer_icp !== '') { ?><span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?>
             </div>
-            <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(qf_site_name()); ?></span>
+            <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(pd_site_name()); ?></span>
         </div>
     </div>
 </footer>
-<div class="qf-search-window" id="qf-search-modal" data-search-close>
-    <div class="qf-search-window-box">
-        <form method="get" action="<?php echo h(qf_url_page('search.php')); ?>" role="search">
+<div class="pd-search-window" id="pd-search-modal" data-search-close>
+    <div class="pd-search-window-box">
+        <form method="get" action="<?php echo h(pd_url_page('search.php')); ?>" role="search">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
             <input name="q" placeholder="搜索帖子、版块、分类…" autocomplete="off" aria-label="搜索">
             <kbd>Esc</kbd>
         </form>
-        <div class="qf-search-window-hint">回车搜索 · <kbd>Esc</kbd> 关闭 · <kbd>⌘/Ctrl</kbd>&nbsp;<kbd>K</kbd> 或 <kbd>/</kbd> 打开</div>
+        <div class="pd-search-window-hint">回车搜索 · <kbd>Esc</kbd> 关闭 · <kbd>⌘/Ctrl</kbd>&nbsp;<kbd>K</kbd> 或 <kbd>/</kbd> 打开</div>
     </div>
 </div>
-<nav class="cir-rail phpdo-right-toolbar" aria-label="页面工具栏">
+<nav class="cir-rail pd-right-toolbar" aria-label="页面工具栏">
     <button type="button" class="cir-rail__b" data-scroll-top aria-label="返回顶部" data-tooltip="返回顶部">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="18 15 12 9 6 15"></polyline>
@@ -231,22 +231,22 @@ $online = qf_online_counts();
     <?php } ?>
 </nav>
 <script src="assets/lib/litezoom.min.js"></script>
-<script src="<?php echo h(qf_asset_js('main', 'assets/')); ?>"></script>
+<script src="<?php echo h(pd_asset_js('main', 'assets/')); ?>"></script>
 <script>
 (function () {
     // Preline UI 初始化（页面加载 + AJAX 局部替换后）
-    function qfPrelineInit() {
+    function pdPrelineInit() {
         if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
             window.HSStaticMethods.autoInit();
         }
     }
-    if (document.readyState !== 'loading') { qfPrelineInit(); }
-    window.addEventListener('load', qfPrelineInit);
-    window.qfPrelineInit = qfPrelineInit;
+    if (document.readyState !== 'loading') { pdPrelineInit(); }
+    window.addEventListener('load', pdPrelineInit);
+    window.pdPrelineInit = pdPrelineInit;
 
     // 搜索模态窗：⌘/Ctrl+K 或 / 打开，Esc / 点击遮罩关闭
     (function () {
-        var modal = document.getElementById('qf-search-modal');
+        var modal = document.getElementById('pd-search-modal');
         if (!modal) return;
         var input = modal.querySelector('input[name="q"]');
         function openWin() {
@@ -268,9 +268,9 @@ $online = qf_online_counts();
     (function () {
         var order = ['system', 'light', 'dark'];
         var labels = { system: '跟随系统', light: '浅色', dark: '深色' };
-        function pref() { try { return localStorage.getItem('qfThemeMode') || 'system'; } catch (e) { return 'system'; } }
+        function pref() { try { return localStorage.getItem('pdThemeMode') || 'system'; } catch (e) { return 'system'; } }
         function systemDark() { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); }
-        function apply(p) { document.body.classList.toggle('theme-php-dark', p === 'dark' || (p === 'system' && systemDark())); }
+        function apply(p) { document.body.classList.toggle('theme-pd-dark', p === 'dark' || (p === 'system' && systemDark())); }
         function refresh(p) {
             var btns = document.querySelectorAll('[data-theme-toggle]');
             for (var i = 0; i < btns.length; i++) {
@@ -300,7 +300,7 @@ $online = qf_online_counts();
         for (var i = 0; i < btns.length; i++) {
             btns[i].addEventListener('click', function () {
                 var next = order[(order.indexOf(pref()) + 1) % order.length];
-                try { localStorage.setItem('qfThemeMode', next); } catch (e) {}
+                try { localStorage.setItem('pdThemeMode', next); } catch (e) {}
                 apply(next); refresh(next);
             });
         }
@@ -319,11 +319,11 @@ $online = qf_online_counts();
         // e.defaultPrevented 会变为 true，这时不显示加载层，避免模糊层卡死。
         window.setTimeout(function () {
             if (e.defaultPrevented) return;
-            if (typeof window.qfSetLoading !== 'function') return;
-            window.qfSetLoading(true, 'page');
+            if (typeof window.pdSetLoading !== 'function') return;
+            window.pdSetLoading(true, 'page');
             // 兜底：万一跳转最终没有发生，10 秒后自动清除加载层。
             window.setTimeout(function () {
-                if (typeof window.qfSetLoading === 'function') window.qfSetLoading(false, 'page');
+                if (typeof window.pdSetLoading === 'function') window.pdSetLoading(false, 'page');
             }, 10000);
         }, 0);
     });
@@ -331,6 +331,6 @@ $online = qf_online_counts();
 </script>
 <script defer src="https://tongji.giantaccel.com/script.js" data-website-id="ae0c1e6e-e652-480f-a501-5ec214700ddd"></script>
 <script defer src="https://tongji.giantaccel.com/recorder.js" data-website-id="ae0c1e6e-e652-480f-a501-5ec214700ddd"></script>
-<?php echo qf_setting('stats_code', ''); ?>
+<?php echo pd_setting('stats_code', ''); ?>
 </body>
 </html>

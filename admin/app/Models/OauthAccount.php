@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OauthAccount extends Model
 {
-    protected $table = 'qf_oauth';
+    protected $table = 'pd_oauth';
 
     public $timestamps = false;
 

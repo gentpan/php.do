@@ -69,7 +69,7 @@
             credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': window.qfCsrfToken || ''
+                'X-CSRF-Token': window.pdCsrfToken || ''
             },
             body: JSON.stringify(payload || {})
         }).then(function(res) {
@@ -190,7 +190,7 @@
     }
 
     function initSearchModal() {
-        var modal = document.getElementById('qf-search-modal');
+        var modal = document.getElementById('pd-search-modal');
         if (!modal) return;
         var input = modal.querySelector('input[name="q"]');
 
@@ -228,17 +228,17 @@
 
     function initSigninModal() {
         function closeSigninModal() {
-            var modal = document.getElementById('qf-signin-modal');
+            var modal = document.getElementById('pd-signin-modal');
             if (modal) modal.style.display = 'none';
         }
 
-        window.qfCloseSigninModal = closeSigninModal;
+        window.pdCloseSigninModal = closeSigninModal;
         document.addEventListener('click', function(e) {
             if (e.target.closest('[data-signin-close]')) closeSigninModal();
         });
     }
 
-    function qfConfirm(message, opts) {
+    function pdConfirm(message, opts) {
         opts = opts || {};
         var title = opts.title || '确认操作';
         var confirmText = opts.confirmText || '确定';
@@ -246,29 +246,29 @@
         var danger = opts.danger !== false;
 
         return new Promise(function(resolve) {
-            var existing = document.getElementById('qf-confirm-overlay');
+            var existing = document.getElementById('pd-confirm-overlay');
             if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
 
             var overlay = document.createElement('div');
-            overlay.id = 'qf-confirm-overlay';
-            overlay.className = 'qf-confirm-overlay';
+            overlay.id = 'pd-confirm-overlay';
+            overlay.className = 'pd-confirm-overlay';
             overlay.innerHTML =
-                '<div class="qf-confirm-box" role="dialog" aria-modal="true" aria-labelledby="qf-confirm-title">' +
-                '<div class="qf-confirm-head">' +
-                '<span class="qf-confirm-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>' +
-                '<h3 class="qf-confirm-title" id="qf-confirm-title"></h3>' +
+                '<div class="pd-confirm-box" role="dialog" aria-modal="true" aria-labelledby="pd-confirm-title">' +
+                '<div class="pd-confirm-head">' +
+                '<span class="pd-confirm-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>' +
+                '<h3 class="pd-confirm-title" id="pd-confirm-title"></h3>' +
                 '</div>' +
-                '<p class="qf-confirm-message"></p>' +
-                '<div class="qf-confirm-actions">' +
-                '<button type="button" class="btn btn-light" data-qf-confirm-cancel></button>' +
-                '<button type="button" class="btn' + (danger ? ' btn-danger' : '') + '" data-qf-confirm-ok></button>' +
+                '<p class="pd-confirm-message"></p>' +
+                '<div class="pd-confirm-actions">' +
+                '<button type="button" class="btn btn-light" data-pd-confirm-cancel></button>' +
+                '<button type="button" class="btn' + (danger ? ' btn-danger' : '') + '" data-pd-confirm-ok></button>' +
                 '</div></div>';
 
             document.body.appendChild(overlay);
-            overlay.querySelector('.qf-confirm-title').textContent = title;
-            overlay.querySelector('.qf-confirm-message').textContent = message || '';
-            overlay.querySelector('[data-qf-confirm-cancel]').textContent = cancelText;
-            overlay.querySelector('[data-qf-confirm-ok]').textContent = confirmText;
+            overlay.querySelector('.pd-confirm-title').textContent = title;
+            overlay.querySelector('.pd-confirm-message').textContent = message || '';
+            overlay.querySelector('[data-pd-confirm-cancel]').textContent = cancelText;
+            overlay.querySelector('[data-pd-confirm-ok]').textContent = confirmText;
 
             var settled = false;
             function finish(ok) {
@@ -294,19 +294,19 @@
             overlay.addEventListener('click', function(e) {
                 if (e.target === overlay) finish(false);
             });
-            overlay.querySelector('[data-qf-confirm-cancel]').addEventListener('click', function() { finish(false); });
-            overlay.querySelector('[data-qf-confirm-ok]').addEventListener('click', function() { finish(true); });
+            overlay.querySelector('[data-pd-confirm-cancel]').addEventListener('click', function() { finish(false); });
+            overlay.querySelector('[data-pd-confirm-ok]').addEventListener('click', function() { finish(true); });
             document.addEventListener('keydown', onKey);
 
             requestAnimationFrame(function() {
                 overlay.classList.add('is-open');
-                overlay.querySelector('[data-qf-confirm-ok]').focus();
+                overlay.querySelector('[data-pd-confirm-ok]').focus();
             });
         });
     }
-    window.qfConfirm = qfConfirm;
+    window.pdConfirm = pdConfirm;
 
-    function qfConfirmOpts(message) {
+    function pdConfirmOpts(message) {
         var msg = String(message || '');
         var isDelete = /删除|清除|重置/.test(msg);
         return {
@@ -327,7 +327,7 @@
             var loginRequired = e.target.closest('[data-login-required]');
             if (loginRequired) {
                 e.preventDefault();
-                qfConfirm('需要登录才能进行此操作', { title: '需要登录', confirmText: '去登录', danger: false }).then(function(ok) {
+                pdConfirm('需要登录才能进行此操作', { title: '需要登录', confirmText: '去登录', danger: false }).then(function(ok) {
                     if (ok) window.location.href = loginRequired.getAttribute('data-login-url') || loginRequired.href;
                 });
                 return;
@@ -345,7 +345,7 @@
             if (!msg) return;
             e.preventDefault();
 
-            qfConfirm(msg, qfConfirmOpts(msg)).then(function(ok) {
+            pdConfirm(msg, pdConfirmOpts(msg)).then(function(ok) {
                 if (!ok) return;
                 if (confirmed.tagName === 'A') {
                     window.location.href = confirmed.href;
@@ -353,7 +353,7 @@
                 }
                 var form = confirmed.form || confirmed.closest('form');
                 if (form && (confirmed.tagName === 'BUTTON' || confirmed.tagName === 'INPUT')) {
-                    form.setAttribute('data-qf-confirmed', '1');
+                    form.setAttribute('data-pd-confirmed', '1');
                     if (typeof form.requestSubmit === 'function') form.requestSubmit(confirmed);
                     else form.submit();
                 }
@@ -362,16 +362,16 @@
 
         document.addEventListener('submit', function(e) {
             var form = e.target.closest('form');
-            if (!form || form.getAttribute('data-qf-confirmed') === '1') return;
+            if (!form || form.getAttribute('data-pd-confirmed') === '1') return;
 
             var submitter = e.submitter || null;
             var msg = form.getAttribute('data-confirm') || (submitter && submitter.getAttribute('data-confirm'));
             if (!msg) return;
 
             e.preventDefault();
-            qfConfirm(msg, qfConfirmOpts(msg)).then(function(ok) {
+            pdConfirm(msg, pdConfirmOpts(msg)).then(function(ok) {
                 if (!ok) return;
-                form.setAttribute('data-qf-confirmed', '1');
+                form.setAttribute('data-pd-confirmed', '1');
                 if (typeof form.requestSubmit === 'function') form.requestSubmit(submitter || undefined);
                 else form.submit();
             });
@@ -389,7 +389,7 @@
             if (ip && ips.indexOf(ip) < 0) ips.push(ip);
         });
         if (!ips.length) return;
-        var base = window.qfGeoipUrl || 'api/geoip.php';
+        var base = window.pdGeoipUrl || 'api/geoip.php';
         var url = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'ips=' + encodeURIComponent(ips.join(','));
         fetch(url, { credentials: 'same-origin' }).then(function(r) {
             return r.json();
@@ -405,15 +405,15 @@
                 if (info.region && info.region !== info.country) parts.push(info.region);
                 else if (info.city && info.city !== info.country) parts.push(info.city);
                 var label = parts.join(' · ');
-                var flagWrap = el.querySelector('.phpdo-ip-flag-wrap');
-                var detail = el.querySelector('.phpdo-ip-detail');
+                var flagWrap = el.querySelector('.pd-ip-flag-wrap');
+                var detail = el.querySelector('.pd-ip-detail');
                 var flagUrl = (info.flag || '').trim();
                 var code = (info.country_code || '').toLowerCase();
                 if (!flagUrl && code) {
                     flagUrl = 'https://flagcdn.io/' + encodeURIComponent(code) + '.svg';
                 }
                 if (flagUrl && flagWrap) {
-                    flagWrap.innerHTML = '<img class="phpdo-ip-flag" src="' + flagUrl.replace(/"/g, '') + '" alt="" width="16" height="16" loading="lazy" decoding="async">';
+                    flagWrap.innerHTML = '<img class="pd-ip-flag" src="' + flagUrl.replace(/"/g, '') + '" alt="" width="16" height="16" loading="lazy" decoding="async">';
                     flagWrap.hidden = false;
                     el.classList.add('has-flag');
                 }
@@ -426,7 +426,7 @@
     }
 
     function initIpGeo() {
-        window.qfLoadIpGeo = loadIpGeo;
+        window.pdLoadIpGeo = loadIpGeo;
         // 尽快发起：原先 idle/最多等 2s 会体感更慢
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() { loadIpGeo(document); });
@@ -457,7 +457,7 @@
                 }).then(function(data) {
                     badge.classList.remove('is-loading');
                     if (!data || !data.ok) {
-                        if (window.qfToast) window.qfToast((data && data.msg) ? data.msg : '操作失败');
+                        if (window.pdToast) window.pdToast((data && data.msg) ? data.msg : '操作失败');
                         return;
                     }
                     if (data.redirect) {
@@ -467,26 +467,26 @@
                     if (data.removed) {
                         var reply = badge.closest('.reply');
                         if (reply && reply.parentNode) reply.parentNode.removeChild(reply);
-                        if (window.qfToast && data.msg) window.qfToast(data.msg);
+                        if (window.pdToast && data.msg) window.pdToast(data.msg);
                         return;
                     }
                     if (typeof data.tools === 'string') {
                         var tools = badge.closest('[data-thread-tools]');
                         if (tools) {
                             tools.innerHTML = data.tools;
-                            if (window.qfLoadIpGeo) window.qfLoadIpGeo(tools);
+                            if (window.pdLoadIpGeo) window.pdLoadIpGeo(tools);
                         }
-                        if (window.qfToast && data.msg) window.qfToast(data.msg);
+                        if (window.pdToast && data.msg) window.pdToast(data.msg);
                     }
                 }).catch(function() {
                     badge.classList.remove('is-loading');
-                    if (window.qfToast) window.qfToast('网络错误，请重试');
+                    if (window.pdToast) window.pdToast('网络错误，请重试');
                 });
             }
 
             var confirmMsg = badge.getAttribute('data-confirm');
             if (confirmMsg) {
-                qfConfirm(confirmMsg, { title: '确认删除', confirmText: '删除', danger: true }).then(function(ok) {
+                pdConfirm(confirmMsg, { title: '确认删除', confirmText: '删除', danger: true }).then(function(ok) {
                     if (ok) runAjax();
                 });
                 return;
@@ -501,11 +501,11 @@
         root.querySelectorAll(imageSelector).forEach(function(img) {
             if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
             img.setAttribute('decoding', 'async');
-            img.classList.add('qf-zoomable-image');
+            img.classList.add('pd-zoomable-image');
         });
 
-        if (window.LiteZoom && !window.qfLiteZoomBound) {
-            window.qfLiteZoomBound = true;
+        if (window.LiteZoom && !window.pdLiteZoomBound) {
+            window.pdLiteZoomBound = true;
             window.LiteZoom.bind(imageSelector, {
                 mode: 'full',
                 group: function(img) {
@@ -541,7 +541,7 @@
     }
 
     function formatAbsolute(d) {
-        var tz = (window.qfUserTimezone || '').trim();
+        var tz = (window.pdUserTimezone || '').trim();
         var opts = {
             year: 'numeric',
             month: '2-digit',
@@ -561,7 +561,7 @@
     }
 
     function enhanceTimes(root) {
-        (root || document).querySelectorAll('.phpdo-time[datetime]').forEach(function(el) {
+        (root || document).querySelectorAll('.pd-time[datetime]').forEach(function(el) {
             var iso = el.getAttribute('datetime');
             if (!iso) return;
             var d = new Date(iso);
@@ -571,7 +571,7 @@
         });
     }
 
-    function qfConfettiBurst(anchor, opts) {
+    function pdConfettiBurst(anchor, opts) {
         if (!anchor || typeof anchor.getBoundingClientRect !== 'function') return;
         opts = opts || {};
         var themes = {
@@ -587,16 +587,16 @@
         var x = rect.left + rect.width / 2;
         var y = rect.top + rect.height / 2;
         var layer = document.createElement('div');
-        layer.className = 'phpdo-confetti-layer';
+        layer.className = 'pd-confetti-layer';
         layer.setAttribute('aria-hidden', 'true');
         document.body.appendChild(layer);
         var colors = ['#f5a623', '#ff674f', '#505b93', '#ff8ab0', '#79c779', '#ffd54f'];
         var i, p, angle, dist, dx, dy, rot, size;
         for (i = 0; i < theme.count; i++) {
             p = document.createElement('span');
-            p.className = 'phpdo-confetti-piece';
+            p.className = 'pd-confetti-piece';
             if (theme.emojis && theme.emojis.length) {
-                p.className += ' phpdo-confetti-emoji';
+                p.className += ' pd-confetti-emoji';
                 p.textContent = theme.emojis[i % theme.emojis.length];
             } else {
                 size = 5 + Math.random() * 7;
@@ -622,7 +622,7 @@
         }, 1400);
     }
 
-    function qfReactionPop(btn) {
+    function pdReactionPop(btn) {
         if (!btn) return;
         btn.classList.remove('is-popping');
         void btn.offsetWidth;
@@ -639,7 +639,7 @@
             e.preventDefault();
             var root = form.closest('[data-thread-votes], [data-post-votes]');
             var data = new FormData(form);
-            if (!data.get('csrf_token')) data.append('csrf_token', window.qfCsrfToken || '');
+            if (!data.get('csrf_token')) data.append('csrf_token', window.pdCsrfToken || '');
             fetch(form.action, {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -667,8 +667,8 @@
                     downButton.setAttribute('aria-pressed', Number(json.vote) === -1 ? 'true' : 'false');
                 }
                 if (Number(json.vote) === 1) {
-                    qfConfettiBurst(upButton || form, { theme: 'upvote' });
-                    qfReactionPop(upButton);
+                    pdConfettiBurst(upButton || form, { theme: 'upvote' });
+                    pdReactionPop(upButton);
                 }
             }).catch(function(err) {
                 toast(err.message || '投票失败。', 'error');
@@ -686,7 +686,7 @@
 
     function initAjaxFilters() {
         document.addEventListener('click', function(e) {
-            var feedLink = e.target.closest('.phpdo-feed-tabs a[data-feed-filter]');
+            var feedLink = e.target.closest('.pd-feed-tabs a[data-feed-filter]');
             if (feedLink && !feedLink.target && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
                 var feedFilter = feedLink.getAttribute('data-feed-filter') || 'reply';
                 var feedUrl = new URL(window.location.origin + window.location.pathname);
@@ -702,7 +702,7 @@
                     })
                     .then(function(html) {
                         var nextDoc = new DOMParser().parseFromString(html, 'text/html');
-                        replaceFrom(nextDoc, ['.phpdo-feed-tabs', '.latest-list', '.phpdo-breadcrumb']);
+                        replaceFrom(nextDoc, ['.pd-feed-tabs', '.latest-list', '.pd-breadcrumb']);
                         ensureFeedDots();
                         var curList = document.querySelector('[data-feed-list]');
                         var nextList = nextDoc.querySelector('[data-feed-list]');
@@ -712,10 +712,10 @@
                             curList.setAttribute('data-filter', nextList.getAttribute('data-filter') || feedFilter);
                         }
                         document.title = nextDoc.title || document.title;
-                        if (typeof window.qfFeedRememberTitle === 'function') {
-                            window.qfFeedRememberTitle(document.title);
+                        if (typeof window.pdFeedRememberTitle === 'function') {
+                            window.pdFeedRememberTitle(document.title);
                         }
-                        if (typeof window.qfFeedSync === 'function') window.qfFeedSync();
+                        if (typeof window.pdFeedSync === 'function') window.pdFeedSync();
                         enhanceMedia(document);
                     })
                     .catch(function() {
@@ -750,7 +750,7 @@
                     });
 
                     document.title = nextDoc.title || document.title;
-                    history.pushState({ qfAjax: true }, '', url.href);
+                    history.pushState({ pdAjax: true }, '', url.href);
                     enhanceMedia(document);
                 })
                 .catch(function() {
@@ -787,7 +787,7 @@
 
         function renderMoreUi() {
             if (moreBtn) moreBtn.hidden = !state.hasMore;
-            if (endEl) endEl.hidden = state.hasMore || !list.querySelector('.phpdo-thread-row');
+            if (endEl) endEl.hidden = state.hasMore || !list.querySelector('.pd-thread-row');
         }
 
         function syncDocTitle(n) {
@@ -848,7 +848,7 @@
                 .then(function(html) {
                     var tmp = document.createElement('div');
                     tmp.innerHTML = html;
-                    var added = tmp.querySelectorAll('.phpdo-thread-row').length;
+                    var added = tmp.querySelectorAll('.pd-thread-row').length;
                     if (added) {
                         var frag = document.createDocumentFragment();
                         while (tmp.firstChild) frag.appendChild(tmp.firstChild);
@@ -901,7 +901,7 @@
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) poll();
         });
-        window.qfFeedRememberTitle = rememberBaseTitle;
+        window.pdFeedRememberTitle = rememberBaseTitle;
 
         if (newBtn) {
             newBtn.addEventListener('click', function() {
@@ -936,45 +936,45 @@
             });
         }
 
-        window.qfFeedSync = syncFromList;
+        window.pdFeedSync = syncFromList;
         syncFromList();
     }
 
     function ensureTopLoadBar() {
-        if (document.querySelector('.qf-topload')) return;
+        if (document.querySelector('.pd-topload')) return;
         var loader = document.createElement('div');
-        loader.className = 'qf-topload';
+        loader.className = 'pd-topload';
         loader.setAttribute('aria-hidden', 'true');
         loader.innerHTML = '<div class="progress-container"><div class="progress-bar"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div><div class="progress-text">0%</div></div>';
         document.body.appendChild(loader);
     }
 
     function ensurePageSpinner() {
-        if (document.querySelector('.qf-loading-indicator')) return;
+        if (document.querySelector('.pd-loading-indicator')) return;
         var loader = document.createElement('div');
-        loader.className = 'qf-loading-indicator';
+        loader.className = 'pd-loading-indicator';
         loader.setAttribute('aria-hidden', 'true');
         loader.innerHTML = PAGE_SPINNER_SVG;
         document.body.appendChild(loader);
     }
 
     function ensureFeedDots() {
-        var tabs = document.querySelector('.phpdo-feed-tabs');
+        var tabs = document.querySelector('.pd-feed-tabs');
         if (!tabs) return null;
-        var dots = tabs.querySelector('.phpdo-feed-loading');
+        var dots = tabs.querySelector('.pd-feed-loading');
         if (dots) return dots;
         dots = document.createElement('span');
-        dots.className = 'phpdo-feed-loading';
+        dots.className = 'pd-feed-loading';
         dots.setAttribute('aria-hidden', 'true');
         dots.innerHTML = FEED_DOTS_SVG;
-        var rss = tabs.querySelector('.phpdo-rss');
+        var rss = tabs.querySelector('.pd-rss');
         if (rss) tabs.insertBefore(dots, rss);
         else tabs.appendChild(dots);
         return dots;
     }
 
     function loadbarSet(pct) {
-        var el = document.querySelector('.qf-topload');
+        var el = document.querySelector('.pd-topload');
         if (!el) return;
         pct = Math.max(0, Math.min(100, pct));
         var bar = el.querySelector('.progress-bar');
@@ -989,7 +989,7 @@
 
     // 逐帧补间到目标值：保证进度条与数字同步，且 1-100 每个整数都会被显示出来
     function loadbarAnimateTo(target, duration, cb) {
-        var el = document.querySelector('.qf-topload');
+        var el = document.querySelector('.pd-topload');
         var bar = el ? el.querySelector('.progress-bar') : null;
         if (loadProgress.raf) { cancelAnimationFrame(loadProgress.raf); loadProgress.raf = null; }
         var startVal = loadProgress.value;
@@ -1061,18 +1061,18 @@
         if (mode === 'bar') {
             if (on && !wasOn) loadbarStart();
             else if (!on && wasOn) loadbarDone();
-            document.body.classList.toggle('qf-is-bar-loading', on);
+            document.body.classList.toggle('pd-is-bar-loading', on);
             return;
         }
 
         if (mode === 'dots') {
             ensureFeedDots();
-            document.body.classList.toggle('qf-is-feed-loading', on);
+            document.body.classList.toggle('pd-is-feed-loading', on);
             return;
         }
 
         if (on) ensurePageSpinner();
-        document.body.classList.toggle('qf-is-loading', on);
+        document.body.classList.toggle('pd-is-loading', on);
     }
 
     function clearModeLoading(mode) {
@@ -1083,14 +1083,14 @@
             if (loadProgress.raf) { cancelAnimationFrame(loadProgress.raf); loadProgress.raf = null; }
             loadProgress.value = 0;
             loadbarSet(0);
-            document.body.classList.remove('qf-is-bar-loading');
+            document.body.classList.remove('pd-is-bar-loading');
             return;
         }
         if (mode === 'dots') {
-            document.body.classList.remove('qf-is-feed-loading');
+            document.body.classList.remove('pd-is-feed-loading');
             return;
         }
-        document.body.classList.remove('qf-is-loading', 'qf-ajax-loading');
+        document.body.classList.remove('pd-is-loading', 'pd-ajax-loading');
     }
 
     function clearAllLoading() {
@@ -1146,13 +1146,13 @@
     }
 
     function initHomeBarLoading() {
-        if (window.__qfHomeBarEarly) {
+        if (window.__pdHomeBarEarly) {
             // header 已提前点亮彩色条，这里接管进度动画并在 load 后收起
             loadingCounts.bar = Math.max(1, loadingCounts.bar);
-            document.body.classList.add('qf-is-bar-loading');
+            document.body.classList.add('pd-is-bar-loading');
             loadbarStart();
             finishHomeBarSoon();
-            window.__qfHomeBarEarly = false;
+            window.__pdHomeBarEarly = false;
             return;
         }
         if (!shouldShowHomeBar(getNavigationType())) return;
@@ -1181,23 +1181,23 @@
         if (!message) return;
         var isError = type === 'error';
 
-        var stack = document.querySelector('.qf-toast-stack');
+        var stack = document.querySelector('.pd-toast-stack');
         if (!stack) {
             stack = document.createElement('div');
-            stack.className = 'qf-toast-stack';
+            stack.className = 'pd-toast-stack';
             stack.setAttribute('aria-live', 'polite');
             stack.setAttribute('aria-atomic', 'true');
             document.body.appendChild(stack);
         }
 
         var item = document.createElement('div');
-        item.className = 'qf-toast qf-toast-' + (isError ? 'error' : 'success');
+        item.className = 'pd-toast pd-toast-' + (isError ? 'error' : 'success');
         item.setAttribute('role', isError ? 'alert' : 'status');
         item.innerHTML = (isError
             ? '<i class="fa-solid fa-triangle-exclamation"></i>'
             : '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>')
-            + '<span class="qf-toast-message"></span>';
-        item.querySelector('.qf-toast-message').textContent = message;
+            + '<span class="pd-toast-message"></span>';
+        item.querySelector('.pd-toast-message').textContent = message;
         stack.appendChild(item);
 
         var close = function() {
@@ -1211,7 +1211,7 @@
     }
 
     function initToast() {
-        window.qfToast = toast;
+        window.pdToast = toast;
         window.alert = function(message) {
             toast(message, 'error');
         };
@@ -1225,7 +1225,7 @@
     }
 
     function initRightToolbar() {
-        var toolbar = document.querySelector('.phpdo-right-toolbar');
+        var toolbar = document.querySelector('.pd-right-toolbar');
         if (!toolbar) return;
         var topButton = toolbar.querySelector('[data-scroll-top]');
 
@@ -1255,7 +1255,7 @@
         var form = root.querySelector('[data-pm-form]');
         var input = form ? form.querySelector('[data-pm-input]') : null;
         var apiUrl = form ? (form.getAttribute('data-pm-api') || '') : '';
-        var uid = parseInt(window.qfCurrentUserId || '0', 10) || 0;
+        var uid = parseInt(window.pdCurrentUserId || '0', 10) || 0;
 
         function scrollStreamToBottom() {
             if (!stream) return;
@@ -1264,13 +1264,13 @@
 
         function appendMessage(msg) {
             if (!stream || !msg) return;
-            var empty = stream.querySelector('.phpdo-messages-empty-chat');
+            var empty = stream.querySelector('.pd-messages-empty-chat');
             if (empty) empty.remove();
             var row = document.createElement('article');
-            row.className = 'phpdo-msg-row is-mine';
+            row.className = 'pd-msg-row is-mine';
             row.setAttribute('data-message-id', String(msg.id || ''));
             var bubble = document.createElement('div');
-            bubble.className = 'phpdo-msg-bubble';
+            bubble.className = 'pd-msg-bubble';
             var body = document.createElement('p');
             body.textContent = msg.body || '';
             var time = document.createElement('time');
@@ -1305,7 +1305,7 @@
             if (!body) return;
             var data = new FormData(form);
             data.set('body', body);
-            if (!data.get('csrf_token')) data.append('csrf_token', window.qfCsrfToken || '');
+            if (!data.get('csrf_token')) data.append('csrf_token', window.pdCsrfToken || '');
             var submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.disabled = true;
             fetch(apiUrl, {
@@ -1350,7 +1350,7 @@
             var url = btn.getAttribute('data-rss-url') || '';
             if (!url) return;
             var done = function() {
-                if (window.qfToast) window.qfToast('复制 RSS 成功');
+                if (window.pdToast) window.pdToast('复制 RSS 成功');
                 btn.classList.add('is-copied');
                 window.clearTimeout(btn._rssCopiedTimer);
                 btn._rssCopiedTimer = window.setTimeout(function() {
@@ -1373,7 +1373,7 @@
         var loginUrl = box.getAttribute('data-login-url') || '';
         var threadId = box.getAttribute('data-thread-id') || '';
         box.addEventListener('click', function(e) {
-            var btn = e.target.closest ? e.target.closest('.phpdo-reaction') : null;
+            var btn = e.target.closest ? e.target.closest('.pd-reaction') : null;
             if (!btn || !box.contains(btn)) return;
             if (!loggedIn) {
                 if (loginUrl) window.location.href = loginUrl;
@@ -1381,13 +1381,13 @@
             }
             var reaction = btn.getAttribute('data-reaction') || '';
             if (!reaction || btn.disabled) return;
-            var buttons = box.querySelectorAll('.phpdo-reaction');
+            var buttons = box.querySelectorAll('.pd-reaction');
             var i;
             for (i = 0; i < buttons.length; i++) buttons[i].disabled = true;
             var data = new FormData();
             data.append('thread_id', threadId);
             data.append('reaction', reaction);
-            data.append('csrf_token', window.qfCsrfToken || '');
+            data.append('csrf_token', window.pdCsrfToken || '');
             fetch('api/react.php', {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -1417,8 +1417,8 @@
                 }
                 if (json.active) {
                     var activeBtn = box.querySelector('[data-reaction="' + json.active + '"]') || btn;
-                    qfConfettiBurst(activeBtn, { theme: json.active });
-                    qfReactionPop(activeBtn);
+                    pdConfettiBurst(activeBtn, { theme: json.active });
+                    pdReactionPop(activeBtn);
                 }
             }).catch(function(err) {
                 toast(err.message || '操作失败。', 'error');
@@ -1429,8 +1429,8 @@
         });
     }
 
-    window.qfEnhanceMedia = enhanceMedia;
-    window.qfSetLoading = setLoading;
+    window.pdEnhanceMedia = enhanceMedia;
+    window.pdSetLoading = setLoading;
     initNavMore();
     initPasskeys();
     initSearchModal();
@@ -1452,6 +1452,6 @@
     initReactions();
 
     requestAnimationFrame(function() {
-        document.body.classList.add('qf-page-ready');
+        document.body.classList.add('pd-page-ready');
     });
 })();

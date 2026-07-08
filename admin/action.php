@@ -3,8 +3,8 @@ require_once __DIR__ . '/../functions.php';
 require_admin();
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
-function qf_action_thread_row($id) {
-    $r = mysqli_query(db(), "SELECT id, ip, is_top, is_good FROM qf_threads WHERE id=" . intval($id) . " LIMIT 1");
+function pd_action_thread_row($id) {
+    $r = mysqli_query(db(), "SELECT id, ip, is_top, is_good FROM pd_threads WHERE id=" . intval($id) . " LIMIT 1");
     return $r ? mysqli_fetch_assoc($r) : array('id' => intval($id));
 }
 
@@ -17,7 +17,7 @@ if ($action === 'add_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_post_user_ids = esc(clean_text($_POST['new_post_user_ids'], 255));
     $order = intval($_POST['display_order']);
     if ($name !== '') {
-        mysqli_query(db(), "INSERT INTO qf_forums (name, description, topic_category_enabled, topic_categories, post_user_limit_enabled, post_user_ids, display_order, created_at) VALUES ('{$name}', '{$desc}', {$new_topic_category_enabled}, '{$new_topic_categories}', {$new_post_user_limit_enabled}, '{$new_post_user_ids}', {$order}, NOW())");
+        mysqli_query(db(), "INSERT INTO pd_forums (name, description, topic_category_enabled, topic_categories, post_user_limit_enabled, post_user_ids, display_order, created_at) VALUES ('{$name}', '{$desc}', {$new_topic_category_enabled}, '{$new_topic_categories}', {$new_post_user_limit_enabled}, '{$new_post_user_ids}', {$order}, NOW())");
     }
     redirect('/admin');
 }
@@ -27,8 +27,8 @@ if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($delete_forums as $forum_id) {
         $forum_id = intval($forum_id);
         if ($forum_id > 0) {
-            mysqli_query(db(), "UPDATE qf_threads SET is_deleted=1 WHERE forum_id={$forum_id}");
-            mysqli_query(db(), "DELETE FROM qf_forums WHERE id={$forum_id}");
+            mysqli_query(db(), "UPDATE pd_threads SET is_deleted=1 WHERE forum_id={$forum_id}");
+            mysqli_query(db(), "DELETE FROM pd_forums WHERE id={$forum_id}");
         }
     }
 
@@ -46,8 +46,8 @@ if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $post_user_ids = esc(clean_text($data['post_user_ids'], 255));
             $order = intval($data['display_order']);
             if ($name !== '') {
-                mysqli_query(db(), "UPDATE qf_forums SET name='{$name}', description='{$desc}', topic_category_enabled={$topic_category_enabled}, topic_categories='{$topic_categories}', post_user_limit_enabled={$post_user_limit_enabled}, post_user_ids='{$post_user_ids}', display_order={$order} WHERE id={$forum_id}");
-                if (qf_table_has_column('qf_forums', 'banner')
+                mysqli_query(db(), "UPDATE pd_forums SET name='{$name}', description='{$desc}', topic_category_enabled={$topic_category_enabled}, topic_categories='{$topic_categories}', post_user_limit_enabled={$post_user_limit_enabled}, post_user_ids='{$post_user_ids}', display_order={$order} WHERE id={$forum_id}");
+                if (pd_table_has_column('pd_forums', 'banner')
                     && isset($_FILES['forum_banner']['name'][$forum_id])
                     && $_FILES['forum_banner']['name'][$forum_id] !== ''
                     && $_FILES['forum_banner']['error'][$forum_id] === UPLOAD_ERR_OK) {
@@ -61,7 +61,7 @@ if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                         $fname = 'banner_' . $forum_id . '_' . date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
                         if (move_uploaded_file($_FILES['forum_banner']['tmp_name'][$forum_id], $dir . '/' . $fname)) {
                             $bpath = esc('uploads/banners/' . $fname);
-                            mysqli_query(db(), "UPDATE qf_forums SET banner='{$bpath}' WHERE id={$forum_id}");
+                            mysqli_query(db(), "UPDATE pd_forums SET banner='{$bpath}' WHERE id={$forum_id}");
                         }
                     }
                 }
@@ -82,15 +82,15 @@ if ($action === 'add_ban' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $days = 3650;
     }
     if ($ip !== '') {
-        mysqli_query(db(), "INSERT INTO qf_bans (ip, reason, expires_at, created_at) VALUES ('{$ip}', '{$reason}', DATE_ADD(NOW(), INTERVAL {$days} DAY), NOW())");
+        mysqli_query(db(), "INSERT INTO pd_bans (ip, reason, expires_at, created_at) VALUES ('{$ip}', '{$reason}', DATE_ADD(NOW(), INTERVAL {$days} DAY), NOW())");
     }
     redirect('/admin');
 }
 
 if ($action === 'del_ban') {
     $id = intval($_GET['id']);
-    qf_require_action_token('del_ban', $id);
-    mysqli_query(db(), "DELETE FROM qf_bans WHERE id={$id}");
+    pd_require_action_token('del_ban', $id);
+    mysqli_query(db(), "DELETE FROM pd_bans WHERE id={$id}");
     redirect('/admin');
 }
 
@@ -104,7 +104,7 @@ if ($action === 'mute_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $days = 3650;
     }
     if ($user_id > 0) {
-        mysqli_query(db(), "UPDATE qf_users SET mute_until=DATE_ADD(NOW(), INTERVAL {$days} DAY) WHERE id={$user_id} AND is_admin=0");
+        mysqli_query(db(), "UPDATE pd_users SET mute_until=DATE_ADD(NOW(), INTERVAL {$days} DAY) WHERE id={$user_id} AND is_admin=0");
         $_SESSION['flash'] = '已禁止该用户发言 ' . $days . ' 天。';
     }
     redirect('/admin/users');
@@ -121,13 +121,13 @@ if ($action === 'set_moderator' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $moderator_delete_limit = 10000;
     }
     if ($user_id > 0) {
-        mysqli_query(db(), "DELETE FROM qf_moderator_forums WHERE user_id={$user_id}");
+        mysqli_query(db(), "DELETE FROM pd_moderator_forums WHERE user_id={$user_id}");
         if ($forum_id > 0) {
-            mysqli_query(db(), "UPDATE qf_users SET is_moderator=1, moderator_delete_limit={$moderator_delete_limit} WHERE id={$user_id} AND is_admin=0");
-            mysqli_query(db(), "INSERT INTO qf_moderator_forums (user_id,forum_id,created_at) VALUES ({$user_id},{$forum_id},NOW())");
+            mysqli_query(db(), "UPDATE pd_users SET is_moderator=1, moderator_delete_limit={$moderator_delete_limit} WHERE id={$user_id} AND is_admin=0");
+            mysqli_query(db(), "INSERT INTO pd_moderator_forums (user_id,forum_id,created_at) VALUES ({$user_id},{$forum_id},NOW())");
             $_SESSION['flash'] = '版主权限已更新，已任命到具体板块。';
         } else {
-            mysqli_query(db(), "UPDATE qf_users SET is_moderator=0, moderator_delete_limit=0 WHERE id={$user_id} AND is_admin=0");
+            mysqli_query(db(), "UPDATE pd_users SET is_moderator=0, moderator_delete_limit=0 WHERE id={$user_id} AND is_admin=0");
             $_SESSION['flash'] = '已取消版主权限。';
         }
     }
@@ -138,8 +138,8 @@ if ($action === 'change_user_password' && $_SERVER['REQUEST_METHOD'] === 'POST')
     $user_id = intval($_POST['user_id']);
     $password = (string)$_POST['password'];
     if ($user_id > 0 && strlen($password) >= 6) {
-        $password_sql = esc(qf_password_hash($password));
-        mysqli_query(db(), "UPDATE qf_users SET password='{$password_sql}' WHERE id={$user_id} AND is_admin=0");
+        $password_sql = esc(pd_password_hash($password));
+        mysqli_query(db(), "UPDATE pd_users SET password='{$password_sql}' WHERE id={$user_id} AND is_admin=0");
         $_SESSION['flash'] = '用户密码已修改。';
     } else {
         $_SESSION['flash'] = '密码修改失败，新密码至少 6 位。';
@@ -150,11 +150,11 @@ if ($action === 'change_user_password' && $_SERVER['REQUEST_METHOD'] === 'POST')
 if ($action === 'clear_user_content' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = intval($_POST['user_id']);
     if ($user_id > 0) {
-        mysqli_query(db(), "UPDATE qf_threads SET is_deleted=1 WHERE user_id={$user_id}");
-        mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE user_id={$user_id}");
-        mysqli_query(db(), "UPDATE qf_threads t SET replies=(SELECT COUNT(*) FROM qf_posts p WHERE p.thread_id=t.id AND p.is_deleted=0) WHERE t.id IN (SELECT thread_id FROM qf_posts WHERE user_id={$user_id})");
-        mysqli_query(db(), "UPDATE qf_users SET reply_count=0 WHERE id={$user_id} AND is_admin=0");
-        qf_recalc_user_points($user_id);
+        mysqli_query(db(), "UPDATE pd_threads SET is_deleted=1 WHERE user_id={$user_id}");
+        mysqli_query(db(), "UPDATE pd_posts SET is_deleted=1 WHERE user_id={$user_id}");
+        mysqli_query(db(), "UPDATE pd_threads t SET replies=(SELECT COUNT(*) FROM pd_posts p WHERE p.thread_id=t.id AND p.is_deleted=0) WHERE t.id IN (SELECT thread_id FROM pd_posts WHERE user_id={$user_id})");
+        mysqli_query(db(), "UPDATE pd_users SET reply_count=0 WHERE id={$user_id} AND is_admin=0");
+        pd_recalc_user_points($user_id);
         $_SESSION['flash'] = '已清除该用户全部发帖和回帖，并重算积分。';
     }
     redirect('/admin/users');
@@ -166,7 +166,7 @@ if ($action === 'adjust_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $note = clean_text(isset($_POST['note']) ? $_POST['note'] : '', 120);
     $me = current_user();
     if ($user_id > 0 && $delta !== 0) {
-        qf_add_user_points($user_id, $delta, 'admin', 'user', $user_id, $note !== '' ? $note : '后台调整', intval($me['id']));
+        pd_add_user_points($user_id, $delta, 'admin', 'user', $user_id, $note !== '' ? $note : '后台调整', intval($me['id']));
         $_SESSION['flash'] = '已调整用户积分 ' . ($delta > 0 ? '+' : '') . $delta . '。';
     } else {
         $_SESSION['flash'] = '积分调整失败，请填写非零数量。';
@@ -177,7 +177,7 @@ if ($action === 'adjust_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($action === 'recalc_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = intval($_POST['user_id']);
     if ($user_id > 0) {
-        $total = qf_recalc_user_points($user_id);
+        $total = pd_recalc_user_points($user_id);
         $_SESSION['flash'] = '已重算该用户积分，当前为 ' . intval($total) . '。';
     }
     redirect('/admin/users');
@@ -186,14 +186,14 @@ if ($action === 'recalc_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($action === 'reset_user_avatar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = intval($_POST['user_id']);
     if ($user_id > 0) {
-        $ur = mysqli_query(db(), "SELECT username, nickname FROM qf_users WHERE id={$user_id} AND is_admin=0 LIMIT 1");
+        $ur = mysqli_query(db(), "SELECT username, nickname FROM pd_users WHERE id={$user_id} AND is_admin=0 LIMIT 1");
         $urow = $ur ? mysqli_fetch_assoc($ur) : null;
         if ($urow) {
             $seed = (string)mt_rand(1, 999999);
-            $path = qf_save_chosen_cartoon($user_id, $urow['username'], $urow['nickname'], $seed);
+            $path = pd_save_chosen_cartoon($user_id, $urow['username'], $urow['nickname'], $seed);
             if ($path !== '') {
                 $path_sql = esc($path);
-                mysqli_query(db(), "UPDATE qf_users SET avatar='{$path_sql}' WHERE id={$user_id} AND is_admin=0");
+                mysqli_query(db(), "UPDATE pd_users SET avatar='{$path_sql}' WHERE id={$user_id} AND is_admin=0");
                 $_SESSION['flash'] = '已为该用户重置为随机卡通头像。';
             } else {
                 $_SESSION['flash'] = '重置头像失败，请检查 assets/avatars 目录权限。';
@@ -205,94 +205,94 @@ if ($action === 'reset_user_avatar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($action === 'top_board') {
     $id = intval($_GET['id']);
-    qf_require_action_token('top_board', $id);
-    mysqli_query(db(), "UPDATE qf_threads SET is_top=2 WHERE id={$id}");
-    if (qf_is_ajax_request()) {
-        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html(qf_action_thread_row($id)), 'msg' => '已本版块置顶'));
+    pd_require_action_token('top_board', $id);
+    mysqli_query(db(), "UPDATE pd_threads SET is_top=2 WHERE id={$id}");
+    if (pd_is_ajax_request()) {
+        pd_json_response(array('ok' => 1, 'tools' => pd_thread_admin_tools_html(pd_action_thread_row($id)), 'msg' => '已本版块置顶'));
     }
-    redirect(qf_url_thread($id));
+    redirect(pd_url_thread($id));
 }
 
 if ($action === 'top_global') {
     $id = intval($_GET['id']);
-    qf_require_action_token('top_global', $id);
-    mysqli_query(db(), "UPDATE qf_threads SET is_top=1 WHERE id={$id}");
-    if (qf_is_ajax_request()) {
-        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html(qf_action_thread_row($id)), 'msg' => '已全站置顶'));
+    pd_require_action_token('top_global', $id);
+    mysqli_query(db(), "UPDATE pd_threads SET is_top=1 WHERE id={$id}");
+    if (pd_is_ajax_request()) {
+        pd_json_response(array('ok' => 1, 'tools' => pd_thread_admin_tools_html(pd_action_thread_row($id)), 'msg' => '已全站置顶'));
     }
-    redirect(qf_url_thread($id));
+    redirect(pd_url_thread($id));
 }
 
 if ($action === 'cancel_top') {
     $id = intval($_GET['id']);
-    qf_require_action_token('cancel_top', $id);
-    mysqli_query(db(), "UPDATE qf_threads SET is_top=0 WHERE id={$id}");
-    if (qf_is_ajax_request()) {
-        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html(qf_action_thread_row($id)), 'msg' => '已取消置顶'));
+    pd_require_action_token('cancel_top', $id);
+    mysqli_query(db(), "UPDATE pd_threads SET is_top=0 WHERE id={$id}");
+    if (pd_is_ajax_request()) {
+        pd_json_response(array('ok' => 1, 'tools' => pd_thread_admin_tools_html(pd_action_thread_row($id)), 'msg' => '已取消置顶'));
     }
-    redirect(qf_url_thread($id));
+    redirect(pd_url_thread($id));
 }
 
 if ($action === 'move_thread' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = intval($_POST['thread_id']);
     $new_forum_id = intval($_POST['new_forum_id']);
     if ($id > 0 && $new_forum_id > 0) {
-        mysqli_query(db(), "UPDATE qf_threads SET forum_id={$new_forum_id}, topic_category='' WHERE id={$id}");
+        mysqli_query(db(), "UPDATE pd_threads SET forum_id={$new_forum_id}, topic_category='' WHERE id={$id}");
     }
-    redirect(qf_url_thread($id));
+    redirect(pd_url_thread($id));
 }
 
 if ($action === 'good') {
     $id = intval($_GET['id']);
-    qf_require_action_token('good', $id);
-    $before = qf_action_thread_row($id);
+    pd_require_action_token('good', $id);
+    $before = pd_action_thread_row($id);
     $was_good = intval(isset($before['is_good']) ? $before['is_good'] : 0);
-    mysqli_query(db(), "UPDATE qf_threads SET is_good=IF(is_good=1,0,1) WHERE id={$id}");
-    $row = qf_action_thread_row($id);
+    mysqli_query(db(), "UPDATE pd_threads SET is_good=IF(is_good=1,0,1) WHERE id={$id}");
+    $row = pd_action_thread_row($id);
     $now_good = intval(isset($row['is_good']) ? $row['is_good'] : 0);
     $author_id = intval(isset($row['user_id']) ? $row['user_id'] : 0);
-    $bonus = qf_points_for_good();
+    $bonus = pd_points_for_good();
     if ($author_id > 0 && $bonus > 0 && $was_good !== $now_good) {
-        qf_add_user_points($author_id, $now_good ? $bonus : -$bonus, $now_good ? 'good_on' : 'good_off', 'thread', $id);
+        pd_add_user_points($author_id, $now_good ? $bonus : -$bonus, $now_good ? 'good_on' : 'good_off', 'thread', $id);
     }
-    if (qf_is_ajax_request()) {
-        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html($row), 'msg' => $now_good ? '已加精' : '已取消加精'));
+    if (pd_is_ajax_request()) {
+        pd_json_response(array('ok' => 1, 'tools' => pd_thread_admin_tools_html($row), 'msg' => $now_good ? '已加精' : '已取消加精'));
     }
-    redirect(qf_url_thread($id));
+    redirect(pd_url_thread($id));
 }
 
 if ($action === 'del_thread') {
     $id = intval($_GET['id']);
-    qf_require_action_token('del_thread', $id);
-    $before = qf_action_thread_row($id);
-    mysqli_query(db(), "UPDATE qf_threads SET is_deleted=1 WHERE id={$id}");
+    pd_require_action_token('del_thread', $id);
+    $before = pd_action_thread_row($id);
+    mysqli_query(db(), "UPDATE pd_threads SET is_deleted=1 WHERE id={$id}");
     if ($before && intval(isset($before['is_deleted']) ? $before['is_deleted'] : 0) === 0) {
         $author_id = intval(isset($before['user_id']) ? $before['user_id'] : 0);
         if ($author_id > 0) {
-            $delta = -qf_points_for_thread();
+            $delta = -pd_points_for_thread();
             if (intval(isset($before['is_good']) ? $before['is_good'] : 0) === 1) {
-                $delta -= qf_points_for_good();
+                $delta -= pd_points_for_good();
             }
             if ($delta !== 0) {
-                qf_add_user_points($author_id, $delta, 'del_thread', 'thread', $id);
+                pd_add_user_points($author_id, $delta, 'del_thread', 'thread', $id);
             }
         }
     }
-    if (qf_is_ajax_request()) {
-        qf_json_response(array('ok' => 1, 'redirect' => qf_url_page('index.php'), 'msg' => '已删除该主题'));
+    if (pd_is_ajax_request()) {
+        pd_json_response(array('ok' => 1, 'redirect' => pd_url_page('index.php'), 'msg' => '已删除该主题'));
     }
-    redirect(qf_url_page('index.php'));
+    redirect(pd_url_page('index.php'));
 }
 
 if ($action === 'del_post') {
     $id = intval($_GET['id']);
     $tid = intval($_GET['tid']);
-    qf_require_action_token('del_post', $id, $tid);
-    qf_soft_delete_post($id, $tid);
-    if (qf_is_ajax_request()) {
-        qf_json_response(array('ok' => 1, 'removed' => 1, 'post_id' => $id, 'msg' => '已删除该回复'));
+    pd_require_action_token('del_post', $id, $tid);
+    pd_soft_delete_post($id, $tid);
+    if (pd_is_ajax_request()) {
+        pd_json_response(array('ok' => 1, 'removed' => 1, 'post_id' => $id, 'msg' => '已删除该回复'));
     }
-    redirect(qf_url_thread($tid));
+    redirect(pd_url_thread($tid));
 }
 
 redirect('/admin');

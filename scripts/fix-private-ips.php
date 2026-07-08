@@ -37,7 +37,7 @@ $public_ips = array(
     '213.230.114.118',  // UZ（站内已有真实样本）
 );
 
-function qf_fix_pick_public_ip(array $pool, $seed) {
+function pd_fix_pick_public_ip(array $pool, $seed) {
     $n = count($pool);
     if ($n < 1) {
         return '8.8.8.8';
@@ -46,10 +46,10 @@ function qf_fix_pick_public_ip(array $pool, $seed) {
 }
 
 $tables = array(
-    'qf_threads' => 'id',
-    'qf_posts' => 'id',
-    'qf_post_comments' => 'id',
-    'qf_users' => 'id',
+    'pd_threads' => 'id',
+    'pd_posts' => 'id',
+    'pd_post_comments' => 'id',
+    'pd_users' => 'id',
 );
 
 $summary = array();
@@ -66,10 +66,10 @@ foreach ($tables as $table => $id_col) {
     $rs = mysqli_query(db(), "SELECT `{$id_col}` AS rid, ip FROM `{$table}`");
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $old = isset($row['ip']) ? trim((string)$row['ip']) : '';
-        if ($old !== '' && !qf_ip_is_private_or_local($old)) {
+        if ($old !== '' && !pd_ip_is_private_or_local($old)) {
             continue;
         }
-        $new_ip = esc(qf_fix_pick_public_ip($public_ips, $table . ':' . $row['rid']));
+        $new_ip = esc(pd_fix_pick_public_ip($public_ips, $table . ':' . $row['rid']));
         if (mysqli_query(db(), "UPDATE `{$table}` SET ip='{$new_ip}' WHERE `{$id_col}`=" . intval($row['rid']))) {
             $updated++;
         }

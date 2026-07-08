@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(array('ok' => 0, 'error' => 'Method not allowed'));
     exit;
 }
-if (!qf_verify_csrf()) {
+if (!pd_verify_csrf()) {
     echo json_encode(array('ok' => 0, 'error' => 'CSRF 校验失败'));
     exit;
 }
@@ -22,7 +22,7 @@ if (function_exists('mb_strlen')) {
     $markdown = substr($markdown, 0, $max);
 }
 
-$html = qf_markdown($markdown);
+$html = pd_markdown($markdown);
 if (trim($html) === '') {
     $html = '<div class="empty">预览会显示在这里</div>';
 }

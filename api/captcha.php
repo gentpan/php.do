@@ -6,7 +6,7 @@ $code = '';
 for ($i = 0; $i < 4; $i++) {
     $code .= $chars[random_int(0, strlen($chars) - 1)];
 }
-$_SESSION['qf_captcha_answer'] = $code;
+$_SESSION['pd_captcha_answer'] = $code;
 
 header('Content-Type: image/svg+xml; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
