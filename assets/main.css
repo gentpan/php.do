@@ -3546,6 +3546,129 @@ body.theme-pd .pd-breadcrumb strong {
     text-decoration: none;
 }
 
+/* 首页视图切换：列表 ⇄ 版块 */
+body.theme-pd .pd-home-switch {
+    display: inline-flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    padding: 4px;
+    background: var(--pd-card-bg);
+    border: var(--pd-card-border);
+    border-radius: 8px;
+}
+body.theme-pd .pd-home-switch button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 16px;
+    color: var(--pd-muted);
+    font-size: 13px;
+    font-weight: 700;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+body.theme-pd .pd-home-switch button.active {
+    color: #fff;
+    background: var(--pd-accent);
+}
+
+/* 视图显隐 */
+body.theme-pd .pd-board { display: none; }
+body.theme-pd .pd-home-shell[data-home-view="board"] .pd-home-layout { display: none; }
+body.theme-pd .pd-home-shell[data-home-view="board"] .pd-board { display: block; }
+
+/* 版块表（phpBB prosilver 骨架 + 扁平配色） */
+body.theme-pd .pd-board {
+    background: var(--pd-card-bg);
+    border: var(--pd-card-border);
+    border-radius: var(--pd-card-radius-lg);
+    box-shadow: var(--pd-card-shadow-subtle);
+    overflow: hidden;
+}
+body.theme-pd .pd-board-cat {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 76px 76px 224px;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 18px;
+    color: #fff;
+    background: var(--pd-accent);
+    font-size: 13px;
+    font-weight: 700;
+}
+body.theme-pd .pd-board-cat-title { grid-column: 1 / 3; font-size: 14px; }
+body.theme-pd .pd-board-h { text-align: center; }
+body.theme-pd .pd-board-h-last { text-align: left; }
+body.theme-pd .pd-board-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 76px 76px 224px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--pd-line);
+}
+body.theme-pd .pd-board-row:last-child { border-bottom: 0; }
+body.theme-pd .pd-board-row:nth-child(even) { background: var(--pd-surface-soft); }
+body.theme-pd .pd-board-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--pd-accent);
+    font-size: 18px;
+    background: var(--pd-surface);
+    border: 1px solid var(--pd-border);
+    border-radius: 50%;
+    text-decoration: none;
+}
+body.theme-pd .pd-board-main { min-width: 0; }
+body.theme-pd .pd-board-name {
+    color: var(--pd-text-title);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+}
+body.theme-pd .pd-board-name:hover { color: var(--pd-accent); }
+body.theme-pd .pd-board-desc {
+    margin: 3px 0 0;
+    color: var(--pd-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+body.theme-pd .pd-board-num { text-align: center; color: var(--pd-text-body); }
+body.theme-pd .pd-board-num b { display: block; font-size: 15px; font-weight: 700; }
+body.theme-pd .pd-board-num span { display: none; }
+body.theme-pd .pd-board-last { min-width: 0; }
+body.theme-pd .pd-board-last-title {
+    display: block;
+    overflow: hidden;
+    color: var(--pd-text-title);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+body.theme-pd .pd-board-last-title:hover { color: var(--pd-accent); }
+body.theme-pd .pd-board-last-meta { margin: 2px 0 0; color: var(--pd-muted); font-size: 12px; }
+body.theme-pd .pd-board-last-meta a { color: var(--pd-accent); text-decoration: none; }
+body.theme-pd .pd-board-last-empty { color: var(--pd-faint); font-size: 12px; }
+
+@media (max-width: 720px) {
+    body.theme-pd .pd-board-cat { grid-template-columns: 1fr; }
+    body.theme-pd .pd-board-cat-title { grid-column: auto; }
+    body.theme-pd .pd-board-h { display: none; }
+    body.theme-pd .pd-board-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+    body.theme-pd .pd-board-icon { flex: 0 0 auto; }
+    body.theme-pd .pd-board-main { flex: 1; }
+    body.theme-pd .pd-board-num { display: none; }
+    body.theme-pd .pd-board-last { flex-basis: 100%; margin-top: 6px; padding-left: 56px; }
+}
+
 body.theme-pd .pd-home-layout {
     display: grid;
     grid-template-columns: var(--pd-home-cols);

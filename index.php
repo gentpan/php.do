@@ -178,6 +178,19 @@ while ($forums && ($forum = mysqli_fetch_assoc($forums))) {
     $forum_rows[] = $forum;
 }
 
+// 板块视图：每个版块的「最新文章」（标题/时间/作者）
+$forum_last = array();
+$last_rs = mysqli_query(db(), "SELECT t.forum_id, t.id, t.title, t.updated_at, u.id AS uid, u.nickname, u.username
+    FROM pd_threads t
+    INNER JOIN (SELECT forum_id, MAX(updated_at) AS m FROM pd_threads WHERE is_deleted=0 GROUP BY forum_id) x
+      ON t.forum_id = x.forum_id AND t.updated_at = x.m
+    LEFT JOIN pd_users u ON t.user_id = u.id
+    WHERE t.is_deleted=0
+    GROUP BY t.forum_id");
+while ($last_rs && ($lr = mysqli_fetch_assoc($last_rs))) {
+    $forum_last[intval($lr['forum_id'])] = $lr;
+}
+
 $latest_rs = mysqli_query(db(), $pd_thread_select . " LIMIT " . ($pd_per_page + 1));
 $latest_rows = array();
 while ($latest_rs && ($t = mysqli_fetch_assoc($latest_rs))) { $latest_rows[] = $t; }
@@ -203,8 +216,14 @@ $latest_users = pd_latest_users(8);
 
 pd_include_header();
 ?>
-<div class="pd-home-shell">
+<div class="pd-home-shell" data-home-view="list">
     <?php echo pd_render_ad('top'); ?>
+
+    <div class="pd-home-switch" role="tablist" aria-label="首页视图切换">
+        <button type="button" class="active" data-home-view-btn="list" role="tab"><i class="fa-solid fa-list" aria-hidden="true"></i><span>列表</span></button>
+        <button type="button" data-home-view-btn="board" role="tab"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i><span>版块</span></button>
+    </div>
+    <script>try{if(localStorage.getItem('pdHomeView')==='board'){document.currentScript.closest('.pd-home-shell').setAttribute('data-home-view','board');}}catch(e){}</script>
 
     <div class="pd-home-layout">
         <section class="pd-feed-card" aria-label="帖子列表">
@@ -290,6 +309,59 @@ pd_include_header();
             <?php echo pd_render_ad('sidebar'); ?>
         </aside>
     </div>
+
+    <section class="pd-board" aria-label="版块列表">
+        <div class="pd-board-cat">
+            <span class="pd-board-cat-title">社区版块</span>
+            <span class="pd-board-h pd-board-h-topics">主题</span>
+            <span class="pd-board-h pd-board-h-posts">帖子</span>
+            <span class="pd-board-h pd-board-h-last">最新文章</span>
+        </div>
+        <?php foreach ($forum_rows as $f) {
+            $fid = intval($f['id']);
+            $last = isset($forum_last[$fid]) ? $forum_last[$fid] : null;
+        ?>
+        <div class="pd-board-row">
+            <a class="pd-board-icon" href="<?php echo h(pd_url_forum($fid)); ?>" aria-hidden="true" tabindex="-1"><i class="<?php echo h(pd_forum_icon($f)); ?>"></i></a>
+            <div class="pd-board-main">
+                <a class="pd-board-name" href="<?php echo h(pd_url_forum($fid)); ?>"><?php echo h($f['name']); ?></a>
+                <?php if (!empty($f['description'])) { ?><p class="pd-board-desc"><?php echo h($f['description']); ?></p><?php } ?>
+            </div>
+            <div class="pd-board-num pd-board-col-topics"><b><?php echo pd_format_compact_number($f['thread_count']); ?></b><span>主题</span></div>
+            <div class="pd-board-num pd-board-col-posts"><b><?php echo pd_format_compact_number($f['post_count']); ?></b><span>帖子</span></div>
+            <div class="pd-board-last pd-board-col-last">
+                <?php if ($last) { ?>
+                    <a class="pd-board-last-title" href="<?php echo h(pd_url_thread(intval($last['id']))); ?>"><?php echo h($last['title']); ?></a>
+                    <p class="pd-board-last-meta">
+                        <?php if (!empty($last['uid'])) { ?>由 <a href="<?php echo h(pd_url_user(intval($last['uid']))); ?>"><?php echo h(pd_user_display_name($last)); ?></a> <?php } ?>
+                        <?php echo pd_time_html($last['updated_at']); ?>
+                    </p>
+                <?php } else { ?>
+                    <span class="pd-board-last-empty">暂无帖子</span>
+                <?php } ?>
+            </div>
+        </div>
+        <?php } ?>
+    </section>
+    <script>
+    (function(){
+        var shell = document.querySelector('.pd-home-shell');
+        if (!shell) return;
+        var btns = shell.querySelectorAll('[data-home-view-btn]');
+        function apply(v){
+            shell.setAttribute('data-home-view', v);
+            btns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-home-view-btn') === v); });
+        }
+        apply(shell.getAttribute('data-home-view') || 'list');
+        btns.forEach(function(b){
+            b.addEventListener('click', function(){
+                var v = b.getAttribute('data-home-view-btn');
+                apply(v);
+                try { localStorage.setItem('pdHomeView', v); } catch(e){}
+            });
+        });
+    })();
+    </script>
 </div>
 <?php echo pd_render_ad('footer'); ?>
 <?php pd_include_footer(); ?>
