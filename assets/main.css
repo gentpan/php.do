@@ -3698,7 +3698,7 @@ body.theme-php .phpdo-right-toolbar button {
     text-decoration: none;
     background: #fff !important;
     border: 1px solid #e5e7eb;
-    border-radius: 2px !important;
+    border-radius: 5px !important;
     box-shadow: 0 6px 18px rgba(30, 42, 60, .12);
     cursor: pointer;
     transition: background-color .2s ease, color .2s ease, transform .2s ease, border-color .2s ease;
@@ -5235,7 +5235,7 @@ body.theme-php .phpdo-right-toolbar {
 }
 body.theme-php .phpdo-right-toolbar a,
 body.theme-php .phpdo-right-toolbar button {
-    border-radius: 2px !important;
+    border-radius: 5px !important;
 }
 
 @media (max-width: 900px) {
