@@ -11,6 +11,7 @@ $footer_pages = array(
     array('title' => '关于', 'url' => pd_url_page('about.php')),
     array('title' => '规则', 'url' => pd_url_page('page.php', array('slug' => 'rules'))),
     array('title' => '帮助', 'url' => pd_url_page('page.php', array('slug' => 'help'))),
+    array('title' => '联系', 'url' => pd_url_page('page.php', array('slug' => 'contact'))),
 );
 foreach (pd_footer_nav_forums() as $footer_forum) {
     $footer_pages[] = array('title' => $footer_forum['name'], 'url' => pd_url_forum(intval($footer_forum['id'])));

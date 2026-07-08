@@ -756,8 +756,10 @@ function pd_theme_file($file) {
     return __DIR__ . '/' . ltrim($file, '/');
 }
 
-function pd_include_header() {
+function pd_include_header($lite = false) {
     global $page_title;
+    // $lite=true 时渲染精简布局：仅 banner+logo，无论坛导航（用于关于/规则/联系/帮助等信息页）
+    $pd_lite_layout = (bool) $lite;
     include pd_theme_file('header.php');
 }
 
@@ -1265,6 +1267,13 @@ function pd_static_pages() {
             'body' => array(
                 '帖子支持 Markdown、代码块、图片和附件。版块内可开启分类筛选，点击分类标签会跳转到对应版块的分类列表。',
                 '个人主页展示公开资料、最近主题和回复；个人设置页用于头像、邮箱、签名、密码和 Passkey 管理。'
+            ),
+        ),
+        'contact' => array(
+            'title' => '联系我们',
+            'body' => array(
+                '如果你在使用过程中遇到影响站点的关键问题或紧急事项，欢迎通过下方邮箱与我们取得联系，我们会尽快回复。',
+                '如果你发现任何不当内容或需要举报，也可以登录后直接与版主、管理员联系。'
             ),
         ),
     );

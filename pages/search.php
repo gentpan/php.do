@@ -1,17 +1,11 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 $q = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
-$page_title = '搜索结果 - ' . SITE_NAME;
-pd_include_header();
-?>
-<section class="card">
-    <h1>搜索结果</h1>
-    <form class="search" method="get">
-        <input name="q" value="<?php echo h($q); ?>" placeholder="输入关键词">
-        <button class="btn">搜索</button>
-    </form>
-</section>
-<?php if ($q !== '') { 
+$page_title = ($q !== '' ? $q . ' - ' : '') . '搜索 - ' . SITE_NAME;
+
+$rs = null;
+$found = 0;
+if ($q !== '') {
     $qs = esc($q);
     $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email
         FROM pd_threads t
@@ -20,14 +14,32 @@ pd_include_header();
         WHERE t.is_deleted=0 AND (t.title LIKE '%{$qs}%' OR t.content LIKE '%{$qs}%' OR t.topic_category LIKE '%{$qs}%')
         ORDER BY t.updated_at DESC LIMIT 50");
     $found = $rs ? mysqli_num_rows($rs) : 0;
+}
+
+pd_include_header();
 ?>
-<section class="card thread-list">
-    <?php if ($found === 0) { ?>
-        <div class="pd-empty">没有找到相关帖子，可以换一个关键词再试。</div>
+<div class="pd-search">
+    <section class="pd-search-hero">
+        <h1 class="pd-search-title">搜索</h1>
+        <form class="pd-search-box" method="get" action="<?php echo h(pd_url_page('search.php')); ?>" role="search">
+            <i class="fa-solid fa-magnifying-glass pd-search-box-icon" aria-hidden="true"></i>
+            <input type="search" name="q" value="<?php echo h($q); ?>" placeholder="输入关键词，回车搜索…" autocomplete="off" autofocus>
+            <button type="submit" class="pd-search-box-btn">搜索</button>
+        </form>
+        <?php if ($q !== '') { ?>
+            <p class="pd-search-summary">找到 <b><?php echo intval($found); ?></b> 条与 “<span><?php echo h($q); ?></span>” 相关的结果</p>
+        <?php } ?>
+    </section>
+
+    <?php if ($q !== '') { ?>
+    <section class="pd-search-results thread-list">
+        <?php if ($found === 0) { ?>
+            <div class="pd-empty">没有找到相关帖子，可以换一个关键词再试。</div>
+        <?php } ?>
+        <?php while ($rs && $t = mysqli_fetch_assoc($rs)) { ?>
+            <?php echo pd_render_thread_row($t, array('variant' => 'list', 'meta' => 'search')); ?>
+        <?php } ?>
+    </section>
     <?php } ?>
-    <?php while ($rs && $t = mysqli_fetch_assoc($rs)) { ?>
-        <?php echo pd_render_thread_row($t, array('variant' => 'list', 'meta' => 'search')); ?>
-    <?php } ?>
-</section>
-<?php } ?>
+</div>
 <?php pd_include_footer(); ?>

@@ -38,6 +38,9 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <link rel="stylesheet" href="https://flagcdn.io/css/flag-icons.min.css">
     <link rel="stylesheet" href="assets/fonts/fira.css?v=<?php echo filemtime(__DIR__ . '/assets/fonts/fira.css'); ?>">
     <link rel="stylesheet" href="assets/main.css?v=<?php echo filemtime(__DIR__ . '/assets/main.css'); ?>">
+    <?php if (!empty($pd_lite_layout) || $current_script === 'search.php') { ?>
+    <link rel="stylesheet" href="assets/standalone.css?v=<?php echo filemtime(__DIR__ . '/assets/standalone.css'); ?>">
+    <?php } ?>
     <link rel="alternate" type="application/rss+xml" title="<?php echo h(pd_site_name()); ?> · RSS" href="/feed">
     <style>
         :root {
@@ -49,7 +52,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <script defer src="assets/lib/preline.min.js"></script>
     <script defer src="assets/lib/alpine.min.js"></script>
 </head>
-<body class="theme-pd <?php echo h($page_body_class); ?>">
+<body class="theme-pd <?php echo h($page_body_class); ?><?php echo !empty($pd_lite_layout) ? ' pd-standalone' : ''; ?>">
 <script>
 (function () {
     // 深浅色三态：light / dark / system（默认跟随系统）
@@ -127,6 +130,7 @@ if (strpos($pd_page_banner, '{r}') !== false) {
             <a class="pd-banner-logo relative z-10 inline-flex items-center" href="<?php echo h(pd_url_page('index.php')); ?>" aria-label="<?php echo h(pd_site_name()); ?>">
                 <img class="w-auto" src="assets/logo-white.svg" alt="<?php echo h(pd_site_name()); ?>" draggable="false" oncontextmenu="return false;">
             </a>
+            <?php if (empty($pd_lite_layout)) { ?>
             <div class="absolute right-4 top-4 z-10 flex items-center gap-2">
                 <?php if (!$me) { ?>
                     <a class="pd-btn pd-btn-ghost<?php echo $current_script === 'login.php' ? ' active' : ''; ?>" href="<?php echo h(pd_url_page('login.php')); ?>">登录</a>
@@ -137,7 +141,9 @@ if (strpos($pd_page_banner, '{r}') !== false) {
                     </a>
                 <?php } ?>
             </div>
+            <?php } ?>
         </div>
+        <?php if (empty($pd_lite_layout)) { ?>
         <nav class="pd-navbar flex flex-wrap items-center" aria-label="主导航" x-data="{ open: false }">
             <button type="button" class="pd-burger sm:hidden" @click="open = !open" aria-label="展开菜单"><i class="fa-solid fa-bars"></i></button>
             <ul class="pd-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
@@ -154,6 +160,7 @@ if (strpos($pd_page_banner, '{r}') !== false) {
                 <button type="button" class="pd-navbar-rss" data-rss-copy data-rss-url="<?php echo h($pd_rss_url); ?>" aria-label="复制 RSS 订阅地址" title="复制 RSS 订阅地址"><i class="fa-solid fa-square-rss" aria-hidden="true"></i></button>
             </div>
         </nav>
+        <?php } ?>
     </div>
 </header>
 <?php if ($unread_notifications > 0 && pd_notification_sound_enabled($me)) { ?>
