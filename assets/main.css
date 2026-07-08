@@ -2133,19 +2133,21 @@ textarea:focus {
 
 .captcha-row input {
     float: left;
-    width: 220px;
-    max-width: calc(100% - 176px);
+    width: 160px;
+    max-width: calc(100% - 148px);
+    letter-spacing: .18em;
+    text-transform: uppercase;
 }
 
 .captcha-row img {
     float: left;
-    width: 160px;
-    height: 52px;
+    width: 132px;
+    height: 48px;
     margin-left: 12px;
     border: 1px solid #d8e3ec;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    background: #f5f9fc;
+    background: #f7fafc;
 }
 
 .hp-field {
