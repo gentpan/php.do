@@ -2,11 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\ServerResourceGauges;
 use App\Support\ServerInfo as ServerInfoHelper;
 use BackedEnum;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -50,8 +52,10 @@ class ServerInfo extends Page
                         ->columns(2),
                 ]),
                 Section::make('资源使用')
-                    ->schema($this->resourceEntries())
-                    ->columns(2),
+                    ->description('每 5 秒自动刷新')
+                    ->schema([
+                        Livewire::make(ServerResourceGauges::class),
+                    ]),
             ]);
     }
 
@@ -135,60 +139,6 @@ class ServerInfo extends Page
                 ->label('缓存脚本')
                 ->state(fn (): string => (string) ($this->info['opcache']['cached_scripts'] ?? '—'))
                 ->visible(fn (): bool => (bool) ($this->info['opcache']['enabled'] ?? false)),
-        ];
-    }
-
-    /** @return array<TextEntry> */
-    protected function resourceEntries(): array
-    {
-        return [
-            TextEntry::make('memory_usage')
-                ->label('内存')
-                ->state(function (): string {
-                    $memory = $this->info['memory'] ?? null;
-                    if (! is_array($memory)) {
-                        return '—';
-                    }
-
-                    return sprintf(
-                        '%s%%（已用 %s / 共 %s）',
-                        $memory['percent'],
-                        ServerInfoHelper::formatBytes($memory['used']),
-                        ServerInfoHelper::formatBytes($memory['total']),
-                    );
-                })
-                ->visible(fn (): bool => is_array($this->info['memory'] ?? null)),
-            TextEntry::make('disk_usage')
-                ->label('磁盘（站点目录）')
-                ->state(function (): string {
-                    $disk = $this->info['disk'] ?? null;
-                    if (! is_array($disk)) {
-                        return '—';
-                    }
-
-                    return sprintf(
-                        '%s%%（已用 %s / 共 %s）',
-                        $disk['percent'],
-                        ServerInfoHelper::formatBytes($disk['used']),
-                        ServerInfoHelper::formatBytes($disk['total']),
-                    );
-                })
-                ->visible(fn (): bool => is_array($this->info['disk'] ?? null)),
-            TextEntry::make('load_average')
-                ->label('系统负载（1 / 5 / 15 分钟）')
-                ->state(function (): string {
-                    $load = $this->info['load'] ?? null;
-                    if (! is_array($load)) {
-                        return '—';
-                    }
-
-                    return $load['1'] . ' · ' . $load['5'] . ' · ' . $load['15'];
-                })
-                ->visible(fn (): bool => is_array($this->info['load'] ?? null)),
-            TextEntry::make('uptime')
-                ->label('系统运行时间')
-                ->state(fn (): string => (string) ($this->info['uptime'] ?? '—'))
-                ->visible(fn (): bool => filled($this->info['uptime'] ?? null)),
         ];
     }
 }

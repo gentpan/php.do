@@ -121,6 +121,47 @@ class ServerInfo
         return null;
     }
 
+    public static function cpuCount(): int
+    {
+        if (is_readable('/proc/cpuinfo')) {
+            $info = file_get_contents('/proc/cpuinfo');
+            if ($info !== false) {
+                return max(1, substr_count($info, 'processor'));
+            }
+        }
+
+        return 1;
+    }
+
+    /** @param array{1: float, 5: float, 15: float}|null $load */
+    public static function loadPercent(?array $load): ?float
+    {
+        if ($load === null) {
+            return null;
+        }
+
+        return min(100, round($load['1'] / self::cpuCount() * 100, 1));
+    }
+
+    public static function gaugeLevel(float $percent): string
+    {
+        if ($percent >= 85) {
+            return 'danger';
+        }
+        if ($percent >= 60) {
+            return 'warning';
+        }
+
+        return 'success';
+    }
+
+    public static function formatPercent(float $percent): string
+    {
+        $formatted = number_format($percent, 1);
+
+        return rtrim(rtrim($formatted, '0'), '.');
+    }
+
     public static function uptime(): ?string
     {
         if (! is_readable('/proc/uptime')) {
