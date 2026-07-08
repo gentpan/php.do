@@ -31,10 +31,7 @@ pd_include_header(true);
                 </div>
                 <div class="pd-auth-field">
                     <label>用户名</label>
-                    <div class="pd-input-affix">
-                        <input name="username" value="<?php echo h($auth_register_username); ?>" required autocomplete="username" placeholder="5-16 位，中英文/数字/下划线" data-reg-username>
-                        <button type="button" class="pd-affix-btn" data-gen-username title="随机生成用户名"><i class="fa-solid fa-dice"></i></button>
-                    </div>
+                    <input name="username" value="<?php echo h($auth_register_username); ?>" required autocomplete="username" placeholder="5-16 位，中英文/数字/下划线">
                     <p class="pd-field-hint">支持中英文、数字、下划线、连字符；5-16 位；不能纯数字或含句号逗号等标点。</p>
                 </div>
                 <div class="pd-auth-field">
@@ -92,14 +89,6 @@ pd_include_header(true);
 <script>
 (function () {
     function rand(str) { return str[Math.floor(Math.random() * str.length)]; }
-    // 随机用户名：user + 6-8 位小写字母数字（符合 5-16、非纯数字规则）
-    var uBtn = document.querySelector('[data-gen-username]');
-    if (uBtn) uBtn.addEventListener('click', function () {
-        var chars = 'abcdefghijkmnpqrstuvwxyz23456789', n = 6 + Math.floor(Math.random() * 3), s = 'u';
-        for (var i = 0; i < n; i++) s += rand(chars);
-        var f = document.querySelector('[data-reg-username]');
-        if (f) { f.value = s; f.type = 'text'; }
-    });
     // 随机密码：10-16 位，含大小写+数字+符号，非纯数字
     var pBtn = document.querySelector('[data-gen-password]');
     if (pBtn) pBtn.addEventListener('click', function () {

@@ -415,10 +415,12 @@ body.pd-standalone .pd-banner-logo img {
 
 /* 输入框内嵌按钮（骰子/发送验证码）+ 字段提示 + 忘记密码 */
 .pd-input-affix { position: relative; }
-.pd-input-affix input { padding-right: 108px; }
+.pd-input-affix input { padding-right: 46px; }
+.pd-input-affix:has(.pd-affix-text) input { padding-right: 108px; }
+/* 图标按钮（骰子）——正方形 */
 .pd-affix-btn {
     position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
-    height: 34px; min-width: 34px; padding: 0 10px;
+    width: 34px; height: 34px; padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
     color: var(--pd-muted); background: var(--pd-surface-soft);
     border: 1px solid var(--pd-border); border-radius: 6px !important; cursor: pointer;
@@ -426,7 +428,8 @@ body.pd-standalone .pd-banner-logo img {
 }
 .pd-affix-btn:hover { color: var(--pd-accent); border-color: var(--pd-accent); }
 .pd-affix-btn:disabled { opacity: .55; cursor: default; }
-.pd-affix-btn.pd-affix-text { font-size: 13px; }
+/* 文本按钮（发送验证码）——保持矩形，宽度自适应 */
+.pd-affix-btn.pd-affix-text { width: auto; padding: 0 12px; font-size: 13px; }
 .pd-field-hint { margin: 6px 2px 0; color: var(--pd-muted); font-size: 12px; line-height: 1.55; }
 .pd-auth-forgot { margin: -8px 2px 14px; text-align: right; }
 .pd-auth-forgot a { color: var(--pd-accent); font-size: 13px; text-decoration: none; }
