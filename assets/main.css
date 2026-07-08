@@ -7526,6 +7526,20 @@ body.theme-pd-dark .settings-panel h2 i { color: #8791c4; }
 .site-footer-icp a { color: #8b909d; }
 .site-footer-icp a:hover { color: #fff; }
 
+/* 页脚两行布局：行1 logo / 统计 / 社交；行2 版权 / 菜单 */
+.site-footer-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.site-footer-row1 { justify-content: space-between; }
+.site-footer-row1 .site-footer-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.site-footer-row2 {
+    margin-top: 22px; padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, .06);
+    justify-content: space-between;
+    color: #8b909d; font-size: 13px;
+}
+.site-footer-row2 .site-footer-copy { margin-left: 0; }
+.site-footer-row2 .site-footer-links { margin: 0; padding: 0; border: 0; }
+.site-footer-row.site-footer-friends { margin-top: 14px; gap: 6px 16px; }
+
 /* 页脚性能/在线指标芯片 */
 .pd-stat-chip {
     display: inline-flex;
