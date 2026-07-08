@@ -2869,31 +2869,31 @@ main.wrap {
 
 .qf-loading-indicator {
     position: fixed;
-    top: 18px;
+    top: 50%;
     left: 50%;
     z-index: 1300;
     display: grid;
     place-items: center;
-    width: 42px;
-    height: 42px;
-    background: #fff;
+    width: 52px;
+    height: 52px;
+    background: rgba(255, 255, 255, .92);
     border: 1px solid #dde2ef;
     border-radius: 999px;
-    box-shadow: 0 12px 28px rgba(80, 91, 147, .12);
+    box-shadow: 0 12px 28px rgba(80, 91, 147, .16);
     opacity: 0;
     pointer-events: none;
-    transform: translate(-50%, -10px);
+    transform: translate(-50%, -50%) scale(.92);
     transition: opacity 160ms ease, transform 160ms ease;
 }
 
 .qf-loading-indicator svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
 }
 
 body.qf-is-loading .qf-loading-indicator {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -50%) scale(1);
 }
 
 
@@ -3605,6 +3605,35 @@ body.theme-php .phpdo-feed-tabs .phpdo-rss {
     color: #8f9399;
     font-size: 15px;
     background: transparent;
+}
+
+body.theme-php .phpdo-feed-tabs .phpdo-feed-loading {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-left: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease;
+}
+
+body.theme-php .phpdo-feed-tabs .phpdo-feed-loading svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+
+body.qf-is-feed-loading .phpdo-feed-tabs .phpdo-feed-loading {
+    opacity: 1;
+}
+
+body.theme-php-dark .qf-loading-indicator {
+    background: rgba(28, 30, 38, .92);
+    border-color: rgba(255, 255, 255, .12);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
 }
 
 body.theme-php .phpdo-feed-tabs .phpdo-rss i {
@@ -6461,16 +6490,35 @@ body.theme-php-dark [data-theme-toggle] .nav-theme-moon {
     display: none;
 }
 
-/* 4) 加载指示移到菜单栏右上角，并在切换时给内容加模糊层 */
+/* 4) 页面切换：模糊层中央圆形加载指示 */
 .qf-loading-indicator {
-    top: 14px;
-    left: auto;
-    right: 24px;
-    transform: translateY(-8px);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    z-index: 1300;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    background: rgba(255, 255, 255, .92);
+    border: 1px solid #dde2ef;
+    border-radius: 999px;
+    box-shadow: 0 12px 28px rgba(80, 91, 147, .16);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(.92);
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.qf-loading-indicator svg {
+    width: 26px;
+    height: 26px;
 }
 
 body.qf-is-loading .qf-loading-indicator {
-    transform: translateY(0);
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
 }
 
 body.qf-is-loading main.wrap {
@@ -6497,7 +6545,8 @@ body.qf-is-loading main.wrap {
     }
 
     .qf-loading-indicator {
-        right: 14px;
+        width: 46px;
+        height: 46px;
     }
 }
 
@@ -7627,7 +7676,7 @@ body.theme-php .phpdo-right-toolbar {
 .qf-topbar-hasbg .qf-navbar-rss.is-copied,
 .qf-topbar-hasbg .qf-navbar-rss.is-copied:hover { color: #34d399; }
 
-/* 顶部加载彩色进度条（页面加载/切换时显示） */
+/* 顶部加载彩色进度条（仅首页初次进入 / 强制刷新） */
 .qf-topload {
     position: fixed;
     top: 5px;
@@ -7640,7 +7689,7 @@ body.theme-php .phpdo-right-toolbar {
     pointer-events: none;
     transition: opacity .18s ease;
 }
-body.qf-is-loading .qf-topload { opacity: 1; }
+body.qf-is-bar-loading .qf-topload { opacity: 1; }
 .qf-topload .progress-text {
     position: absolute;
     top: 50%;

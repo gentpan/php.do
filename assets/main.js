@@ -1,6 +1,8 @@
 (function() {
-    var loadingCount = 0;
+    var loadingCounts = { bar: 0, page: 0, dots: 0 };
     var loadProgress = { value: 0, timer: null, raf: null };
+    var FEED_DOTS_SVG = '<svg fill="hsl(228, 97%, 42%)" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="4" cy="12" r="3" opacity="1"><animate id="spinner_qYjJ" begin="0;spinner_t4KZ.end-0.25s" attributeName="opacity" dur="0.75s" values="1;.2" fill="freeze"/></circle><circle cx="12" cy="12" r="3" opacity=".4"><animate begin="spinner_qYjJ.begin+0.15s" attributeName="opacity" dur="0.75s" values="1;.2" fill="freeze"/></circle><circle cx="20" cy="12" r="3" opacity=".3"><animate id="spinner_t4KZ" begin="spinner_qYjJ.begin+0.3s" attributeName="opacity" dur="0.75s" values="1;.2" fill="freeze"/></circle></svg>';
+    var PAGE_SPINNER_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="hsl(228, 97%, 42%)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="42 64"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/></circle></svg>';
 
     function initNavMore() {
         var toggle = document.querySelector('[data-nav-more]');
@@ -112,7 +114,7 @@
                     toast('当前浏览器不支持 Passkey。', 'error');
                     return;
                 }
-                setLoading(true);
+                setLoading(true, 'page');
                 passkeyRequest('register-options')
                     .then(function(json) {
                         return navigator.credentials.create({ publicKey: passkeyOptions(json.publicKey) });
@@ -128,7 +130,7 @@
                         toast(err.message || 'Passkey 添加失败。', 'error');
                     })
                     .finally(function() {
-                        setLoading(false);
+                        setLoading(false, 'page');
                     });
                 return;
             }
@@ -148,7 +150,7 @@
                     if (username) username.focus();
                     return;
                 }
-                setLoading(true);
+                setLoading(true, 'page');
                 passkeyRequest('login-options', { username: usernameValue })
                     .then(function(json) {
                         return navigator.credentials.get({ publicKey: passkeyOptions(json.publicKey) });
@@ -163,7 +165,7 @@
                         toast(err.message || 'Passkey 登录失败。', 'error');
                     })
                     .finally(function() {
-                        setLoading(false);
+                        setLoading(false, 'page');
                     });
                 return;
             }
@@ -171,7 +173,7 @@
             var remove = e.target.closest('[data-passkey-delete]');
             if (remove) {
                 e.preventDefault();
-                setLoading(true);
+                setLoading(true, 'page');
                 passkeyRequest('delete', { id: remove.getAttribute('data-passkey-delete') })
                     .then(function(json) {
                         toast(json.message || 'Passkey 已删除。', 'success');
@@ -181,7 +183,7 @@
                         toast(err.message || 'Passkey 删除失败。', 'error');
                     })
                     .finally(function() {
-                        setLoading(false);
+                        setLoading(false, 'page');
                     });
             }
         });
@@ -638,7 +640,6 @@
             var root = form.closest('[data-thread-votes], [data-post-votes]');
             var data = new FormData(form);
             if (!data.get('csrf_token')) data.append('csrf_token', window.qfCsrfToken || '');
-            setLoading(true);
             fetch(form.action, {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -671,8 +672,6 @@
                 }
             }).catch(function(err) {
                 toast(err.message || '投票失败。', 'error');
-            }).finally(function() {
-                setLoading(false);
             });
         });
     }
@@ -696,8 +695,7 @@
                 }
 
                 e.preventDefault();
-                setLoading(true);
-                document.body.classList.add('qf-ajax-loading');
+                setLoading(true, 'dots');
                 fetch(feedUrl.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function(res) {
                         return res.text();
@@ -705,6 +703,7 @@
                     .then(function(html) {
                         var nextDoc = new DOMParser().parseFromString(html, 'text/html');
                         replaceFrom(nextDoc, ['.phpdo-feed-tabs', '.latest-list', '.phpdo-breadcrumb']);
+                        ensureFeedDots();
                         var curList = document.querySelector('[data-feed-list]');
                         var nextList = nextDoc.querySelector('[data-feed-list]');
                         if (curList && nextList) {
@@ -723,8 +722,7 @@
                         window.location.href = feedLink.href;
                     })
                     .finally(function() {
-                        document.body.classList.remove('qf-ajax-loading');
-                        setLoading(false);
+                        setLoading(false, 'dots');
                     });
                 return;
             }
@@ -736,8 +734,7 @@
             if (url.origin !== window.location.origin) return;
 
             e.preventDefault();
-            setLoading(true);
-            document.body.classList.add('qf-ajax-loading');
+            setLoading(true, 'page');
             fetch(url.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function(res) {
                     return res.text();
@@ -760,8 +757,7 @@
                     window.location.href = url.href;
                 })
                 .finally(function() {
-                    document.body.classList.remove('qf-ajax-loading');
-                    setLoading(false);
+                    setLoading(false, 'page');
                 });
         });
 
@@ -914,7 +910,7 @@
                 newBtn.classList.add('is-loading');
                 var params = {};
                 if (state.filter !== 'reply') params.filter = state.filter;
-                setLoading(true);
+                setLoading(true, 'dots');
                 fetch(buildUrl(params), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function(res) { return res.text(); })
                     .then(function(html) {
@@ -935,7 +931,7 @@
                     .finally(function() {
                         state.loading = false;
                         newBtn.classList.remove('is-loading');
-                        setLoading(false);
+                        setLoading(false, 'dots');
                     });
             });
         }
@@ -944,14 +940,37 @@
         syncFromList();
     }
 
-    function ensureLoadingIndicator() {
+    function ensureTopLoadBar() {
         if (document.querySelector('.qf-topload')) return;
-
         var loader = document.createElement('div');
         loader.className = 'qf-topload';
         loader.setAttribute('aria-hidden', 'true');
         loader.innerHTML = '<div class="progress-container"><div class="progress-bar"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div><div class="progress-text">0%</div></div>';
         document.body.appendChild(loader);
+    }
+
+    function ensurePageSpinner() {
+        if (document.querySelector('.qf-loading-indicator')) return;
+        var loader = document.createElement('div');
+        loader.className = 'qf-loading-indicator';
+        loader.setAttribute('aria-hidden', 'true');
+        loader.innerHTML = PAGE_SPINNER_SVG;
+        document.body.appendChild(loader);
+    }
+
+    function ensureFeedDots() {
+        var tabs = document.querySelector('.phpdo-feed-tabs');
+        if (!tabs) return null;
+        var dots = tabs.querySelector('.phpdo-feed-loading');
+        if (dots) return dots;
+        dots = document.createElement('span');
+        dots.className = 'phpdo-feed-loading';
+        dots.setAttribute('aria-hidden', 'true');
+        dots.innerHTML = FEED_DOTS_SVG;
+        var rss = tabs.querySelector('.phpdo-rss');
+        if (rss) tabs.insertBefore(dots, rss);
+        else tabs.appendChild(dots);
+        return dots;
     }
 
     function loadbarSet(pct) {
@@ -997,6 +1016,7 @@
     }
 
     function loadbarStart() {
+        ensureTopLoadBar();
         if (loadProgress.raf) { cancelAnimationFrame(loadProgress.raf); loadProgress.raf = null; }
         // 从 1 起步，数值 1-100 全程可见
         loadProgress.value = 1;
@@ -1026,18 +1046,118 @@
         });
     }
 
-    function setLoading(active) {
-        ensureLoadingIndicator();
-        var wasOn = loadingCount > 0;
-        loadingCount += active ? 1 : -1;
-        if (loadingCount < 0) loadingCount = 0;
-        var on = loadingCount > 0;
-        if (on && !wasOn) {
-            loadbarStart();
-        } else if (!on && wasOn) {
-            loadbarDone();
+    function normalizeLoadingMode(mode) {
+        if (mode === 'bar' || mode === 'dots' || mode === 'page') return mode;
+        return 'page';
+    }
+
+    function setLoading(active, mode) {
+        mode = normalizeLoadingMode(mode);
+        var wasOn = loadingCounts[mode] > 0;
+        loadingCounts[mode] += active ? 1 : -1;
+        if (loadingCounts[mode] < 0) loadingCounts[mode] = 0;
+        var on = loadingCounts[mode] > 0;
+
+        if (mode === 'bar') {
+            if (on && !wasOn) loadbarStart();
+            else if (!on && wasOn) loadbarDone();
+            document.body.classList.toggle('qf-is-bar-loading', on);
+            return;
         }
+
+        if (mode === 'dots') {
+            ensureFeedDots();
+            document.body.classList.toggle('qf-is-feed-loading', on);
+            return;
+        }
+
+        if (on) ensurePageSpinner();
         document.body.classList.toggle('qf-is-loading', on);
+    }
+
+    function clearModeLoading(mode) {
+        mode = normalizeLoadingMode(mode);
+        loadingCounts[mode] = 0;
+        if (mode === 'bar') {
+            if (loadProgress.timer) { clearInterval(loadProgress.timer); loadProgress.timer = null; }
+            if (loadProgress.raf) { cancelAnimationFrame(loadProgress.raf); loadProgress.raf = null; }
+            loadProgress.value = 0;
+            loadbarSet(0);
+            document.body.classList.remove('qf-is-bar-loading');
+            return;
+        }
+        if (mode === 'dots') {
+            document.body.classList.remove('qf-is-feed-loading');
+            return;
+        }
+        document.body.classList.remove('qf-is-loading', 'qf-ajax-loading');
+    }
+
+    function clearAllLoading() {
+        clearModeLoading('bar');
+        clearModeLoading('page');
+        clearModeLoading('dots');
+    }
+
+    function isHomePage() {
+        return document.body.classList.contains('page-index');
+    }
+
+    function getNavigationType() {
+        try {
+            var entries = performance.getEntriesByType && performance.getEntriesByType('navigation');
+            if (entries && entries.length && entries[0].type) return entries[0].type;
+        } catch (e) {}
+        try {
+            if (performance.navigation && typeof performance.navigation.type === 'number') {
+                return performance.navigation.type;
+            }
+        } catch (e2) {}
+        return 'navigate';
+    }
+
+    function shouldShowHomeBar(navType) {
+        if (!isHomePage()) return false;
+        // 强制刷新
+        if (navType === 1 || navType === 'reload') return true;
+        // 前进后退：不使用彩色条
+        if (navType === 2 || navType === 'back_forward') return false;
+        // 初次进入：无站内 referrer（直接打开 / 外链进入）；站内跳回首页算普通切换
+        try {
+            if (document.referrer) {
+                var ref = new URL(document.referrer);
+                if (ref.origin === location.origin) return false;
+            }
+        } catch (err) {}
+        return true;
+    }
+
+    function finishHomeBarSoon() {
+        function finish() {
+            setLoading(false, 'bar');
+            window.removeEventListener('load', finish);
+        }
+        if (document.readyState === 'complete') {
+            window.setTimeout(finish, 420);
+        } else {
+            window.addEventListener('load', finish);
+            window.setTimeout(finish, 8000);
+        }
+    }
+
+    function initHomeBarLoading() {
+        if (window.__qfHomeBarEarly) {
+            // header 已提前点亮彩色条，这里接管进度动画并在 load 后收起
+            loadingCounts.bar = Math.max(1, loadingCounts.bar);
+            document.body.classList.add('qf-is-bar-loading');
+            loadbarStart();
+            finishHomeBarSoon();
+            window.__qfHomeBarEarly = false;
+            return;
+        }
+        if (!shouldShowHomeBar(getNavigationType())) return;
+        setLoading(true, 'bar');
+        finishHomeBarSoon();
     }
 
     function initFormLoading() {
@@ -1046,12 +1166,13 @@
             if (e.defaultPrevented) return;
             if (!form || form.hasAttribute('data-no-global-loading')) return;
             if (form.closest('.auth-modal-box')) return;
-            setLoading(true);
+            setLoading(true, 'page');
         });
 
         window.addEventListener('pageshow', function() {
-            loadingCount = 0;
-            setLoading(false);
+            // 清掉可能卡住的页面/tab 加载态；首页彩色条由 initHomeBarLoading 单独管理
+            clearModeLoading('page');
+            clearModeLoading('dots');
         });
     }
 
@@ -1238,8 +1359,10 @@
     initIpGeo();
     initRightToolbar();
     initFormLoading();
+    initHomeBarLoading();
     initToast();
     enhanceMedia(document);
+    ensureFeedDots();
     initAjaxFilters();
     initFeedStream();
     initRssCopy();

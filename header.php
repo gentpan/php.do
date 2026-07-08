@@ -61,6 +61,36 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
         var dark = pref === 'dark' || (pref === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.body.classList.toggle('theme-php-dark', dark);
     } catch (e) {}
+
+    // 首页彩色条：仅初次进入 / 强制刷新，尽早显示（main.js 稍后接管进度）
+    try {
+        if (!document.body.classList.contains('page-index')) return;
+        var navType = 'navigate';
+        try {
+            var entries = performance.getEntriesByType && performance.getEntriesByType('navigation');
+            if (entries && entries.length && entries[0].type) navType = entries[0].type;
+            else if (performance.navigation) navType = performance.navigation.type;
+        } catch (e1) {}
+        if (navType === 2 || navType === 'back_forward') return;
+        var show = (navType === 1 || navType === 'reload');
+        if (!show) {
+            if (document.referrer) {
+                var ref = new URL(document.referrer);
+                if (ref.origin === location.origin) return;
+            }
+            show = true;
+        }
+        if (!show) return;
+        document.body.classList.add('qf-is-bar-loading');
+        if (!document.querySelector('.qf-topload')) {
+            var bar = document.createElement('div');
+            bar.className = 'qf-topload';
+            bar.setAttribute('aria-hidden', 'true');
+            bar.innerHTML = '<div class="progress-container"><div class="progress-bar" style="width:1%"></div><div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div><div class="progress-text">1%</div></div>';
+            document.body.appendChild(bar);
+        }
+        window.__qfHomeBarEarly = true;
+    } catch (e2) {}
 })();
 </script>
 <?php

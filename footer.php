@@ -191,10 +191,10 @@ $online_members = qf_online_members(12);
         window.setTimeout(function () {
             if (e.defaultPrevented) return;
             if (typeof window.qfSetLoading !== 'function') return;
-            window.qfSetLoading(true);
+            window.qfSetLoading(true, 'page');
             // 兜底：万一跳转最终没有发生，10 秒后自动清除加载层。
             window.setTimeout(function () {
-                if (typeof window.qfSetLoading === 'function') window.qfSetLoading(false);
+                if (typeof window.qfSetLoading === 'function') window.qfSetLoading(false, 'page');
             }, 10000);
         }, 0);
     });
