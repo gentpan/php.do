@@ -64,7 +64,7 @@ if ($me) {
             </div>
         </div>
     </div>
-    <div class="content post-content-box"><?php echo qf_render_content($paged_content['content']); ?></div>
+    <div class="content post-content-box qf-md-body"><?php echo qf_render_content($paged_content['content']); ?></div>
     <?php if (intval($paged_content['total']) > 1) { ?>
         <div class="content-page-nav">
             <?php for ($cp = 1; $cp <= intval($paged_content['total']); $cp++) { ?>
@@ -131,7 +131,7 @@ if ($me) {
                     </div>
                     <span class="phpdo-floor-no"><?php echo intval($floor_no); ?>#</span>
                 </div>
-                <div class="content"><?php echo qf_render_content($p['content']); ?></div>
+                <div class="content qf-md-body"><?php echo qf_render_content($p['content']); ?></div>
                 <?php if ($reply_signature !== '') { ?>
                     <div class="phpdo-signature">
                         <span>SIGNATURE</span>
@@ -212,21 +212,17 @@ if ($me) {
     <h2>发表回复</h2>
     <form method="post" action="<?php echo h(qf_url_page('reply.php')); ?>" enctype="multipart/form-data">
         <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
-        <div class="editor-toolbar">
-            <button type="button" data-wrap="[font=宋体]" data-close="[/font]">字体</button>
-            <button type="button" data-wrap="[size=18]" data-close="[/size]">字体大小</button>
-            <button type="button" data-wrap="[b]" data-close="[/b]">加粗</button>
-            <button type="button" data-link="1">超链接</button>
-            <button type="button" data-remote-img="1">远程图片</button>
-            <label class="editor-upload-button" title="上传图片/附件">
-                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>上传</span>
-                <input class="qf-instant-upload" data-target="reply-content-textarea" data-status="reply-upload-status" type="file" name="attachments[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.zip,.rar">
-            </label>
-            <button class="upload-help editor-help-button" type="button">?</button>
-        </div>
-        <p class="muted upload-tip editor-upload-tip">支持 <?php echo h(qf_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(qf_upload_max_mb()); ?>MB。</p>
-        <p id="reply-upload-status" class="muted upload-status"></p>
-        <textarea id="reply-content-textarea" name="content" rows="5" maxlength="<?php echo intval(qf_reply_max_chars()); ?>" required placeholder="写下你的回复"></textarea>
+        <?php
+        $editorId = 'reply-content-textarea';
+        $editorName = 'content';
+        $editorValue = '';
+        $editorRows = 8;
+        $editorRequired = true;
+        $editorCompact = true;
+        $editorMaxlength = intval(qf_reply_max_chars());
+        $editorPlaceholder = '写下你的回复（Markdown）';
+        include __DIR__ . '/../parts/markdown-editor.php';
+        ?>
         <p class="muted">最多可输入 <?php echo intval(qf_reply_max_chars()); ?> 字。</p>
         <div class="upload-captcha-row">
             <div class="captcha-col"><?php if (qf_captcha_required('reply', current_user())) { echo qf_render_captcha(); } ?></div>

@@ -88,21 +88,15 @@ qf_include_header();
         <label>标题</label>
         <input type="text" name="title" maxlength="100" required>
         <label>内容</label>
-        <div class="editor-toolbar">
-            <button type="button" data-wrap="[font=宋体]" data-close="[/font]">字体</button>
-            <button type="button" data-wrap="[size=18]" data-close="[/size]">字体大小</button>
-            <button type="button" data-wrap="[b]" data-close="[/b]">加粗</button>
-            <button type="button" data-link="1">超链接</button>
-            <button type="button" data-remote-img="1">远程图片</button>
-            <label class="editor-upload-button" title="上传图片/附件">
-                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>上传</span>
-                <input class="qf-instant-upload" data-target="post-content-textarea" data-status="post-upload-status" type="file" name="attachments[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.zip,.rar">
-            </label>
-            <button class="upload-help editor-help-button" type="button">?</button>
-        </div>
-        <p class="muted upload-tip editor-upload-tip">支持 <?php echo h(qf_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(qf_upload_max_mb()); ?>MB。</p>
-        <p id="post-upload-status" class="muted upload-status"></p>
-        <textarea class="post-content-textarea" id="post-content-textarea" name="content" rows="16" required></textarea>
+        <?php
+        $editorId = 'post-content-textarea';
+        $editorName = 'content';
+        $editorValue = '';
+        $editorRows = 18;
+        $editorRequired = true;
+        $editorCompact = false;
+        include __DIR__ . '/../parts/markdown-editor.php';
+        ?>
         <div class="upload-captcha-row">
             <div class="captcha-col"><?php if (qf_captcha_required('post', $u)) { echo qf_render_captcha(); } ?></div>
         </div>

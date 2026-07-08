@@ -6,32 +6,13 @@
         textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
         textarea.selectionStart = textarea.selectionEnd = start + text.length;
         textarea.focus();
-    }
-
-    function insertAroundSelection(textarea, open, close, selectedOverride) {
-        var start = textarea.selectionStart || 0;
-        var end = textarea.selectionEnd || 0;
-        var before = textarea.value.substring(0, start);
-        var selected = selectedOverride !== undefined ? selectedOverride : textarea.value.substring(start, end);
-        var after = textarea.value.substring(end);
-        textarea.value = before + open + selected + close + after;
-        textarea.selectionStart = start + open.length;
-        textarea.selectionEnd = start + open.length + selected.length;
-        textarea.focus();
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     function notify(message, type) {
         if (window.qfToast) {
             window.qfToast(message, type || 'info');
         }
-    }
-
-    function findEditorTextarea(toolbar) {
-        var node = toolbar ? toolbar.nextElementSibling : null;
-        while (node && node.tagName !== 'TEXTAREA') {
-            node = node.nextElementSibling;
-        }
-        return node;
     }
 
     function initForumCategories() {
@@ -55,125 +36,6 @@
 
         forumSelect.addEventListener('change', refreshCategories);
         refreshCategories();
-    }
-
-    function ensureEditorDialog() {
-        var existing = document.getElementById('qf-editor-dialog');
-        if (existing) return existing;
-
-        var modal = document.createElement('div');
-        modal.id = 'qf-editor-dialog';
-        modal.className = 'editor-dialog-overlay';
-        modal.innerHTML = [
-            '<div class="editor-dialog-box" role="dialog" aria-modal="true" aria-labelledby="qf-editor-dialog-title">',
-            '<button class="editor-dialog-close" type="button" data-editor-dialog-close aria-label="关闭">×</button>',
-            '<h2 id="qf-editor-dialog-title"></h2>',
-            '<form data-editor-dialog-form>',
-            '<label data-url-label></label>',
-            '<input type="url" name="url" placeholder="https://example.com" required>',
-            '<div data-text-field>',
-            '<label>显示文字</label>',
-            '<input type="text" name="text" placeholder="链接显示文字">',
-            '</div>',
-            '<div class="editor-dialog-actions">',
-            '<button class="btn btn-light" type="button" data-editor-dialog-close>取消</button>',
-            '<button class="btn" type="submit">插入</button>',
-            '</div>',
-            '</form>',
-            '</div>'
-        ].join('');
-        document.body.appendChild(modal);
-        return modal;
-    }
-
-    function openEditorDialog(type, textarea, selected) {
-        var modal = ensureEditorDialog();
-        var title = modal.querySelector('#qf-editor-dialog-title');
-        var form = modal.querySelector('[data-editor-dialog-form]');
-        var urlInput = form.elements.url;
-        var textInput = form.elements.text;
-        var textField = modal.querySelector('[data-text-field]');
-        var urlLabel = modal.querySelector('[data-url-label]');
-
-        title.textContent = type === 'image' ? '插入远程图片' : '插入超链接';
-        urlLabel.textContent = type === 'image' ? '图片地址' : '链接地址';
-        textField.style.display = type === 'image' ? 'none' : '';
-        urlInput.value = '';
-        textInput.value = selected || '';
-        modal.classList.add('is-open');
-        setTimeout(function() { urlInput.focus(); }, 40);
-
-        function close() {
-            modal.classList.remove('is-open');
-            form.removeEventListener('submit', submit);
-            modal.removeEventListener('click', clickClose);
-            document.removeEventListener('keydown', keyClose);
-        }
-
-        function clickClose(e) {
-            if (e.target === modal || e.target.closest('[data-editor-dialog-close]')) close();
-        }
-
-        function keyClose(e) {
-            if (e.key === 'Escape') close();
-        }
-
-        function submit(e) {
-            e.preventDefault();
-            var url = urlInput.value.trim();
-            if (!/^https?:\/\//i.test(url)) {
-                urlInput.focus();
-                notify('请输入 http:// 或 https:// 开头的地址', 'error');
-                return;
-            }
-            if (type === 'image') {
-                insertText(textarea, "\n[img]" + url + "[/img]\n");
-            } else {
-                var text = textInput.value.trim() || selected || url;
-                insertAroundSelection(textarea, '[url=' + url + ']', '[/url]', text);
-            }
-            close();
-        }
-
-        form.addEventListener('submit', submit);
-        modal.addEventListener('click', clickClose);
-        document.addEventListener('keydown', keyClose);
-    }
-
-    function initEditorToolbar() {
-        document.querySelectorAll('.editor-toolbar button').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                if (!btn.hasAttribute('data-wrap') && !btn.hasAttribute('data-link') && !btn.hasAttribute('data-remote-img')) return;
-                var textarea = findEditorTextarea(btn.parentNode);
-                if (!textarea) return;
-                var start = textarea.selectionStart || 0;
-                var end = textarea.selectionEnd || 0;
-                var selected = textarea.value.substring(start, end);
-                if (btn.getAttribute('data-remote-img') === '1') {
-                    openEditorDialog('image', textarea, selected);
-                    return;
-                }
-                if (btn.getAttribute('data-link') === '1') {
-                    openEditorDialog('link', textarea, selected);
-                    return;
-                }
-                insertAroundSelection(textarea, btn.getAttribute('data-wrap') || '', btn.getAttribute('data-close') || '');
-            });
-        });
-    }
-
-    function toggleUploadTip(btn) {
-        var root = btn.closest('form') || btn.parentNode;
-        var tip = root.querySelector('.upload-tip');
-        if (tip) tip.style.display = tip.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function initUploadTips() {
-        document.querySelectorAll('.upload-help').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                toggleUploadTip(btn);
-            });
-        });
     }
 
     function ensureUploadProgress() {
@@ -270,67 +132,245 @@
         xhr.send(data);
     }
 
-    function uploadAttachment(file, textarea, status) {
-        requestAttachmentDescription(function(attachmentDescription) {
-            var attachmentData = new FormData();
-            attachmentData.append('csrf_token', window.qfCsrfToken || '');
-            attachmentData.append('attachment', file);
-            attachmentData.append('attachment_description', attachmentDescription);
-            if (status) status.textContent = '正在上传附件...';
-            if (window.qfSetLoading) window.qfSetLoading(true);
-            xhrUpload('api/upload-attachment', attachmentData, file, function(json) {
-                insertText(textarea, "\n" + json.tag + "\n");
-                if (status) status.textContent = '附件上传成功，已插入编辑框。';
-                notify('附件上传成功，已插入编辑框。', 'success');
-                if (window.qfSetLoading) window.qfSetLoading(false);
-            }, function(error) {
-                if (status) status.textContent = error;
-                notify(error, 'error');
-                if (window.qfSetLoading) window.qfSetLoading(false);
+    function initMarkdownEditor(root) {
+        var textarea = root.querySelector('[data-editor-textarea]') || root.querySelector('textarea');
+        if (!textarea) return;
+
+        var preview = root.querySelector('[data-editor-preview]');
+        var toolbarWords = root.querySelector('[data-editor-words-toolbar]');
+        var paragraphs = root.querySelector('[data-editor-paragraphs]');
+        var syncStatus = root.querySelector('[data-editor-sync-status]');
+        var filePicker = root.querySelector('[data-md-file-picker]');
+        var imagePicker = root.querySelector('[data-md-image-picker]');
+        var attachPicker = root.querySelector('[data-md-attach-picker]');
+        var previewUrl = root.getAttribute('data-preview-url') || '';
+        var uploadUrl = root.getAttribute('data-upload-url') || 'api/upload-image';
+        var attachUrl = root.getAttribute('data-attach-url') || 'api/upload-attachment';
+        var csrf = root.getAttribute('data-csrf') || window.qfCsrfToken || '';
+        var previewTimer = null;
+
+        function insert(before, after, placeholder) {
+            var start = textarea.selectionStart || 0;
+            var end = textarea.selectionEnd || 0;
+            var selected = textarea.value.slice(start, end) || placeholder;
+            var text = before + selected + after;
+            if (typeof textarea.setRangeText === 'function') {
+                textarea.setRangeText(text, start, end, 'end');
+            } else {
+                textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
+                textarea.selectionStart = textarea.selectionEnd = start + text.length;
+            }
+            textarea.focus();
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function insertLine(prefix, placeholder) {
+            var start = textarea.selectionStart || 0;
+            var end = textarea.selectionEnd || 0;
+            var selected = textarea.value.slice(start, end) || placeholder;
+            var lined = selected.split('\n').map(function(line) {
+                return prefix + line;
+            }).join('\n');
+            if (typeof textarea.setRangeText === 'function') {
+                textarea.setRangeText(lined, start, end, 'end');
+            } else {
+                textarea.value = textarea.value.slice(0, start) + lined + textarea.value.slice(end);
+            }
+            textarea.focus();
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function command(type) {
+            var table = '| 列一 | 列二 |\n| --- | --- |\n| 内容 | 内容 |';
+            switch (type) {
+                case 'bold': insert('**', '**', '加粗文字'); break;
+                case 'italic': insert('*', '*', '斜体文字'); break;
+                case 'quote': insertLine('> ', '引用内容'); break;
+                case 'code': insert('```\n', '\n```', 'code'); break;
+                case 'link': insert('[', '](https://example.com)', '链接文字'); break;
+                case 'image': insert('![', '](https://example.com/image.jpg)', '图片描述'); break;
+                case 'image-upload':
+                    if (imagePicker) imagePicker.click();
+                    break;
+                case 'attach-upload':
+                    if (attachPicker) attachPicker.click();
+                    break;
+                case 'ul': insertLine('- ', '列表项'); break;
+                case 'ol': insertLine('1. ', '列表项'); break;
+                case 'table': insert('\n', '\n', table); break;
+            }
+        }
+
+        function insertHeading(level) {
+            level = Math.max(1, Math.min(5, parseInt(level, 10) || 2));
+            insertLine(new Array(level + 1).join('#') + ' ', '小标题');
+        }
+
+        function closeHeadingMenus(except) {
+            root.querySelectorAll('[data-heading-menu]').forEach(function(menu) {
+                if (except && menu === except) return;
+                var dropdown = menu.querySelector('[data-heading-dropdown]');
+                var toggle = menu.querySelector('[data-heading-toggle]');
+                if (dropdown) dropdown.hidden = true;
+                if (toggle) toggle.setAttribute('aria-expanded', 'false');
             });
-        });
-    }
+        }
 
-    function uploadImage(file, textarea, status) {
-        var data = new FormData();
-        data.append('csrf_token', window.qfCsrfToken || '');
-        data.append('image', file);
-        if (status) status.textContent = '正在上传图片...';
-        if (window.qfSetLoading) window.qfSetLoading(true);
-        xhrUpload('api/upload-image', data, file, function(json) {
-            insertText(textarea, "\n[img]" + json.url + "[/img]\n");
-            if (status) status.textContent = '图片上传成功，已插入编辑框。';
-            notify('图片上传成功，已插入编辑框。', 'success');
-            if (window.qfSetLoading) window.qfSetLoading(false);
-        }, function(error) {
-            if (status) status.textContent = error;
-            notify(error, 'error');
-            if (window.qfSetLoading) window.qfSetLoading(false);
-        });
-    }
+        root.querySelectorAll('[data-heading-menu]').forEach(function(menu) {
+            var toggle = menu.querySelector('[data-heading-toggle]');
+            var dropdown = menu.querySelector('[data-heading-dropdown]');
+            if (!toggle || !dropdown) return;
 
-    function initInstantUpload() {
-        var imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        var attachmentExts = ['zip', 'rar'];
-        document.querySelectorAll('.qf-instant-upload').forEach(function(input) {
-            input.addEventListener('change', function() {
-                var textarea = document.getElementById(input.getAttribute('data-target'));
-                var status = document.getElementById(input.getAttribute('data-status'));
-                Array.prototype.slice.call(input.files || []).forEach(function(file) {
-                    var ext = (file.name.split('.').pop() || '').toLowerCase();
-                    if (imageExts.indexOf(ext) !== -1) {
-                        uploadImage(file, textarea, status);
-                    } else if (attachmentExts.indexOf(ext) !== -1) {
-                        uploadAttachment(file, textarea, status);
-                    } else {
-                        if (status) status.textContent = '附件/图片上传失败，格式不支持。';
-                        setUploadProgress(file.name, 100, 'error');
-                        notify('附件/图片上传失败，格式不支持。', 'error');
-                    }
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                var nextOpen = dropdown.hidden;
+                closeHeadingMenus(menu);
+                dropdown.hidden = !nextOpen;
+                toggle.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+            });
+
+            dropdown.querySelectorAll('[data-md-heading]').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    insertHeading(btn.getAttribute('data-md-heading') || '2');
+                    dropdown.hidden = true;
+                    toggle.setAttribute('aria-expanded', 'false');
                 });
-                input.value = '';
             });
         });
+
+        document.addEventListener('click', function(e) {
+            if (!root.contains(e.target)) {
+                closeHeadingMenus();
+                return;
+            }
+            if (!e.target.closest || !e.target.closest('[data-heading-menu]')) {
+                closeHeadingMenus();
+            }
+        });
+
+        function updateStats() {
+            var value = textarea.value;
+            var plain = value.replace(/[#>*_`\-\[\]()!|]/g, '').trim();
+            var count = plain ? plain.length : 0;
+            var paragraphCount = value.trim() ? value.trim().split(/\n\s*\n/).filter(function(block) {
+                return block.trim() !== '';
+            }).length : 0;
+            if (toolbarWords) toolbarWords.textContent = count + ' 字';
+            if (paragraphs) paragraphs.textContent = paragraphCount + ' 段';
+        }
+
+        function updatePreview() {
+            if (!previewUrl || !preview) return;
+            var data = new URLSearchParams();
+            data.set('csrf_token', csrf);
+            data.set('markdown', textarea.value);
+            fetch(previewUrl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: data.toString()
+            }).then(function(res) {
+                return res.ok ? res.json() : Promise.reject();
+            }).then(function(data) {
+                preview.innerHTML = (data && data.html) ? data.html : '<div class="empty">预览会显示在这里</div>';
+                if (syncStatus) syncStatus.textContent = '已同步';
+                if (window.qfEnhanceMedia) window.qfEnhanceMedia(preview);
+            }).catch(function() {
+                preview.innerHTML = '<div class="empty">预览暂时不可用</div>';
+                if (syncStatus) syncStatus.textContent = '预览失败';
+            });
+        }
+
+        function schedulePreview() {
+            updateStats();
+            clearTimeout(previewTimer);
+            if (syncStatus) syncStatus.textContent = '同步中';
+            previewTimer = setTimeout(updatePreview, 260);
+        }
+
+        root.querySelectorAll('[data-md]').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                command(btn.getAttribute('data-md'));
+            });
+        });
+
+        if (filePicker) {
+            filePicker.addEventListener('change', function() {
+                var file = filePicker.files && filePicker.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function() {
+                    textarea.value = String(reader.result || '');
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                };
+                reader.readAsText(file);
+                filePicker.value = '';
+            });
+        }
+
+        if (imagePicker) {
+            imagePicker.addEventListener('change', function() {
+                var file = imagePicker.files && imagePicker.files[0];
+                if (!file) return;
+                var data = new FormData();
+                data.append('csrf_token', csrf);
+                data.append('image', file);
+                if (window.qfSetLoading) window.qfSetLoading(true);
+                xhrUpload(uploadUrl, data, file, function(json) {
+                    insert('![', '](' + json.url + ')', file.name.replace(/\.[^.]+$/, '') || '图片');
+                    notify('图片上传成功', 'success');
+                    if (window.qfSetLoading) window.qfSetLoading(false);
+                }, function(error) {
+                    notify(error, 'error');
+                    if (window.qfSetLoading) window.qfSetLoading(false);
+                });
+                imagePicker.value = '';
+            });
+        }
+
+        if (attachPicker) {
+            attachPicker.addEventListener('change', function() {
+                var file = attachPicker.files && attachPicker.files[0];
+                if (!file) return;
+                requestAttachmentDescription(function(description) {
+                    var data = new FormData();
+                    data.append('csrf_token', csrf);
+                    data.append('attachment', file);
+                    data.append('attachment_description', description || '');
+                    if (window.qfSetLoading) window.qfSetLoading(true);
+                    xhrUpload(attachUrl, data, file, function(json) {
+                        insertText(textarea, '\n' + (json.tag || ('[' + (json.name || '附件') + '](' + json.url + ')')) + '\n');
+                        notify('附件上传成功', 'success');
+                        if (window.qfSetLoading) window.qfSetLoading(false);
+                    }, function(error) {
+                        notify(error, 'error');
+                        if (window.qfSetLoading) window.qfSetLoading(false);
+                    });
+                });
+                attachPicker.value = '';
+            });
+        }
+
+        textarea.addEventListener('input', schedulePreview);
+        textarea.addEventListener('keydown', function(e) {
+            var key = (e.key || '').toLowerCase();
+            if ((e.ctrlKey || e.metaKey) && key === 'b') {
+                e.preventDefault();
+                command('bold');
+            }
+            if ((e.ctrlKey || e.metaKey) && key === 'i') {
+                e.preventDefault();
+                command('italic');
+            }
+        });
+
+        updateStats();
+        updatePreview();
     }
 
     function initFloorReply() {
@@ -345,13 +385,10 @@
         });
     }
 
-    window.qfToggleUploadTip = toggleUploadTip;
     window.qfInsertText = insertText;
 
     initForumCategories();
-    initEditorToolbar();
-    initUploadTips();
-    initInstantUpload();
+    document.querySelectorAll('.markdown-editor').forEach(initMarkdownEditor);
     initFloorReply();
 })();
 

@@ -67,13 +67,13 @@ if (!$ok) {
 $attach_id = intval(mysqli_insert_id(db()));
 $url = qf_attachment_url($attach_id); // download?id= 附件ID
 
-$tag_name = str_replace(array('"', '[', ']', "\r", "\n"), '', $original);
-$tag_description = str_replace(array('"', '[', ']', "\r", "\n"), '', $description);
-$tag = '[file url="' . $url . '" name="' . $tag_name . '"';
-if ($tag_description !== '') {
-    $tag .= ' desc="' . $tag_description . '"';
+$tag_name = str_replace(array('[', ']', '(', ')', "\r", "\n"), '', $original);
+$tag_description = str_replace(array('[', ']', '(', ')', "\r", "\n"), '', $description);
+$label = $tag_description !== '' ? $tag_description : $tag_name;
+if ($label === '') {
+    $label = '附件';
 }
-$tag .= ']' . ($tag_description !== '' ? $tag_description : $tag_name) . '[/file]';
+$tag = '[' . $label . '](' . $url . ')';
 echo json_encode(array('ok' => 1, 'id' => $attach_id, 'url' => $url, 'name' => $original, 'description' => $description, 'tag' => $tag, 'message' => '附件上传成功'));
 exit;
 ?>

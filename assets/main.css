@@ -1603,7 +1603,7 @@ textarea {
 }
 
 .post-form-card {
-    max-width: 920px;
+    max-width: 1100px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -1613,54 +1613,367 @@ textarea {
     line-height: 1.8;
 }
 
-.editor-toolbar {
+/* Markdown 双栏编辑器 */
+.markdown-editor {
+    margin: 8px 0 16px;
+}
+.markdown-editor .editor-upload-tip {
+    display: block;
+    margin: 0 0 8px;
+    font-size: 12px;
+}
+.markdown-editor .editor-toolbar {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px;
-    border: 1px solid #d8e3ec;
-    border-bottom: 0;
-    border-radius: 8px 8px 0 0;
+    gap: 4px;
+    align-items: center;
+    padding: 8px 10px;
     background: #f7f8fc;
+    border: 1px solid #d8e3ec;
+    border-radius: 8px 8px 0 0 !important;
 }
-
-.editor-toolbar button,
-.editor-upload-button {
+.markdown-editor .editor-toolbar-label {
     display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    height: 32px;
+    margin-right: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6a7078;
+    white-space: nowrap;
+}
+.markdown-editor .editor-toolbar button,
+.markdown-editor .editor-toolbar .editor-file {
+    display: inline-flex;
+    flex: 0 0 32px;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    width: auto;
-    min-height: 32px;
-    padding: 6px 10px;
-    border: 1px solid #cfe0eb;
-    border-radius: 6px;
-    color: #5b5568;
-    background: #fff;
-    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
     font-size: 13px;
-    font-weight: 700;
     line-height: 1;
+    color: #5b5568;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px !important;
 }
-
-.editor-toolbar button:hover,
-.editor-upload-button:hover {
+.markdown-editor .editor-heading-menu {
+    position: relative;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+}
+.markdown-editor .editor-heading-menu > [data-heading-toggle] {
+    width: 100%;
+    height: 100%;
+}
+.markdown-editor .editor-heading-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 30;
+    display: grid;
+    gap: 4px;
+    min-width: 82px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid #d8e3ec;
+    border-radius: 5px;
+    box-shadow: 0 12px 28px rgba(20, 24, 36, .14);
+}
+.markdown-editor .editor-toolbar .editor-heading-dropdown button {
+    flex: none;
+    justify-content: flex-start;
+    width: 100%;
+    height: 30px;
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #26232f;
+    text-align: left;
+    border: 1px solid transparent;
+    border-radius: 5px;
+}
+.markdown-editor .editor-toolbar button:hover,
+.markdown-editor .editor-toolbar .editor-file:hover,
+.markdown-editor .editor-toolbar .editor-heading-dropdown button:hover {
     color: var(--phpdo-accent);
+    background: #fff;
     border-color: #c6cce0;
-    background: #eef1f7;
 }
-
-.editor-upload-button input {
+.markdown-editor .editor-toolbar .editor-file input {
     display: none;
 }
-
-.editor-help-button {
-    width: 32px !important;
-    padding: 0 !important;
+.markdown-editor .editor-toolbar .editor-md-import {
+    flex: 0 0 auto;
+    gap: 5px;
+    width: auto;
+    padding: 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--phpdo-accent);
+    white-space: nowrap;
+}
+.markdown-editor .editor-toolbar-spacer {
+    flex: 1 1 auto;
+    min-width: 12px;
+}
+.markdown-editor .editor-toolbar-meta {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    min-height: 32px;
+    font-size: 11px;
+    color: #6a7078;
+    white-space: nowrap;
+}
+.markdown-editor .editor-toolbar-separator {
+    width: 1px;
+    height: 15px;
+    background: #d8e3ec;
+}
+.markdown-editor .editor-pane {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: 420px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #d8e3ec;
+    border-top: 0;
+    border-radius: 0 0 8px 8px !important;
+}
+.markdown-editor .editor-pane textarea {
+    min-height: 420px;
+    margin: 0;
+    padding: 16px 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #26232f;
+    background: #fff;
+    border: 0;
+    border-right: 1px solid #d8e3ec;
+    border-radius: 0 !important;
+    resize: vertical;
+    box-shadow: none;
+}
+.markdown-editor .editor-pane textarea:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px rgba(34, 116, 165, .18);
+}
+.markdown-editor .editor-preview {
+    padding: 18px 22px;
+    overflow: auto;
+    line-height: 1.8;
+    color: #26232f;
+    background: #f7f9fc;
+}
+.markdown-editor .editor-preview .empty {
+    color: #8a9098;
+}
+.markdown-editor.is-compact .editor-pane {
+    min-height: 220px;
+}
+.markdown-editor.is-compact .editor-pane textarea {
+    min-height: 220px;
+}
+@media (max-width: 860px) {
+    .markdown-editor .editor-pane {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+    .markdown-editor .editor-pane textarea {
+        min-height: 260px;
+        border-right: 0;
+        border-bottom: 1px solid #d8e3ec;
+    }
+    .markdown-editor .editor-preview {
+        min-height: 200px;
+    }
+    .markdown-editor .editor-toolbar-spacer {
+        display: none;
+    }
+    .markdown-editor .editor-toolbar-meta {
+        width: 100%;
+        margin-top: 4px;
+    }
 }
 
-.editor-toolbar + textarea {
-    border-radius: 0 0 8px 8px;
+/* Markdown 正文 / 预览排版 */
+.qf-md-body,
+.post-content-box,
+.reply .content,
+.markdown-editor .editor-preview {
+    word-wrap: break-word;
+}
+.qf-md-body > *:first-child,
+.post-content-box > *:first-child,
+.reply .content > *:first-child,
+.markdown-editor .editor-preview > *:first-child {
+    margin-top: 0;
+}
+.qf-md-body h1,
+.qf-md-body h2,
+.qf-md-body h3,
+.qf-md-body h4,
+.qf-md-body h5,
+.post-content-box h1,
+.post-content-box h2,
+.post-content-box h3,
+.post-content-box h4,
+.post-content-box h5,
+.reply .content h1,
+.reply .content h2,
+.reply .content h3,
+.reply .content h4,
+.reply .content h5,
+.markdown-editor .editor-preview h1,
+.markdown-editor .editor-preview h2,
+.markdown-editor .editor-preview h3,
+.markdown-editor .editor-preview h4,
+.markdown-editor .editor-preview h5 {
+    margin: 1.25em 0 .55em;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #26232f;
+}
+.qf-md-body h1, .post-content-box h1, .markdown-editor .editor-preview h1 { font-size: 1.55em; }
+.qf-md-body h2, .post-content-box h2, .markdown-editor .editor-preview h2 { font-size: 1.35em; }
+.qf-md-body h3, .post-content-box h3, .markdown-editor .editor-preview h3 { font-size: 1.18em; }
+.qf-md-body p,
+.post-content-box p,
+.reply .content p,
+.markdown-editor .editor-preview p {
+    margin: 0 0 1em;
+}
+.qf-md-body ul,
+.qf-md-body ol,
+.post-content-box ul,
+.post-content-box ol,
+.reply .content ul,
+.reply .content ol,
+.markdown-editor .editor-preview ul,
+.markdown-editor .editor-preview ol {
+    margin: 0 0 1em;
+    padding-left: 1.4em;
+}
+.qf-md-body blockquote,
+.post-content-box blockquote,
+.reply .content blockquote,
+.markdown-editor .editor-preview blockquote {
+    margin: 0 0 1em;
+    padding: 8px 14px;
+    color: #5b5568;
+    background: #eef1f7;
+    border-left: 3px solid var(--phpdo-accent);
+}
+.qf-md-body pre,
+.post-content-box pre,
+.reply .content pre,
+.markdown-editor .editor-preview pre {
+    margin: 0 0 1em;
+    padding: 14px;
+    overflow: auto;
+    color: #e5e7eb;
+    background: #111827;
+    border-radius: 6px;
+}
+.qf-md-body code,
+.post-content-box code,
+.reply .content code,
+.markdown-editor .editor-preview code {
+    padding: .12em .35em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: .92em;
+    background: #eef1f7;
+    border-radius: 4px;
+}
+.qf-md-body pre code,
+.post-content-box pre code,
+.reply .content pre code,
+.markdown-editor .editor-preview pre code {
+    padding: 0;
+    color: inherit;
+    background: transparent;
+}
+.qf-md-body table,
+.post-content-box table,
+.markdown-editor .editor-preview table {
+    width: 100%;
+    margin: 0 0 1em;
+    border-collapse: collapse;
+}
+.qf-md-body th,
+.qf-md-body td,
+.post-content-box th,
+.post-content-box td,
+.markdown-editor .editor-preview th,
+.markdown-editor .editor-preview td {
+    padding: 8px 10px;
+    border: 1px solid #d8e3ec;
+}
+.qf-md-body th,
+.post-content-box th,
+.markdown-editor .editor-preview th {
+    background: #f7f8fc;
+}
+.qf-md-body hr,
+.post-content-box hr,
+.markdown-editor .editor-preview hr {
+    margin: 1.4em 0;
+    border: 0;
+    border-top: 1px solid #d8e3ec;
+}
+body.theme-php-dark .markdown-editor .editor-toolbar,
+body.theme-php-dark .markdown-editor .editor-pane,
+body.theme-php-dark .markdown-editor .editor-preview,
+body.theme-php-dark .markdown-editor .editor-heading-dropdown {
+    color: var(--phpdo-text);
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
+}
+body.theme-php-dark .markdown-editor .editor-toolbar {
+    background: var(--phpdo-surface-soft);
+}
+body.theme-php-dark .markdown-editor .editor-preview {
+    background: rgba(0, 0, 0, .18);
+}
+body.theme-php-dark .markdown-editor .editor-pane textarea {
+    color: var(--phpdo-text);
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
+}
+body.theme-php-dark .markdown-editor .editor-toolbar button,
+body.theme-php-dark .markdown-editor .editor-toolbar-label,
+body.theme-php-dark .markdown-editor .editor-toolbar-meta {
+    color: var(--phpdo-muted);
+}
+body.theme-php-dark .qf-md-body h1,
+body.theme-php-dark .qf-md-body h2,
+body.theme-php-dark .qf-md-body h3,
+body.theme-php-dark .post-content-box h1,
+body.theme-php-dark .post-content-box h2,
+body.theme-php-dark .post-content-box h3,
+body.theme-php-dark .markdown-editor .editor-preview h1,
+body.theme-php-dark .markdown-editor .editor-preview h2,
+body.theme-php-dark .markdown-editor .editor-preview h3 {
+    color: var(--phpdo-text);
+}
+body.theme-php-dark .qf-md-body blockquote,
+body.theme-php-dark .post-content-box blockquote,
+body.theme-php-dark .markdown-editor .editor-preview blockquote {
+    color: var(--phpdo-muted);
+    background: rgba(255, 255, 255, .05);
+}
+body.theme-php-dark .qf-md-body code,
+body.theme-php-dark .post-content-box code,
+body.theme-php-dark .markdown-editor .editor-preview code {
+    background: rgba(255, 255, 255, .08);
 }
 
 input:focus,

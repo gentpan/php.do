@@ -618,6 +618,7 @@ function qf_route_script($script, &$params = array()) {
         'captcha.php' => 'api/captcha.php',
         'ajax_upload_image.php' => 'api/upload-image.php',
         'ajax_upload_attachment.php' => 'api/upload-attachment.php',
+        'markdown_preview.php' => 'api/markdown-preview.php',
         'delete_attachment.php' => 'api/delete-attachment.php',
         'floor_reply.php' => 'api/floor-reply.php',
         'moderator_action.php' => 'api/moderator.php',
@@ -668,6 +669,7 @@ function qf_clean_route_path($script) {
         'api/captcha.php' => 'api/captcha',
         'api/upload-attachment.php' => 'api/upload-attachment',
         'api/upload-image.php' => 'api/upload-image',
+        'api/markdown-preview.php' => 'api/markdown-preview',
         'api/auth.php' => 'api/auth',
         'api/delete-attachment.php' => 'api/delete-attachment',
         'api/floor-reply.php' => 'api/floor-reply',
@@ -3225,7 +3227,44 @@ function format_time($time) {
     return qf_time_ago($time);
 }
 
-function qf_render_content($content) {
+function qf_content_looks_like_bbcode($content) {
+    return (bool)preg_match('/\[(?:b|img|url|size|font|file)\b/i', (string)$content);
+}
+
+function qf_markdown($text) {
+    $text = (string)$text;
+    if (trim($text) === '') {
+        return '';
+    }
+    static $loaded = false;
+    if (!$loaded) {
+        $path = __DIR__ . '/lib/Parsedown.php';
+        if (is_file($path)) {
+            require_once $path;
+        }
+        $loaded = true;
+    }
+    if (!class_exists('Parsedown', false)) {
+        return nl2br(h($text));
+    }
+    $parser = new Parsedown();
+    if (method_exists($parser, 'setSafeMode')) {
+        $parser->setSafeMode(true);
+    }
+    if (method_exists($parser, 'setBreaksEnabled')) {
+        $parser->setBreaksEnabled(true);
+    }
+    if (method_exists($parser, 'setMarkupEscaped')) {
+        $parser->setMarkupEscaped(true);
+    }
+    $html = $parser->text($text);
+    // 附件/外链图片统一加 class，便于缩放与样式
+    $html = preg_replace('/<img\b([^>]*?)>/i', '<img class="remote-img"$1>', $html);
+    $html = preg_replace('/<a\b([^>]*?)>/i', '<a class="content-link"$1>', $html);
+    return $html;
+}
+
+function qf_render_bbcode_content($content) {
     $html = nl2br(h($content));
     $html = preg_replace_callback('/\[file url=&quot;([^&]+)&quot; name=&quot;([^&]*)&quot; desc=&quot;([^&]*)&quot;\](.*?)\[\/file\]/is', function($m) {
         return qf_render_file_tag($m[1], $m[2], $m[3]);
@@ -3244,6 +3283,13 @@ function qf_render_content($content) {
     $html = preg_replace('/\[size=([0-9]{1,2})\](.*?)\[\/size\]/is', '<span style="font-size:$1px">$2</span>', $html);
     $html = preg_replace('/\[font=([^\]]{1,20})\](.*?)\[\/font\]/is', '<span style="font-family:$1">$2</span>', $html);
     return $html;
+}
+
+function qf_render_content($content) {
+    if (qf_content_looks_like_bbcode($content)) {
+        return qf_render_bbcode_content($content);
+    }
+    return qf_markdown($content);
 }
 
 function qf_render_url_tag($url, $text) {
