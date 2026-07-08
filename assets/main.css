@@ -3468,8 +3468,8 @@ body.theme-pd .pd-home-shell {
 body.theme-pd .pd-category-bar {
     display: flex;
     align-items: center;
-    gap: 22px;
-    min-height: 56px;
+    gap: 20px;
+    min-height: 48px;
     padding: 0 30px;
     overflow-x: auto;
     color: var(--pd-text-title);
@@ -3489,7 +3489,7 @@ body.theme-pd .pd-feed-tabs::-webkit-scrollbar {
 
 body.theme-pd .pd-category-bar a {
     color: #3c3c3c;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
     text-decoration: none;
 }
@@ -3580,11 +3580,11 @@ body.theme-pd .pd-feed-tabs a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 92px;
-    height: 40px;
-    padding: 0 16px;
+    min-width: 88px;
+    height: 34px;
+    padding: 0 14px;
     color: #333;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
     text-decoration: none;
     background: #f1f1f1;
@@ -3731,11 +3731,11 @@ body.theme-pd-dark .pd-feed-end { color: #6b7280; }
 
 body.theme-pd .pd-thread-row {
     display: grid;
-    grid-template-columns: 58px minmax(0, 1fr);
-    gap: 14px;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 12px;
     align-items: center;
-    min-height: 72px;
-    padding: 11px 12px;
+    min-height: 60px;
+    padding: 9px 12px;
     border-bottom: 1px solid var(--pd-line);
 }
 
@@ -3754,8 +3754,8 @@ body.theme-pd .pd-thread-row:last-child {
 
 body.theme-pd .pd-avatar {
     display: block;
-    width: 58px;
-    height: 58px;
+    width: 48px;
+    height: 48px;
     overflow: hidden;
     background: #eef0f4;
     border-radius: 0;
@@ -3783,10 +3783,10 @@ body.theme-pd .pd-thread-main h2 {
     align-items: center;
     gap: 8px;
     min-width: 0;
-    margin: 0 0 6px;
+    margin: 0 0 5px;
     color: var(--pd-text-title);
     font-family: var(--pd-content-font), var(--pd-font-sans);
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.35;
 }
 
@@ -3810,7 +3810,7 @@ body.theme-pd .pd-thread-main p {
     min-width: 0;
     margin: 0;
     color: #929292;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.35;
 }
 
@@ -4034,16 +4034,16 @@ body.theme-pd .pd-side-card h2 {
     align-items: center;
     gap: 10px;
     margin: 0 0 12px;
-    padding-bottom: 12px;
+    padding-bottom: 11px;
     color: #424242;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     border-bottom: 1px solid var(--pd-line);
 }
 
 body.theme-pd .pd-side-card h2 span {
     width: 4px;
-    height: 18px;
+    height: 16px;
     background: var(--pd-accent);
     border-radius: 5px;
 }
@@ -4060,7 +4060,7 @@ body.theme-pd .pd-must-read li {
     position: relative;
     padding-left: 16px;
     color: #444;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     line-height: 1.5;
 }
@@ -4081,9 +4081,9 @@ body.theme-pd .pd-post-button {
     align-items: center;
     justify-content: center;
     gap: 9px;
-    height: 46px;
+    height: 42px;
     color: var(--pd-btn-primary-color);
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 900;
     text-decoration: none;
     background: var(--pd-btn-primary-bg);
@@ -4614,7 +4614,7 @@ body.theme-pd .pd-right-toolbar.cir-rail.is-scrolled [data-scroll-top] {
     }
 
     body.theme-pd .pd-thread-main h2 {
-        font-size: 17px;
+        font-size: 15px;
     }
 
     body.theme-pd .pd-thread-main p {
@@ -7617,7 +7617,7 @@ body.theme-pd .pd-community-stats > div {
     background: #f6f7fb;
     border-radius: 8px;
 }
-body.theme-pd .pd-community-stats b { display: block; font-size: 18px; font-weight: 800; color: var(--pd-accent); }
+body.theme-pd .pd-community-stats b { display: block; font-size: 16px; font-weight: 800; color: var(--pd-accent); }
 body.theme-pd .pd-community-stats span { display: block; margin-top: 2px; font-size: 11px; color: #8a8f98; }
 body.theme-pd .pd-community-link {
     display: inline-flex;
