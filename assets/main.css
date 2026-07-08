@@ -4383,6 +4383,26 @@ body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__badge {
     pointer-events: none;
 }
 
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__form {
+    margin: 0;
+    display: contents;
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--done {
+    color: #16a34a;
+    cursor: default;
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--logout:hover {
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b--logout:hover {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, .16);
+}
+
 body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(46, 125, 239, 0.32);
@@ -7361,49 +7381,6 @@ body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
 .site-footer-friends-label { color: #6b707b; font-size: 13px; }
 .site-footer-friends a { color: #7f8593; font-size: 13px; }
 
-.site-footer-online {
-    margin-top: 18px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, .06);
-    color: #8b909d;
-    font-size: 13px;
-    line-height: 1.6;
-}
-.site-footer-online-stats {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 0;
-}
-.site-footer-online-stats b {
-    color: #d7dbe5;
-    font-weight: 700;
-}
-.site-footer-online-sep {
-    margin: 0 8px;
-    color: #5c616c;
-}
-.site-footer-online-members {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
-    margin-top: 8px;
-}
-.site-footer-online-label {
-    color: #6b707b;
-}
-.site-footer-online-members a {
-    color: #aeb4c2;
-    text-decoration: none;
-}
-.site-footer-online-members a:hover {
-    color: #fff;
-}
-.site-footer-online-more {
-    color: #6b707b;
-}
-
 .site-footer-bottom {
     margin-top: 22px; padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, .06);
@@ -7411,24 +7388,77 @@ body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
     justify-content: space-between; gap: 12px 20px;
     color: #71767f; font-size: 13px;
 }
-.site-footer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.site-footer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
 .site-footer-copy { margin-left: auto; color: #8b909d; }
 .site-footer-icp a { color: #8b909d; }
 .site-footer-icp a:hover { color: #fff; }
 
-/* shields.io 扁平风格徽章：左标签(深灰) + 右数值(彩色) */
-.sh-badge {
-    display: inline-flex; height: 20px; border-radius: 3px; overflow: hidden;
-    font-family: Verdana, "DejaVu Sans", system-ui, sans-serif;
-    font-size: 11px; line-height: 20px; white-space: nowrap;
+/* 页脚性能/在线指标芯片 */
+.qf-stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    padding: 4px 11px 4px 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    transition: background .15s ease, border-color .15s ease, transform .15s ease;
 }
-.sh-badge-k, .sh-badge-v { padding: 0 7px; color: #fff; }
-.sh-badge-k { background: #555; }
-.sh-badge-v { background: #4c1; font-variant-numeric: tabular-nums; }
-.sh-badge-green { background: #4c1; }
-.sh-badge-blue { background: #007ec6; }
-.sh-badge-orange { background: #fe7d37; }
-.sh-badge-red { background: #e05d44; }
+.qf-stat-chip:hover {
+    background: rgba(255, 255, 255, .08);
+    border-color: rgba(255, 255, 255, .14);
+    transform: translateY(-1px);
+}
+.qf-stat-chip__ico {
+    display: grid;
+    place-items: center;
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 10px;
+    line-height: 1;
+}
+.qf-stat-chip__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    line-height: 1.1;
+}
+.qf-stat-chip__k {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #7a808d;
+}
+.qf-stat-chip__v {
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #eceff4;
+}
+.qf-stat-chip--time .qf-stat-chip__ico {
+    background: rgba(34, 197, 94, .18);
+    color: #4ade80;
+    box-shadow: 0 0 0 1px rgba(74, 222, 128, .22);
+}
+.qf-stat-chip--sql .qf-stat-chip__ico {
+    background: rgba(59, 130, 246, .18);
+    color: #60a5fa;
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, .22);
+}
+.qf-stat-chip--online .qf-stat-chip__ico {
+    background: rgba(249, 115, 22, .18);
+    color: #fb923c;
+    box-shadow: 0 0 0 1px rgba(251, 146, 60, .22);
+}
+.qf-stat-chip--time:hover { border-color: rgba(74, 222, 128, .28); }
+.qf-stat-chip--sql:hover { border-color: rgba(96, 165, 250, .28); }
+.qf-stat-chip--online:hover { border-color: rgba(251, 146, 60, .28); }
 
 /* ===== 关于 / 社区页 ===== */
 body.theme-php .phpdo-about {

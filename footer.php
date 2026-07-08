@@ -46,8 +46,6 @@ $footer_rail_notifications_active = ($current_script === 'notifications.php');
 $footer_rail_profile_active = ($current_script === 'profile.php');
 $footer_icp = trim(qf_setting('icp_code', ''));
 $online = qf_online_counts();
-$online_today = qf_online_today_peak();
-$online_members = qf_online_members(12);
 ?>
 <footer class="site-footer">
     <div class="site-footer-inner">
@@ -79,33 +77,29 @@ $online_members = qf_online_members(12);
                 <?php } ?>
             </nav>
         <?php } ?>
-        <div class="site-footer-online" aria-label="在线状况">
-            <div class="site-footer-online-stats">
-                <span>当前在线 <b><?php echo intval($online['total']); ?></b></span>
-                <span class="site-footer-online-sep">·</span>
-                <span>会员 <b><?php echo intval($online['members']); ?></b></span>
-                <span class="site-footer-online-sep">·</span>
-                <span>访客 <b><?php echo intval($online['guests']); ?></b></span>
-                <span class="site-footer-online-sep">·</span>
-                <span>今日峰值 <b><?php echo intval($online_today['peak_total']); ?></b></span>
-            </div>
-            <?php if (!empty($online_members)) { ?>
-                <div class="site-footer-online-members">
-                    <span class="site-footer-online-label">在线会员</span>
-                    <?php foreach ($online_members as $om) { ?>
-                        <a href="<?php echo h(qf_url_user($om['id'])); ?>"><?php echo h(qf_user_display_name($om)); ?></a>
-                    <?php } ?>
-                    <?php if (intval($online['members']) > count($online_members)) { ?>
-                        <span class="site-footer-online-more">等 <?php echo intval($online['members']); ?> 人</span>
-                    <?php } ?>
-                </div>
-            <?php } ?>
-        </div>
         <div class="site-footer-bottom">
             <div class="site-footer-meta">
-                <span class="sh-badge"><span class="sh-badge-k">Time</span><span class="sh-badge-v sh-badge-green"><?php echo number_format(qf_perf_seconds(), 3); ?>s</span></span>
-                <span class="sh-badge"><span class="sh-badge-k">SQL</span><span class="sh-badge-v sh-badge-blue"><?php echo intval(qf_perf_sql_count()); ?></span></span>
-                <span class="sh-badge"><span class="sh-badge-k">Online</span><span class="sh-badge-v sh-badge-orange"><?php echo intval($online['total']); ?></span></span>
+                <span class="qf-stat-chip qf-stat-chip--time" title="页面生成耗时">
+                    <span class="qf-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span>
+                    <span class="qf-stat-chip__body">
+                        <span class="qf-stat-chip__k">耗时</span>
+                        <span class="qf-stat-chip__v"><?php echo number_format(qf_perf_seconds(), 3); ?>s</span>
+                    </span>
+                </span>
+                <span class="qf-stat-chip qf-stat-chip--sql" title="数据库查询次数">
+                    <span class="qf-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-database"></i></span>
+                    <span class="qf-stat-chip__body">
+                        <span class="qf-stat-chip__k">SQL</span>
+                        <span class="qf-stat-chip__v"><?php echo intval(qf_perf_sql_count()); ?></span>
+                    </span>
+                </span>
+                <span class="qf-stat-chip qf-stat-chip--online" title="当前在线人数">
+                    <span class="qf-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-signal"></i></span>
+                    <span class="qf-stat-chip__body">
+                        <span class="qf-stat-chip__k">在线</span>
+                        <span class="qf-stat-chip__v"><?php echo intval($online['total']); ?></span>
+                    </span>
+                </span>
                 <?php if ($footer_icp !== '') { ?><span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?>
             </div>
             <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(qf_site_name()); ?></span>
