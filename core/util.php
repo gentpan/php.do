@@ -993,7 +993,7 @@ function pd_markdown($text) {
     }
     static $loaded = false;
     if (!$loaded) {
-        $path = PD_ROOT . '/lib/Parsedown.php';
+        $path = PD_ROOT . '/core/vendor/Parsedown.php';
         if (is_file($path)) {
             require_once $path;
         }
