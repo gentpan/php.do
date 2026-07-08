@@ -5054,7 +5054,131 @@ pre {
     }
 }
 
-/* php.net fidelity pass — 基础变量见 assets/phpdo-base.css；页面底色由下方 forum index 段定义 */
+/* php.do 基础变量 — 颜色 / 按钮 / 卡片 / 字体 / 间距 */
+
+:root {
+    /* php.net 兼容别名 */
+    --phpnet-nav: var(--phpdo-accent);
+    --phpnet-nav-dark: var(--phpdo-accent-hover);
+    --phpnet-bg: #272727;
+    --phpnet-bg-soft: #333333;
+    --phpnet-text-on-dark: #cccccc;
+    --phpnet-white: #f2f2f2;
+    --phpnet-paper: var(--phpdo-surface);
+    --phpnet-paper-border: var(--phpdo-border);
+    --phpnet-link: var(--phpdo-accent);
+    --phpnet-purple: #793862;
+}
+
+body.theme-php {
+    /* 品牌色 */
+    --phpdo-accent: #505b93;
+    --phpdo-accent-hover: #3f4874;
+    --phpdo-accent-strong: #505b93;
+    --phpdo-red: #ff674f;
+    --phpdo-gold: #f5a623;
+
+    /* 文字 */
+    --phpdo-text: #3f3f3f;
+    --phpdo-text-title: #333333;
+    --phpdo-text-body: #333333;
+    --phpdo-muted: #969696;
+    --phpdo-faint: #96999e;
+    --phpdo-text-on-accent: #ffffff;
+
+    /* 表面 */
+    --phpdo-page: #f7f7f8;
+    --phpdo-surface: #ffffff;
+    --phpdo-surface-soft: #f6f7f9;
+    --phpdo-surface-raised: #fbfbfc;
+    --phpdo-line: #eceff3;
+    --phpdo-border: #d8d8d8;
+
+    /* 导航 */
+    --phpdo-nav-bg: #ffffff;
+    --phpdo-nav-border: #e7e8eb;
+    --phpdo-nav-shadow: 0 1px 6px rgba(20, 20, 20, .04);
+
+    /* 卡片 */
+    --phpdo-card-bg: var(--phpdo-surface);
+    --phpdo-card-border: 1px solid var(--phpdo-border);
+    --phpdo-card-radius: .25rem;
+    --phpdo-card-radius-lg: 7px;
+    --phpdo-card-shadow: 0 .125rem .5rem rgba(0, 0, 0, .08);
+    --phpdo-card-shadow-subtle: 0 1px 0 rgba(20, 20, 20, .02);
+    --phpdo-card-padding: 1.5rem 1.625rem;
+
+    /* 按钮 */
+    --phpdo-btn-radius: 999px;
+    --phpdo-control-radius: .5rem;
+    --phpdo-btn-primary-bg: var(--phpdo-accent);
+    --phpdo-btn-primary-color: var(--phpdo-text-on-accent);
+    --phpdo-btn-primary-hover-bg: var(--phpdo-accent-hover);
+    --phpdo-btn-secondary-bg: #f3f4f6;
+    --phpdo-btn-secondary-border: #e3e6eb;
+    --phpdo-btn-secondary-color: #666666;
+    --phpdo-btn-secondary-icon: #a2a7af;
+    --phpdo-btn-secondary-text-strong: var(--phpdo-text-title);
+    --phpdo-btn-ghost-color: var(--phpdo-faint);
+    --phpdo-btn-ghost-hover-bg: transparent;
+
+    /* 字体 */
+    --phpdo-font-sans: "Fira Sans", "Source Sans Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --phpdo-font-mono: "Fira Mono", "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --phpdo-font-size-base: 16px;
+    --phpdo-font-size-sm: .875rem;
+    --phpdo-font-size-list-title: 1.125rem;
+    --phpdo-font-weight-list-title: 500;
+    --phpdo-font-size-page-title: 1.75rem;
+    --phpdo-font-weight-page-title: 500;
+    --phpdo-font-size-section-title: 1.5rem;
+    --phpdo-font-weight-section-title: 500;
+    --phpdo-font-size-body: 1rem;
+    --phpdo-line-height-body: 1.5;
+
+    /* 间距 */
+    --phpdo-space-1: .5rem;
+    --phpdo-space-2: .75rem;
+    --phpdo-space-3: 1rem;
+    --phpdo-space-4: 1.5rem;
+    --phpdo-space-5: 2rem;
+    --phpdo-shadow-soft: var(--phpdo-card-shadow);
+
+    /* 首页布局 */
+    --phpdo-home-gap: var(--phpdo-space-3);
+    --phpdo-home-cols: minmax(0, 7fr) minmax(0, 3fr);
+    --phpdo-home-side: calc((100% - var(--phpdo-home-gap)) * 0.3);
+}
+
+body.theme-php-dark {
+    --phpdo-page: #101217;
+    --phpdo-surface: #181b22;
+    --phpdo-surface-soft: #1f2430;
+    --phpdo-surface-raised: #222734;
+    --phpdo-border: #303643;
+    --phpdo-line: #303643;
+    --phpdo-text: #e6e8ee;
+    --phpdo-text-title: #e6e8ee;
+    --phpdo-text-body: #e6e8ee;
+    --phpdo-muted: #a6adba;
+    --phpdo-faint: #7d8593;
+    --phpdo-accent: #8791c4;
+    --phpdo-accent-hover: #9aa3d0;
+    --phpdo-accent-strong: #b9c0dd;
+    --phpdo-red: #ff8a78;
+    --phpdo-nav-bg: #151821;
+    --phpdo-nav-border: var(--phpdo-border);
+    --phpdo-nav-shadow: 0 .125rem .75rem rgba(0, 0, 0, .28);
+    --phpdo-btn-secondary-bg: var(--phpdo-surface-soft);
+    --phpdo-btn-secondary-border: var(--phpdo-border);
+    --phpdo-btn-secondary-color: var(--phpdo-muted);
+    --phpdo-btn-secondary-icon: var(--phpdo-muted);
+    --phpdo-btn-secondary-text-strong: var(--phpdo-text-title);
+    --phpdo-card-shadow: 0 .125rem .75rem rgba(0, 0, 0, .28);
+    --phpdo-shadow-soft: var(--phpdo-card-shadow);
+}
+
+/* php.net fidelity pass — 页面底色由下方 forum index 段定义 */
 
 body.theme-php .site-nav-bar {
     height: 64px;
@@ -7917,7 +8041,7 @@ body.theme-php .phpdo-auth-switch a {
     }
 }
 
-/* php.net component scale pass — 基础变量见 assets/phpdo-base.css */
+/* php.net component scale pass */
 body.theme-php {
     font-family: var(--phpdo-font-sans);
     font-size: var(--phpdo-font-size-base);
@@ -8143,7 +8267,7 @@ body.theme-php .phpdo-right-toolbar button {
     }
 }
 
-/* PHP official dark variant — 暗色变量见 assets/phpdo-base.css */
+/* PHP official dark variant */
 body.theme-php-dark {
     color: var(--phpdo-text);
     background: var(--phpdo-page);
