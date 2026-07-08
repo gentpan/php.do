@@ -294,19 +294,36 @@ function pd_handle_register() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         redirect(pd_url_page('register.php'));
     }
-    $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
+    $username = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 40);
     $nickname = clean_text(isset($_POST['nickname']) ? $_POST['nickname'] : '', 30);
+    $email = strtolower(trim((string)(isset($_POST['email']) ? $_POST['email'] : '')));
     $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
+    $password2 = (string)(isset($_POST['password_confirm']) ? $_POST['password_confirm'] : '');
+    $email_code = trim((string)(isset($_POST['email_code']) ? $_POST['email_code'] : ''));
     $invite_code = clean_text(isset($_POST['invite_code']) ? $_POST['invite_code'] : '', 32);
     $error = '';
+    $uerr = pd_validate_username($username);
+    $perr = pd_validate_password($password);
     if (pd_captcha_required('register') && !pd_verify_captcha()) {
         $error = '验证码错误，请重新输入。';
-    } elseif (!preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
-        $error = '用户名只能使用字母、数字、下划线，长度 3-30。';
-    } elseif ($nickname === '' || strlen($password) < 6) {
-        $error = '昵称不能为空，密码至少 6 位。';
+    } elseif ($uerr !== '') {
+        $error = $uerr;
+    } elseif ($nickname === '') {
+        $error = '昵称不能为空。';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = '请输入有效的电子邮箱。';
+    } elseif ($perr !== '') {
+        $error = $perr;
+    } elseif ($password !== $password2) {
+        $error = '两次输入的密码不一致。';
+    } elseif (pd_require_email_verify() && !pd_email_code_verify($email, $email_code, 'register')) {
+        $error = '邮箱验证码错误或已过期。';
     } elseif (pd_require_invite() && !pd_invite_valid($invite_code)) {
         $error = '邀请码无效或已被使用，请检查后重试。';
+    } elseif (count_rows("SELECT COUNT(*) FROM pd_users WHERE username='" . esc($username) . "'") > 0) {
+        $error = '该用户名已被注册。';
+    } elseif (count_rows("SELECT COUNT(*) FROM pd_users WHERE email='" . esc($email) . "'") > 0) {
+        $error = '该邮箱已被注册。';
     } else {
         $daily_limit = intval(pd_setting('register_ip_daily_limit', '5'));
         if ($daily_limit < 1) {
@@ -320,9 +337,10 @@ function pd_handle_register() {
         } else {
             $u = esc($username);
             $n = esc($nickname);
+            $em = esc($email);
             $p = pd_password_hash($password);
             $ip = esc($ip_raw);
-            if (mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$ip}',NOW())")) {
+            if (mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,email,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$em}','{$ip}',NOW())")) {
                 $new_user_id = intval(mysqli_insert_id(db()));
                 $avatar = pd_generate_default_avatar($new_user_id, $username, $nickname);
                 if ($avatar !== '') {
@@ -332,16 +350,18 @@ function pd_handle_register() {
                 if (pd_require_invite()) {
                     pd_consume_invite($invite_code, $new_user_id);
                 }
+                pd_email_code_clear('register');
                 session_regenerate_id(true);
                 $_SESSION['pd_uid'] = $new_user_id;
                 redirect(pd_url_page('index.php'));
             }
-            $error = '注册失败，用户名可能已存在。';
+            $error = '注册失败，请稍后再试。';
         }
     }
     $_SESSION['auth_error'] = $error;
     $_SESSION['auth_register_username'] = $username;
     $_SESSION['auth_register_nickname'] = $nickname;
+    $_SESSION['auth_register_email'] = $email;
     redirect(pd_url_page('register.php'));
 }
 
@@ -360,8 +380,52 @@ function pd_handle_auth_action() {
         pd_handle_login();
     } elseif ($action === 'register') {
         pd_handle_register();
+    } elseif ($action === 'reset') {
+        pd_handle_reset_password();
     } elseif ($action === 'logout') {
         pd_handle_logout();
     }
     redirect(pd_url_page('index.php'));
+}
+
+function pd_handle_reset_password() {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect(pd_url_page('forgot-password.php'));
+    }
+    $email = strtolower(trim((string)(isset($_POST['email']) ? $_POST['email'] : '')));
+    $code = trim((string)(isset($_POST['email_code']) ? $_POST['email_code'] : ''));
+    $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
+    $password2 = (string)(isset($_POST['password_confirm']) ? $_POST['password_confirm'] : '');
+    $error = '';
+    $perr = pd_validate_password($password);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = '请输入有效的电子邮箱。';
+    } elseif (!pd_mail_enabled()) {
+        $error = '邮件系统未启用，暂无法找回密码。';
+    } elseif (!pd_email_code_verify($email, $code, 'reset')) {
+        $error = '邮箱验证码错误或已过期。';
+    } elseif ($perr !== '') {
+        $error = $perr;
+    } elseif ($password !== $password2) {
+        $error = '两次输入的密码不一致。';
+    } else {
+        $email_sql = esc($email);
+        $rs = mysqli_query(db(), "SELECT id FROM pd_users WHERE email='{$email_sql}' LIMIT 1");
+        $row = $rs ? mysqli_fetch_assoc($rs) : null;
+        if (!$row) {
+            $error = '该邮箱未绑定任何账号。';
+        } else {
+            $uid = intval($row['id']);
+            $p = pd_password_hash($password);
+            $p_sql = esc($p);
+            mysqli_query(db(), "UPDATE pd_users SET password='{$p_sql}' WHERE id={$uid}");
+            pd_email_code_clear('reset');
+            $_SESSION['auth_error'] = '';
+            $_SESSION['flash'] = '密码已重置，请用新密码登录。';
+            redirect(pd_url_page('login.php'));
+        }
+    }
+    $_SESSION['auth_error'] = $error;
+    $_SESSION['auth_reset_email'] = $email;
+    redirect(pd_url_page('forgot-password.php'));
 }
