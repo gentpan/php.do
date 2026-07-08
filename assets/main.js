@@ -236,6 +236,84 @@
         });
     }
 
+    function qfConfirm(message, opts) {
+        opts = opts || {};
+        var title = opts.title || '确认操作';
+        var confirmText = opts.confirmText || '确定';
+        var cancelText = opts.cancelText || '取消';
+        var danger = opts.danger !== false;
+
+        return new Promise(function(resolve) {
+            var existing = document.getElementById('qf-confirm-overlay');
+            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+
+            var overlay = document.createElement('div');
+            overlay.id = 'qf-confirm-overlay';
+            overlay.className = 'qf-confirm-overlay';
+            overlay.innerHTML =
+                '<div class="qf-confirm-box" role="dialog" aria-modal="true" aria-labelledby="qf-confirm-title">' +
+                '<div class="qf-confirm-head">' +
+                '<span class="qf-confirm-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>' +
+                '<h3 class="qf-confirm-title" id="qf-confirm-title"></h3>' +
+                '</div>' +
+                '<p class="qf-confirm-message"></p>' +
+                '<div class="qf-confirm-actions">' +
+                '<button type="button" class="btn btn-light" data-qf-confirm-cancel></button>' +
+                '<button type="button" class="btn' + (danger ? ' btn-danger' : '') + '" data-qf-confirm-ok></button>' +
+                '</div></div>';
+
+            document.body.appendChild(overlay);
+            overlay.querySelector('.qf-confirm-title').textContent = title;
+            overlay.querySelector('.qf-confirm-message').textContent = message || '';
+            overlay.querySelector('[data-qf-confirm-cancel]').textContent = cancelText;
+            overlay.querySelector('[data-qf-confirm-ok]').textContent = confirmText;
+
+            var settled = false;
+            function finish(ok) {
+                if (settled) return;
+                settled = true;
+                document.removeEventListener('keydown', onKey);
+                overlay.classList.remove('is-open');
+                window.setTimeout(function() {
+                    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                }, 120);
+                resolve(!!ok);
+            }
+            function onKey(e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    finish(false);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    finish(true);
+                }
+            }
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) finish(false);
+            });
+            overlay.querySelector('[data-qf-confirm-cancel]').addEventListener('click', function() { finish(false); });
+            overlay.querySelector('[data-qf-confirm-ok]').addEventListener('click', function() { finish(true); });
+            document.addEventListener('keydown', onKey);
+
+            requestAnimationFrame(function() {
+                overlay.classList.add('is-open');
+                overlay.querySelector('[data-qf-confirm-ok]').focus();
+            });
+        });
+    }
+    window.qfConfirm = qfConfirm;
+
+    function qfConfirmOpts(message) {
+        var msg = String(message || '');
+        var isDelete = /删除|清除|重置/.test(msg);
+        return {
+            title: isDelete ? '确认删除' : '确认操作',
+            confirmText: isDelete ? '确定删除' : '确定',
+            danger: isDelete
+        };
+    }
+
     function initInlineActions() {
         document.addEventListener('click', function(e) {
             var captcha = e.target.closest('[data-captcha-refresh]');
@@ -247,23 +325,54 @@
             var loginRequired = e.target.closest('[data-login-required]');
             if (loginRequired) {
                 e.preventDefault();
-                if (confirm('需要登录才能进行此操作')) {
-                    window.location.href = loginRequired.getAttribute('data-login-url') || loginRequired.href;
-                }
+                qfConfirm('需要登录才能进行此操作', { title: '需要登录', confirmText: '去登录', danger: false }).then(function(ok) {
+                    if (ok) window.location.href = loginRequired.getAttribute('data-login-url') || loginRequired.href;
+                });
                 return;
             }
 
             var confirmed = e.target.closest('[data-confirm]');
-            if (confirmed && !confirmed.hasAttribute('data-ajax') && !confirm(confirmed.getAttribute('data-confirm'))) {
-                e.preventDefault();
+            if (!confirmed || confirmed.hasAttribute('data-ajax') || confirmed.tagName === 'FORM') return;
+
+            // form[data-confirm] 交给 submit 事件统一处理，避免点提交按钮时弹两次
+            if (confirmed.closest('form[data-confirm]') && (confirmed.tagName === 'BUTTON' || confirmed.tagName === 'INPUT')) {
+                return;
             }
+
+            var msg = confirmed.getAttribute('data-confirm');
+            if (!msg) return;
+            e.preventDefault();
+
+            qfConfirm(msg, qfConfirmOpts(msg)).then(function(ok) {
+                if (!ok) return;
+                if (confirmed.tagName === 'A') {
+                    window.location.href = confirmed.href;
+                    return;
+                }
+                var form = confirmed.form || confirmed.closest('form');
+                if (form && (confirmed.tagName === 'BUTTON' || confirmed.tagName === 'INPUT')) {
+                    form.setAttribute('data-qf-confirmed', '1');
+                    if (typeof form.requestSubmit === 'function') form.requestSubmit(confirmed);
+                    else form.submit();
+                }
+            });
         });
 
         document.addEventListener('submit', function(e) {
-            var form = e.target.closest('form[data-confirm]');
-            if (form && !confirm(form.getAttribute('data-confirm'))) {
-                e.preventDefault();
-            }
+            var form = e.target.closest('form');
+            if (!form || form.getAttribute('data-qf-confirmed') === '1') return;
+
+            var submitter = e.submitter || null;
+            var msg = form.getAttribute('data-confirm') || (submitter && submitter.getAttribute('data-confirm'));
+            if (!msg) return;
+
+            e.preventDefault();
+            qfConfirm(msg, qfConfirmOpts(msg)).then(function(ok) {
+                if (!ok) return;
+                form.setAttribute('data-qf-confirmed', '1');
+                if (typeof form.requestSubmit === 'function') form.requestSubmit(submitter || undefined);
+                else form.submit();
+            });
         });
     }
 
@@ -331,45 +440,56 @@
             if (!badge) return;
             e.preventDefault();
             if (badge.classList.contains('is-loading')) return;
-            var confirmMsg = badge.getAttribute('data-confirm');
-            if (confirmMsg && !confirm(confirmMsg)) return;
+
             var href = badge.getAttribute('href');
             if (!href) return;
-            var url = href + (href.indexOf('?') >= 0 ? '&' : '?') + 'ajax=1';
-            badge.classList.add('is-loading');
-            fetch(url, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin'
-            }).then(function(r) {
-                return r.json();
-            }).then(function(data) {
-                badge.classList.remove('is-loading');
-                if (!data || !data.ok) {
-                    if (window.qfToast) window.qfToast((data && data.msg) ? data.msg : '操作失败');
-                    return;
-                }
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                    return;
-                }
-                if (data.removed) {
-                    var reply = badge.closest('.reply');
-                    if (reply && reply.parentNode) reply.parentNode.removeChild(reply);
-                    if (window.qfToast && data.msg) window.qfToast(data.msg);
-                    return;
-                }
-                if (typeof data.tools === 'string') {
-                    var tools = badge.closest('[data-thread-tools]');
-                    if (tools) {
-                        tools.innerHTML = data.tools;
-                        if (window.qfLoadIpGeo) window.qfLoadIpGeo(tools);
+
+            function runAjax() {
+                var url = href + (href.indexOf('?') >= 0 ? '&' : '?') + 'ajax=1';
+                badge.classList.add('is-loading');
+                fetch(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin'
+                }).then(function(r) {
+                    return r.json();
+                }).then(function(data) {
+                    badge.classList.remove('is-loading');
+                    if (!data || !data.ok) {
+                        if (window.qfToast) window.qfToast((data && data.msg) ? data.msg : '操作失败');
+                        return;
                     }
-                    if (window.qfToast && data.msg) window.qfToast(data.msg);
-                }
-            }).catch(function() {
-                badge.classList.remove('is-loading');
-                if (window.qfToast) window.qfToast('网络错误，请重试');
-            });
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    if (data.removed) {
+                        var reply = badge.closest('.reply');
+                        if (reply && reply.parentNode) reply.parentNode.removeChild(reply);
+                        if (window.qfToast && data.msg) window.qfToast(data.msg);
+                        return;
+                    }
+                    if (typeof data.tools === 'string') {
+                        var tools = badge.closest('[data-thread-tools]');
+                        if (tools) {
+                            tools.innerHTML = data.tools;
+                            if (window.qfLoadIpGeo) window.qfLoadIpGeo(tools);
+                        }
+                        if (window.qfToast && data.msg) window.qfToast(data.msg);
+                    }
+                }).catch(function() {
+                    badge.classList.remove('is-loading');
+                    if (window.qfToast) window.qfToast('网络错误，请重试');
+                });
+            }
+
+            var confirmMsg = badge.getAttribute('data-confirm');
+            if (confirmMsg) {
+                qfConfirm(confirmMsg, { title: '确认删除', confirmText: '删除', danger: true }).then(function(ok) {
+                    if (ok) runAjax();
+                });
+                return;
+            }
+            runAjax();
         });
     }
 

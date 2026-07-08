@@ -30,11 +30,6 @@ if (!$download_user && !qf_guest_download_allowed() && in_array($ext, $compresse
         <meta charset="utf-8">
         <title>需要登录</title>
         <link rel="stylesheet" href="assets/main.css">
-        <script>
-        if (confirm('需要登录才能进行此操作')) {
-            window.location.href = '<?php echo h(qf_url_page('register.php')); ?>';
-        }
-        </script>
     </head>
     <body>
     <main class="wrap narrow">
