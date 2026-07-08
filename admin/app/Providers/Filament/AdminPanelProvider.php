@@ -3,12 +3,12 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Dashboard;
 use App\Support\ForumBrand;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -37,6 +37,14 @@ class AdminPanelProvider extends PanelProvider
             ->favicon('/assets/favicon.ico')
             ->colors([
                 'primary' => Color::Amber,
+            ])
+            ->navigationGroups([
+                '概览',
+                '帖子管理',
+                '运营展示',
+                '用户',
+                '安全',
+                '系统',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

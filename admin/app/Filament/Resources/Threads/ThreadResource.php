@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Threads;
 
 use App\Filament\Resources\Threads\Pages\ManageThreads;
+use App\Models\Forum;
 use App\Models\Thread;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -19,6 +20,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use UnitEnum;
@@ -27,13 +29,13 @@ class ThreadResource extends Resource
 {
     protected static ?string $model = Thread::class;
 
-    protected static ?string $navigationLabel = '主题管理';
+    protected static ?string $navigationLabel = '帖子管理';
 
-    protected static ?string $modelLabel = '主题';
+    protected static ?string $modelLabel = '帖子';
 
-    protected static ?string $pluralModelLabel = '主题';
+    protected static ?string $pluralModelLabel = '帖子';
 
-    protected static string|UnitEnum|null $navigationGroup = '内容';
+    protected static string|UnitEnum|null $navigationGroup = '帖子管理';
 
     protected static ?int $navigationSort = 2;
 
@@ -56,28 +58,48 @@ class ThreadResource extends Resource
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('title')->label('标题')->searchable()->limit(40),
-                TextColumn::make('forum.name')->label('版块'),
-                TextColumn::make('user.username')->label('作者'),
-                IconColumn::make('is_top')->label('置顶')->boolean(),
+                TextColumn::make('title')->label('标题')->searchable()->limit(40)
+                    ->url(fn (Thread $record): string => '/thread/'.$record->id.'.html', shouldOpenInNewTab: true),
+                TextColumn::make('forum.name')->label('版块')->sortable(),
+                TextColumn::make('user.username')->label('作者')->searchable(),
+                TextColumn::make('is_top')->label('置顶')->formatStateUsing(fn ($state): string => match ((int) $state) {
+                    1 => '全站',
+                    2 => '版块',
+                    default => '-',
+                }),
                 IconColumn::make('is_good')->label('加精')->boolean(),
                 IconColumn::make('is_deleted')->label('删除')->boolean(),
                 TextColumn::make('replies')->label('回复')->sortable(),
                 TextColumn::make('updated_at')->label('更新')->dateTime()->sortable(),
             ])
             ->filters([
+                SelectFilter::make('forum_id')
+                    ->label('版块')
+                    ->options(fn (): array => Forum::query()->orderBy('display_order')->pluck('name', 'id')->all()),
                 TernaryFilter::make('is_deleted')->label('已删除'),
                 TernaryFilter::make('is_top')->label('置顶'),
                 TernaryFilter::make('is_good')->label('加精'),
             ])
             ->recordActions([
+                Action::make('view')
+                    ->label('前台查看')
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->url(fn (Thread $record): string => '/thread/'.$record->id.'.html')
+                    ->openUrlInNewTab(),
                 EditAction::make(),
                 Action::make('toggleTop')
-                    ->label(fn (Thread $r) => $r->is_top ? '取消置顶' : '置顶')
+                    ->label(fn (Thread $r) => (int) $r->is_top > 0 ? '取消置顶' : '版块置顶')
                     ->action(function (Thread $record): void {
-                        $record->is_top = ! $record->is_top;
+                        $record->is_top = (int) $record->is_top > 0 ? 0 : 2;
                         $record->save();
                         Notification::make()->title('已更新置顶')->success()->send();
+                    }),
+                Action::make('toggleGlobalTop')
+                    ->label(fn (Thread $r) => (int) $r->is_top === 1 ? '取消全站置顶' : '全站置顶')
+                    ->action(function (Thread $record): void {
+                        $record->is_top = (int) $record->is_top === 1 ? 0 : 1;
+                        $record->save();
+                        Notification::make()->title('已更新全站置顶')->success()->send();
                     }),
                 Action::make('toggleGood')
                     ->label(fn (Thread $r) => $r->is_good ? '取消加精' : '加精')

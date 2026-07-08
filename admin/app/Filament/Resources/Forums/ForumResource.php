@@ -29,7 +29,7 @@ class ForumResource extends Resource
 
     protected static ?string $pluralModelLabel = '版块';
 
-    protected static string|UnitEnum|null $navigationGroup = '内容';
+    protected static string|UnitEnum|null $navigationGroup = '帖子管理';
 
     protected static ?int $navigationSort = 1;
 

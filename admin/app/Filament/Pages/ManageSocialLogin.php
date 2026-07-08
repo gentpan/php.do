@@ -27,7 +27,7 @@ class ManageSocialLogin extends Page
 
     protected static ?string $navigationLabel = '社交登录';
 
-    protected static string|UnitEnum|null $navigationGroup = '系统';
+    protected static string|UnitEnum|null $navigationGroup = '安全';
 
     protected static ?int $navigationSort = 3;
 

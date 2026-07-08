@@ -29,9 +29,9 @@ class ManageSiteSettings extends Page
 
     protected static ?string $navigationLabel = '站点设置';
 
-    protected static string|UnitEnum|null $navigationGroup = '内容';
+    protected static string|UnitEnum|null $navigationGroup = '运营展示';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $title = '站点设置';
 

@@ -28,9 +28,9 @@ class BanResource extends Resource
 
     protected static ?string $pluralModelLabel = '禁封';
 
-    protected static string|UnitEnum|null $navigationGroup = '系统';
+    protected static string|UnitEnum|null $navigationGroup = '帖子管理';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNoSymbol;
 

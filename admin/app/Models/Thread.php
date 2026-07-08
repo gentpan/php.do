@@ -30,7 +30,7 @@ class Thread extends Model
     protected function casts(): array
     {
         return [
-            'is_top' => 'boolean',
+            'is_top' => 'integer',
             'is_good' => 'boolean',
             'is_deleted' => 'boolean',
             'created_at' => 'datetime',

@@ -31,9 +31,9 @@ class NavResource extends Resource
 
     protected static ?string $pluralModelLabel = '导航';
 
-    protected static string|UnitEnum|null $navigationGroup = '内容';
+    protected static string|UnitEnum|null $navigationGroup = '运营展示';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBars3;
 

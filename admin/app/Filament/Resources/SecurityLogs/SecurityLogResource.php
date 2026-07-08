@@ -22,9 +22,9 @@ class SecurityLogResource extends Resource
 
     protected static ?string $pluralModelLabel = '安全日志';
 
-    protected static string|UnitEnum|null $navigationGroup = '系统';
+    protected static string|UnitEnum|null $navigationGroup = '安全';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldExclamation;
 

@@ -26,7 +26,7 @@ class ManageSecuritySettings extends Page
 
     protected static ?string $navigationLabel = '防 CC 设置';
 
-    protected static string|UnitEnum|null $navigationGroup = '系统';
+    protected static string|UnitEnum|null $navigationGroup = '安全';
 
     protected static ?int $navigationSort = 1;
 

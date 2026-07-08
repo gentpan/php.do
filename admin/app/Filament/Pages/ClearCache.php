@@ -17,7 +17,7 @@ class ClearCache extends Page
 
     protected static string|UnitEnum|null $navigationGroup = '系统';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $title = '清理缓存';
 
