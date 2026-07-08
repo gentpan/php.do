@@ -43,7 +43,7 @@ class ForumThreadsChart extends ChartWidget
             '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1',
         ];
 
-        foreach ($rows as $i => $row) {
+        foreach ($rows as $row) {
             $name = (string) ($forums[$row->forum_id] ?? ('#' . $row->forum_id));
             $labels[] = mb_strlen($name) > 8 ? mb_substr($name, 0, 8) . '…' : $name;
             $data[] = (int) $row->c;

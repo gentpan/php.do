@@ -2,21 +2,17 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Concerns\InteractsWithSettingsForm;
 use App\Models\Setting;
 use BackedEnum;
-use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Actions;
-use Filament\Schemas\Components\EmbeddedSchema;
-use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
 
@@ -25,6 +21,8 @@ use UnitEnum;
  */
 class ManageSiteSettings extends Page
 {
+    use InteractsWithSettingsForm;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static ?string $navigationLabel = '站点设置';
@@ -143,22 +141,5 @@ class ManageSiteSettings extends Page
         }
 
         Notification::make()->title('设置已保存')->success()->send();
-    }
-
-    public function content(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                Form::make([EmbeddedSchema::make('form')])
-                    ->id('form')
-                    ->livewireSubmitHandler('save')
-                    ->footer([
-                        Actions::make([
-                            Action::make('save')
-                                ->label('保存设置')
-                                ->submit('save'),
-                        ])->alignment(Alignment::Start),
-                    ]),
-            ]);
     }
 }

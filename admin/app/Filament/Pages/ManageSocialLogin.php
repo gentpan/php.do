@@ -2,19 +2,15 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Concerns\InteractsWithSettingsForm;
 use App\Models\Setting;
 use BackedEnum;
-use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Actions;
-use Filament\Schemas\Components\EmbeddedSchema;
-use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
 
@@ -23,6 +19,8 @@ use UnitEnum;
  */
 class ManageSocialLogin extends Page
 {
+    use InteractsWithSettingsForm;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 
     protected static ?string $navigationLabel = '社交登录';
@@ -97,18 +95,8 @@ class ManageSocialLogin extends Page
         Notification::make()->title('社交登录设置已保存')->success()->send();
     }
 
-    public function content(Schema $schema): Schema
+    protected function getSaveButtonLabel(): string
     {
-        return $schema
-            ->components([
-                Form::make([EmbeddedSchema::make('form')])
-                    ->id('form')
-                    ->livewireSubmitHandler('save')
-                    ->footer([
-                        Actions::make([
-                            Action::make('save')->label('保存社交登录设置')->submit('save'),
-                        ])->alignment(Alignment::Start),
-                    ]),
-            ]);
+        return '保存社交登录设置';
     }
 }

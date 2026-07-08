@@ -38,13 +38,22 @@ class SchemaPrefixMigrator
         'online_daily',
     ];
 
+    private static bool $verified = false;
+
     public static function ensure(): void
     {
+        // 同一 worker 进程内确认过一次即短路，避免每个请求重复查库。
+        if (self::$verified) {
+            return;
+        }
+
         if (! self::databaseReady()) {
             return;
         }
 
         if (self::isMigrated()) {
+            self::$verified = true;
+
             return;
         }
 
@@ -58,12 +67,17 @@ class SchemaPrefixMigrator
                 continue;
             }
 
-            DB::statement("RENAME TABLE `{$from}` TO `{$to}`");
-            $renamed = true;
+            try {
+                DB::statement("RENAME TABLE `{$from}` TO `{$to}`");
+                $renamed = true;
+            } catch (\Throwable) {
+                // 并发首启时另一个 worker 可能已抢先重命名，跳过即可。
+            }
         }
 
         if ($renamed || Schema::hasTable('pd_settings')) {
             self::markMigrated();
+            self::$verified = true;
         }
     }
 

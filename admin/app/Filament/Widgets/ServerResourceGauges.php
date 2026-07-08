@@ -21,19 +21,19 @@ class ServerResourceGauges extends Widget
     /** @return array<string, mixed> */
     protected function getViewData(): array
     {
-        $info = ServerInfo::snapshot();
-        $memory = $info['memory'] ?? null;
-        $disk = $info['disk'] ?? null;
-        $load = $info['load'] ?? null;
-        $loadPercent = ServerInfo::loadPercent(is_array($load) ? $load : null);
+        // 仅取仪表盘需要的资源项，避免 5 秒轮询触发 snapshot() 里的
+        // information_schema 全库统计与 VERSION() 等无用查询。
+        $memory = ServerInfo::memory();
+        $disk = ServerInfo::disk();
+        $load = ServerInfo::loadAverage();
 
         return [
-            'memory' => is_array($memory) ? $memory : null,
-            'disk' => is_array($disk) ? $disk : null,
-            'load' => is_array($load) ? $load : null,
-            'loadPercent' => $loadPercent,
+            'memory' => $memory,
+            'disk' => $disk,
+            'load' => $load,
+            'loadPercent' => ServerInfo::loadPercent($load),
             'cpuCount' => ServerInfo::cpuCount(),
-            'uptime' => $info['uptime'] ?? null,
+            'uptime' => ServerInfo::uptime(),
             'refreshedAt' => now()->format('H:i:s'),
             'pollingInterval' => $this->getPollingInterval(),
         ];
