@@ -8,7 +8,12 @@
 	}
 }
 
-php.do, www.php.do {
+# www 统一 301 跳转到裸域，避免跨源（APP_URL/ASSET_URL 固定为 https://php.do）
+www.php.do {
+	redir https://php.do{uri} permanent
+}
+
+php.do {
 	root * /var/www/php.do
 	encode gzip
 
