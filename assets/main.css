@@ -4207,33 +4207,36 @@ body.theme-php .phpdo-thread-breadcrumb {
 body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-trail {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
     flex: 1 1 8rem;
     overflow: hidden;
 }
 
 /* 面包屑右侧管理工具组：不收缩，靠右 */
+body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-tools.admin-tools,
 body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-tools {
     display: inline-flex;
     align-items: center;
+    flex-wrap: wrap;
     flex: 0 0 auto;
     flex-shrink: 0;
     float: none;
     margin: 0 0 0 auto;
-    gap: 4px;
+    gap: 8px;
     max-width: 100%;
 }
 body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-tools .action-badge,
 body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-tools a {
     font-size: 12px;
     flex: 0 0 auto;
+    margin: 0;
 }
 
 body.theme-php .phpdo-thread-breadcrumb .phpdo-crumb-trail a {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     flex: 0 0 auto;
     min-width: 0;
     color: var(--phpdo-accent);
