@@ -2115,6 +2115,7 @@ textarea:focus {
 }
 
 .editor-upload-tip {
+    display: block;
     position: static;
     width: auto;
     margin: 8px 0;
