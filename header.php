@@ -5,6 +5,7 @@ if (!isset($page_title)) {
 $me = current_user();
 qf_ensure_timezone_schema();
 $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) : 0;
+qf_online_touch();
 $main_navs = qf_main_navs();
 $is_php_theme = true;
 $header_forums = array();

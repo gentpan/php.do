@@ -3281,6 +3281,158 @@ function qf_user_mute_message($user) {
     return '';
 }
 
+function qf_ensure_online_schema() {
+    static $done = false;
+    if ($done) {
+        return true;
+    }
+    $done = true;
+
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_online (
+      session_id varchar(64) NOT NULL DEFAULT '',
+      user_id int(11) NOT NULL DEFAULT '0',
+      ip varchar(45) NOT NULL DEFAULT '',
+      user_agent varchar(255) NOT NULL DEFAULT '',
+      last_seen datetime NOT NULL,
+      PRIMARY KEY (session_id),
+      KEY last_seen (last_seen),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_online_daily (
+      day_date date NOT NULL,
+      peak_total int(11) NOT NULL DEFAULT '0',
+      peak_members int(11) NOT NULL DEFAULT '0',
+      peak_guests int(11) NOT NULL DEFAULT '0',
+      peak_at datetime DEFAULT NULL,
+      updated_at datetime NOT NULL,
+      PRIMARY KEY (day_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    return true;
+}
+
+function qf_online_window_seconds() {
+    return 900; // 15 分钟内算在线
+}
+
+function qf_online_touch($force = false) {
+    if (PHP_SAPI === 'cli') {
+        return;
+    }
+    qf_ensure_online_schema();
+
+    $now = time();
+    $last = isset($_SESSION['qf_online_touched_at']) ? intval($_SESSION['qf_online_touched_at']) : 0;
+    if (!$force && $last > 0 && ($now - $last) < 60) {
+        return;
+    }
+    $_SESSION['qf_online_touched_at'] = $now;
+
+    $sid = session_id();
+    if ($sid === '') {
+        return;
+    }
+    $sid_sql = esc(substr($sid, 0, 64));
+    $user = current_user();
+    $uid = $user ? intval($user['id']) : 0;
+    $ip_sql = esc(substr((string)client_ip(), 0, 45));
+    $ua = isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : '';
+    $ua_sql = esc(substr($ua, 0, 255));
+
+    mysqli_query(db(), "INSERT INTO qf_online (session_id,user_id,ip,user_agent,last_seen)
+        VALUES ('{$sid_sql}',{$uid},'{$ip_sql}','{$ua_sql}',NOW())
+        ON DUPLICATE KEY UPDATE user_id={$uid}, ip='{$ip_sql}', user_agent='{$ua_sql}', last_seen=NOW()");
+
+    // 偶尔清理过期会话，降低表膨胀
+    if (mt_rand(1, 40) === 1) {
+        $ttl = qf_online_window_seconds() * 4;
+        mysqli_query(db(), "DELETE FROM qf_online WHERE last_seen < DATE_SUB(NOW(), INTERVAL {$ttl} SECOND)");
+    }
+
+    qf_online_record_daily_peak();
+}
+
+function qf_online_counts() {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    qf_ensure_online_schema();
+    $win = qf_online_window_seconds();
+    $members = count_rows("SELECT COUNT(DISTINCT user_id) FROM qf_online WHERE user_id > 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
+    $guests = count_rows("SELECT COUNT(*) FROM qf_online WHERE user_id = 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
+    $cache = array(
+        'members' => $members,
+        'guests' => $guests,
+        'total' => $members + $guests,
+    );
+    return $cache;
+}
+
+function qf_online_members($limit = 20) {
+    qf_ensure_online_schema();
+    $win = qf_online_window_seconds();
+    $limit = max(1, min(50, intval($limit)));
+    $rs = mysqli_query(db(), "SELECT u.id, u.nickname, u.username, MAX(o.last_seen) AS last_seen
+        FROM qf_online o
+        INNER JOIN qf_users u ON u.id = o.user_id
+        WHERE o.user_id > 0 AND o.last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND) AND u.status=1
+        GROUP BY u.id, u.nickname, u.username
+        ORDER BY last_seen DESC
+        LIMIT {$limit}");
+    $rows = array();
+    while ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+function qf_online_stat_day() {
+    $timezone = 'Asia/Shanghai';
+    try {
+        return (new DateTimeImmutable('now', new DateTimeZone('UTC')))
+            ->setTimezone(new DateTimeZone($timezone))
+            ->format('Y-m-d');
+    } catch (Exception $e) {
+        return gmdate('Y-m-d');
+    }
+}
+
+function qf_online_record_daily_peak() {
+    $counts = qf_online_counts();
+    $day = esc(qf_online_stat_day());
+    $total = intval($counts['total']);
+    $members = intval($counts['members']);
+    $guests = intval($counts['guests']);
+    mysqli_query(db(), "INSERT INTO qf_online_daily (day_date,peak_total,peak_members,peak_guests,peak_at,updated_at)
+        VALUES ('{$day}',{$total},{$members},{$guests},NOW(),NOW())
+        ON DUPLICATE KEY UPDATE
+          peak_members = IF(VALUES(peak_total) > peak_total, VALUES(peak_members), peak_members),
+          peak_guests = IF(VALUES(peak_total) > peak_total, VALUES(peak_guests), peak_guests),
+          peak_at = IF(VALUES(peak_total) > peak_total, NOW(), peak_at),
+          peak_total = GREATEST(peak_total, VALUES(peak_total)),
+          updated_at = NOW()");
+}
+
+function qf_online_today_peak() {
+    qf_ensure_online_schema();
+    $day = esc(qf_online_stat_day());
+    $rs = mysqli_query(db(), "SELECT * FROM qf_online_daily WHERE day_date='{$day}' LIMIT 1");
+    $row = $rs ? mysqli_fetch_assoc($rs) : null;
+    if ($row) {
+        return $row;
+    }
+    $counts = qf_online_counts();
+    return array(
+        'day_date' => $day,
+        'peak_total' => intval($counts['total']),
+        'peak_members' => intval($counts['members']),
+        'peak_guests' => intval($counts['guests']),
+        'peak_at' => null,
+    );
+}
+
 function qf_ensure_timezone_schema() {
     static $done = false;
     if ($done) {
@@ -3289,6 +3441,7 @@ function qf_ensure_timezone_schema() {
     $done = true;
     qf_ensure_account_auth_schema();
     qf_ensure_points_schema();
+    qf_ensure_online_schema();
     qf_migrate_storage_to_utc();
 }
 

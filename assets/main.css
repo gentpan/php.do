@@ -7196,6 +7196,49 @@ body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
 .site-footer-friends-label { color: #6b707b; font-size: 13px; }
 .site-footer-friends a { color: #7f8593; font-size: 13px; }
 
+.site-footer-online {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, .06);
+    color: #8b909d;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.site-footer-online-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 0;
+}
+.site-footer-online-stats b {
+    color: #d7dbe5;
+    font-weight: 700;
+}
+.site-footer-online-sep {
+    margin: 0 8px;
+    color: #5c616c;
+}
+.site-footer-online-members {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 8px;
+}
+.site-footer-online-label {
+    color: #6b707b;
+}
+.site-footer-online-members a {
+    color: #aeb4c2;
+    text-decoration: none;
+}
+.site-footer-online-members a:hover {
+    color: #fff;
+}
+.site-footer-online-more {
+    color: #6b707b;
+}
+
 .site-footer-bottom {
     margin-top: 22px; padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, .06);

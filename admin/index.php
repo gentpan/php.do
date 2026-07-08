@@ -14,6 +14,7 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
         <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/users.php')); ?>">用户管理</a>
         <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/points.php')); ?>">积分与等级</a>
         <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/groups.php')); ?>">用户组</a>
+        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/online.php')); ?>">在线统计</a>
         <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/navs.php')); ?>">主导航设置</a>
         <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/ads.php')); ?>">广告位置</a>
         <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/security.php')); ?>">安全相关</a>

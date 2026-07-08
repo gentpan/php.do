@@ -475,6 +475,7 @@ if ($ok) {
 if ($ok) {
     qf_ensure_timezone_schema();
     qf_ensure_points_schema();
+    qf_ensure_online_schema();
 }
 ?>
 <!doctype html>
