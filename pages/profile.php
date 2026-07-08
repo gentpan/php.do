@@ -162,40 +162,40 @@ pd_include_header();
     $cartoon_base_url = pd_url_page('profile.php');
     $cartoon_sep = (strpos($cartoon_base_url, '?') === false) ? '?' : '&';
     ?>
-    <form method="post" enctype="multipart/form-data" x-data="{ atype: '<?php echo h($current_avatar_type); ?>', seed: '' }">
+    <form method="post" enctype="multipart/form-data" data-avatar-form data-cartoon-base="<?php echo h($cartoon_base_url . $cartoon_sep); ?>ajax=avatar_cartoon">
         <label>头像</label>
         <div class="profile-avatar-choose">
             <div class="profile-avatar-preview">
-                <img src="<?php echo h(pd_user_avatar($u, 200)); ?>" alt="<?php echo h($u['nickname']); ?>" x-show="atype !== 'cartoon'"<?php if ($current_avatar_type === 'cartoon') echo ' style="display:none"'; ?>>
-                <img alt="随机卡通头像预览" x-show="atype === 'cartoon'"<?php if ($current_avatar_type !== 'cartoon') echo ' style="display:none"'; ?> :src="'<?php echo h($cartoon_base_url . $cartoon_sep); ?>ajax=avatar_cartoon' + (seed ? '&seed=' + seed : '')">
+                <img src="<?php echo h(pd_user_avatar($u, 200)); ?>" alt="<?php echo h($u['nickname']); ?>" data-avatar-preview-normal<?php if ($current_avatar_type === 'cartoon') echo ' style="display:none"'; ?>>
+                <img alt="随机卡通头像预览" data-avatar-preview-cartoon<?php if ($current_avatar_type !== 'cartoon') echo ' style="display:none"'; ?><?php if ($current_avatar_type === 'cartoon') echo ' src="' . h($cartoon_base_url . $cartoon_sep) . 'ajax=avatar_cartoon"'; ?>>
             </div>
             <div class="profile-avatar-sources">
                 <?php if (pd_avatar_upload_enabled()) { ?>
-                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="upload" x-model="atype" <?php if ($current_avatar_type === 'upload') echo 'checked'; ?>> <span><i class="fa-solid fa-upload" aria-hidden="true"></i> 上传图片</span></label>
+                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="upload" <?php if ($current_avatar_type === 'upload') echo 'checked'; ?>> <span><i class="fa-solid fa-upload" aria-hidden="true"></i> 上传图片</span></label>
                 <?php } ?>
                 <?php if (pd_avatar_gravatar_enabled()) { ?>
-                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="gravatar" x-model="atype" <?php if ($current_avatar_type === 'gravatar') echo 'checked'; ?>> <span><i class="fa-solid fa-envelope" aria-hidden="true"></i> Gravatar（邮箱）</span></label>
+                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="gravatar" <?php if ($current_avatar_type === 'gravatar') echo 'checked'; ?>> <span><i class="fa-solid fa-envelope" aria-hidden="true"></i> Gravatar（邮箱）</span></label>
                 <?php } ?>
                 <?php if (pd_avatar_cartoon_enabled()) { ?>
-                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="cartoon" x-model="atype" <?php if ($current_avatar_type === 'cartoon') echo 'checked'; ?>> <span><i class="fa-solid fa-face-smile" aria-hidden="true"></i> 随机卡通</span></label>
+                    <label class="profile-avatar-radio"><input type="radio" name="avatar_type" value="cartoon" <?php if ($current_avatar_type === 'cartoon') echo 'checked'; ?>> <span><i class="fa-solid fa-face-smile" aria-hidden="true"></i> 随机卡通</span></label>
                 <?php } ?>
             </div>
         </div>
         <?php if (pd_avatar_upload_enabled()) { ?>
-        <div class="profile-avatar-panel" x-show="atype === 'upload'"<?php if ($current_avatar_type !== 'upload') echo ' style="display:none"'; ?>>
+        <div class="profile-avatar-panel" data-avatar-panel="upload"<?php if ($current_avatar_type !== 'upload') echo ' style="display:none"'; ?>>
             <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.gif,.webp">
             <p class="muted">支持 jpg、jpeg、png、gif、webp，最大 2MB，保存后即生效。</p>
         </div>
         <?php } ?>
         <?php if (pd_avatar_gravatar_enabled()) { ?>
-        <div class="profile-avatar-panel" x-show="atype === 'gravatar'"<?php if ($current_avatar_type !== 'gravatar') echo ' style="display:none"'; ?>>
+        <div class="profile-avatar-panel" data-avatar-panel="gravatar"<?php if ($current_avatar_type !== 'gravatar') echo ' style="display:none"'; ?>>
             <p class="muted">使用绑定邮箱的 Gravatar 头像<?php echo $cur_email !== '' ? '（' . h($cur_email) . '）' : '，请先在下方绑定邮箱'; ?>。修改邮箱后保存即可更新。</p>
         </div>
         <?php } ?>
         <?php if (pd_avatar_cartoon_enabled()) { ?>
-        <div class="profile-avatar-panel" x-show="atype === 'cartoon'"<?php if ($current_avatar_type !== 'cartoon') echo ' style="display:none"'; ?>>
-            <input type="hidden" name="cartoon_seed" :value="seed">
-            <button type="button" class="btn btn-light btn-small" @click="seed = (Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(36))"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> 换一个</button>
+        <div class="profile-avatar-panel" data-avatar-panel="cartoon"<?php if ($current_avatar_type !== 'cartoon') echo ' style="display:none"'; ?>>
+            <input type="hidden" name="cartoon_seed" value="" data-avatar-seed>
+            <button type="button" class="btn btn-light btn-small" data-avatar-shuffle><i class="fa-solid fa-shuffle" aria-hidden="true"></i> 换一个</button>
             <p class="muted">点击“换一个”随机生成头像，满意后点击下方“保存资料”即可保存。</p>
         </div>
         <?php } ?>

@@ -49,7 +49,6 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
         }
     </style>
     <script>window.pdCsrfToken = <?php echo json_encode(pd_csrf_token()); ?>; window.pdGeoipUrl = <?php echo json_encode(pd_url_page('api/geoip.php')); ?>; window.pdUserTimezone = <?php echo json_encode(pd_user_timezone($me)); ?>; window.pdCurrentUserId = <?php echo json_encode($me ? intval($me['id']) : 0); ?>;</script>
-    <script defer src="assets/lib/alpine.min.js"></script>
 </head>
 <body class="theme-pd <?php echo h($page_body_class); ?><?php echo !empty($pd_lite_layout) ? ' pd-standalone' : ''; ?>">
 <script>
@@ -143,9 +142,9 @@ if (strpos($pd_page_banner, '{r}') !== false) {
             <?php } ?>
         </div>
         <?php if (empty($pd_lite_layout)) { ?>
-        <nav class="pd-navbar flex flex-wrap items-center" aria-label="主导航" x-data="{ open: false }">
-            <button type="button" class="pd-burger sm:hidden" @click="open = !open" aria-label="展开菜单"><i class="fa-solid fa-bars"></i></button>
-            <ul class="pd-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
+        <nav class="pd-navbar flex flex-wrap items-center" aria-label="主导航">
+            <button type="button" class="pd-burger sm:hidden" data-nav-burger aria-label="展开菜单" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+            <ul class="pd-menu items-center hidden sm:flex" data-nav-menu>
                 <li><a class="pd-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house"></i><span>首页</span></a></li>
                 <?php foreach ($header_forums as $forum) { ?>
                     <li><a class="pd-menu-link<?php echo ($pd_current_forum && intval($pd_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(pd_url_forum($forum['id'])); ?>"><i class="<?php echo h(pd_forum_icon($forum)); ?>" aria-hidden="true"></i><span><?php echo h($forum['name']); ?></span></a></li>
