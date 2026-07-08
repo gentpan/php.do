@@ -57,8 +57,7 @@ if ($action === 'del_post') {
         $_SESSION['flash'] = '只能删除你任命板块内的回复，不能删除管理员回复，或今天删除次数已达上限。';
         redirect(qf_url_thread($tid));
     }
-    mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE id={$id}");
-    mysqli_query(db(), "UPDATE qf_threads SET replies=GREATEST(replies-1,0) WHERE id={$tid}");
+    qf_soft_delete_post($id, $tid);
     qf_log_moderator_delete(intval($u['id']), 'post', $id);
     if (qf_is_ajax_request()) {
         qf_json_response(array('ok' => 1, 'removed' => 1, 'post_id' => $id, 'msg' => '版主已删除该回复。'));

@@ -44,7 +44,7 @@ textarea {
 .btn:hover,
 .hero .btn:hover,
 .page-head .btn:hover {
-    background: #3f4874 !important;
+    background: var(--phpdo-accent-hover) !important;
 }
 
 .btn-light,
@@ -67,12 +67,12 @@ body {
 
 
 a {
-    color: #505b93;
+    color: var(--phpdo-accent);
     text-decoration: none;
 }
 
 a:hover {
-    color: #3f4874;
+    color: var(--phpdo-accent-hover);
 }
 
 .wrap {
@@ -108,7 +108,7 @@ a:hover {
     overflow: hidden;
     border-radius: 29%;
     clip-path: path("M19 0 C32 0 38 6 38 19 C38 32 32 38 19 38 C6 38 0 32 0 19 C0 6 6 0 19 0Z");
-    background: #505b93;
+    background: var(--phpdo-accent);
     color: #fff !important;
     box-shadow: 0 8px 18px rgba(0, 108, 255, .24);
     font-size: 20px;
@@ -138,7 +138,7 @@ a:hover {
     padding: 5px 10px;
     border: 1px solid #cfe0eb;
     border-radius: 999px;
-    color: #505b93;
+    color: var(--phpdo-accent);
     background: #f3f9fd;
     font-size: 12px;
     font-weight: 700;
@@ -307,8 +307,8 @@ a:hover {
 
 .content-page-nav a.active {
     color: #fff;
-    border-color: #505b93;
-    background: #505b93;
+    border-color: var(--phpdo-accent);
+    background: var(--phpdo-accent);
 }
 
 /* 板块页“返回首页”小字链接 */
@@ -316,12 +316,12 @@ a:hover {
     margin-left: 10px;
     font-size: 13px;
     font-weight: normal;
-    color: #505b93;
+    color: var(--phpdo-accent);
     vertical-align: middle;
 }
 
 .page-head h1 .back-home:hover {
-    color: #3f4874;
+    color: var(--phpdo-accent-hover);
     text-decoration: none;
 }
 
@@ -351,7 +351,7 @@ a:hover {
     display: inline-block;
     border: 0;
     border-radius: 8px;
-    background: #505b93;
+    background: var(--phpdo-accent);
     color: #fff !important;
     padding: 10px 16px;
     cursor: pointer;
@@ -359,12 +359,12 @@ a:hover {
 }
 
 .btn:hover {
-    background: #3f4874;
+    background: var(--phpdo-accent-hover);
 }
 
 .btn-light {
     background: #eef5fb;
-    color: #505b93 !important;
+    color: var(--phpdo-accent) !important;
     margin-left: 8px;
 }
 
@@ -450,7 +450,7 @@ a:hover {
 }
 
 .latest-title-dropdown a:hover {
-    color: #505b93;
+    color: var(--phpdo-accent);
     background: #f1f7fb;
 }
 
@@ -467,7 +467,7 @@ a:hover {
     padding: 1px 5px;
     border-radius: 4px;
     color: #fff;
-    background: #505b93;
+    background: var(--phpdo-accent);
     font-size: 12px;
     line-height: 1.4;
     font-weight: 700;
@@ -655,7 +655,7 @@ a:hover {
 }
 
 .filter-tabs a.active {
-    color: #505b93;
+    color: var(--phpdo-accent);
     background: #fff;
     border-color: #edf2f7;
     font-weight: 700;
@@ -1062,7 +1062,7 @@ body.theme-php-dark .admin-user-avatar { background: #23262e; }
     min-width: 30px;
     min-height: 26px;
     padding: 0;
-    color: var(--badge-color, #505b93) !important;
+    color: var(--badge-color, var(--phpdo-accent)) !important;
     font-size: 12px;
     font-weight: 800;
     line-height: 1;
@@ -1118,8 +1118,8 @@ body.theme-php-dark .admin-user-avatar { background: #23262e; }
 
 .action-badge:hover {
     color: var(--badge-hover-color, #fff) !important;
-    background: var(--badge-hover-bg, var(--badge-color, #505b93));
-    border-color: var(--badge-hover-border, var(--badge-color, #505b93));
+    background: var(--badge-hover-bg, var(--badge-color, var(--phpdo-accent)));
+    border-color: var(--badge-hover-border, var(--badge-color, var(--phpdo-accent)));
 }
 
 .action-badge.is-loading {
@@ -1128,7 +1128,7 @@ body.theme-php-dark .admin-user-avatar { background: #23262e; }
 }
 
 .action-badge-edit {
-    --badge-color: #505b93;
+    --badge-color: var(--phpdo-accent);
     --badge-bg: #eef1f7;
     --badge-border: #dce0ee;
 }
@@ -1140,7 +1140,7 @@ body.theme-php-dark .admin-user-avatar { background: #23262e; }
 }
 
 .action-badge-pin {
-    --badge-color: #505b93;
+    --badge-color: var(--phpdo-accent);
     --badge-bg: #eef1f7;
     --badge-border: #dce0ee;
 }
@@ -1158,7 +1158,7 @@ body.theme-php-dark .admin-user-avatar { background: #23262e; }
 }
 
 .action-badge-reply {
-    --badge-color: #505b93;
+    --badge-color: var(--phpdo-accent);
     --badge-bg: #eef1f7;
     --badge-border: #dce0ee;
 }
@@ -1290,7 +1290,7 @@ button.action-badge {
     padding: 0;
     border: 0;
     background: none;
-    color: #505b93;
+    color: var(--phpdo-accent);
     cursor: pointer;
     font-size: 12px;
 }
@@ -1302,13 +1302,13 @@ button.action-badge {
 }
 
 .content-link {
-    color: #505b93;
+    color: var(--phpdo-accent);
     border-bottom: 1px dashed rgba(31, 120, 180, .45);
     font-weight: 600;
 }
 
 .content-link:hover {
-    color: #3f4874;
+    color: var(--phpdo-accent-hover);
     border-bottom-style: solid;
 }
 
@@ -1483,7 +1483,7 @@ button.action-badge {
     padding: 1px 7px;
     border-radius: 999px;
     background: #eef6fb;
-    color: #505b93;
+    color: var(--phpdo-accent);
     font-size: 12px;
 }
 
@@ -1645,7 +1645,7 @@ textarea {
 
 .editor-toolbar button:hover,
 .editor-upload-button:hover {
-    color: #505b93;
+    color: var(--phpdo-accent);
     border-color: #c6cce0;
     background: #eef1f7;
 }
@@ -1730,7 +1730,7 @@ textarea:focus {
     width: 92px;
     height: auto;
     margin: 0;
-    color: #505b93;
+    color: var(--phpdo-accent);
     background: transparent;
     cursor: pointer;
     font-weight: 700;
@@ -1855,7 +1855,7 @@ textarea:focus {
     right: 12px;
     width: 32px;
     height: 32px;
-    color: #505b93;
+    color: var(--phpdo-accent);
     font-size: 22px;
     line-height: 32px;
     cursor: pointer;
@@ -1923,7 +1923,7 @@ textarea:focus {
     display: block;
     width: 0;
     height: 100%;
-    background: #505b93;
+    background: var(--phpdo-accent);
     transition: width .14s ease;
 }
 
@@ -2220,7 +2220,7 @@ body.use-system-page-font button {
 
 .storage-tab-btn.active {
     color: #fff;
-    background: #505b93;
+    background: var(--phpdo-accent);
 }
 
 .storage-tab-panel {
@@ -2355,7 +2355,7 @@ body.qf-is-loading .qf-loading-indicator {
     height: 48px;
     padding: 0;
     color: #fff;
-    background: #505b93;
+    background: var(--phpdo-accent);
     border: 2px solid #fff;
     border-radius: 999px;
     box-shadow: 0 12px 28px rgba(80, 91, 147, .22);
@@ -2445,12 +2445,12 @@ body.qf-is-loading .qf-loading-indicator {
 
 .side-user-panel a i {
     width: 18px;
-    color: #505b93;
+    color: var(--phpdo-accent);
     text-align: center;
 }
 
 .side-user-panel a:hover {
-    color: #505b93;
+    color: var(--phpdo-accent);
     background: #eef1f7;
 }
 
@@ -2531,7 +2531,7 @@ main.wrap {
     right: 12px;
     width: 32px;
     height: 32px;
-    color: #505b93;
+    color: var(--phpdo-accent);
     font-size: 22px;
     line-height: 32px;
     cursor: pointer;
@@ -2607,7 +2607,7 @@ a:hover,
 body.theme-php a:hover,
 
 a:visited {
-    color: #505b93;
+    color: var(--phpdo-accent);
 }
 
 h1,
@@ -2621,7 +2621,7 @@ h3,
 .signin-modal-box h2,
 .signin-rank-mini h3,
 .search-modal-box h2 {
-    color: var(--php-accent);
+    color: var(--phpdo-accent);
     font-family: var(--qf-title-font);
     font-weight: 400;
 }
@@ -2654,14 +2654,14 @@ h3,
 .thread-meta,
 .forum-desc,
 .side-user-card span {
-    color: var(--php-muted);
+    color: var(--phpdo-muted);
 }
 
 
 .brand-mark,
 .side-user-trigger {
     color: #FFFFFF;
-    background: var(--php-accent);
+    background: var(--phpdo-accent);
     box-shadow: none;
 }
 
@@ -2732,15 +2732,15 @@ input[type="submit"]:active {
 .auth-passkey:hover,
 .content-page-nav a:hover,
 .storage-tab-btn:hover {
-    color: var(--php-nav) !important;
-    background: var(--php-surface-subtle);
+    color: var(--phpdo-accent) !important;
+    background: var(--phpdo-surface-soft);
 }
 
 .content-page-nav a.active,
 .storage-tab-btn.active {
     color: #FFFFFF !important;
-    background: var(--php-nav);
-    border-color: var(--php-nav);
+    background: var(--phpdo-accent);
+    border-color: var(--phpdo-accent);
 }
 
 input,
@@ -2750,7 +2750,7 @@ textarea,
 input:focus,
 select:focus,
 textarea:focus {
-    border-color: var(--php-accent);
+    border-color: var(--phpdo-accent);
     box-shadow: 0 0 0 2px rgba(80, 91, 147, .12);
     outline: 0;
 }
@@ -2759,8 +2759,8 @@ input:disabled,
 select:disabled,
 textarea:disabled {
     color: var(--php-border-medium);
-    background: var(--php-surface-subtle);
-    border-color: var(--php-border);
+    background: var(--phpdo-surface-soft);
+    border-color: var(--phpdo-border);
 }
 
 .search-modal-overlay,
@@ -2776,7 +2776,7 @@ textarea:disabled {
 .badge,
 .image-badge,
 .nav-badge {
-    color: var(--php-text-strong);
+    color: var(--phpdo-text-title);
     background: var(--php-lavender-light);
     border: 1px solid var(--php-muted-accent);
     border-radius: 4px;
@@ -2785,12 +2785,12 @@ textarea:disabled {
 .tag.good,
 .image-badge {
     color: #FFFFFF;
-    background: var(--php-accent);
-    border-color: var(--php-accent);
+    background: var(--phpdo-accent);
+    border-color: var(--phpdo-accent);
 }
 
 .alert {
-    color: var(--php-text);
+    color: var(--phpdo-text);
     background: #FFFFFF;
     border: 1px solid var(--php-border-medium);
     border-radius: 0;
@@ -2807,37 +2807,37 @@ textarea:disabled {
 }
 
 .side-user-panel a {
-    color: var(--php-text);
+    color: var(--phpdo-text);
     text-decoration: none;
     border-radius: 0;
 }
 
 .side-user-panel a i,
 .side-user-panel a:hover {
-    color: var(--php-accent);
+    color: var(--phpdo-accent);
 }
 
 .side-user-panel a:hover {
-    background: var(--php-surface-subtle);
+    background: var(--phpdo-surface-soft);
 }
 
 table,
 .table {
-    color: var(--php-text);
-    background: var(--php-surface);
-    border-color: var(--php-border);
+    color: var(--phpdo-text);
+    background: var(--phpdo-surface);
+    border-color: var(--phpdo-border);
 }
 
 th,
 td {
-    border-color: var(--php-border);
+    border-color: var(--phpdo-border);
 }
 
 code,
 pre {
-    color: var(--php-text-strong);
-    background: var(--php-surface-muted);
-    border: 1px solid var(--php-border);
+    color: var(--phpdo-text-title);
+    background: var(--phpdo-surface-soft);
+    border: 1px solid var(--phpdo-border);
     border-radius: 0;
 }
 
@@ -4357,13 +4357,13 @@ body.theme-php .phpdo-thread-breadcrumb a {
     align-items: center;
     gap: 5px;
     flex: 0 0 auto;
-    color: #505b93;
+    color: var(--phpdo-accent);
     font-weight: 600;
     text-decoration: none;
     transition: color .15s ease;
 }
 body.theme-php .phpdo-thread-breadcrumb a:hover {
-    color: #3f4874;
+    color: var(--phpdo-accent-hover);
 }
 body.theme-php .phpdo-thread-breadcrumb a i {
     font-size: 12px;
@@ -4576,7 +4576,7 @@ body.theme-php .phpdo-reply-pagination a {
     border: 1px solid #d8e6ef;
     border-radius: 8px;
     background: #fff;
-    color: #505b93;
+    color: var(--phpdo-accent);
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
@@ -4588,8 +4588,8 @@ body.theme-php .phpdo-reply-pagination a:hover {
 }
 body.theme-php .phpdo-reply-pagination a.active {
     color: #fff;
-    border-color: #505b93;
-    background: #505b93;
+    border-color: var(--phpdo-accent);
+    background: var(--phpdo-accent);
 }
 body.theme-php-dark .phpdo-reply-pagination {
     border-top-color: var(--phpdo-border);
@@ -6120,7 +6120,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
     align-items: center;
     min-height: 200px;
     padding: 0 28px;
-    background: linear-gradient(120deg, #5a6aa8 0%, #505b93 58%, #3f4874 100%);
+    background: linear-gradient(120deg, #5a6aa8 0%, var(--phpdo-accent) 58%, var(--phpdo-accent-hover) 100%);
 }
 .qf-banner-logo img { height: 52px; }
 .qf-banner-btn {
@@ -6206,7 +6206,7 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; }
 .qf-btn-ghost { color: #fff; background: rgba(255,255,255,.12); }
 .qf-btn-ghost:hover, .qf-btn-ghost.active { background: rgba(255,255,255,.24); }
-.qf-btn-solid { color: #3f4874; background: #fff; }
+.qf-btn-solid { color: var(--phpdo-accent-hover); background: #fff; }
 .qf-btn-solid:hover, .qf-btn-solid.active { background: #eef1f7; }
 
 .qf-user-trigger { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 6px; color: #fff; background: rgba(255,255,255,.12); border: 0; cursor: pointer; font-weight: 600; font-size: 14px; }
@@ -6214,12 +6214,12 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-user-trigger img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
 .qf-user-menu { position: absolute; top: 100%; right: 0; min-width: 194px; padding: 6px; margin-top: 6px; background: #fff; border: 1px solid #e6e8ee; border-radius: 10px; box-shadow: 0 12px 30px rgba(20,20,20,.14); z-index: 60; }
 .qf-user-menu a, .qf-user-menu button, .qf-user-static { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 11px; border-radius: 7px; color: #333; font-size: 14px; background: transparent; border: 0; cursor: pointer; text-align: left; }
-.qf-user-menu a:hover, .qf-user-menu button:hover { background: #f2f4f8; color: #505b93; }
+.qf-user-menu a:hover, .qf-user-menu button:hover { background: #f2f4f8; color: var(--phpdo-accent); }
 .qf-user-menu form { margin: 0; }
 .qf-user-static { color: #8a8f99; }
 
 .qf-breadcrumb { padding: 9px 6px; font-size: 13px; color: #7a7f8a; display: flex; align-items: center; gap: 8px; }
-.qf-breadcrumb a { color: #505b93; }
+.qf-breadcrumb a { color: var(--phpdo-accent); }
 .qf-crumb-sep { color: #b6bcc8; }
 .qf-crumb-cur { color: #444; font-weight: 600; }
 
@@ -6298,7 +6298,7 @@ body.theme-php-dark {
     height: 100%; width: 44px; border: 0; background: transparent;
     color: #666; cursor: pointer; border-left: 1px solid #eef0f3;
 }
-.phpdo-side-search button:hover { color: #505b93; background: #f7f8fb; }
+.phpdo-side-search button:hover { color: var(--phpdo-accent); background: #f7f8fb; }
 body.theme-php-dark .phpdo-side-search { background: var(--phpdo-surface); border-color: var(--phpdo-border); }
 body.theme-php-dark .phpdo-side-search input { color: var(--phpdo-text); }
 body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); border-left-color: var(--phpdo-border); }
@@ -6392,7 +6392,7 @@ body.theme-php-dark .phpdo-side-search button { color: var(--phpdo-muted); borde
     opacity: 1;
 }
 .qf-navbar-search:hover .qf-navbar-search-btn,
-.qf-navbar-search:focus-within .qf-navbar-search-btn { color: #505b93; text-shadow: none; }
+.qf-navbar-search:focus-within .qf-navbar-search-btn { color: var(--phpdo-accent); text-shadow: none; }
 @media (max-width: 640px) {
     .qf-navbar-search:hover .qf-navbar-search-input,
     .qf-navbar-search:focus-within .qf-navbar-search-input { width: 128px; }
@@ -6433,7 +6433,7 @@ body.theme-php-dark .qf-page-frame .phpdo-home-shell {
 }
 /* 点击/聚焦：外框变主题淡紫 + 淡紫光晕 */
 .phpdo-crumb-search:focus-within {
-    border-color: #505b93;
+    border-color: var(--phpdo-accent);
     box-shadow: 0 0 0 3px rgba(80, 91, 147, .18);
 }
 .phpdo-crumb-search input {
@@ -6460,7 +6460,7 @@ body.theme-php-dark .qf-page-frame .phpdo-home-shell {
     cursor: pointer;
     transition: color .12s ease;
 }
-.phpdo-crumb-search button:hover { color: #505b93; }
+.phpdo-crumb-search button:hover { color: var(--phpdo-accent); }
 body.theme-php-dark .phpdo-crumb-search { background: var(--phpdo-surface); border-color: var(--phpdo-border); }
 body.theme-php-dark .phpdo-crumb-search:focus-within { border-color: #8791c4; box-shadow: 0 0 0 3px rgba(135, 145, 196, .22); }
 body.theme-php-dark .phpdo-crumb-search input { color: var(--phpdo-text); }
@@ -6580,13 +6580,13 @@ body {
     font-weight: 600;
     cursor: pointer;
 }
-.settings-tabs button:hover { color: #505b93; border-color: #cfd6e8; }
-.settings-tabs button.active { color: #fff; background: #505b93; border-color: #505b93; }
+.settings-tabs button:hover { color: var(--phpdo-accent); border-color: #cfd6e8; }
+.settings-tabs button.active { color: #fff; background: var(--phpdo-accent); border-color: var(--phpdo-accent); }
 .settings-panel h2 { display: flex; align-items: center; gap: 9px; margin-top: 0; }
-.settings-panel h2 i { color: #505b93; }
+.settings-panel h2 i { color: var(--phpdo-accent); }
 body.theme-php-dark .settings-tabs { border-bottom-color: var(--phpdo-border); }
 body.theme-php-dark .settings-tabs button { background: var(--phpdo-surface); border-color: var(--phpdo-border); color: var(--phpdo-muted); }
-body.theme-php-dark .settings-tabs button.active { background: #505b93; color: #fff; border-color: #505b93; }
+body.theme-php-dark .settings-tabs button.active { background: var(--phpdo-accent); color: #fff; border-color: var(--phpdo-accent); }
 body.theme-php-dark .settings-panel h2 i { color: #8791c4; }
 
 /* ============================================================

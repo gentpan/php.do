@@ -26,9 +26,8 @@ $posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.a
     WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT {$reply_offset}, {$replies_per_page}");
 $attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
 $guest_zip_download_blocked = !current_user() && !qf_guest_download_allowed();
-$compressed_exts = array('zip', 'rar');
 $thread_avatar = qf_user_avatar($thread, 160);
-$thread_author = $thread['nickname'] !== '' ? $thread['nickname'] : $thread['username'];
+$thread_author = qf_user_display_name($thread);
 $me = current_user();
 $user_post_votes = array();
 if ($me) {
@@ -79,25 +78,7 @@ if ($me) {
         <?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?><span class="moderator-badge">版主</span><?php } ?>
         <span class="phpdo-foot-nums"><?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复</span>
     </div>
-    <?php if ($attachments && mysqli_num_rows($attachments) > 0) { ?>
-        <div class="attachment-list">
-            <h3>附件</h3>
-            <?php while ($att = mysqli_fetch_assoc($attachments)) { ?>
-                <?php if (in_array(strtolower($att['file_ext']), array('jpg', 'jpeg', 'png', 'gif', 'webp'))) { ?>
-                    <a href="<?php echo h(qf_attachment_url($att['id'])); ?>" target="_blank">
-                        <img class="attachment-img" src="<?php echo h(qf_attachment_url($att['id'])); ?>" alt="<?php echo h($att['original_name']); ?>">
-                    </a>
-                    <?php echo qf_attachment_delete_form($att); ?>
-                <?php } else { ?>
-                    <?php $zip_blocked = $guest_zip_download_blocked && in_array(strtolower($att['file_ext']), $compressed_exts); ?>
-                    <a class="attachment-file" href="<?php echo h($zip_blocked ? qf_url_page('register.php') : qf_attachment_url($att['id'])); ?>" target="_blank" <?php if ($zip_blocked) echo qf_guest_download_confirm_onclick(); ?>>
-                        <?php echo h($att['original_name']); ?> · <?php echo h(strtoupper($att['file_ext'])); ?> · <?php echo round(intval($att['file_size']) / 1024, 1); ?>KB · 下载次数 <?php echo intval(isset($att['download_count']) ? $att['download_count'] : 0); ?>
-                    </a>
-                    <?php echo qf_attachment_delete_form($att); ?>
-                <?php } ?>
-            <?php } ?>
-        </div>
-    <?php } ?>
+    <?php echo qf_render_attachment_list($attachments, array('guest_zip_blocked' => $guest_zip_download_blocked)); ?>
     <?php
     $reaction_types = qf_reaction_types();
     $reaction_counts = qf_thread_reaction_counts($id);
@@ -128,7 +109,7 @@ if ($me) {
         <?php $reply_attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE post_id=" . intval($p['id']) . " ORDER BY id ASC"); ?>
         <?php
         $reply_avatar = qf_user_avatar($p, 96);
-        $reply_author = $p['nickname'] !== '' ? $p['nickname'] : $p['username'];
+        $reply_author = qf_user_display_name($p);
         $reply_level = qf_user_level(intval(isset($p['points']) ? $p['points'] : 0));
         $reply_signature = trim((string)$p['signature']);
         $post_user_vote = isset($user_post_votes[intval($p['id'])]) ? $user_post_votes[intval($p['id'])] : 0;
@@ -157,22 +138,7 @@ if ($me) {
                         <p><?php echo h($reply_signature); ?></p>
                     </div>
                 <?php } ?>
-            <?php if ($reply_attachments && mysqli_num_rows($reply_attachments) > 0) { ?>
-                <div class="attachment-list reply-attachments">
-                    <?php while ($att = mysqli_fetch_assoc($reply_attachments)) { ?>
-                        <?php if (in_array(strtolower($att['file_ext']), array('jpg', 'jpeg', 'png', 'gif', 'webp'))) { ?>
-                            <a href="<?php echo h(qf_attachment_url($att['id'])); ?>" target="_blank">
-                                <img class="attachment-img" src="<?php echo h(qf_attachment_url($att['id'])); ?>" alt="<?php echo h($att['original_name']); ?>">
-                            </a>
-                            <?php echo qf_attachment_delete_form($att); ?>
-                        <?php } else { ?>
-                            <?php $zip_blocked = $guest_zip_download_blocked && in_array(strtolower($att['file_ext']), $compressed_exts); ?>
-                            <a class="attachment-file" href="<?php echo h($zip_blocked ? qf_url_page('register.php') : qf_attachment_url($att['id'])); ?>" target="_blank" <?php if ($zip_blocked) echo qf_guest_download_confirm_onclick(); ?>><?php echo h($att['original_name']); ?> · <?php echo h(strtoupper($att['file_ext'])); ?> · <?php echo round(intval($att['file_size']) / 1024, 1); ?>KB · 下载次数 <?php echo intval(isset($att['download_count']) ? $att['download_count'] : 0); ?></a>
-                            <?php echo qf_attachment_delete_form($att); ?>
-                        <?php } ?>
-                    <?php } ?>
-                </div>
-            <?php } ?>
+            <?php echo qf_render_attachment_list($reply_attachments, array('reply' => true, 'guest_zip_blocked' => $guest_zip_download_blocked)); ?>
             <?php $floor_replies = mysqli_query(db(), "SELECT c.*, u.nickname FROM qf_post_comments c LEFT JOIN qf_users u ON c.user_id=u.id WHERE c.post_id=" . intval($p['id']) . " AND c.is_deleted=0 ORDER BY c.id ASC LIMIT 50"); ?>
             <div class="floor-replies">
                 <?php while ($floor_replies && $c = mysqli_fetch_assoc($floor_replies)) { ?>

@@ -27,7 +27,7 @@ $coin_rank = qf_user_coins_ready() ? mysqli_query(db(), "SELECT nickname, userna
             <?php $i = 1; while ($signin_rank && $row = mysqli_fetch_assoc($signin_rank)) { ?>
                 <tr>
                     <td><?php echo $i++; ?></td>
-                    <td><?php echo h($row['nickname'] !== '' ? $row['nickname'] : $row['username']); ?></td>
+                    <td><?php echo h(qf_user_display_name($row)); ?></td>
                     <td><?php echo intval($row['total_days']); ?></td>
                     <td><?php echo intval($row['best_streak']); ?></td>
                 </tr>
@@ -42,7 +42,7 @@ $coin_rank = qf_user_coins_ready() ? mysqli_query(db(), "SELECT nickname, userna
             <?php $i = 1; while ($coin_rank && $row = mysqli_fetch_assoc($coin_rank)) { ?>
                 <tr>
                     <td><?php echo $i++; ?></td>
-                    <td><?php echo h($row['nickname'] !== '' ? $row['nickname'] : $row['username']); ?></td>
+                    <td><?php echo h(qf_user_display_name($row)); ?></td>
                     <td><?php echo intval($row['coins']); ?></td>
                 </tr>
             <?php } ?>

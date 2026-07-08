@@ -25,7 +25,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <generator><?php echo h(qf_site_name()); ?></generator>
 <?php while ($rows && ($r = mysqli_fetch_assoc($rows))) {
     $url = $base . '/' . ltrim(qf_url_thread(intval($r['id'])), '/');
-    $author = ($r['nickname'] !== null && $r['nickname'] !== '') ? $r['nickname'] : $r['username'];
+    $author = qf_user_display_name($r);
     $text = (string)$r['content'];
     $text = preg_replace('/\[[^\]]{0,40}\]/u', '', $text);
     $text = trim(strip_tags($text));

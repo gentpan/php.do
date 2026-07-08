@@ -243,8 +243,7 @@ if ($action === 'del_post') {
     $id = intval($_GET['id']);
     $tid = intval($_GET['tid']);
     qf_require_action_token('del_post', $id, $tid);
-    mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE id={$id}");
-    mysqli_query(db(), "UPDATE qf_threads SET replies=GREATEST(replies-1,0) WHERE id={$tid}");
+    qf_soft_delete_post($id, $tid);
     if (qf_is_ajax_request()) {
         qf_json_response(array('ok' => 1, 'removed' => 1, 'post_id' => $id, 'msg' => '已删除该回复'));
     }

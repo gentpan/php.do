@@ -268,7 +268,7 @@ qf_include_header();
                 <h3 class="phpdo-newuser-sub">欢迎新用户</h3>
                 <div class="phpdo-newuser-grid">
                     <?php foreach ($latest_users as $nu) {
-                        $nu_name = ($nu['nickname'] !== null && $nu['nickname'] !== '') ? $nu['nickname'] : $nu['username'];
+                        $nu_name = qf_user_display_name($nu);
                     ?>
                         <a class="phpdo-newuser" href="<?php echo h(qf_url_user($nu['id'])); ?>" title="<?php echo h($nu_name); ?>">
                             <img src="<?php echo h(qf_user_avatar($nu, 96)); ?>" alt="" loading="lazy">

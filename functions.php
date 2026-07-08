@@ -1378,6 +1378,62 @@ function qf_attachment_delete_form($att, $label = '删除附件') {
         . '</form>';
 }
 
+function qf_soft_delete_post($post_id, $thread_id) {
+    $post_id = intval($post_id);
+    $thread_id = intval($thread_id);
+    if ($post_id <= 0 || $thread_id <= 0) {
+        return false;
+    }
+    mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE id={$post_id}");
+    mysqli_query(db(), "UPDATE qf_threads SET replies=GREATEST(replies-1,0) WHERE id={$thread_id}");
+    return true;
+}
+
+/** 渲染附件列表（主楼/回复共用） */
+function qf_render_attachment_list($attachments, $opts = array()) {
+    if (!$attachments) {
+        return '';
+    }
+    $rows = array();
+    if ($attachments instanceof mysqli_result) {
+        while ($row = mysqli_fetch_assoc($attachments)) {
+            $rows[] = $row;
+        }
+    } elseif (is_array($attachments)) {
+        $rows = $attachments;
+    }
+    if (empty($rows)) {
+        return '';
+    }
+    $reply_class = !empty($opts['reply']) ? ' reply-attachments' : '';
+    $show_heading = empty($opts['reply']);
+    $guest_zip_blocked = !empty($opts['guest_zip_blocked']);
+    $compressed_exts = array('zip', 'rar');
+    $image_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+    ob_start();
+    ?>
+    <div class="attachment-list<?php echo h($reply_class); ?>">
+        <?php if ($show_heading) { ?><h3>附件</h3><?php } ?>
+        <?php foreach ($rows as $att) {
+            $ext = strtolower($att['file_ext']);
+            if (in_array($ext, $image_exts, true)) { ?>
+                <a href="<?php echo h(qf_attachment_url($att['id'])); ?>" target="_blank">
+                    <img class="attachment-img" src="<?php echo h(qf_attachment_url($att['id'])); ?>" alt="<?php echo h($att['original_name']); ?>">
+                </a>
+                <?php echo qf_attachment_delete_form($att); ?>
+            <?php } else {
+                $zip_blocked = $guest_zip_blocked && in_array($ext, $compressed_exts, true); ?>
+                <a class="attachment-file" href="<?php echo h($zip_blocked ? qf_url_page('register.php') : qf_attachment_url($att['id'])); ?>" target="_blank" <?php if ($zip_blocked) echo qf_guest_download_confirm_onclick(); ?>>
+                    <?php echo h($att['original_name']); ?> · <?php echo h(strtoupper($att['file_ext'])); ?> · <?php echo round(intval($att['file_size']) / 1024, 1); ?>KB · 下载次数 <?php echo intval(isset($att['download_count']) ? $att['download_count'] : 0); ?>
+                </a>
+                <?php echo qf_attachment_delete_form($att);
+            }
+        } ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
 function qf_action_badge($href, $label, $icon, $extra_class = '', $attrs = '') {
     $class = trim('action-badge ' . $extra_class);
     return '<a class="' . h($class) . '" href="' . h($href) . '" title="' . h($label) . '" aria-label="' . h($label) . '" data-tooltip="' . h($label) . '" ' . trim($attrs) . '><i class="' . h($icon) . '" aria-hidden="true"></i><span>' . h($label) . '</span></a>';
@@ -1632,92 +1688,48 @@ function qf_guest_download_allowed() {
     return intval(qf_setting('guest_download_enabled', '0')) === 1;
 }
 
+/** 读取整型站点设置并限制在 [min, max] */
+function qf_setting_int($key, $default, $min = null, $max = null) {
+    $value = intval(qf_setting($key, (string)$default));
+    if ($min !== null && $value < $min) {
+        $value = $min;
+    }
+    if ($max !== null && $value > $max) {
+        $value = $max;
+    }
+    return $value;
+}
+
 function qf_home_threads_limit() {
-    $limit = intval(qf_setting('home_threads_per_page', '12'));
-    if ($limit < 1) {
-        $limit = 12;
-    }
-    if ($limit > 100) {
-        $limit = 100;
-    }
-    return $limit;
+    return qf_setting_int('home_threads_per_page', 12, 1, 100);
 }
 
 function qf_forum_threads_limit() {
-    $limit = intval(qf_setting('forum_threads_per_page', '60'));
-    if ($limit < 1) {
-        $limit = 60;
-    }
-    if ($limit > 200) {
-        $limit = 200;
-    }
-    return $limit;
+    return qf_setting_int('forum_threads_per_page', 60, 1, 200);
 }
 
 function qf_signin_base_coins() {
-    $coins = intval(qf_setting('signin_base_coins', '5'));
-    if ($coins < 0) {
-        $coins = 0;
-    }
-    if ($coins > 100000) {
-        $coins = 100000;
-    }
-    return $coins;
+    return qf_setting_int('signin_base_coins', 5, 0, 100000);
 }
 
 function qf_signin_streak_bonus() {
-    $coins = intval(qf_setting('signin_streak_bonus', '2'));
-    if ($coins < 0) {
-        $coins = 0;
-    }
-    if ($coins > 100000) {
-        $coins = 100000;
-    }
-    return $coins;
+    return qf_setting_int('signin_streak_bonus', 2, 0, 100000);
 }
 
 function qf_moderator_daily_delete_limit() {
-    $limit = 20;
-    if ($limit < 0) {
-        $limit = 0;
-    }
-    if ($limit > 10000) {
-        $limit = 10000;
-    }
-    return $limit;
+    return qf_setting_int('moderator_daily_delete_limit', 20, 0, 10000);
 }
 
 function qf_thread_page_chars() {
-    $limit = intval(qf_setting('thread_page_chars', '4000'));
-    if ($limit < 500) {
-        $limit = 500;
-    }
-    if ($limit > 50000) {
-        $limit = 50000;
-    }
-    return $limit;
+    return qf_setting_int('thread_page_chars', 4000, 500, 50000);
 }
 
 function qf_reply_max_chars() {
-    $limit = intval(qf_setting('reply_max_chars', '1000'));
-    if ($limit < 100) {
-        $limit = 100;
-    }
-    if ($limit > 50000) {
-        $limit = 50000;
-    }
-    return $limit;
+    return qf_setting_int('reply_max_chars', 1000, 100, 50000);
 }
 
 function qf_replies_per_page() {
-    $limit = intval(qf_setting('replies_per_page', '20'));
-    if ($limit < 5) {
-        $limit = 5;
-    }
-    if ($limit > 100) {
-        $limit = 100;
-    }
-    return $limit;
+    return qf_setting_int('replies_per_page', 20, 5, 100);
 }
 
 function qf_friend_links_enabled() {
@@ -1751,14 +1763,7 @@ function qf_captcha_enabled() {
 }
 
 function qf_captcha_free_count() {
-    $count = intval(qf_setting('captcha_reply_free_count', '10'));
-    if ($count < 0) {
-        $count = 0;
-    }
-    if ($count > 10000) {
-        $count = 10000;
-    }
-    return $count;
+    return qf_setting_int('captcha_reply_free_count', 10, 0, 10000);
 }
 
 function qf_captcha_required($scene, $user = null) {
@@ -1860,14 +1865,7 @@ function qf_forum_post_allowed($forum_id, $user_id) {
 }
 
 function qf_upload_max_mb() {
-    $max_mb = intval(qf_setting('upload_max_mb', '5'));
-    if ($max_mb < 1) {
-        $max_mb = 5;
-    }
-    if ($max_mb > 50) {
-        $max_mb = 50;
-    }
-    return $max_mb;
+    return qf_setting_int('upload_max_mb', 5, 1, 50);
 }
 
 function qf_upload_allowed_exts() {

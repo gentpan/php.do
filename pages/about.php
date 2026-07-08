@@ -8,7 +8,7 @@ $mods = qf_staff_list('moderator');
 $contact = qf_contact_email();
 
 function phpdo_staff_card($u) {
-    $name = ($u['nickname'] !== null && $u['nickname'] !== '') ? $u['nickname'] : $u['username'];
+    $name = qf_user_display_name($u);
     $title = trim((string)(isset($u['signature']) ? $u['signature'] : ''));
     ob_start();
     ?>

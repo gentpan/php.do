@@ -208,7 +208,7 @@ if (!sessionStorage.getItem('qfNotifySoundPlayed')) {
                     <h3>签到总天数排名</h3>
                     <ol>
                         <?php $i = 0; while ($signin_rank_modal && $row = mysqli_fetch_assoc($signin_rank_modal)) { $i++; ?>
-                            <li><?php echo h($row['nickname'] !== '' ? $row['nickname'] : $row['username']); ?> · <?php echo intval($row['total_days']); ?>天</li>
+                            <li><?php echo h(qf_user_display_name($row)); ?> · <?php echo intval($row['total_days']); ?>天</li>
                         <?php } ?>
                         <?php if ($i === 0) { ?><li>暂无记录</li><?php } ?>
                     </ol>
@@ -217,7 +217,7 @@ if (!sessionStorage.getItem('qfNotifySoundPlayed')) {
                     <h3>金币排行榜</h3>
                     <ol>
                         <?php $i = 0; while ($coin_rank_modal && $row = mysqli_fetch_assoc($coin_rank_modal)) { $i++; ?>
-                            <li><?php echo h($row['nickname'] !== '' ? $row['nickname'] : $row['username']); ?> · <?php echo intval($row['coins']); ?>金币</li>
+                            <li><?php echo h(qf_user_display_name($row)); ?> · <?php echo intval($row['coins']); ?>金币</li>
                         <?php } ?>
                         <?php if ($i === 0) { ?><li>暂无记录</li><?php } ?>
                     </ol>

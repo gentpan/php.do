@@ -7,7 +7,7 @@ if (!$user) {
     http_response_code(404);
     exit('用户不存在');
 }
-$display_name = $user['nickname'] !== '' ? $user['nickname'] : $user['username'];
+$display_name = qf_user_display_name($user);
 $avatar = qf_user_avatar($user, 200);
 $page_title = $display_name . ' - 用户主页 - ' . SITE_NAME;
 qf_include_header();
