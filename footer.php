@@ -12,6 +12,9 @@ $footer_pages = array(
     array('title' => '规则', 'url' => pd_url_page('page.php', array('slug' => 'rules'))),
     array('title' => '帮助', 'url' => pd_url_page('page.php', array('slug' => 'help'))),
     array('title' => '联系', 'url' => pd_url_page('page.php', array('slug' => 'contact'))),
+    array('title' => '隐私政策', 'url' => pd_url_page('page.php', array('slug' => 'privacy'))),
+    array('title' => '使用条款', 'url' => pd_url_page('page.php', array('slug' => 'terms'))),
+    array('title' => '服务协议', 'url' => pd_url_page('page.php', array('slug' => 'agreement'))),
 );
 foreach (pd_footer_nav_forums() as $footer_forum) {
     $footer_pages[] = array('title' => $footer_forum['name'], 'url' => pd_url_forum(intval($footer_forum['id'])));
