@@ -17,5 +17,14 @@ class Dashboard extends BaseDashboard
 
     protected static string|UnitEnum|null $navigationGroup = '概览';
 
-    protected static ?int $navigationSort = 1;
+    /**
+     * @return int | array<string, ?int>
+     */
+    public function getColumns(): int | array
+    {
+        return [
+            'default' => 1,
+            'md' => 2,
+        ];
+    }
 }
