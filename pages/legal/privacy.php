@@ -1,4 +1,6 @@
-<?php /* 隐私政策正文分部；由 pages/page.php 在 .pd-info-block 内 include。受信任静态内容。 */ ?>
+<?php /* 隐私政策分部；由 pages/page.php include，自行输出卡片。受信任静态内容。 */ ?>
+<section class="pd-info-block pd-legal">
+<h1>隐私政策</h1>
 <p class="pd-legal-updated">最后更新日期：2026-07-09</p>
 
 <h2>我们收集哪些信息？</h2>
@@ -47,3 +49,4 @@
 <p>如果我们决定更改隐私政策，我们将在本页面发布这些变更。</p>
 
 <p class="pd-legal-license">本文档以 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC-BY-SA</a> 许可发布。如有疑问，请联系 <a href="mailto:admin@php.do">admin@php.do</a>。</p>
+</section>

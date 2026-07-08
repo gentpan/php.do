@@ -16,23 +16,28 @@ body.pd-standalone .pd-banner-logo img {
     height: 52px;
 }
 
-/* ---------- 信息页内容列 ---------- */
+/* ---------- 信息页内容列 ----------
+   卡片与站点正文同宽（撑满 main.wrap，wrap 已提供左右 20px），
+   卡片自身左右内边距 20px。 */
 .pd-info {
-    max-width: 820px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     padding: 8px 0;
 }
 .pd-info .pd-breadcrumb {
     margin: 20px 2px 14px;
 }
 
-/* 正文卡片（规则 / 帮助 / 联系） */
+/* 正文卡片 */
 .pd-info-block {
     background: var(--pd-surface);
     border: 1px solid var(--pd-border);
     border-radius: 10px;
     box-shadow: var(--pd-card-shadow);
-    padding: 30px 32px;
+    padding: 26px 20px;
+}
+.pd-info-block + .pd-info-block {
+    margin-top: 16px;
 }
 .pd-info-block h1 {
     margin: 0 0 18px;
@@ -40,6 +45,15 @@ body.pd-standalone .pd-banner-logo img {
     font-size: 24px;
     font-weight: 800;
     line-height: 1.25;
+    color: var(--pd-text-title);
+    border-left: 4px solid var(--pd-accent);
+}
+.pd-info-block:not(.pd-legal) > h2 {
+    margin: 0 0 14px;
+    padding-left: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.3;
     color: var(--pd-text-title);
     border-left: 4px solid var(--pd-accent);
 }
@@ -51,6 +65,31 @@ body.pd-standalone .pd-banner-logo img {
 }
 .pd-info-block p:last-child {
     margin-bottom: 0;
+}
+.pd-info-block h3 {
+    margin: 18px 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pd-text-title);
+}
+.pd-info-block ul {
+    margin: 0 0 14px;
+    padding-left: 22px;
+}
+.pd-info-block li {
+    margin: 0 0 8px;
+    color: var(--pd-text);
+    font-size: 16px;
+    line-height: 1.8;
+}
+.pd-info-block p a,
+.pd-info-block li a {
+    color: var(--pd-accent);
+    text-decoration: none;
+}
+.pd-info-block p a:hover,
+.pd-info-block li a:hover {
+    text-decoration: underline;
 }
 
 /* 长文法律页排版（隐私政策 / 使用条款 / 服务协议） */
