@@ -38,6 +38,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
     <meta name="msapplication-TileImage" content="assets/mstile-150x150.png">
     <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
     <link rel="stylesheet" href="assets/fonts/fira.css?v=<?php echo filemtime(__DIR__ . '/assets/fonts/fira.css'); ?>">
+    <link rel="stylesheet" href="assets/phpdo-tokens.css?v=<?php echo filemtime(__DIR__ . '/assets/phpdo-tokens.css'); ?>">
     <link rel="stylesheet" href="assets/main.css?v=<?php echo filemtime(__DIR__ . '/assets/main.css'); ?>">
     <link rel="alternate" type="application/rss+xml" title="<?php echo h(qf_site_name()); ?> · RSS" href="/feed">
     <style>

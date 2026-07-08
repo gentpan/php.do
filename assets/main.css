@@ -5054,28 +5054,7 @@ pre {
     }
 }
 
-/* php.net fidelity pass */
-:root {
-    --phpnet-nav: #505b93;
-    --phpnet-nav-dark: #3f4874;
-    --phpnet-bg: #272727;
-    --phpnet-bg-soft: #333333;
-    --phpnet-text-on-dark: #CCCCCC;
-    --phpnet-white: #F2F2F2;
-    --phpnet-paper: #FFFFFF;
-    --phpnet-paper-border: #D8D8D8;
-    --phpnet-link: #505b93;
-    --phpnet-purple: #793862;
-}
-
-body.theme-php {
-    color: var(--phpnet-text-on-dark);
-    background-color: var(--phpnet-bg);
-    background-image:
-        repeating-linear-gradient(45deg, rgba(255, 255, 255, .018) 0, rgba(255, 255, 255, .018) 1px, transparent 1px, transparent 4px),
-        repeating-linear-gradient(-45deg, rgba(0, 0, 0, .09) 0, rgba(0, 0, 0, .09) 1px, transparent 1px, transparent 5px);
-    background-attachment: fixed;
-}
+/* php.net fidelity pass — 设计令牌见 assets/phpdo-tokens.css；页面底色由下方 forum index 段定义 */
 
 body.theme-php .site-nav-bar {
     height: 64px;
@@ -5622,18 +5601,12 @@ body.theme-php .side-user-menu {
 
 /* php.do forum index */
 body.theme-php {
-    --phpdo-accent: #505b93;
-    --phpdo-red: #ff674f;
-    --phpdo-text: #3f3f3f;
-    --phpdo-muted: #969696;
-    --phpdo-line: #eceff3;
-    --phpdo-soft: #f6f7f9;
     color: var(--phpdo-text);
     background:
-        linear-gradient(#f7f7f8, #f7f7f8),
+        linear-gradient(var(--phpdo-page), var(--phpdo-page)),
         repeating-linear-gradient(0deg, transparent 0 31px, rgba(150, 150, 150, .16) 31px 32px),
         repeating-linear-gradient(90deg, transparent 0 31px, rgba(150, 150, 150, .16) 31px 32px);
-    font-family: var(--qf-content-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--qf-content-font), var(--phpdo-font-sans);
 }
 
 body.theme-php main.wrap {
@@ -5643,9 +5616,9 @@ body.theme-php main.wrap {
 }
 
 body.theme-php .site-nav-bar {
-    background: #fff;
-    border-bottom: 1px solid #e7e8eb;
-    box-shadow: 0 1px 6px rgba(20, 20, 20, .04);
+    background: var(--phpdo-nav-bg);
+    border-bottom: 1px solid var(--phpdo-nav-border);
+    box-shadow: var(--phpdo-nav-shadow);
 }
 
 body.theme-php .site-nav-bar .nav-pill {
@@ -5807,12 +5780,12 @@ body.theme-php .phpdo-category-bar {
     min-height: 70px;
     padding: 0 30px;
     overflow-x: auto;
-    color: #333;
-    background: #fff;
-    border: 1px solid #eceef2;
+    color: var(--phpdo-text-title);
+    background: var(--phpdo-card-bg);
+    border: var(--phpdo-card-border);
     border-top: 0;
-    border-radius: 0 0 7px 7px;
-    box-shadow: 0 1px 0 rgba(20, 20, 20, .03);
+    border-radius: 0 0 var(--phpdo-card-radius-lg) var(--phpdo-card-radius-lg);
+    box-shadow: var(--phpdo-card-shadow-subtle);
     white-space: nowrap;
     scrollbar-width: none;
 }
@@ -5835,7 +5808,7 @@ body.theme-php .phpdo-category-bar a:hover {
 
 body.theme-php .phpdo-inner-category-bar {
     background: #fff;
-    border-bottom: 1px solid #eceef2;
+    border-bottom: var(--phpdo-card-border);
     box-shadow: 0 1px 0 rgba(20, 20, 20, .03);
 }
 
@@ -5871,13 +5844,13 @@ body.theme-php .phpdo-breadcrumb {
     align-items: center;
     gap: 10px;
     margin: 22px 0;
-    color: #a0a3a8;
+    color: var(--phpdo-muted);
     font-size: 14px;
 }
 
 body.theme-php .phpdo-breadcrumb a,
 body.theme-php .phpdo-breadcrumb strong {
-    color: #8f9399;
+    color: var(--phpdo-faint);
     text-decoration: none;
 }
 
@@ -5890,10 +5863,10 @@ body.theme-php .phpdo-home-layout {
 
 body.theme-php .phpdo-feed-card,
 body.theme-php .phpdo-side-card {
-    background: #fff;
-    border: 1px solid #eceef2;
-    border-radius: 7px;
-    box-shadow: 0 1px 0 rgba(20, 20, 20, .02);
+    background: var(--phpdo-card-bg);
+    border: var(--phpdo-card-border);
+    border-radius: var(--phpdo-card-radius-lg);
+    box-shadow: var(--phpdo-card-shadow-subtle);
 }
 
 body.theme-php .phpdo-feed-card {
@@ -6072,16 +6045,14 @@ body.theme-php .phpdo-thread-main h2 {
     gap: 8px;
     min-width: 0;
     margin: 0 0 9px;
-    color: #333;
-    font-family: var(--qf-content-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: 20px;
-    font-weight: 800;
+    color: var(--phpdo-text-title);
+    font-family: var(--qf-content-font), var(--phpdo-font-sans);
     line-height: 1.35;
 }
 
 body.theme-php .phpdo-thread-main h2 a {
     min-width: 0;
-    color: #333;
+    color: var(--phpdo-text-title);
     text-decoration: none;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -6330,12 +6301,12 @@ body.theme-php .phpdo-post-button {
     justify-content: center;
     gap: 9px;
     height: 60px;
-    color: #fff;
+    color: var(--phpdo-btn-primary-color);
     font-size: 21px;
     font-weight: 900;
     text-decoration: none;
-    background: var(--phpdo-accent);
-    border-radius: 6px;
+    background: var(--phpdo-btn-primary-bg);
+    border-radius: var(--phpdo-card-radius-lg);
 }
 
 body.theme-php .phpdo-ad {
@@ -6880,10 +6851,8 @@ body.theme-php.page-register main.wrap > .card,
 body.theme-php .thread-list,
 body.theme-php.page-search .thread-list {
     color: var(--phpdo-text);
-    background: #fff;
-    border: 1px solid #eceef2;
-    border-radius: 7px;
-    box-shadow: 0 1px 0 rgba(20, 20, 20, .02);
+    background: var(--phpdo-card-bg);
+    border: var(--phpdo-card-border);
 }
 
 body.theme-php .phpdo-page-head,
@@ -7071,7 +7040,7 @@ body.theme-php .phpdo-thread-main-card.post-content-card {
 body.theme-php .phpdo-thread-main-card .post-content-box {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid #eceef2;
+    border-top: var(--phpdo-card-border);
 }
 body.theme-php .phpdo-thread-main-card .phpdo-reactions {
     margin-top: 18px;
@@ -7079,7 +7048,7 @@ body.theme-php .phpdo-thread-main-card .phpdo-reactions {
 body.theme-php .phpdo-thread-main-card .ad-box.ad-thread {
     margin-top: 20px;
     padding-top: 16px;
-    border-top: 1px solid #eceef2;
+    border-top: var(--phpdo-card-border);
     text-align: center;
 }
 body.theme-php .phpdo-thread-main-card .ad-box.ad-thread img {
@@ -7264,38 +7233,38 @@ body.theme-php .phpdo-vote-button {
     min-width: 78px;
     height: 36px;
     padding: 0 12px;
-    color: #666 !important;
+    color: var(--phpdo-btn-secondary-color) !important;
     font-size: 14px;
     font-weight: 900;
     text-decoration: none;
-    background: #f3f4f6 !important;
-    border: 1px solid #e3e6eb;
-    border-radius: 5px !important;
+    background: var(--phpdo-btn-secondary-bg) !important;
+    border: 1px solid var(--phpdo-btn-secondary-border);
+    border-radius: var(--phpdo-control-radius) !important;
     box-shadow: none;
     cursor: pointer;
 }
 
 body.theme-php .phpdo-vote-button i {
-    color: #a2a7af;
+    color: var(--phpdo-btn-secondary-icon);
 }
 
 body.theme-php .phpdo-vote-button strong {
-    color: #333;
+    color: var(--phpdo-btn-secondary-text-strong);
     font-weight: 950;
 }
 
 body.theme-php .phpdo-vote-button:hover,
 body.theme-php .phpdo-vote-button.active {
-    color: #fff !important;
-    background: var(--phpdo-accent) !important;
-    border-color: var(--phpdo-accent);
+    color: var(--phpdo-btn-primary-color) !important;
+    background: var(--phpdo-btn-primary-bg) !important;
+    border-color: var(--phpdo-btn-primary-bg);
 }
 
 body.theme-php .phpdo-vote-button:hover i,
 body.theme-php .phpdo-vote-button:hover strong,
 body.theme-php .phpdo-vote-button.active i,
 body.theme-php .phpdo-vote-button.active strong {
-    color: #fff;
+    color: var(--phpdo-btn-primary-color);
 }
 
 body.theme-php .post-content-card {
@@ -7305,8 +7274,8 @@ body.theme-php .post-content-card {
 
 body.theme-php .post-content-box,
 body.theme-php .reply .content {
-    color: #333;
-    font-size: 16px;
+    color: var(--phpdo-text-body);
+    font-size: var(--phpdo-font-size-base);
     line-height: 1.78;
 }
 
@@ -7323,10 +7292,8 @@ body.theme-php .replies {
 body.theme-php .replies > h2 {
     margin: 0;
     padding: 18px 24px;
-    color: #333;
-    font-size: 20px;
-    font-weight: 900;
-    background: #fbfbfc;
+    color: var(--phpdo-text-title);
+    background: var(--phpdo-surface-raised);
     border-bottom: 1px solid var(--phpdo-line);
 }
 
@@ -7440,7 +7407,7 @@ body.theme-php .phpdo-level {
 body.theme-php .phpdo-meta-sep {
     width: 1px;
     height: 20px;
-    background: #eceef2;
+    background: var(--phpdo-line);
 }
 
 body.theme-php .phpdo-only-author {
@@ -7546,11 +7513,11 @@ body.theme-php .phpdo-reply-action {
     justify-content: center;
     gap: 8px;
     padding: 0;
-    color: #96999e;
+    color: var(--phpdo-btn-ghost-color);
     font-size: 17px;
     font-weight: 800;
     text-decoration: none;
-    background: transparent;
+    background: var(--phpdo-btn-ghost-hover-bg);
     border: 0;
     cursor: pointer;
 }
@@ -7621,7 +7588,7 @@ body.theme-php .floor-replies {
     margin-top: 22px;
     padding: 12px;
     background: #f7f8fa;
-    border: 1px solid #eceef2;
+    border: var(--phpdo-card-border);
     border-radius: 6px;
 }
 
@@ -7950,25 +7917,11 @@ body.theme-php .phpdo-auth-switch a {
     }
 }
 
-/* php.net component scale pass */
+/* php.net component scale pass — 令牌见 assets/phpdo-tokens.css */
 body.theme-php {
-    --phpdo-font-sans: "Fira Sans", "Source Sans Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    --phpdo-font-mono: "Fira Mono", "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --phpdo-card-radius: .25rem;
-    --phpdo-control-radius: .5rem;
-    --phpdo-space-1: .5rem;
-    --phpdo-space-2: .75rem;
-    --phpdo-space-3: 1rem;
-    --phpdo-space-4: 1.5rem;
-    --phpdo-space-5: 2rem;
-    --phpdo-shadow-soft: 0 .125rem .5rem rgba(0, 0, 0, .08);
-    /* 首页两栏：左 70% / 右 30% */
-    --phpdo-home-gap: var(--phpdo-space-3);
-    --phpdo-home-cols: minmax(0, 7fr) minmax(0, 3fr);
-    --phpdo-home-side: calc((100% - var(--phpdo-home-gap)) * 0.3);
     font-family: var(--phpdo-font-sans);
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: var(--phpdo-font-size-base);
+    line-height: var(--phpdo-line-height-body);
 }
 
 body.theme-php code,
@@ -8067,8 +8020,8 @@ body.theme-php .thread-row {
 
 body.theme-php .phpdo-thread-main h2,
 body.theme-php .thread-title {
-    font-size: 1.125rem;
-    font-weight: 500;
+    font-size: var(--phpdo-font-size-list-title);
+    font-weight: var(--phpdo-font-weight-list-title);
     line-height: 1.35;
 }
 
@@ -8085,23 +8038,23 @@ body.theme-php .phpdo-must-read li {
 body.theme-php .page-head h1,
 body.theme-php .post-title-card h1,
 body.theme-php .phpdo-auth-head h1 {
-    font-size: 1.75rem;
-    font-weight: 500;
+    font-size: var(--phpdo-font-size-page-title);
+    font-weight: var(--phpdo-font-weight-page-title);
     line-height: 1.25;
 }
 
 body.theme-php .phpdo-side-card h2,
 body.theme-php .replies > h2,
 body.theme-php .phpdo-list-heading {
-    font-size: 1.5rem;
-    font-weight: 500;
+    font-size: var(--phpdo-font-size-section-title);
+    font-weight: var(--phpdo-font-weight-section-title);
 }
 
 body.theme-php .post-content-box,
 body.theme-php .reply .content,
 body.theme-php .phpdo-static-page p {
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: var(--phpdo-font-size-body);
+    line-height: var(--phpdo-line-height-body);
 }
 
 body.theme-php .reply {
@@ -8190,21 +8143,8 @@ body.theme-php .phpdo-right-toolbar button {
     }
 }
 
-/* PHP official dark variant */
+/* PHP official dark variant — 暗色令牌见 assets/phpdo-tokens.css */
 body.theme-php-dark {
-    --phpdo-page: #101217;
-    --phpdo-surface: #181b22;
-    --phpdo-surface-soft: #1f2430;
-    --phpdo-surface-raised: #222734;
-    --phpdo-border: #303643;
-    --phpdo-line: #303643;
-    --phpdo-text: #e6e8ee;
-    --phpdo-muted: #a6adba;
-    --phpdo-faint: #7d8593;
-    --phpdo-accent: #8791c4;
-    --phpdo-accent-strong: #b9c0dd;
-    --phpdo-red: #ff8a78;
-    --phpdo-shadow-soft: 0 .125rem .75rem rgba(0, 0, 0, .28);
     color: var(--phpdo-text);
     background: var(--phpdo-page);
 }
@@ -8214,9 +8154,9 @@ body.theme-php-dark a {
 }
 
 body.theme-php-dark .site-nav-bar {
-    background: #151821;
-    border-bottom-color: var(--phpdo-border);
-    box-shadow: 0 .125rem .75rem rgba(0, 0, 0, .26);
+    background: var(--phpdo-nav-bg);
+    border-bottom-color: var(--phpdo-nav-border);
+    box-shadow: var(--phpdo-nav-shadow);
 }
 
 body.theme-php-dark .site-nav-bar .nav-avatar {
@@ -8684,8 +8624,8 @@ body.theme-php-dark .qf-category-nav a:hover {
 /* 分类导航：浅色主题 */
 body.theme-php .qf-category-nav {
     background: #fff;
-    border-top: 1px solid #eceef2;
-    border-bottom: 1px solid #eceef2;
+    border-top: var(--phpdo-card-border);
+    border-bottom: var(--phpdo-card-border);
     box-shadow: 0 1px 4px rgba(20, 20, 20, .03);
 }
 
