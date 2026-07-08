@@ -122,7 +122,7 @@ if (strpos($qf_page_banner, '{r}') !== false) {
                                 <form method="post" action="<?php echo h(qf_url_page('signin.php')); ?>"><button type="submit"><i class="fa-solid fa-calendar-check"></i><span>签到</span></button></form>
                             <?php } ?>
                             <?php if (intval($me['is_admin']) === 1) { ?>
-                                <a href="<?php echo h(qf_url_page('admin/index.php')); ?>"><i class="fa-solid fa-gauge-high"></i><span>后台</span></a>
+                                <a href="/panel"><i class="fa-solid fa-gauge-high"></i><span>后台</span></a>
                             <?php } ?>
                             <a href="<?php echo h(qf_url_page('logout.php')); ?>"><i class="fa-solid fa-right-from-bracket"></i><span>退出</span></a>
                         </div>
