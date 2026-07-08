@@ -38,7 +38,8 @@ function db() {
     if ($conn) {
         return $conn;
     }
-    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $port = defined('DB_PORT') ? (int) DB_PORT : 3306;
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, $port);
     if (!$conn) {
         header('Content-Type: text/html; charset=utf-8');
         exit('数据库连接失败：' . mysqli_connect_error());
