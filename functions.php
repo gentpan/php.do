@@ -2843,13 +2843,13 @@ function pd_remote_upload_file($tmp_name, $safe_name, $content_type, &$error) {
 }
 
 function pd_browser_title($page_title) {
-    $site_title = pd_setting('site_title', SITE_NAME);
+    $site_name = pd_site_name();
     if ($page_title === SITE_NAME) {
-        // 首页：站点标题 · 网站简介（副标题）
-        $subtitle = trim((string) pd_site_desc());
-        return $subtitle !== '' ? $site_title . ' · ' . $subtitle : $site_title;
+        // 首页：站点名称 · 站点副标题（slogan）
+        $subtitle = trim((string) pd_site_slogan());
+        return $subtitle !== '' ? $site_name . ' · ' . $subtitle : $site_name;
     }
-    return str_replace(SITE_NAME, $site_title, $page_title);
+    return str_replace(SITE_NAME, $site_name, $page_title);
 }
 
 function pd_render_ad($position) {

@@ -353,8 +353,8 @@ if ($ok) {
 
 if ($ok) {
     $settings = array(
-        'site_title' => SITE_NAME,
         'site_name' => SITE_NAME,
+        'site_slogan' => SITE_DESC,
         'site_desc' => SITE_DESC,
         'site_keywords' => '',
         'home_banner' => '1',
