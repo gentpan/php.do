@@ -64,6 +64,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_forums (
   post_user_limit_enabled tinyint(1) NOT NULL DEFAULT '0',
   post_user_ids varchar(255) NOT NULL DEFAULT '',
   display_order int(11) NOT NULL DEFAULT '0',
+  show_in_nav tinyint(1) NOT NULL DEFAULT '1',
   created_at datetime NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";

@@ -25,6 +25,11 @@ class NavResource extends Resource
 {
     protected static ?string $model = Nav::class;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     protected static ?string $navigationLabel = '主导航';
 
     protected static ?string $modelLabel = '导航';

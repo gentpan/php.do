@@ -9,13 +9,7 @@ $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) :
 qf_online_touch();
 $main_navs = qf_main_navs();
 $is_php_theme = true;
-$header_forums = array();
-$nav_hidden_ids = array_filter(array_map('intval', explode(',', qf_setting('nav_hidden_forums', ''))));
-$nav_hidden_sql = !empty($nav_hidden_ids) ? ' WHERE id NOT IN (' . implode(',', $nav_hidden_ids) . ')' : '';
-$header_forum_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums{$nav_hidden_sql} ORDER BY display_order ASC, id ASC");
-while ($header_forum_rs && ($header_forum = mysqli_fetch_assoc($header_forum_rs))) {
-    $header_forums[] = $header_forum;
-}
+$header_forums = qf_header_nav_forums();
 $qf_rss_url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . (isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : '') . '/feed';
 $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 $page_body_class = 'page-' . preg_replace('/[^a-z0-9_-]+/', '-', strtolower(str_replace('.php', '', $current_script)));

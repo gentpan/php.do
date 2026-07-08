@@ -2038,6 +2038,43 @@ function qf_main_navs() {
     return $rows;
 }
 
+function qf_ensure_forum_nav_schema() {
+    static $done = false;
+    if ($done) {
+        return true;
+    }
+    $done = true;
+    if (!qf_table_has_column('qf_forums', 'show_in_nav')) {
+        mysqli_query(db(), "ALTER TABLE qf_forums ADD show_in_nav tinyint(1) NOT NULL DEFAULT 1 AFTER display_order");
+        $hidden = array_filter(array_map('intval', explode(',', qf_setting('nav_hidden_forums', ''))));
+        if (!empty($hidden)) {
+            $ids = implode(',', $hidden);
+            mysqli_query(db(), "UPDATE qf_forums SET show_in_nav=0 WHERE id IN ({$ids})");
+        }
+    }
+    return true;
+}
+
+function qf_header_nav_forums() {
+    qf_ensure_forum_nav_schema();
+    $rs = mysqli_query(db(), "SELECT id, name FROM qf_forums WHERE show_in_nav=1 ORDER BY display_order ASC, id ASC");
+    $rows = array();
+    while ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+function qf_footer_nav_forums() {
+    qf_ensure_forum_nav_schema();
+    $rs = mysqli_query(db(), "SELECT id, name FROM qf_forums WHERE show_in_nav=0 ORDER BY display_order ASC, id ASC");
+    $rows = array();
+    while ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
 function qf_table_has_column($table, $column) {
     $table = preg_replace('/[^a-z0-9_]/i', '', (string)$table);
     $column_sql = esc((string)$column);

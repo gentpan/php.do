@@ -12,12 +12,8 @@ $footer_pages = array(
     array('title' => '规则', 'url' => qf_url_page('page.php', array('slug' => 'rules'))),
     array('title' => '帮助', 'url' => qf_url_page('page.php', array('slug' => 'help'))),
 );
-$footer_nav_hidden_ids = array_filter(array_map('intval', explode(',', qf_setting('nav_hidden_forums', ''))));
-if (!empty($footer_nav_hidden_ids)) {
-    $footer_hidden_rs = mysqli_query(db(), "SELECT id,name FROM qf_forums WHERE id IN (" . implode(',', $footer_nav_hidden_ids) . ") ORDER BY display_order ASC, id ASC");
-    while ($footer_hidden_rs && ($footer_hidden = mysqli_fetch_assoc($footer_hidden_rs))) {
-        $footer_pages[] = array('title' => $footer_hidden['name'], 'url' => qf_url_forum(intval($footer_hidden['id'])));
-    }
+foreach (qf_footer_nav_forums() as $footer_forum) {
+    $footer_pages[] = array('title' => $footer_forum['name'], 'url' => qf_url_forum(intval($footer_forum['id'])));
 }
 $footer_social_links = array(
     array('title' => 'GitHub', 'url' => 'https://github.com/gentpan/php.do', 'icon' => 'fa-brands fa-github'),

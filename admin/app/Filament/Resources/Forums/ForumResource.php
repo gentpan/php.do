@@ -46,7 +46,8 @@ class ForumResource extends Resource
                 TextInput::make('topic_categories')->label('主题分类')->helperText('逗号分隔，例如：意见,BUG')->maxLength(255),
                 Toggle::make('post_user_limit_enabled')->label('限制指定用户发帖'),
                 TextInput::make('post_user_ids')->label('允许发帖用户 ID')->helperText('逗号分隔用户 ID')->maxLength(255),
-                TextInput::make('display_order')->label('排序')->numeric()->default(10),
+                TextInput::make('display_order')->label('排序')->numeric()->default(10)->helperText('数值越小越靠前'),
+                Toggle::make('show_in_nav')->label('显示在顶部导航')->default(true),
             ]);
     }
 
@@ -60,6 +61,7 @@ class ForumResource extends Resource
                 TextColumn::make('description')->label('简介')->limit(40),
                 IconColumn::make('topic_category_enabled')->label('分类')->boolean(),
                 IconColumn::make('post_user_limit_enabled')->label('限发帖')->boolean(),
+                IconColumn::make('show_in_nav')->label('导航')->boolean(),
                 TextColumn::make('display_order')->label('排序')->sortable(),
             ])
             ->recordActions([

@@ -510,6 +510,7 @@ if ($ok) {
     qf_ensure_timezone_schema();
     qf_ensure_points_schema();
     qf_ensure_online_schema();
+    qf_ensure_forum_nav_schema();
     qf_migrate_forum_nav_plan_a();
 }
 ?>
