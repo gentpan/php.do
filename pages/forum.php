@@ -49,7 +49,7 @@ $threads = mysqli_query(db(), "SELECT t.*, u.nickname, u.username, u.avatar, u.e
                 <img src="<?php echo h($avatar); ?>" alt="">
             </a>
             <div class="thread-main">
-                <a class="thread-title" href="<?php echo h(qf_url_thread($t['id'])); ?>">
+                <a class="thread-title<?php echo intval($t['is_good']) ? ' phpdo-title-good' : ''; ?>" href="<?php echo h(qf_url_thread($t['id'])); ?>">
                     <?php if (intval($t['is_top']) > 0) { ?><span class="phpdo-badge-sq phpdo-badge-top" title="置顶" aria-label="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span><?php } ?>
                     <?php if (intval($t['is_good'])) { ?><span class="phpdo-badge-sq phpdo-badge-good" title="精华" aria-label="精华"><i class="fa-solid fa-star" aria-hidden="true"></i></span><?php } ?>
                     <?php echo h($t['title']); ?>

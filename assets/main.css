@@ -5077,6 +5077,8 @@ body.theme-php {
     --phpdo-accent-strong: #505b93;
     --phpdo-red: #ff674f;
     --phpdo-gold: #f5a623;
+    --phpdo-good-title: #c58a12;
+    --phpdo-good-title-hover: #a87310;
 
     /* 文字 */
     --phpdo-text: #3f3f3f;
@@ -5166,6 +5168,8 @@ body.theme-php-dark {
     --phpdo-accent-hover: #9aa3d0;
     --phpdo-accent-strong: #b9c0dd;
     --phpdo-red: #ff8a78;
+    --phpdo-good-title: #f5a623;
+    --phpdo-good-title-hover: #ffc04d;
     --phpdo-nav-bg: #151821;
     --phpdo-nav-border: var(--phpdo-border);
     --phpdo-nav-shadow: 0 .125rem .75rem rgba(0, 0, 0, .28);
@@ -6282,7 +6286,18 @@ body.theme-php .phpdo-badge-top {
     background: var(--phpdo-red);
 }
 body.theme-php .phpdo-badge-good {
-    background: #f5a623;
+    background: var(--phpdo-gold);
+}
+
+body.theme-php .phpdo-thread-main h2 a.phpdo-title-good,
+body.theme-php .thread-title.phpdo-title-good,
+body.theme-php .post-title-card h1.phpdo-title-good {
+    color: var(--phpdo-good-title) !important;
+}
+
+body.theme-php .phpdo-thread-main h2 a.phpdo-title-good:hover,
+body.theme-php .thread-title.phpdo-title-good:hover {
+    color: var(--phpdo-good-title-hover) !important;
 }
 
 /* 徽章/按钮样式变体：柔和底色系（可用于置顶/精华/分类等各种标签） */
@@ -8501,7 +8516,18 @@ body.theme-php-dark .tag.good {
 
 body.theme-php-dark .phpdo-badge-sq { color: #fff !important; }
 body.theme-php-dark .phpdo-badge-top { background: #d1495b; }
-body.theme-php-dark .phpdo-badge-good { background: #f7b733; }
+body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-good,
+body.theme-php-dark .thread-title.phpdo-title-good,
+body.theme-php-dark .post-title-card h1.phpdo-title-good {
+    color: var(--phpdo-good-title) !important;
+}
+
+body.theme-php-dark .phpdo-thread-main h2 a.phpdo-title-good:hover,
+body.theme-php-dark .thread-title.phpdo-title-good:hover {
+    color: var(--phpdo-good-title-hover) !important;
+}
+
+body.theme-php-dark .phpdo-badge-good { background: var(--phpdo-gold); }
 
 body.theme-php-dark .phpdo-image-icon,
 body.theme-php-dark .phpdo-attach-icon,
