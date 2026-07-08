@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
+use App\Support\ForumBrand;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,7 +30,11 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->brandName('php.do Admin')
+            ->brandName(fn (): string => ForumBrand::name())
+            ->brandLogo(ForumBrand::logoUrl(false))
+            ->darkModeBrandLogo(ForumBrand::logoUrl(true))
+            ->brandLogoHeight('2rem')
+            ->favicon('/assets/favicon.ico')
             ->colors([
                 'primary' => Color::Amber,
             ])

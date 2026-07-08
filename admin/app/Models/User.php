@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasName;
+use App\Support\ForumAvatar;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
 {
     use Notifiable;
 
@@ -70,6 +70,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         $name = trim((string) ($this->nickname ?: $this->username));
 
         return $name !== '' ? $name : 'Admin';
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return ForumAvatar::url($this->avatar, $this->email, 96);
     }
 
     protected static function booted(): void
