@@ -263,3 +263,132 @@ body.pd-standalone .pd-banner-logo img {
     .pd-info-block { padding: 22px 18px; }
     .pd-info-block h1 { font-size: 21px; }
 }
+
+/* ---------- 登录 / 注册：精简布局 + 左右两栏 ---------- */
+.pd-auth2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+.pd-auth2.pd-auth2--single {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+}
+.pd-auth2 h1 {
+    margin: 0 0 22px;
+    padding: 0;
+    border: 0;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--pd-text-title);
+}
+.pd-auth2 .auth-alert {
+    margin: 0 0 16px;
+}
+.pd-auth-field {
+    margin: 0 0 18px;
+}
+.pd-auth2 label {
+    display: block;
+    margin: 0 0 7px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pd-text);
+}
+.pd-auth2 input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    font-size: 15px;
+    color: var(--pd-text-title);
+    background: var(--pd-surface);
+    border: 1px solid var(--pd-border);
+    border-radius: 8px;
+    outline: 0;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.pd-auth2 input:focus {
+    border-color: var(--pd-accent);
+    box-shadow: 0 0 0 3px rgba(80, 91, 147, .12);
+}
+.pd-auth-submit {
+    width: 100%;
+    height: 48px;
+    margin-top: 6px;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--pd-text-on-accent);
+    background: var(--pd-accent);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+.pd-auth-submit:hover {
+    background: var(--pd-accent-hover);
+}
+/* 右栏：第三方登录 + Passkey */
+.pd-auth2-side {
+    border-left: 1px solid var(--pd-line);
+    padding-left: 40px;
+}
+.pd-auth-side-label {
+    margin: 0 0 14px !important;
+    color: var(--pd-muted) !important;
+    font-size: 13px !important;
+}
+.pd-auth-oauth {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.pd-auth-oauth a,
+.pd-auth-oauth button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--pd-text-title);
+    background: var(--pd-surface);
+    border: 1px solid var(--pd-border);
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color .15s ease, background .15s ease;
+}
+.pd-auth-oauth a:hover,
+.pd-auth-oauth button:hover {
+    border-color: var(--pd-accent);
+    background: var(--pd-surface-soft);
+}
+.pd-auth-oauth i {
+    font-size: 17px;
+}
+.pd-auth2-switch {
+    margin: 22px 0 0;
+    text-align: center;
+    color: var(--pd-muted);
+    font-size: 14px;
+}
+.pd-auth2-switch a {
+    color: var(--pd-accent);
+    font-weight: 700;
+}
+@media (max-width: 720px) {
+    .pd-auth2 {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .pd-auth2-side {
+        border-left: 0;
+        border-top: 1px solid var(--pd-line);
+        padding-left: 0;
+        padding-top: 24px;
+    }
+}

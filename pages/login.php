@@ -7,32 +7,47 @@ $auth_error = isset($_SESSION['auth_error']) ? (string)$_SESSION['auth_error'] :
 $auth_login_username = isset($_SESSION['auth_login_username']) ? (string)$_SESSION['auth_login_username'] : '';
 unset($_SESSION['auth_modal'], $_SESSION['auth_error'], $_SESSION['auth_login_username']);
 $page_title = '登录 - ' . SITE_NAME;
-pd_include_header();
+pd_include_header(true);
 ?>
-<section class="card pd-auth-page">
-    <div class="pd-auth-head">
-        <h1>登录</h1>
-        <p>进入你的 php.do 账号，继续发帖、回复和管理资料。</p>
+<div class="pd-info">
+    <div class="pd-breadcrumb">
+        <a href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
+        <span>»</span>
+        <strong>登录</strong>
     </div>
-    <?php if ($auth_error !== '') { ?><div class="alert auth-alert"><?php echo h($auth_error); ?></div><?php } ?>
-    <form method="post" action="<?php echo h(pd_url_page('api/auth.php', array('action' => 'login'))); ?>">
-        <label>用户名</label>
-        <input name="username" value="<?php echo h($auth_login_username); ?>" required autocomplete="username">
-        <label>密码</label>
-        <input type="password" name="password" required autocomplete="current-password">
-        <button class="btn auth-submit" type="submit">登录</button>
-        <button class="btn btn-light auth-passkey" type="button" data-passkey-login><i class="fa-solid fa-key" aria-hidden="true"></i> 使用 Passkey 登录</button>
-    </form>
-    <?php if (pd_oauth_any_enabled()) { ?>
-    <div class="pd-oauth-divider"><span>或使用第三方账号</span></div>
-    <div class="pd-oauth-buttons">
-        <?php foreach (pd_oauth_providers() as $key => $info) { if (!pd_oauth_enabled($key)) continue; ?>
-            <a class="btn btn-light pd-oauth-btn pd-oauth-<?php echo $key; ?>" href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
-                <i class="<?php echo h($info['icon']); ?>" aria-hidden="true"></i> 使用 <?php echo h($info['label']); ?> 登录
-            </a>
-        <?php } ?>
-    </div>
-    <?php } ?>
-    <p class="pd-auth-switch">还没有账号？<a href="<?php echo h(pd_url_page('register.php')); ?>">注册</a></p>
-</section>
+
+    <section class="pd-info-block pd-auth2">
+        <div class="pd-auth2-main">
+            <h1>欢迎回来</h1>
+            <?php if ($auth_error !== '') { ?><div class="alert auth-alert"><?php echo h($auth_error); ?></div><?php } ?>
+            <form method="post" action="<?php echo h(pd_url_page('api/auth.php', array('action' => 'login'))); ?>">
+                <div class="pd-auth-field">
+                    <label>电子邮件 / 用户名</label>
+                    <input name="username" value="<?php echo h($auth_login_username); ?>" required autocomplete="username" placeholder="电子邮件或用户名">
+                </div>
+                <div class="pd-auth-field">
+                    <label>密码</label>
+                    <input type="password" name="password" required autocomplete="current-password" placeholder="密码">
+                </div>
+                <button class="pd-auth-submit" type="submit">登录</button>
+            </form>
+        </div>
+
+        <div class="pd-auth2-side">
+            <p class="pd-auth-side-label">使用以下方式登录</p>
+            <div class="pd-auth-oauth">
+                <?php foreach (pd_oauth_providers() as $key => $info) { if (!pd_oauth_enabled($key)) continue; ?>
+                    <a href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
+                        <i class="<?php echo h($info['icon']); ?>" aria-hidden="true"></i> 使用 <?php echo h($info['label']); ?> 登录
+                    </a>
+                <?php } ?>
+                <button type="button" data-passkey-login>
+                    <i class="fa-solid fa-key" aria-hidden="true"></i> 使用通行密钥登录
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <p class="pd-auth2-switch">还没有账号？<a href="<?php echo h(pd_url_page('register.php')); ?>">注册</a></p>
+</div>
 <?php pd_include_footer(); ?>
