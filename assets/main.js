@@ -1451,3 +1451,54 @@
         document.body.classList.add('pd-page-ready');
     });
 })();
+
+/* 移动端主导航开合（原生，替代 Alpine） */
+(function () {
+    var burger = document.querySelector('[data-nav-burger]');
+    var menu = document.querySelector('[data-nav-menu]');
+    if (!burger || !menu) return;
+    burger.addEventListener('click', function () {
+        var opening = menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !opening);
+        menu.classList.toggle('sm:flex', !opening);
+        menu.classList.toggle('flex', opening);
+        burger.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    });
+})();
+
+/* 个人设置头像切换器（原生，替代 Alpine） */
+(function () {
+    var form = document.querySelector('[data-avatar-form]');
+    if (!form) return;
+    var base = form.getAttribute('data-cartoon-base') || '';
+    var seed = '';
+    var normalImg = form.querySelector('[data-avatar-preview-normal]');
+    var cartoonImg = form.querySelector('[data-avatar-preview-cartoon]');
+    var seedInput = form.querySelector('[data-avatar-seed]');
+    var panels = form.querySelectorAll('[data-avatar-panel]');
+    var radios = form.querySelectorAll('input[name="avatar_type"]');
+    function currentType() {
+        var c = form.querySelector('input[name="avatar_type"]:checked');
+        return c ? c.value : '';
+    }
+    function refreshCartoon() {
+        if (cartoonImg) cartoonImg.src = base + (seed ? '&seed=' + seed : '');
+        if (seedInput) seedInput.value = seed;
+    }
+    function apply() {
+        var t = currentType();
+        if (normalImg) normalImg.style.display = (t !== 'cartoon') ? '' : 'none';
+        if (cartoonImg) cartoonImg.style.display = (t === 'cartoon') ? '' : 'none';
+        for (var i = 0; i < panels.length; i++) {
+            panels[i].style.display = (panels[i].getAttribute('data-avatar-panel') === t) ? '' : 'none';
+        }
+        if (t === 'cartoon') refreshCartoon();
+    }
+    for (var i = 0; i < radios.length; i++) radios[i].addEventListener('change', apply);
+    var shuffle = form.querySelector('[data-avatar-shuffle]');
+    if (shuffle) shuffle.addEventListener('click', function () {
+        seed = Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(36);
+        refreshCartoon();
+    });
+    apply();
+})();
