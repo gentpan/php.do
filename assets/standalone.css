@@ -430,6 +430,13 @@ body.pd-standalone .pd-banner-logo img {
 .pd-affix-btn:disabled { opacity: .55; cursor: default; }
 /* 文本按钮（发送验证码）——保持矩形，宽度自适应 */
 .pd-affix-btn.pd-affix-text { width: auto; padding: 0 12px; font-size: 13px; }
-.pd-field-hint { margin: 6px 2px 0; color: var(--pd-muted); font-size: 12px; line-height: 1.55; }
+/* 字段提示：更高优先级压过 .pd-info-block p 的 16px，小字号浅灰 */
+.pd-info-block .pd-field-hint,
+.pd-field-hint {
+    margin: 6px 2px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #a6acb5;
+}
 .pd-auth-forgot { margin: -8px 2px 14px; text-align: right; }
 .pd-auth-forgot a { color: var(--pd-accent); font-size: 13px; text-decoration: none; }
