@@ -757,6 +757,7 @@ function pd_theme_file($file) {
 }
 
 function pd_include_header() {
+    global $page_title;
     include pd_theme_file('header.php');
 }
 
@@ -2844,7 +2845,9 @@ function pd_remote_upload_file($tmp_name, $safe_name, $content_type, &$error) {
 function pd_browser_title($page_title) {
     $site_title = pd_setting('site_title', SITE_NAME);
     if ($page_title === SITE_NAME) {
-        return $site_title;
+        // 首页：站点标题 · 网站简介（副标题）
+        $subtitle = trim((string) pd_site_desc());
+        return $subtitle !== '' ? $site_title . ' · ' . $subtitle : $site_title;
     }
     return str_replace(SITE_NAME, $site_title, $page_title);
 }

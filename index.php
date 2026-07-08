@@ -101,7 +101,7 @@ if ($request_path !== '') {
     exit('404 Not Found');
 }
 
-$page_title = SITE_NAME . ' - 首页';
+$page_title = SITE_NAME;
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'reply';
 $allowed_filters = array('reply', 'latest', 'hot', 'good');
 if (!in_array($filter, $allowed_filters, true)) {
