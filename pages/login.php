@@ -36,7 +36,7 @@ pd_include_header(true);
         <div class="pd-auth2-side">
             <p class="pd-auth-side-label">使用以下方式登录</p>
             <div class="pd-auth-oauth">
-                <?php foreach (pd_oauth_providers() as $key => $info) { if (!pd_oauth_enabled($key)) continue; ?>
+                <?php foreach (pd_oauth_providers() as $key => $info) { ?>
                     <a href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
                         <i class="<?php echo h($info['icon']); ?>" aria-hidden="true"></i> 使用 <?php echo h($info['label']); ?> 登录
                     </a>
