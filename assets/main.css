@@ -1945,14 +1945,39 @@ textarea:focus {
     font-size: 14px;
     border-radius: 5px;
 }
+.qf-confirm-actions .btn-light,
+.qf-confirm-actions .btn-light:hover,
+.qf-confirm-actions .btn-light:active {
+    color: #4a5568 !important;
+    background: #eef1f7 !important;
+    border: 1px solid #dde2ef;
+}
+.qf-confirm-actions .btn-light:hover,
+.qf-confirm-actions .btn-light:active {
+    color: #26232f !important;
+    background: #e2e6ef !important;
+    border-color: #cfd5e4;
+}
 .qf-confirm-actions .btn-danger {
     color: #fff !important;
     background: #d93025 !important;
     border-color: #d93025;
 }
-.qf-confirm-actions .btn-danger:hover {
+.qf-confirm-actions .btn-danger:hover,
+.qf-confirm-actions .btn-danger:active {
     background: #b8251c !important;
     border-color: #b8251c;
+}
+body.theme-php-dark .qf-confirm-actions .btn-light,
+body.theme-php-dark .qf-confirm-actions .btn-light:hover,
+body.theme-php-dark .qf-confirm-actions .btn-light:active {
+    color: var(--phpdo-text) !important;
+    background: var(--phpdo-surface-soft) !important;
+    border-color: var(--phpdo-border);
+}
+body.theme-php-dark .qf-confirm-actions .btn-light:hover,
+body.theme-php-dark .qf-confirm-actions .btn-light:active {
+    background: rgba(255, 255, 255, .08) !important;
 }
 body.theme-php-dark .qf-confirm-box {
     color: var(--phpdo-text);
