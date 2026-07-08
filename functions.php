@@ -2008,10 +2008,8 @@ function pd_geoip_lookup($ip) {
         $country = '';
     }
     $country_code = strtoupper(trim((string)(isset($json['country_code']) ? $json['country_code'] : '')));
-    $flag = trim((string)(isset($json['flag']) ? $json['flag'] : ''));
-    if ($flag === '' && preg_match('/^[A-Z]{2}$/', $country_code)) {
-        $flag = 'https://flagcdn.io/' . strtolower($country_code) . '.svg';
-    }
+    // 国旗改由前端 flag-icons 依据 country_code 渲染（<span class="fi fi-xx">），不再存储 URL。
+    $flag = '';
     $mem[$ip] = array(
         'ip' => $ip,
         'country' => $country,
