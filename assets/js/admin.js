@@ -136,10 +136,9 @@
         var textarea = root.querySelector('[data-editor-textarea]') || root.querySelector('textarea');
         if (!textarea) return;
 
-        var preview = root.querySelector('[data-editor-preview]');
         var toolbarWords = root.querySelector('[data-editor-words-toolbar]');
         var paragraphs = root.querySelector('[data-editor-paragraphs]');
-        var syncStatus = root.querySelector('[data-editor-sync-status]');
+        var previewBtn = root.querySelector('[data-md-preview]');
         var filePicker = root.querySelector('[data-md-file-picker]');
         var imagePicker = root.querySelector('[data-md-image-picker]');
         var attachPicker = root.querySelector('[data-md-attach-picker]');
@@ -147,7 +146,6 @@
         var uploadUrl = root.getAttribute('data-upload-url') || 'api/upload-image';
         var attachUrl = root.getAttribute('data-attach-url') || 'api/upload-attachment';
         var csrf = root.getAttribute('data-csrf') || window.qfCsrfToken || '';
-        var previewTimer = null;
 
         function insert(before, after, placeholder) {
             var start = textarea.selectionStart || 0;
@@ -260,8 +258,53 @@
             if (paragraphs) paragraphs.textContent = paragraphCount + ' 段';
         }
 
-        function updatePreview() {
-            if (!previewUrl || !preview) return;
+        function ensurePreviewModal() {
+            var modal = document.getElementById('qf-md-preview-dialog');
+            if (modal) return modal;
+            modal = document.createElement('div');
+            modal.id = 'qf-md-preview-dialog';
+            modal.className = 'editor-dialog-overlay md-preview-overlay';
+            modal.innerHTML = [
+                '<div class="editor-dialog-box md-preview-box" role="dialog" aria-modal="true" aria-labelledby="qf-md-preview-title">',
+                '<button class="editor-dialog-close" type="button" data-md-preview-close aria-label="关闭">×</button>',
+                '<div class="md-preview-head">',
+                '<h2 id="qf-md-preview-title">预览</h2>',
+                '<span class="md-preview-badge"><i class="fa-brands fa-markdown" aria-hidden="true"></i> Markdown</span>',
+                '</div>',
+                '<div class="md-preview-body qf-md-body" data-md-preview-body><div class="empty">加载中…</div></div>',
+                '<div class="editor-dialog-actions">',
+                '<button class="btn btn-light" type="button" data-md-preview-close>关闭</button>',
+                '</div>',
+                '</div>'
+            ].join('');
+            document.body.appendChild(modal);
+            return modal;
+        }
+
+        function openPreviewModal() {
+            if (!previewUrl) {
+                notify('预览接口不可用', 'error');
+                return;
+            }
+            var modal = ensurePreviewModal();
+            var body = modal.querySelector('[data-md-preview-body]');
+            body.innerHTML = '<div class="empty">加载中…</div>';
+            modal.classList.add('is-open');
+
+            function close() {
+                modal.classList.remove('is-open');
+                modal.removeEventListener('click', onClick);
+                document.removeEventListener('keydown', onKey);
+            }
+            function onClick(e) {
+                if (e.target === modal || e.target.closest('[data-md-preview-close]')) close();
+            }
+            function onKey(e) {
+                if (e.key === 'Escape') close();
+            }
+            modal.addEventListener('click', onClick);
+            document.addEventListener('keydown', onKey);
+
             var data = new URLSearchParams();
             data.set('csrf_token', csrf);
             data.set('markdown', textarea.value);
@@ -276,20 +319,11 @@
             }).then(function(res) {
                 return res.ok ? res.json() : Promise.reject();
             }).then(function(data) {
-                preview.innerHTML = (data && data.html) ? data.html : '<div class="empty">预览会显示在这里</div>';
-                if (syncStatus) syncStatus.textContent = '已同步';
-                if (window.qfEnhanceMedia) window.qfEnhanceMedia(preview);
+                body.innerHTML = (data && data.html) ? data.html : '<div class="empty">暂无内容</div>';
+                if (window.qfEnhanceMedia) window.qfEnhanceMedia(body);
             }).catch(function() {
-                preview.innerHTML = '<div class="empty">预览暂时不可用</div>';
-                if (syncStatus) syncStatus.textContent = '预览失败';
+                body.innerHTML = '<div class="empty">预览暂时不可用</div>';
             });
-        }
-
-        function schedulePreview() {
-            updateStats();
-            clearTimeout(previewTimer);
-            if (syncStatus) syncStatus.textContent = '同步中';
-            previewTimer = setTimeout(updatePreview, 260);
         }
 
         root.querySelectorAll('[data-md]').forEach(function(btn) {
@@ -298,6 +332,13 @@
                 command(btn.getAttribute('data-md'));
             });
         });
+
+        if (previewBtn) {
+            previewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openPreviewModal();
+            });
+        }
 
         if (filePicker) {
             filePicker.addEventListener('change', function() {
@@ -356,7 +397,7 @@
             });
         }
 
-        textarea.addEventListener('input', schedulePreview);
+        textarea.addEventListener('input', updateStats);
         textarea.addEventListener('keydown', function(e) {
             var key = (e.key || '').toLowerCase();
             if ((e.ctrlKey || e.metaKey) && key === 'b') {
@@ -370,7 +411,6 @@
         });
 
         updateStats();
-        updatePreview();
     }
 
     function initFloorReply() {

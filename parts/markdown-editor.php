@@ -52,8 +52,10 @@ $editorClass = 'markdown-editor' . ($editorCompact ? ' is-compact' : '');
             <span data-editor-words-toolbar>0 字</span>
             <span data-editor-paragraphs>0 段</span>
             <span class="editor-toolbar-separator" aria-hidden="true"></span>
-            <span>预览</span>
-            <span data-editor-sync-status>已同步</span>
+            <button type="button" class="editor-preview-btn" data-md-preview title="预览 Markdown 效果">
+                <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                <span>预览</span>
+            </button>
         </span>
     </div>
     <p class="muted upload-tip editor-upload-tip">支持 <?php echo h(qf_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(qf_upload_max_mb()); ?>MB。内容使用 Markdown。</p>
@@ -66,8 +68,5 @@ $editorClass = 'markdown-editor' . ($editorCompact ? ' is-compact' : '');
                   placeholder="<?php echo h($editorPlaceholder); ?>"
                   <?php if ($editorMaxlength > 0) { ?>maxlength="<?php echo $editorMaxlength; ?>"<?php } ?>
                   <?php if ($editorRequired) { ?>required<?php } ?>><?php echo h($editorValue); ?></textarea>
-        <div class="editor-preview qf-md-body" data-editor-preview>
-            <div class="empty">预览会显示在这里</div>
-        </div>
     </div>
 </div>
