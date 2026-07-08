@@ -66,14 +66,14 @@ while ($forums && $f = mysqli_fetch_assoc($forums)) {
 $page_title = '发布新帖 - ' . SITE_NAME;
 qf_include_header();
 ?>
+<nav class="phpdo-thread-breadcrumb" aria-label="面包屑导航">
+    <div class="phpdo-crumb-trail">
+        <a href="<?php echo h(qf_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i><span>首页</span></a>
+        <span class="phpdo-crumb-sep">›</span>
+        <span class="phpdo-crumb-current">发布新帖</span>
+    </div>
+</nav>
 <section class="phpdo-post-page">
-    <header class="phpdo-post-page-head">
-        <div>
-            <h1>发布新帖</h1>
-            <p class="muted">撰写 Markdown 内容并发布到选定版块。</p>
-        </div>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('index.php')); ?>">返回首页</a>
-    </header>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
     <form class="phpdo-post-form" method="post" enctype="multipart/form-data">
         <div class="phpdo-post-meta">

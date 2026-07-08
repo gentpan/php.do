@@ -1613,7 +1613,7 @@ body.theme-php.page-post .qf-page-frame main.wrap,
 body.theme-php-dark.page-post .qf-page-frame main.wrap {
     width: 100%;
     max-width: none;
-    padding-top: 18px;
+    padding-top: 14px;
     padding-left: 20px;
     padding-right: 20px;
 }
@@ -1625,21 +1625,6 @@ body.page-post .phpdo-post-page {
     background: transparent;
     border: 0;
     box-shadow: none;
-}
-body.page-post .phpdo-post-page-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin: 0 0 18px;
-}
-body.page-post .phpdo-post-page-head h1 {
-    margin: 0 0 6px;
-    font-size: 26px;
-    line-height: 1.25;
-}
-body.page-post .phpdo-post-page-head .muted {
-    margin: 0;
 }
 body.page-post .phpdo-post-form {
     width: 100%;
@@ -1687,9 +1672,6 @@ body.page-post .md-preview-box {
 @media (max-width: 900px) {
     body.page-post .phpdo-post-meta {
         grid-template-columns: 1fr;
-    }
-    body.page-post .phpdo-post-page-head {
-        flex-direction: column;
     }
     body.page-post .md-preview-box {
         width: min(920px, calc(100vw - 40px));
