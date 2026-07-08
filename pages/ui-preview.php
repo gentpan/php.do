@@ -5,7 +5,7 @@ require_once __DIR__ . '/../functions.php';
 $login_action = h(pd_url_page('api/auth.php', array('action' => 'login')));
 $register_action = h(pd_url_page('api/auth.php', array('action' => 'register')));
 ?><!doctype html>
-<html lang="zh-CN" data-theme="phpdo">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,14 +14,11 @@ $register_action = h(pd_url_page('api/auth.php', array('action' => 'register')))
     <link rel="stylesheet" href="assets/fonts/fira.css">
     <!-- daisyUI 组件（纯 CSS） -->
     <link rel="stylesheet" href="https://static.bluecdn.com/npm/daisyui@5/daisyui.css">
-    <!-- Tailwind v4 浏览器运行时（JIT 生成工具类） -->
+    <!-- Tailwind v4 浏览器运行时（仅生成工具类；浏览器版不支持 @plugin/config） -->
     <script src="https://static.bluecdn.com/npm/@tailwindcss/browser@4/dist/index.global.js"></script>
-    <style type="text/tailwindcss">
-        @import "tailwindcss";
-        /* 自定义 daisyUI 主题，对齐现有站点配色 */
-        @plugin "daisyui/theme" {
-            name: "phpdo";
-            default: true;
+    <style>
+        /* 覆盖 daisyUI light 主题配色，对齐现有站点（普通 CSS，非 @plugin） */
+        [data-theme="light"] {
             --color-base-100: #ffffff;
             --color-base-200: #f7f7f8;
             --color-base-300: #eceff3;
@@ -29,12 +26,12 @@ $register_action = h(pd_url_page('api/auth.php', array('action' => 'register')))
             --color-primary: #505b93;
             --color-primary-content: #ffffff;
             --color-secondary: #ff674f;
+            --color-secondary-content: #ffffff;
             --color-accent: #f5a623;
+            --color-accent-content: #ffffff;
             --radius-box: 0.5rem;
             --radius-field: 0.5rem;
         }
-    </style>
-    <style>
         body { font-family: "Fira Sans", -apple-system, "PingFang SC", sans-serif; }
         .phpdo-banner { background: linear-gradient(120deg, #5a6aa8 0%, #505b93 58%, #3f4874 100%); }
     </style>
