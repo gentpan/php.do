@@ -6,6 +6,7 @@ use App\Filament\Concerns\InteractsWithSettingsForm;
 use App\Models\Setting;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -45,7 +46,8 @@ class ManageSiteSettings extends Page
             'upload_max_mb', 'upload_allowed_exts', 'guest_download_enabled',
             'home_threads_per_page', 'forum_threads_per_page', 'thread_page_chars', 'reply_max_chars',
             'signin_base_coins', 'signin_streak_bonus',
-            'register_ip_daily_limit', 'captcha_enabled', 'captcha_reply_free_count',
+            'register_ip_daily_limit', 'captcha_enabled', 'captcha_reply_free_count', 'require_invite',
+            'mail_method', 'mail_from_email', 'mail_from_name', 'smtp_host', 'smtp_port', 'smtp_secure', 'smtp_username', 'smtp_password', 'resend_api_key',
             's3_enabled', 's3_endpoint', 's3_region', 's3_bucket', 's3_access_key', 's3_secret_key', 's3_cdn_domain', 's3_path_prefix',
             'friend_links_enabled', 'friend_links', 'rewrite_enabled', 'rewrite_nginx_rules',
             'points_thread', 'points_reply', 'points_floor_reply', 'points_good_bonus', 'download_points_cost',
@@ -57,7 +59,7 @@ class ManageSiteSettings extends Page
             $value = Setting::getValue($key, '');
             if (in_array($key, [
                 'guest_download_enabled', 'captcha_enabled', 's3_enabled',
-                'friend_links_enabled', 'rewrite_enabled',
+                'friend_links_enabled', 'rewrite_enabled', 'require_invite',
             ], true)) {
                 $data[$key] = $value === '1';
             } else {
@@ -109,6 +111,27 @@ class ManageSiteSettings extends Page
                         TextInput::make('register_ip_daily_limit')->label('同 IP 日注册上限')->numeric(),
                         Toggle::make('captcha_enabled')->label('开启验证码'),
                         TextInput::make('captcha_reply_free_count')->label('免验证码回复次数')->numeric(),
+                        Toggle::make('require_invite')->label('注册需要邀请码')->helperText('开启后新用户必须填写有效邀请码才能注册（严格控制注册）'),
+                    ]),
+                    Tab::make('邮件')->schema([
+                        Select::make('mail_method')->label('邮件发送方式')->options([
+                            'none' => '关闭（不发信）',
+                            'smtp' => 'SMTP',
+                            'resend' => 'Resend（API）',
+                            'mail' => 'PHP mail()（本机 MTA）',
+                        ])->default('none')->native(false),
+                        TextInput::make('mail_from_email')->label('发件邮箱 From')->helperText('如 no-reply@php.do'),
+                        TextInput::make('mail_from_name')->label('发件人名称')->helperText('留空则用站点名称'),
+                        TextInput::make('resend_api_key')->label('Resend API Key')->password()->helperText('mail_method 选 Resend 时填'),
+                        TextInput::make('smtp_host')->label('SMTP 主机'),
+                        TextInput::make('smtp_port')->label('SMTP 端口')->numeric()->helperText('465=SSL，587=TLS'),
+                        Select::make('smtp_secure')->label('SMTP 加密')->options([
+                            'tls' => 'STARTTLS（587）',
+                            'ssl' => 'SSL/TLS（465）',
+                            'none' => '无',
+                        ])->default('tls')->native(false),
+                        TextInput::make('smtp_username')->label('SMTP 用户名'),
+                        TextInput::make('smtp_password')->label('SMTP 密码')->password(),
                     ]),
                     Tab::make('对象存储')->schema([
                         Toggle::make('s3_enabled')->label('启用 S3/R2'),
