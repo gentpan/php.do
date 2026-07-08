@@ -407,13 +407,9 @@
                 var label = parts.join(' · ');
                 var flagWrap = el.querySelector('.pd-ip-flag-wrap');
                 var detail = el.querySelector('.pd-ip-detail');
-                var flagUrl = (info.flag || '').trim();
-                var code = (info.country_code || '').toLowerCase();
-                if (!flagUrl && code) {
-                    flagUrl = 'https://flagcdn.io/' + encodeURIComponent(code) + '.svg';
-                }
-                if (flagUrl && flagWrap) {
-                    flagWrap.innerHTML = '<img class="pd-ip-flag" src="' + flagUrl.replace(/"/g, '') + '" alt="" width="16" height="16" loading="lazy" decoding="async">';
+                var code = (info.country_code || '').trim().toLowerCase();
+                if (/^[a-z]{2}$/.test(code) && flagWrap) {
+                    flagWrap.innerHTML = '<span class="pd-ip-flag fi fi-' + code + '" aria-hidden="true"></span>';
                     flagWrap.hidden = false;
                     el.classList.add('has-flag');
                 }

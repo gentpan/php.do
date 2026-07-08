@@ -1233,9 +1233,9 @@ button.action-badge {
     line-height: 0;
 }
 .pd-ip-flag {
-    width: 16px;
+    width: 21px;
     height: 16px;
-    object-fit: cover;
+    line-height: 16px;
     border-radius: 0;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .1);
     flex: 0 0 auto;
