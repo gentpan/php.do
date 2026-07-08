@@ -4630,6 +4630,7 @@ body.theme-php.page-edit-thread main.wrap,
 body.theme-php.page-tags main.wrap,
 body.theme-php.page-user main.wrap,
 body.theme-php.page-profile main.wrap,
+body.theme-php.page-messages main.wrap,
 body.theme-php.page-page main.wrap,
 body.theme-php.page-login main.wrap,
 body.theme-php.page-register main.wrap {
@@ -4648,6 +4649,7 @@ body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-con
 body.theme-php.page-user main.wrap > .card,
 body.theme-php.page-tags main.wrap > .card,
 body.theme-php.page-profile main.wrap > .card,
+body.theme-php.page-messages main.wrap > .card,
 body.theme-php.page-page main.wrap > .card,
 body.theme-php.page-login main.wrap > .card,
 body.theme-php.page-register main.wrap > .card,
@@ -5793,6 +5795,7 @@ body.theme-php.page-edit-thread main.wrap,
 body.theme-php.page-tags main.wrap,
 body.theme-php.page-user main.wrap,
 body.theme-php.page-profile main.wrap,
+body.theme-php.page-messages main.wrap,
 body.theme-php.page-page main.wrap,
 body.theme-php.page-login main.wrap,
 body.theme-php.page-register main.wrap {
@@ -5811,6 +5814,7 @@ body.theme-php.page-thread main.wrap > .card:not(.post-title-card):not(.post-con
 body.theme-php.page-user main.wrap > .card,
 body.theme-php.page-tags main.wrap > .card,
 body.theme-php.page-profile main.wrap > .card,
+body.theme-php.page-messages main.wrap > .card,
 body.theme-php.page-page main.wrap > .card,
 body.theme-php.page-login main.wrap > .card,
 body.theme-php.page-register main.wrap > .card,
@@ -6057,6 +6061,7 @@ body.theme-php-dark.page-thread main.wrap > .card:not(.post-title-card):not(.pos
 body.theme-php-dark.page-user main.wrap > .card,
 body.theme-php-dark.page-tags main.wrap > .card,
 body.theme-php-dark.page-profile main.wrap > .card,
+body.theme-php-dark.page-messages main.wrap > .card,
 body.theme-php-dark.page-page main.wrap > .card,
 body.theme-php-dark.page-login main.wrap > .card,
 body.theme-php-dark.page-register main.wrap > .card,
@@ -8056,4 +8061,466 @@ body.theme-php-dark .phpdo-reaction-count {
 }
 body.theme-php-dark .phpdo-level-progress-track {
     background: rgba(255,255,255,.08);
+}
+
+/* ==========================================================================
+   私信页面
+   ========================================================================== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+body.theme-php .phpdo-messages-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+body.theme-php .phpdo-messages {
+    display: grid;
+    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+    min-height: min(72vh, 680px);
+    background: #fff;
+}
+
+body.theme-php .phpdo-messages-sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-right: 1px solid #e8edf3;
+    background: #fafbfc;
+}
+
+body.theme-php .phpdo-messages-sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid #e8edf3;
+}
+
+body.theme-php .phpdo-messages-sidebar-head h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+body.theme-php .phpdo-messages-unread-total {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    color: #ff7a3d;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255, 122, 61, .12);
+    border-radius: 999px;
+}
+
+body.theme-php .phpdo-messages-thread-list {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 8px;
+}
+
+body.theme-php .phpdo-messages-thread {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: background-color .16s ease;
+}
+
+body.theme-php .phpdo-messages-thread:hover {
+    background: #f0f4f8;
+}
+
+body.theme-php .phpdo-messages-thread.is-active {
+    background: #e8f1ff;
+}
+
+body.theme-php .phpdo-messages-thread.is-unread .phpdo-messages-thread-preview,
+body.theme-php .phpdo-messages-thread.is-unread .phpdo-messages-thread-top strong {
+    font-weight: 700;
+    color: #111827;
+}
+
+body.theme-php .phpdo-messages-thread-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    object-fit: cover;
+}
+
+body.theme-php .phpdo-messages-thread-main {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+body.theme-php .phpdo-messages-thread-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+body.theme-php .phpdo-messages-thread-top strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+body.theme-php .phpdo-messages-thread-top time {
+    flex-shrink: 0;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+body.theme-php .phpdo-messages-thread-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #64748b;
+    font-size: 13px;
+}
+
+body.theme-php .phpdo-messages-thread-badge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    display: inline-grid;
+    place-items: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    background: #ff7a3d;
+    border-radius: 999px;
+}
+
+body.theme-php .phpdo-messages-empty-list,
+body.theme-php .phpdo-messages-placeholder,
+body.theme-php .phpdo-messages-empty-chat {
+    display: grid;
+    place-items: center;
+    gap: 8px;
+    padding: 36px 20px;
+    color: #94a3b8;
+    text-align: center;
+}
+
+body.theme-php .phpdo-messages-main {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    min-height: 0;
+    min-width: 0;
+}
+
+body.theme-php .phpdo-messages-main-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #e8edf3;
+    background: #fff;
+}
+
+body.theme-php .phpdo-messages-back {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 999px;
+    background: #f1f5f9;
+}
+
+body.theme-php .phpdo-messages-peer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    object-fit: cover;
+}
+
+body.theme-php .phpdo-messages-peer-meta {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+body.theme-php .phpdo-messages-peer-meta strong {
+    font-size: 16px;
+}
+
+body.theme-php .phpdo-messages-peer-meta a {
+    color: #64748b;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+body.theme-php .phpdo-messages-peer-meta a:hover {
+    color: var(--phpdo-accent);
+}
+
+body.theme-php .phpdo-messages-hide-form {
+    margin: 0;
+}
+
+body.theme-php .phpdo-messages-hide-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    color: #94a3b8;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+body.theme-php .phpdo-messages-hide-btn:hover {
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+body.theme-php .phpdo-messages-stream {
+    min-height: 0;
+    overflow: auto;
+    padding: 18px;
+    background:
+        radial-gradient(circle at top, rgba(80, 91, 147, .05), transparent 42%),
+        #f8fafc;
+}
+
+body.theme-php .phpdo-msg-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 78%;
+    margin-bottom: 14px;
+}
+
+body.theme-php .phpdo-msg-row.is-mine {
+    margin-left: auto;
+    justify-content: flex-end;
+}
+
+body.theme-php .phpdo-msg-row.is-peer {
+    margin-right: auto;
+}
+
+body.theme-php .phpdo-msg-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+body.theme-php .phpdo-msg-bubble {
+    max-width: 100%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
+}
+
+body.theme-php .phpdo-msg-row.is-peer .phpdo-msg-bubble {
+    background: #fff;
+    border: 1px solid #e8edf3;
+    border-bottom-left-radius: 6px;
+}
+
+body.theme-php .phpdo-msg-row.is-mine .phpdo-msg-bubble {
+    color: #fff;
+    background: var(--phpdo-accent);
+    border-bottom-right-radius: 6px;
+}
+
+body.theme-php .phpdo-msg-bubble p {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.55;
+}
+
+body.theme-php .phpdo-msg-bubble time {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    opacity: .78;
+}
+
+body.theme-php .phpdo-messages-alert {
+    margin: 0 18px;
+}
+
+body.theme-php .phpdo-messages-compose {
+    display: grid;
+    gap: 10px;
+    padding: 14px 18px 18px;
+    border-top: 1px solid #e8edf3;
+    background: #fff;
+}
+
+body.theme-php .phpdo-messages-compose textarea {
+    width: 100%;
+    min-height: 88px;
+    margin: 0;
+    padding: 12px 14px;
+    resize: vertical;
+    border: 1px solid #dbe3ec;
+    border-radius: 12px;
+    background: #fff;
+    font: inherit;
+    line-height: 1.5;
+}
+
+body.theme-php .phpdo-messages-compose textarea:focus {
+    outline: none;
+    border-color: var(--phpdo-accent);
+    box-shadow: 0 0 0 3px rgba(80, 91, 147, .14);
+}
+
+body.theme-php .phpdo-messages-compose-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+body.theme-php .phpdo-messages-compose-hint {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+body.theme-php .phpdo-messages-placeholder {
+    grid-row: 1 / -1;
+    min-height: 420px;
+}
+
+body.theme-php .phpdo-messages-placeholder-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    color: #94a3b8;
+    background: #f1f5f9;
+    border-radius: 999px;
+}
+
+body.theme-php .phpdo-messages-placeholder-icon svg {
+    width: 30px;
+    height: 30px;
+}
+
+body.theme-php .phpdo-messages-placeholder h2 {
+    margin: 0;
+    color: #334155;
+    font-size: 18px;
+}
+
+body.theme-php .phpdo-messages-placeholder p {
+    margin: 0;
+}
+
+body.theme-php .phpdo-user-actions {
+    margin-top: 14px;
+}
+
+body.theme-php .phpdo-user-pm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 900px) {
+    body.theme-php .phpdo-messages {
+        grid-template-columns: 1fr;
+        min-height: calc(100vh - 180px);
+    }
+
+    body.theme-php .phpdo-messages[data-pm-open="1"] .phpdo-messages-sidebar {
+        display: none;
+    }
+
+    body.theme-php .phpdo-messages:not([data-pm-open="1"]) .phpdo-messages-main {
+        display: none;
+    }
+
+    body.theme-php .phpdo-messages-back {
+        display: inline-flex;
+    }
+}
+
+body.theme-php-dark .phpdo-messages {
+    background: #171a21;
+}
+
+body.theme-php-dark .phpdo-messages-sidebar {
+    background: #12151c;
+    border-color: #2a3140;
+}
+
+body.theme-php-dark .phpdo-messages-sidebar-head,
+body.theme-php-dark .phpdo-messages-main-head,
+body.theme-php-dark .phpdo-messages-compose {
+    background: #171a21;
+    border-color: #2a3140;
+}
+
+body.theme-php-dark .phpdo-messages-thread:hover {
+    background: rgba(255, 255, 255, .04);
+}
+
+body.theme-php-dark .phpdo-messages-thread.is-active {
+    background: rgba(80, 91, 147, .22);
+}
+
+body.theme-php-dark .phpdo-messages-thread-top strong,
+body.theme-php-dark .phpdo-messages-thread.is-unread .phpdo-messages-thread-top strong {
+    color: #f3f4f6;
+}
+
+body.theme-php-dark .phpdo-messages-stream {
+    background: #11141b;
+}
+
+body.theme-php-dark .phpdo-msg-row.is-peer .phpdo-msg-bubble {
+    background: #1f2430;
+    border-color: #343b49;
+    color: #e5e7eb;
+}
+
+body.theme-php-dark .phpdo-messages-compose textarea {
+    background: #12151c;
+    border-color: #343b49;
+    color: #e5e7eb;
+}
+
+body.theme-php-dark .phpdo-messages-back {
+    background: #1f2430;
+    color: #d1d5db;
+}
+
+body.theme-php-dark .phpdo-messages-placeholder-icon {
+    background: #1f2430;
 }

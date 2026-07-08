@@ -24,17 +24,21 @@ $footer_social_links = array(
     array('title' => 'Issues', 'url' => 'https://github.com/gentpan/php.do/issues', 'icon' => 'fa-regular fa-circle-question'),
 );
 $footer_user = current_user();
-$footer_unread_notifications = $footer_user ? qf_unread_notifications_count(intval($footer_user['id'])) : 0;
+qf_ensure_pm_schema();
+if (!isset($current_script)) {
+    $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
+}
+$footer_unread_pm = $footer_user ? qf_pm_unread_count(intval($footer_user['id'])) : 0;
 $footer_login_url = qf_url_page('login.php');
 $footer_home_url = qf_url_page('index.php');
 $footer_user_url = $footer_user ? qf_url_user(intval($footer_user['id'])) : $footer_login_url;
-$footer_messages_url = $footer_user ? qf_url_page('notifications.php') : $footer_login_url;
+$footer_messages_url = $footer_user ? qf_url_messages() : $footer_login_url;
 $footer_profile_url = $footer_user ? qf_url_page('profile.php') : $footer_login_url;
 $footer_post_url = $footer_user ? qf_url_page('post.php') : $footer_login_url;
 $footer_user_page_id = ($current_script === 'user.php') ? (function_exists('qf_path_id') ? qf_path_id() : intval(isset($_GET['id']) ? $_GET['id'] : 0)) : 0;
 $footer_rail_home_active = ($current_script === 'index.php');
 $footer_rail_user_active = ($footer_user && $current_script === 'user.php' && $footer_user_page_id === intval($footer_user['id']));
-$footer_rail_messages_active = ($current_script === 'notifications.php');
+$footer_rail_messages_active = ($current_script === 'messages.php');
 $footer_rail_profile_active = ($current_script === 'profile.php');
 $footer_icp = trim(qf_setting('icp_code', ''));
 $online = qf_online_counts();
@@ -136,8 +140,8 @@ $online_members = qf_online_members(12);
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
-        <?php if ($footer_unread_notifications > 0) { ?>
-            <span class="cir-rail__badge"><?php echo $footer_unread_notifications > 99 ? '99+' : intval($footer_unread_notifications); ?></span>
+        <?php if ($footer_unread_pm > 0) { ?>
+            <span class="cir-rail__badge"><?php echo $footer_unread_pm > 99 ? '99+' : intval($footer_unread_pm); ?></span>
         <?php } ?>
     </a>
     <a href="<?php echo h($footer_post_url); ?>" class="cir-rail__b" aria-label="发帖" data-tooltip="发帖">

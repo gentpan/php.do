@@ -317,6 +317,40 @@ if ($ok) {
     $ok = mysqli_query(db(), $notifications_sql);
 }
 
+$pm_threads_sql = "CREATE TABLE IF NOT EXISTS qf_pm_threads (
+  id int(11) unsigned NOT NULL AUTO_INCREMENT,
+  user1_id int(11) unsigned NOT NULL,
+  user2_id int(11) unsigned NOT NULL,
+  last_message_id int(11) unsigned NOT NULL DEFAULT '0',
+  updated_at datetime NOT NULL,
+  user1_hidden tinyint(1) NOT NULL DEFAULT '0',
+  user2_hidden tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_users (user1_id, user2_id),
+  KEY idx_user1_updated (user1_id, updated_at),
+  KEY idx_user2_updated (user2_id, updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+$pm_messages_sql = "CREATE TABLE IF NOT EXISTS qf_pm_messages (
+  id int(11) unsigned NOT NULL AUTO_INCREMENT,
+  thread_id int(11) unsigned NOT NULL,
+  sender_id int(11) unsigned NOT NULL,
+  recipient_id int(11) unsigned NOT NULL,
+  body text NOT NULL,
+  is_read tinyint(1) NOT NULL DEFAULT '0',
+  created_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_thread_id (thread_id, id),
+  KEY idx_recipient_unread (recipient_id, is_read)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+if ($ok) {
+    $ok = mysqli_query(db(), $pm_threads_sql);
+}
+if ($ok) {
+    $ok = mysqli_query(db(), $pm_messages_sql);
+}
+
 if ($ok) {
     $settings = array(
         'site_title' => SITE_NAME,

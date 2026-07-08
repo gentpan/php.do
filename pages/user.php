@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 qf_ensure_points_schema();
+qf_ensure_pm_schema();
+$me = current_user();
 $id = qf_path_id();
 $rs = mysqli_query(db(), "SELECT id,username,nickname,avatar,email,signature,coins,reply_count,points,group_id,created_at FROM qf_users WHERE id={$id} AND status=1 LIMIT 1");
 $user = $rs ? mysqli_fetch_assoc($rs) : null;
@@ -39,6 +41,11 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id, t.is_good, 
             <div class="phpdo-level-progress-track"><span style="width:<?php echo intval($progress['percent']); ?>%"></span></div>
         </div>
         <?php if (trim((string)$user['signature']) !== '') { ?><p><?php echo h($user['signature']); ?></p><?php } ?>
+        <?php if ($me && intval($me['id']) !== intval($user['id'])) { ?>
+            <div class="phpdo-user-actions">
+                <a class="btn btn-solid phpdo-user-pm-btn" href="<?php echo h(qf_url_messages(0, intval($user['id']))); ?>"><i class="fa-regular fa-envelope" aria-hidden="true"></i> 发私信</a>
+            </div>
+        <?php } ?>
     </div>
 </section>
 

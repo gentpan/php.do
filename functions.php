@@ -911,6 +911,7 @@ function qf_route_script($script, &$params = array()) {
         'forum.php' => 'pages/forum.php',
         'move_thread.php' => 'pages/move-thread.php',
         'notifications.php' => 'pages/notifications.php',
+        'messages.php' => 'pages/messages.php',
         'page.php' => 'pages/page.php',
         'post.php' => 'pages/post.php',
         'profile.php' => 'pages/profile.php',
@@ -932,6 +933,7 @@ function qf_clean_route_path($script) {
         'pages/forum.php' => 'forum.php',
         'pages/move-thread.php' => 'move-thread.php',
         'pages/notifications.php' => 'notifications.php',
+        'pages/messages.php' => 'messages.php',
         'pages/login.php' => 'login.php',
         'pages/post.php' => 'post.php',
         'pages/profile.php' => 'settings.php',
@@ -954,6 +956,7 @@ function qf_clean_route_path($script) {
         'api/reply.php' => 'api/reply',
         'api/signin.php' => 'api/signin',
         'api/react.php' => 'api/react',
+        'api/messages.php' => 'api/messages',
         'api/geoip.php' => 'api/geoip',
     );
     return isset($map[$script]) ? $map[$script] : $script;
@@ -2033,6 +2036,254 @@ function qf_notify_user($user_id, $thread_id, $post_id, $message) {
     }
     $message_sql = esc(clean_text($message, 180));
     return mysqli_query(db(), "INSERT INTO qf_notifications (user_id,thread_id,post_id,message,is_read,created_at) VALUES ({$user_id},{$thread_id},{$post_id},'{$message_sql}',0,NOW())");
+}
+
+function qf_ensure_pm_schema() {
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_pm_threads (
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+        user1_id INT UNSIGNED NOT NULL,
+        user2_id INT UNSIGNED NOT NULL,
+        last_message_id INT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NOT NULL,
+        user1_hidden TINYINT(1) NOT NULL DEFAULT 0,
+        user2_hidden TINYINT(1) NOT NULL DEFAULT 0,
+        PRIMARY KEY (id),
+        UNIQUE KEY uk_users (user1_id, user2_id),
+        KEY idx_user1_updated (user1_id, updated_at),
+        KEY idx_user2_updated (user2_id, updated_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_pm_messages (
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+        thread_id INT UNSIGNED NOT NULL,
+        sender_id INT UNSIGNED NOT NULL,
+        recipient_id INT UNSIGNED NOT NULL,
+        body TEXT NOT NULL,
+        is_read TINYINT(1) NOT NULL DEFAULT 0,
+        created_at DATETIME NOT NULL,
+        PRIMARY KEY (id),
+        KEY idx_thread_id (thread_id, id),
+        KEY idx_recipient_unread (recipient_id, is_read)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function qf_pm_ready() {
+    static $ready = null;
+    if ($ready !== null) {
+        return $ready;
+    }
+    qf_ensure_pm_schema();
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_pm_threads'");
+    $ready = $table && mysqli_num_rows($table) > 0;
+    return $ready;
+}
+
+function qf_pm_pair_ids($user_a, $user_b) {
+    $user_a = intval($user_a);
+    $user_b = intval($user_b);
+    return $user_a < $user_b ? array($user_a, $user_b) : array($user_b, $user_a);
+}
+
+function qf_pm_unread_count($user_id) {
+    if (!$user_id || !qf_pm_ready()) {
+        return 0;
+    }
+    $user_id = intval($user_id);
+    return count_rows("SELECT COUNT(*) FROM qf_pm_messages WHERE recipient_id={$user_id} AND is_read=0");
+}
+
+function qf_pm_user_brief($user_id) {
+    $user_id = intval($user_id);
+    if ($user_id < 1) {
+        return null;
+    }
+    $rs = mysqli_query(db(), "SELECT id,username,nickname,avatar FROM qf_users WHERE id={$user_id} AND status=1 LIMIT 1");
+    return $rs ? mysqli_fetch_assoc($rs) : null;
+}
+
+function qf_pm_get_thread_row($thread_id) {
+    $thread_id = intval($thread_id);
+    if ($thread_id < 1 || !qf_pm_ready()) {
+        return null;
+    }
+    $rs = mysqli_query(db(), "SELECT * FROM qf_pm_threads WHERE id={$thread_id} LIMIT 1");
+    return $rs ? mysqli_fetch_assoc($rs) : null;
+}
+
+function qf_pm_thread_peer_id($thread, $user_id) {
+    $user_id = intval($user_id);
+    if (!$thread) {
+        return 0;
+    }
+    if (intval($thread['user1_id']) === $user_id) {
+        return intval($thread['user2_id']);
+    }
+    if (intval($thread['user2_id']) === $user_id) {
+        return intval($thread['user1_id']);
+    }
+    return 0;
+}
+
+function qf_pm_user_in_thread($thread, $user_id) {
+    return qf_pm_thread_peer_id($thread, $user_id) > 0;
+}
+
+function qf_pm_unhide_thread($thread_id, $user_id) {
+    $thread = qf_pm_get_thread_row($thread_id);
+    $user_id = intval($user_id);
+    if (!$thread || !qf_pm_user_in_thread($thread, $user_id)) {
+        return false;
+    }
+    if (intval($thread['user1_id']) === $user_id) {
+        return mysqli_query(db(), "UPDATE qf_pm_threads SET user1_hidden=0 WHERE id=" . intval($thread_id));
+    }
+    return mysqli_query(db(), "UPDATE qf_pm_threads SET user2_hidden=0 WHERE id=" . intval($thread_id));
+}
+
+function qf_pm_get_or_create_thread($user_a, $user_b) {
+    if (!qf_pm_ready()) {
+        return 0;
+    }
+    $user_a = intval($user_a);
+    $user_b = intval($user_b);
+    if ($user_a < 1 || $user_b < 1 || $user_a === $user_b) {
+        return 0;
+    }
+    list($low, $high) = qf_pm_pair_ids($user_a, $user_b);
+    $rs = mysqli_query(db(), "SELECT id FROM qf_pm_threads WHERE user1_id={$low} AND user2_id={$high} LIMIT 1");
+    $row = $rs ? mysqli_fetch_assoc($rs) : null;
+    if ($row) {
+        return intval($row['id']);
+    }
+    if (!qf_pm_user_brief($low) || !qf_pm_user_brief($high)) {
+        return 0;
+    }
+    mysqli_query(db(), "INSERT INTO qf_pm_threads (user1_id,user2_id,last_message_id,updated_at,user1_hidden,user2_hidden) VALUES ({$low},{$high},0,NOW(),0,0)");
+    return intval(mysqli_insert_id(db()));
+}
+
+function qf_pm_send_message($sender_id, $recipient_id, $body, $thread_id = 0) {
+    if (!qf_pm_ready()) {
+        return array('ok' => false, 'error' => '私信功能未就绪。');
+    }
+    $sender_id = intval($sender_id);
+    $recipient_id = intval($recipient_id);
+    $body = clean_text($body, 2000);
+    if ($sender_id < 1 || $recipient_id < 1 || $sender_id === $recipient_id) {
+        return array('ok' => false, 'error' => '无效的收件人。');
+    }
+    if ($body === '') {
+        return array('ok' => false, 'error' => '消息不能为空。');
+    }
+    if (!qf_pm_user_brief($recipient_id)) {
+        return array('ok' => false, 'error' => '用户不存在。');
+    }
+    if ($thread_id < 1) {
+        $thread_id = qf_pm_get_or_create_thread($sender_id, $recipient_id);
+    }
+    $thread = qf_pm_get_thread_row($thread_id);
+    if (!$thread || !qf_pm_user_in_thread($thread, $sender_id) || qf_pm_thread_peer_id($thread, $sender_id) !== $recipient_id) {
+        return array('ok' => false, 'error' => '会话不存在。');
+    }
+    qf_pm_unhide_thread($thread_id, $sender_id);
+    qf_pm_unhide_thread($thread_id, $recipient_id);
+    $body_sql = esc($body);
+    $thread_id = intval($thread_id);
+    $ok = mysqli_query(db(), "INSERT INTO qf_pm_messages (thread_id,sender_id,recipient_id,body,is_read,created_at) VALUES ({$thread_id},{$sender_id},{$recipient_id},'{$body_sql}',0,NOW())");
+    if (!$ok) {
+        return array('ok' => false, 'error' => '发送失败，请稍后重试。');
+    }
+    $message_id = intval(mysqli_insert_id(db()));
+    mysqli_query(db(), "UPDATE qf_pm_threads SET last_message_id={$message_id}, updated_at=NOW() WHERE id={$thread_id}");
+    return array('ok' => true, 'thread_id' => $thread_id, 'message_id' => $message_id);
+}
+
+function qf_pm_mark_thread_read($thread_id, $user_id) {
+    $thread_id = intval($thread_id);
+    $user_id = intval($user_id);
+    if ($thread_id < 1 || $user_id < 1 || !qf_pm_ready()) {
+        return;
+    }
+    mysqli_query(db(), "UPDATE qf_pm_messages SET is_read=1 WHERE thread_id={$thread_id} AND recipient_id={$user_id} AND is_read=0");
+}
+
+function qf_pm_hide_thread($thread_id, $user_id) {
+    $thread = qf_pm_get_thread_row($thread_id);
+    $user_id = intval($user_id);
+    if (!$thread || !qf_pm_user_in_thread($thread, $user_id)) {
+        return false;
+    }
+    if (intval($thread['user1_id']) === $user_id) {
+        return mysqli_query(db(), "UPDATE qf_pm_threads SET user1_hidden=1 WHERE id=" . intval($thread_id));
+    }
+    return mysqli_query(db(), "UPDATE qf_pm_threads SET user2_hidden=1 WHERE id=" . intval($thread_id));
+}
+
+function qf_pm_fetch_threads($user_id, $limit = 40) {
+    if (!qf_pm_ready()) {
+        return array();
+    }
+    $user_id = intval($user_id);
+    $limit = max(1, min(100, intval($limit)));
+    $sql = "SELECT t.*,
+        m.body AS last_body,
+        m.sender_id AS last_sender_id,
+        m.created_at AS last_at,
+        (SELECT COUNT(*) FROM qf_pm_messages um WHERE um.thread_id=t.id AND um.recipient_id={$user_id} AND um.is_read=0) AS unread_count
+        FROM qf_pm_threads t
+        LEFT JOIN qf_pm_messages m ON m.id=t.last_message_id
+        WHERE (t.user1_id={$user_id} AND t.user1_hidden=0) OR (t.user2_id={$user_id} AND t.user2_hidden=0)
+        ORDER BY t.updated_at DESC
+        LIMIT {$limit}";
+    $rs = mysqli_query(db(), $sql);
+    $rows = array();
+    while ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+function qf_pm_fetch_messages($thread_id, $user_id, $limit = 80) {
+    $thread = qf_pm_get_thread_row($thread_id);
+    if (!$thread || !qf_pm_user_in_thread($thread, $user_id)) {
+        return array();
+    }
+    $thread_id = intval($thread_id);
+    $limit = max(1, min(200, intval($limit)));
+    $rs = mysqli_query(db(), "SELECT * FROM qf_pm_messages WHERE thread_id={$thread_id} ORDER BY id DESC LIMIT {$limit}");
+    $rows = array();
+    while ($rs && ($row = mysqli_fetch_assoc($rs))) {
+        $rows[] = $row;
+    }
+    return array_reverse($rows);
+}
+
+function qf_url_messages($thread_id = 0, $to_user_id = 0) {
+    $params = array();
+    if ($thread_id > 0) {
+        $params['thread'] = intval($thread_id);
+    } elseif ($to_user_id > 0) {
+        $params['to'] = intval($to_user_id);
+    }
+    return qf_url_page('messages.php', $params);
+}
+
+function qf_pm_excerpt($text, $max = 42) {
+    $text = trim(preg_replace('/\s+/u', ' ', strip_tags((string)$text)));
+    if ($text === '') {
+        return '';
+    }
+    if (function_exists('mb_strlen') && mb_strlen($text, 'UTF-8') > $max) {
+        return mb_substr($text, 0, $max, 'UTF-8') . '…';
+    }
+    if (strlen($text) > $max * 2) {
+        return substr($text, 0, $max) . '…';
+    }
+    return $text;
 }
 
 function qf_floor_name($floor) {
@@ -3487,6 +3738,7 @@ function qf_ensure_timezone_schema() {
     qf_ensure_account_auth_schema();
     qf_ensure_points_schema();
     qf_ensure_online_schema();
+    qf_ensure_pm_schema();
     qf_migrate_storage_to_utc();
 }
 

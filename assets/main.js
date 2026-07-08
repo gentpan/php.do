@@ -1248,6 +1248,88 @@
         setState();
     }
 
+    function initPrivateMessages() {
+        var root = document.querySelector('[data-pm-root]');
+        if (!root) return;
+        var stream = root.querySelector('[data-pm-stream]');
+        var form = root.querySelector('[data-pm-form]');
+        var input = form ? form.querySelector('[data-pm-input]') : null;
+        var apiUrl = form ? (form.getAttribute('data-pm-api') || '') : '';
+        var uid = parseInt(window.qfCurrentUserId || '0', 10) || 0;
+
+        function scrollStreamToBottom() {
+            if (!stream) return;
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function appendMessage(msg) {
+            if (!stream || !msg) return;
+            var empty = stream.querySelector('.phpdo-messages-empty-chat');
+            if (empty) empty.remove();
+            var row = document.createElement('article');
+            row.className = 'phpdo-msg-row is-mine';
+            row.setAttribute('data-message-id', String(msg.id || ''));
+            var bubble = document.createElement('div');
+            bubble.className = 'phpdo-msg-bubble';
+            var body = document.createElement('p');
+            body.textContent = msg.body || '';
+            var time = document.createElement('time');
+            if (msg.time_html) {
+                time.innerHTML = msg.time_html;
+            } else {
+                time.textContent = '刚刚';
+            }
+            bubble.appendChild(body);
+            bubble.appendChild(time);
+            row.appendChild(bubble);
+            stream.appendChild(row);
+            scrollStreamToBottom();
+        }
+
+        scrollStreamToBottom();
+
+        if (input) {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (form) form.requestSubmit();
+                }
+            });
+        }
+
+        if (!form || !apiUrl) return;
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var body = input ? String(input.value || '').trim() : '';
+            if (!body) return;
+            var data = new FormData(form);
+            data.set('body', body);
+            if (!data.get('csrf_token')) data.append('csrf_token', window.qfCsrfToken || '');
+            var submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+            fetch(apiUrl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: data
+            }).then(function(res) {
+                return res.json().then(function(json) {
+                    if (!res.ok || !json.ok) throw new Error(json.error || '发送失败。');
+                    return json;
+                });
+            }).then(function(json) {
+                if (input) input.value = '';
+                if (json.message) appendMessage(json.message);
+            }).catch(function(err) {
+                toast(err.message || '发送失败。', 'error');
+            }).finally(function() {
+                if (submitBtn) submitBtn.disabled = false;
+                if (input) input.focus();
+            });
+        });
+    }
+
     function initRssCopy() {
         function fallbackCopy(text) {
             var ta = document.createElement('textarea');
@@ -1358,6 +1440,7 @@
     initThreadAdminAjax();
     initIpGeo();
     initRightToolbar();
+    initPrivateMessages();
     initFormLoading();
     initHomeBarLoading();
     initToast();

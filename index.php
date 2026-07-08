@@ -76,6 +76,7 @@ $front_routes = array(
     'login' => 'login.php',
     'move-thread' => 'move-thread.php',
     'notifications' => 'notifications.php',
+    'messages' => 'messages.php',
     'post' => 'post.php',
     'profile' => 'profile.php',
     'settings' => 'profile.php',
