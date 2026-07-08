@@ -987,6 +987,30 @@ function pd_forum_slug_map() {
     );
 }
 
+// 版块 → FontAwesome 图标类名映射（按 slug 匹配，未知版块用兜底图标）
+function pd_forum_icon_map() {
+    return array(
+        'announcements' => 'fa-bullhorn',
+        'qa'            => 'fa-circle-question',
+        'frameworks'    => 'fa-cubes',
+        'release'       => 'fa-rocket',
+        'database'      => 'fa-database',
+        'ops'           => 'fa-server',
+        'security'      => 'fa-shield-halved',
+        'chat'          => 'fa-comments',
+    );
+}
+
+// 返回版块图标完整类名，如 "fa-solid fa-database"。$forum 可为版块数组或版块名。
+function pd_forum_icon($forum) {
+    $name = is_array($forum) ? (isset($forum['name']) ? (string)$forum['name'] : '') : (string)$forum;
+    $slug_map = pd_forum_slug_map();
+    $slug = isset($slug_map[$name]) ? $slug_map[$name] : '';
+    $icons = pd_forum_icon_map();
+    $icon = ($slug !== '' && isset($icons[$slug])) ? $icons[$slug] : 'fa-hashtag';
+    return 'fa-solid ' . $icon;
+}
+
 function pd_forum_slug_by_id($id) {
     static $cache = array();
     $id = intval($id);

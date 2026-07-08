@@ -142,7 +142,7 @@ if (strpos($pd_page_banner, '{r}') !== false) {
             <ul class="pd-menu items-center" :class="open ? 'flex' : 'hidden sm:flex'">
                 <li><a class="pd-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house"></i><span>首页</span></a></li>
                 <?php foreach ($header_forums as $forum) { ?>
-                    <li><a class="pd-menu-link<?php echo ($pd_current_forum && intval($pd_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(pd_url_forum($forum['id'])); ?>"><span><?php echo h($forum['name']); ?></span></a></li>
+                    <li><a class="pd-menu-link<?php echo ($pd_current_forum && intval($pd_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(pd_url_forum($forum['id'])); ?>"><i class="<?php echo h(pd_forum_icon($forum)); ?>" aria-hidden="true"></i><span><?php echo h($forum['name']); ?></span></a></li>
                 <?php } ?>
             </ul>
             <div class="pd-navbar-tools">
