@@ -6,7 +6,6 @@ if (pd_friend_links_enabled()) {
     $footer_friend_links = pd_friend_links();
 }
 $footer_pages = array(
-    array('title' => '首页', 'url' => pd_url_page('index.php')),
     array('title' => '关于', 'url' => pd_url_page('about.php')),
     array('title' => '帮助', 'url' => pd_url_page('page.php', array('slug' => 'help'))),
     array('title' => '规则', 'url' => pd_url_page('page.php', array('slug' => 'rules'))),
@@ -49,48 +48,23 @@ $online = pd_online_counts();
 ?>
 <footer class="site-footer">
     <div class="site-footer-inner">
-        <div class="site-footer-top">
-            <div class="site-footer-brand">
-                <a class="site-footer-logo" href="<?php echo h(pd_url_page('index.php')); ?>" aria-label="<?php echo h(pd_site_name()); ?>">
-                    <img src="assets/logo-white.svg" alt="<?php echo h(pd_site_name()); ?>" draggable="false" oncontextmenu="return false;">
-                </a>
-                <p class="site-footer-desc"><?php echo h(pd_site_desc()); ?></p>
-            </div>
-            <div class="site-footer-social">
-                <?php foreach ($footer_social_links as $link) { ?>
-                    <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener" title="<?php echo h($link['title']); ?>" aria-label="<?php echo h($link['title']); ?>">
-                        <i class="<?php echo h($link['icon']); ?>" aria-hidden="true"></i>
-                    </a>
-                <?php } ?>
-            </div>
-        </div>
-        <nav class="site-footer-links" aria-label="站点链接">
-            <?php foreach ($footer_pages as $link) { ?>
-                <a href="<?php echo h($link['url']); ?>"><?php echo h($link['title']); ?></a>
-            <?php } ?>
-        </nav>
-        <?php if (!empty($footer_friend_links)) { ?>
-            <nav class="site-footer-links site-footer-friends" aria-label="友情链接">
-                <span class="site-footer-friends-label">友情链接</span>
-                <?php foreach ($footer_friend_links as $link) { ?>
-                    <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener"><?php echo h($link['name']); ?></a>
-                <?php } ?>
-            </nav>
-        <?php } ?>
-        <div class="site-footer-bottom">
-            <div class="site-footer-meta">
-                <span class="pd-stat-chip pd-stat-chip--time" title="页面生成耗时">
-                    <span class="pd-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span>
-                    <span class="pd-stat-chip__body">
-                        <span class="pd-stat-chip__k">耗时</span>
-                        <span class="pd-stat-chip__v"><?php echo number_format(pd_perf_seconds(), 3); ?>s</span>
-                    </span>
-                </span>
+        <div class="site-footer-row site-footer-row1">
+            <a class="site-footer-logo" href="<?php echo h(pd_url_page('index.php')); ?>" aria-label="<?php echo h(pd_site_name()); ?>">
+                <img src="assets/logo-white.svg" alt="<?php echo h(pd_site_name()); ?>" draggable="false" oncontextmenu="return false;">
+            </a>
+            <div class="site-footer-stats">
                 <span class="pd-stat-chip pd-stat-chip--sql" title="数据库查询次数">
                     <span class="pd-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-database"></i></span>
                     <span class="pd-stat-chip__body">
                         <span class="pd-stat-chip__k">SQL</span>
                         <span class="pd-stat-chip__v"><?php echo intval(pd_perf_sql_count()); ?></span>
+                    </span>
+                </span>
+                <span class="pd-stat-chip pd-stat-chip--time" title="页面生成耗时">
+                    <span class="pd-stat-chip__ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span>
+                    <span class="pd-stat-chip__body">
+                        <span class="pd-stat-chip__k">耗时</span>
+                        <span class="pd-stat-chip__v"><?php echo number_format(pd_perf_seconds(), 3); ?>s</span>
                     </span>
                 </span>
                 <span class="pd-stat-chip pd-stat-chip--online" title="当前在线人数">
@@ -100,10 +74,31 @@ $online = pd_online_counts();
                         <span class="pd-stat-chip__v"><?php echo intval($online['total']); ?></span>
                     </span>
                 </span>
-                <?php if ($footer_icp !== '') { ?><span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?>
             </div>
-            <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(pd_site_name()); ?></span>
+            <div class="site-footer-social">
+                <?php foreach ($footer_social_links as $link) { ?>
+                    <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener" title="<?php echo h($link['title']); ?>" aria-label="<?php echo h($link['title']); ?>">
+                        <i class="<?php echo h($link['icon']); ?>" aria-hidden="true"></i>
+                    </a>
+                <?php } ?>
+            </div>
         </div>
+        <div class="site-footer-row site-footer-row2">
+            <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(pd_site_name()); ?><?php if ($footer_icp !== '') { ?> · <span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?></span>
+            <nav class="site-footer-links" aria-label="站点链接">
+                <?php foreach ($footer_pages as $link) { ?>
+                    <a href="<?php echo h($link['url']); ?>"><?php echo h($link['title']); ?></a>
+                <?php } ?>
+            </nav>
+        </div>
+        <?php if (!empty($footer_friend_links)) { ?>
+        <nav class="site-footer-row site-footer-friends" aria-label="友情链接">
+            <span class="site-footer-friends-label">友情链接</span>
+            <?php foreach ($footer_friend_links as $link) { ?>
+                <a href="<?php echo h($link['url']); ?>" target="_blank" rel="noopener"><?php echo h($link['name']); ?></a>
+            <?php } ?>
+        </nav>
+        <?php } ?>
     </div>
 </footer>
 <div class="pd-search-window" id="pd-search-modal" data-search-close>
