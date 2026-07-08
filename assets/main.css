@@ -3958,6 +3958,10 @@ body.theme-php.page-register main.wrap {
     padding: 24px 20px 56px;
 }
 
+body.theme-php.page-thread main.wrap {
+    padding-top: 14px;
+}
+
 body.theme-php .phpdo-page-head,
 body.theme-php .phpdo-user-head,
 body.theme-php .post-title-card,
@@ -4184,7 +4188,7 @@ body.theme-php .phpdo-thread-main-card .ad-box.ad-thread a {
 }
 
 
-/* 帖子页面包屑：白底胶囊条 */
+/* 帖子页面包屑：与帖子卡片同色边框、同等上下间距 */
 body.theme-php .phpdo-thread-breadcrumb {
     display: flex;
     align-items: center;
@@ -4192,15 +4196,15 @@ body.theme-php .phpdo-thread-breadcrumb {
     flex-wrap: wrap;
     gap: 8px 12px;
     min-width: 0;
-    margin: 0 0 12px;
+    margin: 0 0 14px;
     padding: 8px 14px;
     color: #8a9099;
     font-size: 13px;
     line-height: 1.4;
-    background: #fff;
-    border: 1px solid #eceef2;
-    border-radius: 8px;
-    box-shadow: 0 1px 0 rgba(20, 20, 20, .02);
+    background: var(--phpdo-card-bg);
+    border: var(--phpdo-card-border);
+    border-radius: var(--phpdo-card-radius-lg);
+    box-shadow: var(--phpdo-card-shadow-subtle);
 }
 
 /* 面包屑左侧链接组：可收缩，标题过长时省略号 */
