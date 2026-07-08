@@ -75,6 +75,11 @@ if ($request_path === 'about' || $request_path === 'about.php') {
     require __DIR__ . '/pages/about.php';
     exit;
 }
+if ($request_path === 'ui-preview' || $request_path === 'ui-preview.php') {
+    $_SERVER['SCRIPT_NAME'] = '/ui-preview.php';
+    require __DIR__ . '/pages/ui-preview.php';
+    exit;
+}
 $front_routes = array(
     'edit-thread' => 'edit-thread.php',
     'login' => 'login.php',
