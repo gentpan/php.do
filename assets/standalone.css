@@ -4,12 +4,16 @@
    颜色统一走 --pd-* 令牌，自动适配深浅色主题。
    ============================================================ */
 
-/* ---------- 精简头部：仅 banner + logo，无导航 ---------- */
+/* ---------- 精简头部：仅 banner + logo，无导航 ----------
+   独立页 banner 比首页更高（首页约 200px 窄条），走自己的高度，
+   随视口在 260~460px 间伸缩（宽屏偏 4:3 的竖向观感）。 */
 body.pd-standalone .pd-banner {
-    min-height: 150px;
+    min-height: clamp(260px, 34vw, 460px);
+    align-items: flex-end;
+    padding-bottom: 26px;
 }
 body.pd-standalone .pd-banner-logo img {
-    height: 46px;
+    height: 52px;
 }
 
 /* ---------- 信息页内容列 ---------- */
