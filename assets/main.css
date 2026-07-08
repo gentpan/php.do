@@ -4283,57 +4283,84 @@ body.theme-php .footer-qr span {
     border-radius: 3px;
 }
 
-body.theme-php .phpdo-right-toolbar {
+/* 右侧圆形工具栏（Uiverse cir-rail 风格） */
+body.theme-php .phpdo-right-toolbar.cir-rail {
+    --color-cloud: #ffffff;
+    --color-edge: #e3e8ee;
+    --color-mist: #5b6472;
+    --color-ink: #0e1116;
+    --color-citrus: #ff7a3d;
+
     position: fixed;
     right: 22px;
     bottom: 92px;
     z-index: 80;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-}
-
-/* 独立圆角按钮（不再连体），彼此间距 10px */
-body.theme-php .phpdo-right-toolbar > * {
-    margin-bottom: 10px;
-}
-body.theme-php .phpdo-right-toolbar > *:last-child {
-    margin-bottom: 0;
-}
-
-body.theme-php .phpdo-right-toolbar a,
-body.theme-php .phpdo-right-toolbar button {
-    position: relative;
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: 46px;
-    height: 46px;
+    gap: 6px;
+    padding: 10px;
+    background: var(--color-cloud);
+    border: 1px solid var(--color-edge);
+    border-radius: 999px;
+    box-shadow:
+        0 1px 1px rgba(14, 17, 22, 0.04),
+        0 20px 40px -24px rgba(14, 17, 22, 0.22);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
     padding: 0;
-    font-size: 18px;
-    color: #4b5563;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-mist);
     text-decoration: none;
-    background: #fff !important;
-    border: 1px solid #e5e7eb;
-    border-radius: 5px !important;
-    box-shadow: 0 6px 18px rgba(30, 42, 60, .12);
     cursor: pointer;
-    transition: background-color .2s ease, color .2s ease, transform .2s ease, border-color .2s ease;
+    transition:
+        background-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-body.theme-php .phpdo-right-toolbar a:hover,
-body.theme-php .phpdo-right-toolbar button:hover {
-    color: #fff;
-    background: var(--phpdo-accent) !important;
-    border-color: var(--phpdo-accent);
-    transform: translateY(-2px);
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b svg {
+    width: 20px;
+    height: 20px;
 }
 
-/* 悬浮显示按钮说明（tooltip，显示在按钮左侧） */
-body.theme-php .phpdo-right-toolbar [data-tooltip]::after {
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b:hover {
+    background: #f3f6fa;
+    color: var(--color-ink);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--brand {
+    background: var(--color-ink);
+    color: var(--color-cloud);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b--brand:hover {
+    background: #1a1f28;
+    color: var(--color-cloud);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(46, 125, 239, 0.32);
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__sep {
+    width: 24px;
+    height: 1px;
+    background: var(--color-edge);
+    margin: 4px 0;
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail [data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
     top: 50%;
@@ -4346,36 +4373,36 @@ body.theme-php .phpdo-right-toolbar [data-tooltip]::after {
     line-height: 1;
     white-space: nowrap;
     background: rgba(23, 32, 46, .92);
-    border-radius: 4px;
+    border-radius: 6px;
     opacity: 0;
     pointer-events: none;
     transition: opacity .16s ease, transform .16s ease;
 }
-body.theme-php .phpdo-right-toolbar [data-tooltip]:hover::after {
+
+body.theme-php .phpdo-right-toolbar.cir-rail [data-tooltip]:hover::after {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
 }
 
-/* 回到顶部：始终保持 46×46 正方形，默认不占位（负 margin 抵消），滚过半页后带回弹动画出现 */
-body.theme-php .phpdo-right-toolbar [data-scroll-top] {
-    margin-bottom: -46px;
-    opacity: 0;
-    transform: translateY(12px) scale(.6);
-    pointer-events: none;
-    box-shadow: none;
-    transition: margin-bottom .3s ease, opacity .26s ease,
-                transform .34s cubic-bezier(.34, 1.56, .64, 1),
-                background-color .2s ease, color .2s ease, border-color .2s ease;
+/* 回到顶部：滚过半页后显示 */
+body.theme-php .phpdo-right-toolbar.cir-rail:not(.is-scrolled) [data-scroll-top],
+body.theme-php .phpdo-right-toolbar.cir-rail:not(.is-scrolled) .cir-rail__sep--scroll {
+    display: none;
 }
-body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top] {
-    margin-bottom: 10px;
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
-    box-shadow: 0 6px 18px rgba(30, 42, 60, .12);
+
+body.theme-php .phpdo-right-toolbar.cir-rail.is-scrolled [data-scroll-top] {
+    animation: cirRailPop .34s cubic-bezier(.34, 1.56, .64, 1);
 }
-body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top]:hover {
-    transform: translateY(-2px) scale(1);
+
+@keyframes cirRailPop {
+    from {
+        opacity: 0;
+        transform: scale(.6);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @media (max-width: 1180px) {
@@ -4547,14 +4574,13 @@ body.theme-php .phpdo-right-toolbar.is-scrolled [data-scroll-top]:hover {
         width: calc(100vw - 20px);
     }
 
-    body.theme-php .phpdo-right-toolbar {
+    body.theme-php .phpdo-right-toolbar.cir-rail {
         right: 10px;
         bottom: 16px;
-        gap: 0;
+        padding: 8px;
     }
 
-    body.theme-php .phpdo-right-toolbar a,
-    body.theme-php .phpdo-right-toolbar button {
+    body.theme-php .phpdo-right-toolbar.cir-rail .cir-rail__b {
         width: 40px;
         height: 40px;
     }
@@ -5869,13 +5895,6 @@ body.theme-php .floor-reply {
     border-radius: var(--phpdo-card-radius);
 }
 
-body.theme-php .phpdo-right-toolbar {
-    box-shadow: none;
-}
-body.theme-php .phpdo-right-toolbar a,
-body.theme-php .phpdo-right-toolbar button {
-    border-radius: 5px !important;
-}
 
 @media (max-width: 900px) {
     body.theme-php .phpdo-home-shell,
@@ -6312,24 +6331,29 @@ body.theme-php-dark .footer-qr span {
     border-color: var(--phpdo-border);
 }
 
-body.theme-php-dark .phpdo-right-toolbar {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
+body.theme-php-dark .phpdo-right-toolbar.cir-rail {
+    --color-cloud: #1c1f26;
+    --color-edge: #343b49;
+    --color-mist: #9ca3af;
+    --color-ink: #f3f4f6;
+    box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.12),
+        0 20px 40px -24px rgba(0, 0, 0, 0.45);
 }
 
-body.theme-php-dark .phpdo-right-toolbar a,
-body.theme-php-dark .phpdo-right-toolbar button {
-    color: #d1d5db;
-    background: #111827 !important;
-    border-color: #374151;
+body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b:hover {
+    background: #2a3140;
+    color: var(--color-ink);
 }
 
-body.theme-php-dark .phpdo-right-toolbar a:hover,
-body.theme-php-dark .phpdo-right-toolbar button:hover {
-    color: #fff;
-    background: var(--phpdo-accent) !important;
-    border-color: var(--phpdo-accent);
+body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b--brand {
+    background: var(--color-ink);
+    color: #1c1f26;
+}
+
+body.theme-php-dark .phpdo-right-toolbar.cir-rail .cir-rail__b--brand:hover {
+    background: #e5e7eb;
+    color: #1c1f26;
 }
 
 /* ==========================================================================
@@ -7619,7 +7643,7 @@ body.theme-php-dark .phpdo-forum-tag-7 { color: #b7bdc8; background: rgba(90,98,
 
 /* ===== 右侧工具栏最终定位（放最后，覆盖前面泄漏/冲突的规则）===== */
 /* 桌面默认：贴视口右侧、约 2/3 高度 */
-body.theme-php .phpdo-right-toolbar {
+body.theme-php .phpdo-right-toolbar.cir-rail {
     top: 64%;
     bottom: auto;
     right: 22px;
@@ -7628,14 +7652,14 @@ body.theme-php .phpdo-right-toolbar {
 }
 /* 宽屏：贴内容框（1200px）右侧 */
 @media (min-width: 1320px) {
-    body.theme-php .phpdo-right-toolbar {
+    body.theme-php .phpdo-right-toolbar.cir-rail {
         right: auto;
         left: calc(50% + 606px);
     }
 }
 /* 移动端：回到右下角 */
 @media (max-width: 760px) {
-    body.theme-php .phpdo-right-toolbar {
+    body.theme-php .phpdo-right-toolbar.cir-rail {
         top: auto;
         bottom: 16px;
         right: 10px;

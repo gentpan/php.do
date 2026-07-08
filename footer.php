@@ -102,11 +102,27 @@ $online_members = qf_online_members(12);
         <div class="qf-search-window-hint">回车搜索 · <kbd>Esc</kbd> 关闭 · <kbd>⌘/Ctrl</kbd>&nbsp;<kbd>K</kbd> 或 <kbd>/</kbd> 打开</div>
     </div>
 </div>
-<aside class="phpdo-right-toolbar" aria-label="页面工具栏">
-    <button type="button" data-scroll-top aria-label="返回顶部" data-tooltip="返回顶部"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
-    <a href="<?php echo h($footer_user ? qf_url_page('post.php') : qf_url_page('login.php')); ?>" aria-label="发帖" data-tooltip="发帖"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
-    <button type="button" data-theme-toggle aria-label="主题" data-tooltip="切换主题"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></button>
-</aside>
+<nav class="cir-rail phpdo-right-toolbar" aria-label="页面工具栏">
+    <button type="button" class="cir-rail__b" data-scroll-top aria-label="返回顶部" data-tooltip="返回顶部">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+    <span class="cir-rail__sep cir-rail__sep--scroll" aria-hidden="true"></span>
+    <a href="<?php echo h($footer_user ? qf_url_page('post.php') : qf_url_page('login.php')); ?>" class="cir-rail__b cir-rail__b--brand" aria-label="发帖" data-tooltip="发帖">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+        </svg>
+    </a>
+    <span class="cir-rail__sep" aria-hidden="true"></span>
+    <button type="button" class="cir-rail__b" data-theme-toggle aria-label="切换主题" data-tooltip="切换主题">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a10 10 0 0 1 0 20"></path>
+        </svg>
+    </button>
+</nav>
 <script src="assets/lib/litezoom.min.js"></script>
 <script src="<?php echo h(qf_asset_js('main', 'assets/')); ?>"></script>
 <script>
