@@ -3958,10 +3958,6 @@ body.theme-php.page-register main.wrap {
     padding: 24px 20px 56px;
 }
 
-body.theme-php.page-thread main.wrap {
-    padding-top: 14px;
-}
-
 body.theme-php .phpdo-page-head,
 body.theme-php .phpdo-user-head,
 body.theme-php .post-title-card,
@@ -4160,7 +4156,8 @@ body.theme-php .phpdo-thread-title-card {
 }
 
 /* 帖子主卡片：标题 + 正文 + 底部广告合并一体 */
-body.theme-php .phpdo-thread-main-card.post-content-card {
+body.theme-php .phpdo-thread-main-card.post-content-card,
+body.theme-php .phpdo-thread-main-card.post-content-card.card {
     margin-top: 0;
 }
 body.theme-php .phpdo-thread-main-card .post-content-box {
@@ -6347,11 +6344,20 @@ body.theme-php-dark .phpdo-must-read li {
 }
 
 /* 白框内正文区左右内边距（提高专属性以盖过基础 main.wrap 规则），并让 home-shell 填满 */
-/* 左右各 20px：1200px 白框内正文可用宽约 1160px */
+/* 左右各 20px：1200px 白框内正文可用宽约 1160px；勿写 shorthand padding，避免盖掉内页 padding-top */
 body.theme-php .qf-page-frame main.wrap,
 body.theme-php-dark .qf-page-frame main.wrap {
-    padding: 0 20px 42px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 42px;
 }
+
+/* 帖子页：菜单栏 ↔ 面包屑 ↔ 帖子卡片，上下间距统一为 14px */
+body.theme-php.page-thread .qf-page-frame main.wrap,
+body.theme-php-dark.page-thread .qf-page-frame main.wrap {
+    padding-top: 14px;
+}
+
 body.theme-php .qf-page-frame .phpdo-home-shell,
 body.theme-php-dark .qf-page-frame .phpdo-home-shell {
     width: 100%;
