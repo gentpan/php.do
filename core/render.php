@@ -155,52 +155,6 @@ function pd_render_attachment_list($attachments, $opts = array()) {
     return ob_get_clean();
 }
 
-// ===== Tailwind + daisyUI 认证页外壳（走 static.bluecdn.com CDN）=====
-function pd_auth_shell_head($page_title, $heading, $sub, $error = '') {
-    $csrf = pd_csrf_token();
-    ?><!doctype html>
-<html lang="zh-CN" data-theme="light">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo h(pd_browser_title($page_title)); ?></title>
-    <link rel="stylesheet" href="https://static.bluecdn.com/libs/fontawesome/7.3.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/fonts/fira.css">
-    <link rel="stylesheet" href="https://static.bluecdn.com/npm/daisyui@5.6.16/daisyui.min.css">
-    <script src="https://static.bluecdn.com/npm/@tailwindcss/browser@4/dist/index.global.js"></script>
-    <script>window.pdCsrfToken = <?php echo json_encode($csrf); ?>;</script>
-    <style>
-        [data-theme="light"]{--color-base-100:#fff;--color-base-200:#f7f7f8;--color-base-300:#eceff3;--color-base-content:#333;--color-primary:#505b93;--color-primary-content:#fff;--color-secondary:#ff674f;--color-secondary-content:#fff;--color-accent:#f5a623;--radius-box:.5rem;--radius-field:.5rem;}
-        body{font-family:"Fira Sans",-apple-system,"PingFang SC",sans-serif;}
-        .phpdo-banner{background:linear-gradient(120deg,#5a6aa8 0%,#505b93 58%,#3f4874 100%);}
-    </style>
-</head>
-<body class="min-h-screen bg-base-200 text-base-content flex flex-col">
-<header class="phpdo-banner">
-    <div class="mx-auto w-full max-w-3xl px-5 h-32 flex items-end pb-5">
-        <a href="<?php echo h(pd_url_page('index.php')); ?>" class="inline-flex items-center"><img src="assets/logo-white.svg" alt="php.do" class="h-11 w-auto"></a>
-    </div>
-</header>
-<main class="flex-1 w-full max-w-3xl mx-auto px-5 py-8">
-    <section class="card bg-base-100 border border-base-300 shadow-sm max-w-md mx-auto">
-        <div class="card-body">
-            <h1 class="card-title text-2xl font-extrabold"><?php echo h($heading); ?></h1>
-            <p class="text-sm opacity-60 -mt-1"><?php echo h($sub); ?></p>
-            <?php if ($error !== '') { ?><div role="alert" class="alert alert-error text-sm mt-2"><span><?php echo h($error); ?></span></div><?php } ?>
-<?php
-}
-
-function pd_auth_shell_foot() {
-    ?>
-        </div>
-    </section>
-</main>
-<script src="<?php echo h(pd_asset_js('main', 'assets/')); ?>"></script>
-</body>
-</html>
-<?php
-}
-
 function pd_render_captcha() {
     pd_prepare_form_guard();
     $hp = $_SESSION['pd_hp_field'];
