@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('panel')
+            ->path('admin')
             ->login(Login::class)
             ->brandName('php.do Admin')
             ->colors([

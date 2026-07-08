@@ -38,4 +38,4 @@ chown -R www-data:www-data storage bootstrap/cache || true
 systemctl restart phpdo-admin
 EOF
 
-echo "==> Deployed Filament admin at $REMOTE_DIR (panel: https://php.do/panel)"
+echo "==> Deployed Filament admin at $REMOTE_DIR (https://php.do/admin)"

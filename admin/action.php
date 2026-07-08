@@ -19,7 +19,7 @@ if ($action === 'add_forum' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($name !== '') {
         mysqli_query(db(), "INSERT INTO qf_forums (name, description, topic_category_enabled, topic_categories, post_user_limit_enabled, post_user_ids, display_order, created_at) VALUES ('{$name}', '{$desc}', {$new_topic_category_enabled}, '{$new_topic_categories}', {$new_post_user_limit_enabled}, '{$new_post_user_ids}', {$order}, NOW())");
     }
-    redirect('/panel');
+    redirect('/admin');
 }
 
 if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -68,7 +68,7 @@ if ($action === 'save_forums' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    redirect('/panel');
+    redirect('/admin');
 }
 
 if ($action === 'add_ban' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -84,14 +84,14 @@ if ($action === 'add_ban' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($ip !== '') {
         mysqli_query(db(), "INSERT INTO qf_bans (ip, reason, expires_at, created_at) VALUES ('{$ip}', '{$reason}', DATE_ADD(NOW(), INTERVAL {$days} DAY), NOW())");
     }
-    redirect('/panel');
+    redirect('/admin');
 }
 
 if ($action === 'del_ban') {
     $id = intval($_GET['id']);
     qf_require_action_token('del_ban', $id);
     mysqli_query(db(), "DELETE FROM qf_bans WHERE id={$id}");
-    redirect('/panel');
+    redirect('/admin');
 }
 
 if ($action === 'mute_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -107,7 +107,7 @@ if ($action === 'mute_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_query(db(), "UPDATE qf_users SET mute_until=DATE_ADD(NOW(), INTERVAL {$days} DAY) WHERE id={$user_id} AND is_admin=0");
         $_SESSION['flash'] = '已禁止该用户发言 ' . $days . ' 天。';
     }
-    redirect('/panel/users');
+    redirect('/admin/users');
 }
 
 if ($action === 'set_moderator' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -131,7 +131,7 @@ if ($action === 'set_moderator' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash'] = '已取消版主权限。';
         }
     }
-    redirect('/panel/users');
+    redirect('/admin/users');
 }
 
 if ($action === 'change_user_password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -144,7 +144,7 @@ if ($action === 'change_user_password' && $_SERVER['REQUEST_METHOD'] === 'POST')
     } else {
         $_SESSION['flash'] = '密码修改失败，新密码至少 6 位。';
     }
-    redirect('/panel/users');
+    redirect('/admin/users');
 }
 
 if ($action === 'clear_user_content' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -157,7 +157,7 @@ if ($action === 'clear_user_content' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         qf_recalc_user_points($user_id);
         $_SESSION['flash'] = '已清除该用户全部发帖和回帖，并重算积分。';
     }
-    redirect('/panel/users');
+    redirect('/admin/users');
 }
 
 if ($action === 'adjust_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -171,7 +171,7 @@ if ($action === 'adjust_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $_SESSION['flash'] = '积分调整失败，请填写非零数量。';
     }
-    redirect('/panel/users');
+    redirect('/admin/users');
 }
 
 if ($action === 'recalc_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -180,7 +180,7 @@ if ($action === 'recalc_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $total = qf_recalc_user_points($user_id);
         $_SESSION['flash'] = '已重算该用户积分，当前为 ' . intval($total) . '。';
     }
-    redirect('/panel/users');
+    redirect('/admin/users');
 }
 
 if ($action === 'reset_user_avatar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -200,7 +200,7 @@ if ($action === 'reset_user_avatar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    redirect('/panel/users');
+    redirect('/admin/users');
 }
 
 if ($action === 'top_board') {
@@ -295,5 +295,5 @@ if ($action === 'del_post') {
     redirect(qf_url_thread($tid));
 }
 
-redirect('/panel');
+redirect('/admin');
 ?>
