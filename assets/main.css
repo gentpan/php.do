@@ -1685,6 +1685,9 @@ textarea {
     border-radius: 5px;
     box-shadow: 0 12px 28px rgba(20, 24, 36, .14);
 }
+.markdown-editor .editor-heading-dropdown[hidden] {
+    display: none !important;
+}
 .markdown-editor .editor-toolbar .editor-heading-dropdown button {
     flex: none;
     justify-content: flex-start;
