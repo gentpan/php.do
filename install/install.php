@@ -9,7 +9,7 @@ qf_assert_mysql_runtime($conn);
 mysqli_query($conn, "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
 mysqli_select_db($conn, DB_NAME);
 mysqli_set_charset($conn, DB_CHARSET);
-mysqli_query($conn, "SET time_zone = '+08:00'");
+mysqli_query($conn, "SET time_zone = '+00:00'");
 
 $sqls = array();
 $sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
@@ -32,6 +32,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS qf_users (
   reply_count int(11) NOT NULL DEFAULT '0',
   points int(11) NOT NULL DEFAULT '0',
   notification_sound_enabled tinyint(1) NOT NULL DEFAULT '1',
+  timezone varchar(64) NOT NULL DEFAULT '',
   ip varchar(45) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,
   PRIMARY KEY (id),
@@ -372,6 +373,7 @@ if ($ok) {
         'friend_links_enabled' => '0',
         'friend_links' => '',
         'rewrite_enabled' => '1',
+        'data_timezone_utc_migrated' => '1',
         'rewrite_nginx_rules' => 'rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;
 rewrite ^/download/([0-9]+)$ /pages/download.php?id=$1 last;
 rewrite ^/api/([a-z-]+)$ /api/$1.php last;

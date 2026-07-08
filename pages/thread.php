@@ -60,7 +60,7 @@ if ($me) {
             <h1<?php echo qf_thread_title_attr($thread); ?>><?php echo h($thread['title']); ?></h1>
             <?php $thread_author_points = intval(isset($thread['author_points']) ? $thread['author_points'] : 0); ?>
             <div class="post-meta phpdo-thread-title-meta">
-                <span class="phpdo-meta-time"><?php echo format_time($thread['created_at']); ?></span>
+                <span class="phpdo-meta-time"><?php echo qf_time_html($thread['created_at']); ?></span>
             </div>
         </div>
     </div>
@@ -125,7 +125,7 @@ if ($me) {
                         <span class="phpdo-level">Lv.<?php echo intval($reply_level); ?></span>
                         <?php if (intval(isset($p['author_is_moderator']) ? $p['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?>
                         <span>发表于</span>
-                        <span><?php echo format_time($p['created_at']); ?></span>
+                        <span><?php echo qf_time_html($p['created_at']); ?></span>
                         <span class="phpdo-meta-sep"></span>
                         <a class="phpdo-only-author" href="<?php echo h(qf_url_page('search.php', array('q' => $reply_author))); ?>">只看Ta</a>
                     </div>
@@ -142,7 +142,7 @@ if ($me) {
             <?php $floor_replies = mysqli_query(db(), "SELECT c.*, u.nickname FROM qf_post_comments c LEFT JOIN qf_users u ON c.user_id=u.id WHERE c.post_id=" . intval($p['id']) . " AND c.is_deleted=0 ORDER BY c.id ASC LIMIT 50"); ?>
             <div class="floor-replies">
                 <?php while ($floor_replies && $c = mysqli_fetch_assoc($floor_replies)) { ?>
-                    <div class="floor-reply"><strong><?php echo h($c['nickname']); ?></strong>：<?php echo qf_render_content($c['content']); ?> <span><?php echo format_time($c['created_at']); ?></span></div>
+                    <div class="floor-reply"><strong><?php echo h($c['nickname']); ?></strong>：<?php echo qf_render_content($c['content']); ?> <span><?php echo qf_time_html($c['created_at']); ?></span></div>
                 <?php } ?>
                 <?php if (current_user()) { ?>
                     <form id="floor-reply-form-<?php echo intval($p['id']); ?>" class="floor-reply-form" method="post" action="<?php echo h(qf_url_page('floor_reply.php')); ?>" style="display:none">

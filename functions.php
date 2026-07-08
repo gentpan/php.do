@@ -41,8 +41,8 @@ function db() {
     }
     qf_assert_mysql_runtime($conn);
     mysqli_set_charset($conn, DB_CHARSET);
-    // 统一数据库会话时区为 UTC+8，保证 NOW() 与 PHP 时区一致（全站按 UTC+8 存储/展示）
-    mysqli_query($conn, "SET time_zone = '+08:00'");
+    // 统一数据库会话时区为 UTC，保证 NOW() 与 PHP 时区一致（全站按 UTC 存储）
+    mysqli_query($conn, "SET time_zone = '+00:00'");
     return $conn;
 }
 
@@ -1104,7 +1104,7 @@ function qf_render_thread_row($t, $opts = array()) {
     $variant = isset($opts['variant']) ? $opts['variant'] : 'feed';
     $avatar = qf_user_avatar($t, 80);
     $author = qf_user_display_name($t);
-    $is_new = strtotime($t['created_at']) >= time() - 86400 * 7;
+    $is_new = qf_parse_utc_timestamp($t['created_at']) >= time() - 86400 * 7;
     $has_image = intval(isset($t['has_image']) ? $t['has_image'] : 0);
     $has_attachment = !empty($t['has_attachment']);
 
@@ -1127,7 +1127,7 @@ function qf_render_thread_row($t, $opts = array()) {
                 <div class="phpdo-thread-meta">
                     <p>
                         <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
-                        <time class="phpdo-time" datetime="<?php echo h(qf_iso8601($t['created_at'])); ?>" title="<?php echo h($t['created_at']); ?>"><?php echo h(qf_time_ago($t['created_at'])); ?></time>
+                        <?php echo qf_time_html($t['created_at']); ?>
                         <?php if (!empty($t['forum_name'])) { ?><a class="phpdo-forum-tag phpdo-forum-tag-<?php echo intval($t['forum_id']) % 8; ?>" href="<?php echo h(qf_url_forum(intval($t['forum_id']))); ?>"><?php echo h($t['forum_name']); ?></a><?php } ?>
                     </p>
                     <div class="phpdo-thread-stats" aria-label="帖子统计">
@@ -1161,11 +1161,11 @@ function qf_render_thread_row($t, $opts = array()) {
                 <?php if ($meta === 'search') { ?>
                     <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
                     <span><?php echo h($t['forum_name']); ?></span>
-                    <span><?php echo h(format_time($t['updated_at'])); ?></span>
+                    <span><?php echo qf_time_html($t['updated_at']); ?></span>
                 <?php } elseif ($meta === 'user') { ?>
-                    <?php echo h($t['forum_name']); ?> · <?php echo h(format_time($t['updated_at'])); ?>
+                    <?php echo h($t['forum_name']); ?> · <?php echo qf_time_html($t['updated_at']); ?>
                 <?php } else { ?>
-                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo h(format_time($t['created_at'])); ?> · 最后更新 <?php echo h(format_time($t['updated_at'])); ?>
+                    <a class="phpdo-author-link" href="<?php echo h(qf_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a> · 发表于 <?php echo qf_time_html($t['created_at']); ?> · 最后更新 <?php echo qf_time_html($t['updated_at']); ?>
                 <?php } ?>
             </p>
         </div>
@@ -2071,7 +2071,8 @@ function qf_user_signed_today($user_id) {
         return false;
     }
     $user_id = intval($user_id);
-    $rs = mysqli_query(db(), "SELECT id FROM qf_signins WHERE user_id={$user_id} AND signin_date=CURDATE() LIMIT 1");
+    $today = esc(qf_user_today_ymd($user_id));
+    $rs = mysqli_query(db(), "SELECT id FROM qf_signins WHERE user_id={$user_id} AND signin_date='{$today}' LIMIT 1");
     return $rs && mysqli_num_rows($rs) > 0;
 }
 
@@ -2094,7 +2095,13 @@ function qf_signin_reward($user_id, &$message) {
         return false;
     }
     $continuous_days = 1;
-    $yesterday = mysqli_query(db(), "SELECT continuous_days FROM qf_signins WHERE user_id={$user_id} AND signin_date=DATE_SUB(CURDATE(), INTERVAL 1 DAY) LIMIT 1");
+    $today = esc(qf_user_today_ymd($user_id));
+    try {
+        $yesterday_ymd = esc((new DateTimeImmutable($today, new DateTimeZone('UTC')))->sub(new DateInterval('P1D'))->format('Y-m-d'));
+    } catch (Exception $e) {
+        $yesterday_ymd = esc(gmdate('Y-m-d', strtotime($today . ' -1 day')));
+    }
+    $yesterday = mysqli_query(db(), "SELECT continuous_days FROM qf_signins WHERE user_id={$user_id} AND signin_date='{$yesterday_ymd}' LIMIT 1");
     if ($yesterday && ($row = mysqli_fetch_assoc($yesterday))) {
         $continuous_days = intval($row['continuous_days']) + 1;
     }
@@ -2102,7 +2109,7 @@ function qf_signin_reward($user_id, &$message) {
     if ($continuous_days > 1) {
         $reward += qf_signin_streak_bonus();
     }
-    mysqli_query(db(), "INSERT INTO qf_signins (user_id, signin_date, continuous_days, reward_coins, created_at) VALUES ({$user_id}, CURDATE(), {$continuous_days}, {$reward}, NOW())");
+    mysqli_query(db(), "INSERT INTO qf_signins (user_id, signin_date, continuous_days, reward_coins, created_at) VALUES ({$user_id}, '{$today}', {$continuous_days}, {$reward}, NOW())");
     mysqli_query(db(), "UPDATE qf_users SET coins=coins+{$reward} WHERE id={$user_id}");
     $message = '签到成功，获得 ' . $reward . ' 金币，连续签到 ' . $continuous_days . ' 天。';
     return true;
@@ -2133,6 +2140,10 @@ function qf_ensure_account_auth_schema() {
     $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'email_bound_at'");
     if ($check && mysqli_num_rows($check) == 0) {
         mysqli_query(db(), "ALTER TABLE qf_users ADD email_bound_at datetime DEFAULT NULL AFTER email");
+    }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'timezone'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD timezone varchar(64) NOT NULL DEFAULT ''");
     }
     mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_passkeys (
       id int(11) NOT NULL AUTO_INCREMENT,
@@ -2902,41 +2913,145 @@ function qf_user_mute_message($user) {
     if (!$user || empty($user['mute_until'])) {
         return '';
     }
-    $until = strtotime($user['mute_until']);
+    $until = qf_parse_utc_timestamp($user['mute_until']);
     if ($until && $until > time()) {
-        return '你已被禁止发言，到期时间：' . date('Y-m-d H:i', $until);
+        return '你已被禁止发言，到期时间：' . qf_format_absolute($user['mute_until']);
     }
     return '';
 }
 
-function format_time($time) {
-    $ts = strtotime($time);
-    if (!$ts) {
-        return '';
+function qf_ensure_timezone_schema() {
+    static $done = false;
+    if ($done) {
+        return;
     }
-    $diff = time() - $ts;
-    if ($diff < 60) return $diff . '秒前';
-    if ($diff < 3600) return floor($diff / 60) . '分钟前';
-    if ($diff < 86400) return floor($diff / 3600) . '小时前';
-    return date('Y-m-d H:i', $ts);
+    $done = true;
+    qf_ensure_account_auth_schema();
+    qf_migrate_storage_to_utc();
 }
 
-// 全站数据按服务器时区 UTC+8 存储；输出 ISO 8601(带 +08:00)供前端转成访客本地时间
-function qf_iso8601($dt) {
+function qf_migrate_storage_to_utc() {
+    if (intval(qf_setting('data_timezone_utc_migrated', '0')) === 1) {
+        return;
+    }
+    $migrations = array(
+        'qf_users' => array('created_at', 'mute_until', 'email_bound_at'),
+        'qf_passkeys' => array('created_at', 'last_used_at'),
+        'qf_forums' => array('created_at'),
+        'qf_threads' => array('created_at', 'updated_at'),
+        'qf_thread_votes' => array('created_at', 'updated_at'),
+        'qf_thread_reactions' => array('created_at', 'updated_at'),
+        'qf_posts' => array('created_at'),
+        'qf_post_votes' => array('created_at', 'updated_at'),
+        'qf_bans' => array('expires_at', 'created_at'),
+        'qf_security_logs' => array('created_at'),
+        'qf_moderator_logs' => array('created_at'),
+        'qf_moderator_forums' => array('created_at'),
+        'qf_attachments' => array('created_at'),
+        'qf_post_comments' => array('created_at'),
+        'qf_notifications' => array('created_at'),
+        'qf_signins' => array('created_at'),
+        'qf_ads' => array('updated_at'),
+        'qf_navs' => array('created_at'),
+        'qf_invites' => array('used_at', 'expires_at', 'created_at'),
+        'qf_oauth' => array('created_at'),
+    );
+    foreach ($migrations as $table => $cols) {
+        $table_check = mysqli_query(db(), "SHOW TABLES LIKE '" . esc($table) . "'");
+        if (!$table_check || mysqli_num_rows($table_check) === 0) {
+            continue;
+        }
+        foreach ($cols as $col) {
+            $col_check = mysqli_query(db(), "SHOW COLUMNS FROM `{$table}` LIKE '" . esc($col) . "'");
+            if (!$col_check || mysqli_num_rows($col_check) === 0) {
+                continue;
+            }
+            mysqli_query(db(), "UPDATE `{$table}` SET `{$col}` = DATE_SUB(`{$col}`, INTERVAL 8 HOUR) WHERE `{$col}` IS NOT NULL AND `{$col}` > '0000-00-00 00:00:00'");
+        }
+    }
+    qf_update_setting('data_timezone_utc_migrated', '1');
+}
+
+function qf_timezone_choices() {
+    return array(
+        '' => '跟随浏览器（自动）',
+        'Asia/Shanghai' => '中国（北京时间 UTC+8）',
+        'Asia/Hong_Kong' => '香港',
+        'Asia/Taipei' => '台北',
+        'Asia/Tokyo' => '日本（东京）',
+        'Asia/Singapore' => '新加坡',
+        'Europe/London' => '英国（伦敦）',
+        'Europe/Paris' => '中欧',
+        'America/New_York' => '美国东部',
+        'America/Los_Angeles' => '美国太平洋',
+        'UTC' => 'UTC（协调世界时）',
+    );
+}
+
+function qf_valid_timezone($timezone) {
+    $timezone = trim((string)$timezone);
+    if ($timezone === '') {
+        return true;
+    }
+    try {
+        new DateTimeZone($timezone);
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+function qf_user_timezone($user = null) {
+    if ($user === null) {
+        $user = current_user();
+    }
+    if (!$user) {
+        return '';
+    }
+    $timezone = isset($user['timezone']) ? trim((string)$user['timezone']) : '';
+    return qf_valid_timezone($timezone) ? $timezone : '';
+}
+
+function qf_user_today_ymd($user = null) {
+    if (is_int($user) || (is_string($user) && $user !== '' && ctype_digit($user))) {
+        $rs = mysqli_query(db(), 'SELECT timezone FROM qf_users WHERE id=' . intval($user) . ' LIMIT 1');
+        $user = $rs ? mysqli_fetch_assoc($rs) : null;
+    }
+    $timezone = qf_user_timezone($user);
+    if ($timezone === '') {
+        $timezone = 'Asia/Shanghai';
+    }
+    try {
+        return (new DateTimeImmutable('now', new DateTimeZone('UTC')))
+            ->setTimezone(new DateTimeZone($timezone))
+            ->format('Y-m-d');
+    } catch (Exception $e) {
+        return gmdate('Y-m-d');
+    }
+}
+
+function qf_parse_utc_timestamp($dt) {
     $dt = trim((string)$dt);
     if ($dt === '' || strpos($dt, '0000-00-00') === 0) {
-        return '';
+        return false;
     }
-    return str_replace(' ', 'T', $dt) . '+08:00';
+    try {
+        return (new DateTimeImmutable($dt, new DateTimeZone('UTC')))->getTimestamp();
+    } catch (Exception $e) {
+        return false;
+    }
 }
 
-// 相对时间：刚刚 / N 分钟前 / N 小时前 / N 天前 / N 个月前 / N 年前
-function qf_time_ago($dt) {
-    $iso = qf_iso8601($dt);
-    if ($iso === '') {
+function qf_iso8601($dt) {
+    $ts = qf_parse_utc_timestamp($dt);
+    if ($ts === false) {
         return '';
     }
-    $ts = strtotime($iso);
+    return gmdate('Y-m-d\TH:i:s\Z', $ts);
+}
+
+function qf_time_ago($dt) {
+    $ts = qf_parse_utc_timestamp($dt);
     if ($ts === false) {
         return '';
     }
@@ -2950,6 +3065,45 @@ function qf_time_ago($dt) {
     if ($diff < 2592000) return floor($diff / 86400) . ' 天前';
     if ($diff < 31536000) return floor($diff / 2592000) . ' 个月前';
     return floor($diff / 31536000) . ' 年前';
+}
+
+function qf_format_absolute($dt, $timezone = null) {
+    $dt = trim((string)$dt);
+    if ($dt === '' || strpos($dt, '0000-00-00') === 0) {
+        return '';
+    }
+    try {
+        $utc = new DateTimeImmutable($dt, new DateTimeZone('UTC'));
+        if ($timezone === null) {
+            $timezone = qf_user_timezone();
+        }
+        if ($timezone === '') {
+            return $utc->format('Y-m-d H:i') . ' UTC';
+        }
+        return $utc->setTimezone(new DateTimeZone($timezone))->format('Y-m-d H:i');
+    } catch (Exception $e) {
+        return '';
+    }
+}
+
+function qf_time_html($dt, $attrs = array()) {
+    $iso = qf_iso8601($dt);
+    if ($iso === '') {
+        return '';
+    }
+    $class = isset($attrs['class']) ? (string)$attrs['class'] : 'phpdo-time';
+    $extra = '';
+    foreach ($attrs as $key => $value) {
+        if ($key === 'class') {
+            continue;
+        }
+        $extra .= ' ' . h($key) . '="' . h((string)$value) . '"';
+    }
+    return '<time class="' . h($class) . '" datetime="' . h($iso) . '" title="' . h(qf_format_absolute($dt)) . '"' . $extra . '>' . h(qf_time_ago($dt)) . '</time>';
+}
+
+function format_time($time) {
+    return qf_time_ago($time);
 }
 
 function qf_render_content($content) {

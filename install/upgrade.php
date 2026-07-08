@@ -63,6 +63,10 @@ if ($ok) {
     if ($check && mysqli_num_rows($check) == 0) {
         mysqli_query(db(), "ALTER TABLE qf_users ADD notification_sound_enabled tinyint(1) NOT NULL DEFAULT '1' AFTER reply_count");
     }
+    $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'timezone'");
+    if ($check && mysqli_num_rows($check) == 0) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD timezone varchar(64) NOT NULL DEFAULT ''");
+    }
     $check = mysqli_query(db(), "SHOW COLUMNS FROM qf_users LIKE 'points'");
     if ($check && mysqli_num_rows($check) == 0) {
         mysqli_query(db(), "ALTER TABLE qf_users ADD points int(11) NOT NULL DEFAULT '0' AFTER reply_count");
@@ -466,6 +470,10 @@ if ($ok) {
     if ($check && mysqli_num_rows($check) === 0) {
         mysqli_query(db(), "ALTER TABLE qf_forums ADD banner varchar(255) NOT NULL DEFAULT '' AFTER description");
     }
+}
+
+if ($ok) {
+    qf_ensure_timezone_schema();
 }
 ?>
 <!doctype html>

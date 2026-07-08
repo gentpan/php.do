@@ -30,7 +30,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     $text = preg_replace('/\[[^\]]{0,40}\]/u', '', $text);
     $text = trim(strip_tags($text));
     $excerpt = function_exists('mb_substr') ? mb_substr($text, 0, 200, 'UTF-8') : substr($text, 0, 200);
-    $pub = date(DATE_RSS, strtotime($r['created_at']));
+    $pub_ts = qf_parse_utc_timestamp($r['created_at']);
+    $pub = $pub_ts !== false ? gmdate(DATE_RSS, $pub_ts) : '';
 ?>
 <item>
 <title><?php echo h($r['title']); ?></title>

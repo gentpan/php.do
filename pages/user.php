@@ -19,7 +19,7 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id, t.is_good, 
     <div>
         <?php $user_points = intval(isset($user['points']) ? $user['points'] : 0); ?>
         <h1><?php echo h($display_name); ?> <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($user_points)); ?></span></h1>
-        <p>@<?php echo h($user['username']); ?> · 注册于 <?php echo h(format_time($user['created_at'])); ?> · <?php echo intval($user['reply_count']); ?> 回复 · <?php echo $user_points; ?> 积分 · <?php echo intval($user['coins']); ?> 金币</p>
+        <p>@<?php echo h($user['username']); ?> · 注册于 <?php echo qf_time_html($user['created_at']); ?> · <?php echo intval($user['reply_count']); ?> 回复 · <?php echo $user_points; ?> 积分 · <?php echo intval($user['coins']); ?> 金币</p>
         <?php if (trim((string)$user['signature']) !== '') { ?><p><?php echo h($user['signature']); ?></p><?php } ?>
     </div>
 </section>
@@ -40,7 +40,7 @@ $posts = mysqli_query(db(), "SELECT p.*, t.title, t.id AS thread_id, t.is_good, 
             <div class="thread-main">
                 <a<?php echo qf_thread_title_attr($p, 'thread-title'); ?> href="<?php echo h(qf_url_thread($p['thread_id'])); ?>#replies"><?php echo h($p['title']); ?></a>
                 <?php $excerpt = strip_tags($p['content']); $excerpt = function_exists('mb_substr') ? mb_substr($excerpt, 0, 80, 'UTF-8') : substr($excerpt, 0, 160); ?>
-                <p><?php echo h(format_time($p['created_at'])); ?> · <?php echo h($excerpt); ?></p>
+                <p><?php echo qf_time_html($p['created_at']); ?> · <?php echo h($excerpt); ?></p>
             </div>
         </div>
     <?php } ?>

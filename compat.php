@@ -41,8 +41,8 @@ function qf_assert_mysql_runtime($conn) {
     }
 }
 
-// 强制统一为 UTC+8（即便 php.ini 已设 date.timezone，也覆盖），与数据库会话时区保持一致
+// 应用逻辑与数据库会话统一为 UTC；展示层按用户时区转换
 if (function_exists('date_default_timezone_set')) {
-    date_default_timezone_set('Asia/Shanghai');
+    date_default_timezone_set('UTC');
 }
 ?>

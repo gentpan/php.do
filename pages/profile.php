@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $signature = clean_text(isset($_POST['signature']) ? $_POST['signature'] : '', 255);
     $gender = clean_text(isset($_POST['gender']) ? $_POST['gender'] : '', 10);
     $notification_sound_enabled = !empty($_POST['notification_sound_enabled']) ? 1 : 0;
+    $timezone = clean_text(isset($_POST['timezone']) ? $_POST['timezone'] : '', 64);
     $password = (string)$_POST['password'];
     $password_confirm = (string)(isset($_POST['password_confirm']) ? $_POST['password_confirm'] : '');
     $avatar_type = isset($_POST['avatar_type']) ? $_POST['avatar_type'] : '';
@@ -32,6 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $avatar_path = $u['avatar'];
     if (!in_array($gender, array('', '男', '女', '保密'))) {
         $gender = '';
+    }
+    if (!qf_valid_timezone($timezone) || !array_key_exists($timezone, qf_timezone_choices())) {
+        $error = '时区选择无效。';
     }
 
     if ($nickname === '') {
@@ -104,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email_bound_sql = $email === '' ? 'NULL' : ((!isset($u['email']) || $u['email'] !== $email) ? 'NOW()' : 'email_bound_at');
         $signature_sql = esc($signature);
         $gender_sql = esc($gender);
+        $timezone_sql = esc($timezone);
         $avatar_sql = esc($avatar_path);
         if ($password !== '') {
             if ($password !== $password_confirm) {
@@ -112,11 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = '新密码至少 6 位。';
             } else {
                 $password_sql = esc(qf_password_hash($password));
-                mysqli_query(db(), "UPDATE qf_users SET nickname='{$nickname_sql}', email='{$email_sql}', email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', notification_sound_enabled={$notification_sound_enabled}, password='{$password_sql}' WHERE id=" . intval($u['id']));
+                mysqli_query(db(), "UPDATE qf_users SET nickname='{$nickname_sql}', email='{$email_sql}', email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', timezone='{$timezone_sql}', notification_sound_enabled={$notification_sound_enabled}, password='{$password_sql}' WHERE id=" . intval($u['id']));
                 $saved = true;
             }
         } else {
-            mysqli_query(db(), "UPDATE qf_users SET nickname='{$nickname_sql}', email='{$email_sql}', email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', notification_sound_enabled={$notification_sound_enabled} WHERE id=" . intval($u['id']));
+            mysqli_query(db(), "UPDATE qf_users SET nickname='{$nickname_sql}', email='{$email_sql}', email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', timezone='{$timezone_sql}', notification_sound_enabled={$notification_sound_enabled} WHERE id=" . intval($u['id']));
             $saved = true;
         }
         $u = current_user();
@@ -212,6 +217,14 @@ qf_include_header();
         <label>消息语音提示</label>
         <label><input class="inline-check" type="checkbox" name="notification_sound_enabled" value="1" <?php if (qf_notification_sound_enabled($u)) echo 'checked'; ?>> 开启消息语音提示</label>
         <p class="muted">关闭后不会播放语音，消息铃铛仍然正常显示。</p>
+        <label>显示时区</label>
+        <select name="timezone">
+            <?php $timezone_value = isset($u['timezone']) ? (string)$u['timezone'] : ''; ?>
+            <?php foreach (qf_timezone_choices() as $tz_key => $tz_label) { ?>
+                <option value="<?php echo h($tz_key); ?>" <?php if ($timezone_value === (string)$tz_key) echo 'selected'; ?>><?php echo h($tz_label); ?></option>
+            <?php } ?>
+        </select>
+        <p class="muted">列表时间显示为相对时间（如「3 小时前」），鼠标悬浮可查看绝对时间。选「跟随浏览器」时按本机时区显示。</p>
         <label>新密码</label>
         <input type="password" name="password" placeholder="不修改请留空" autocomplete="new-password">
         <label>重复新密码 <span class="muted">（必须与上方一致）</span></label>
@@ -229,7 +242,7 @@ qf_include_header();
             <div class="passkey-item">
                 <div>
                     <strong><?php echo h($pk['label'] !== '' ? $pk['label'] : 'Passkey'); ?></strong>
-                    <p class="muted">添加于 <?php echo format_time($pk['created_at']); ?><?php if (!empty($pk['last_used_at'])) { ?> · 最近使用 <?php echo format_time($pk['last_used_at']); ?><?php } ?></p>
+                    <p class="muted">添加于 <?php echo qf_time_html($pk['created_at']); ?><?php if (!empty($pk['last_used_at'])) { ?> · 最近使用 <?php echo qf_time_html($pk['last_used_at']); ?><?php } ?></p>
                 </div>
                 <button class="action-badge action-badge-danger" type="button" title="删除" aria-label="删除" data-passkey-delete="<?php echo intval($pk['id']); ?>"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>删除</span></button>
             </div>

@@ -3,6 +3,7 @@ if (!isset($page_title)) {
     $page_title = SITE_NAME;
 }
 $me = current_user();
+qf_ensure_timezone_schema();
 $unread_notifications = $me ? qf_unread_notifications_count(intval($me['id'])) : 0;
 $main_navs = qf_main_navs();
 $is_php_theme = true;
@@ -46,7 +47,7 @@ $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
             --qf-content-font: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
         }
     </style>
-    <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>; window.qfGeoipUrl = <?php echo json_encode(qf_url_page('api/geoip.php')); ?>;</script>
+    <script>window.qfCsrfToken = <?php echo json_encode(qf_csrf_token()); ?>; window.qfGeoipUrl = <?php echo json_encode(qf_url_page('api/geoip.php')); ?>; window.qfUserTimezone = <?php echo json_encode(qf_user_timezone($me)); ?>;</script>
     <script defer src="assets/lib/preline.min.js"></script>
     <script defer src="assets/lib/alpine.min.js"></script>
 </head>
@@ -146,37 +147,6 @@ if (strpos($qf_page_banner, '{r}') !== false) {
         </nav>
     </div>
 </header>
-<aside class="side-user-menu" aria-label="用户快捷菜单" data-side-user-menu>
-    <button class="side-user-trigger" type="button" aria-expanded="false" aria-haspopup="true" data-side-user-toggle>
-        <?php if ($me) { ?>
-            <img src="<?php echo h(qf_user_avatar($me, 96)); ?>" alt="<?php echo h($me['nickname']); ?>">
-        <?php } else { ?>
-            <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
-        <?php } ?>
-    </button>
-    <div class="side-user-panel" role="menu" data-side-user-panel>
-        <?php if ($me) { ?>
-            <div class="side-user-card">
-                <img src="<?php echo h(qf_user_avatar($me, 96)); ?>" alt="<?php echo h($me['nickname']); ?>">
-                <div>
-                    <strong><?php echo h($me['nickname']); ?></strong>
-                    <span><?php echo h($me['username']); ?></span>
-                </div>
-            </div>
-            <a href="<?php echo h(qf_url_user($me['id'])); ?>" role="menuitem"><i class="fa-regular fa-circle-user" aria-hidden="true"></i><span>个人主页</span></a>
-            <a href="<?php echo h(qf_url_page('profile.php')); ?>" role="menuitem"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>个人设置</span></a>
-            <a href="<?php echo h(qf_url_page('notifications.php')); ?>" role="menuitem"><i class="fa-regular fa-bell" aria-hidden="true"></i><span>消息<?php echo $unread_notifications > 0 ? ' · ' . intval($unread_notifications) : ''; ?></span></a>
-            <?php if (intval($me['is_admin']) === 1) { ?>
-                <a href="<?php echo h(qf_url_page('admin/settings.php')); ?>" role="menuitem"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>站点设置</span></a>
-                <a href="<?php echo h(qf_url_page('admin/index.php')); ?>" role="menuitem"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>后台</span></a>
-            <?php } ?>
-            <a href="<?php echo h(qf_url_page('logout.php')); ?>" role="menuitem"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>退出</span></a>
-        <?php } else { ?>
-            <a href="<?php echo h(qf_url_page('login.php')); ?>" role="menuitem"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>登录</span></a>
-            <a href="<?php echo h(qf_url_page('register.php')); ?>" role="menuitem"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>注册</span></a>
-        <?php } ?>
-    </div>
-</aside>
 <?php if ($unread_notifications > 0 && qf_notification_sound_enabled($me)) { ?>
 <script>
 if (!sessionStorage.getItem('qfNotifySoundPlayed')) {

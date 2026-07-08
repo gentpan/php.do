@@ -44,7 +44,7 @@ qf_include_header();
             <?php while ($n = mysqli_fetch_assoc($items)) { ?>
                 <a class="notification-item" href="<?php echo h(qf_url_page('thread.php', array('id' => intval($n['thread_id'])), 'replies')); ?>">
                     <strong><?php echo h($n['message']); ?></strong>
-                    <span><?php echo format_time($n['created_at']); ?></span>
+                    <span><?php echo qf_time_html($n['created_at']); ?></span>
                 </a>
             <?php } ?>
         </div>

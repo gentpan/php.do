@@ -29,48 +29,6 @@
         });
     }
 
-    function initSideUserMenu() {
-        var root = document.querySelector('[data-side-user-menu]');
-        if (!root) return;
-        var toggle = root.querySelector('[data-side-user-toggle]');
-        var panel = root.querySelector('[data-side-user-panel]');
-        if (!toggle || !panel) return;
-        var pinned = false;
-
-        function setOpen(open) {
-            root.classList.toggle('is-open', open);
-            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        }
-
-        toggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            pinned = !root.classList.contains('is-open') || !pinned;
-            setOpen(pinned);
-        });
-
-        root.addEventListener('mouseenter', function() {
-            setOpen(true);
-        });
-
-        root.addEventListener('mouseleave', function() {
-            if (!pinned) setOpen(false);
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!root.contains(e.target)) {
-                pinned = false;
-                setOpen(false);
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                pinned = false;
-                setOpen(false);
-            }
-        });
-    }
-
     function b64urlToBuffer(value) {
         value = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
         while (value.length % 4) value += '=';
@@ -457,6 +415,26 @@
         return Math.floor(diff / 31536000) + ' 年前';
     }
 
+    function formatAbsolute(d) {
+        var tz = (window.qfUserTimezone || '').trim();
+        var opts = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        };
+        try {
+            if (tz) {
+                return d.toLocaleString('zh-CN', Object.assign({ timeZone: tz }, opts));
+            }
+            return d.toLocaleString('zh-CN', opts);
+        } catch (e) {
+            return d.toLocaleString();
+        }
+    }
+
     function enhanceTimes(root) {
         (root || document).querySelectorAll('.phpdo-time[datetime]').forEach(function(el) {
             var iso = el.getAttribute('datetime');
@@ -464,7 +442,7 @@
             var d = new Date(iso);
             if (isNaN(d.getTime())) return;
             el.textContent = timeAgo(d);
-            el.setAttribute('title', d.toLocaleString());
+            el.setAttribute('title', formatAbsolute(d));
         });
     }
 
@@ -1092,7 +1070,6 @@
     window.qfEnhanceMedia = enhanceMedia;
     window.qfSetLoading = setLoading;
     initNavMore();
-    initSideUserMenu();
     initPasskeys();
     initSearchModal();
     initThreadVotes();
