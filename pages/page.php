@@ -17,11 +17,17 @@ pd_include_header(true);
         <strong><?php echo h($page['title']); ?></strong>
     </div>
 
-    <section class="pd-info-block">
+    <section class="pd-info-block<?php echo !empty($page['view']) ? ' pd-legal' : ''; ?>">
         <h1><?php echo h($page['title']); ?></h1>
-        <?php foreach ($page['body'] as $paragraph) { ?>
+        <?php if (!empty($page['view'])) {
+            // 受信任的静态法律文本分部（开发者维护，非用户输入）
+            $view_file = __DIR__ . '/legal/' . preg_replace('/[^a-z0-9_-]+/', '', $page['view']) . '.php';
+            if (is_file($view_file)) { include $view_file; }
+        } else {
+            foreach ($page['body'] as $paragraph) { ?>
             <p><?php echo h($paragraph); ?></p>
-        <?php } ?>
+        <?php }
+        } ?>
         <?php if ($slug === 'contact') { ?>
             <div class="pd-info-contact">
                 <?php if ($contact_email !== '') { ?>

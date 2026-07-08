@@ -1276,6 +1276,10 @@ function pd_static_pages() {
                 '如果你发现任何不当内容或需要举报，也可以登录后直接与版主、管理员联系。'
             ),
         ),
+        // 长文法律页：内容放在 pages/legal/<view>.php，避免此处臃肿
+        'privacy' => array('title' => '隐私政策', 'view' => 'privacy'),
+        'terms' => array('title' => '使用条款', 'view' => 'terms'),
+        'agreement' => array('title' => '服务协议', 'view' => 'agreement'),
     );
 }
 
