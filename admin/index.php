@@ -1,27 +1,15 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 require_admin();
-$page_title = '后台管理 - ' . SITE_NAME;
-qf_include_header();
+$page_title = '版块与禁封 - ' . SITE_NAME;
+$admin_heading = '版块与禁封';
+qf_include_admin_header();
 $forums = mysqli_query(db(), "SELECT * FROM qf_forums ORDER BY display_order ASC, id ASC");
 $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR expires_at > NOW() ORDER BY id DESC");
 ?>
 <section class="card">
-    <h1>后台管理</h1>
-    <p class="muted">管理版块、帖子、置顶、加精和删除。</p>
-    <p>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/settings.php')); ?>">站点设置</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/users.php')); ?>">用户管理</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/points.php')); ?>">积分与等级</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/groups.php')); ?>">用户组</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/online.php')); ?>">在线统计</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/navs.php')); ?>">主导航设置</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/ads.php')); ?>">广告位置</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/security.php')); ?>">安全相关</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/invites.php')); ?>">邀请码</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/social.php')); ?>">社交登录</a>
-        <a class="btn btn-light" href="<?php echo h(qf_url_page('admin/cache.php')); ?>">清理缓存</a>
-    </p>
+    <h1>版块管理</h1>
+    <p class="muted">管理论坛版块、主题分类、指定发帖用户，以及 IP 禁封。</p>
 </section>
 <div class="admin-stack">
     <section class="card">
@@ -110,4 +98,4 @@ $bans = mysqli_query(db(), "SELECT * FROM qf_bans WHERE expires_at IS NULL OR ex
         <?php } ?>
     </section>
 </div>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

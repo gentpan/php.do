@@ -37,14 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $recent_bans = mysqli_query(db(), "SELECT * FROM qf_bans ORDER BY id DESC LIMIT 20");
 $page_title = '安全相关 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
         <h1>安全相关</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
-    <?php if ($saved) { ?><div class="alert success">安全设置已保存。</div><?php } ?>
+<?php if ($saved) { ?><div class="alert success">安全设置已保存。</div><?php } ?>
     <form method="post">
         <label>防 CC 访问限制</label>
         <label><input class="inline-check" type="checkbox" name="cc_enabled" value="1" <?php if (intval(qf_setting('cc_enabled', '0')) === 1) echo 'checked'; ?>> 开启防 CC</label>
@@ -84,4 +83,4 @@ qf_include_header();
         <p class="muted">暂无封禁记录。</p>
     <?php } ?>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

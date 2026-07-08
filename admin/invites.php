@@ -49,14 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {
 $require_invite = intval(qf_setting('require_invite', '0')) === 1;
 $invites = qf_invite_table_ready() ? mysqli_query(db(), "SELECT i.*, u.nickname AS used_nickname, u.username AS used_username FROM qf_invites i LEFT JOIN qf_users u ON u.id=i.used_by ORDER BY i.id DESC LIMIT 300") : false;
 $page_title = '邀请码 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
         <h1>邀请码</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
-    <?php if ($saved) { ?><div class="alert success">操作已完成。</div><?php } ?>
+<?php if ($saved) { ?><div class="alert success">操作已完成。</div><?php } ?>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
 
     <?php if (!empty($generated)) { ?>
@@ -120,4 +119,4 @@ qf_include_header();
         <?php if ($count > 0) { ?><button class="btn btn-light" type="submit" data-confirm="确定删除勾选的邀请码？">删除勾选</button><?php } ?>
     </form>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

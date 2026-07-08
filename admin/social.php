@@ -26,14 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {
 }
 
 $page_title = '社交登录 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
         <h1>社交登录（GitHub / Google）</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
-    <?php if ($saved) { ?><div class="alert success">社交登录设置已保存。</div><?php } ?>
+<?php if ($saved) { ?><div class="alert success">社交登录设置已保存。</div><?php } ?>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
 
     <div class="alert">
@@ -67,4 +66,4 @@ qf_include_header();
         <button class="btn" type="submit">保存社交登录设置</button>
     </form>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

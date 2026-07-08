@@ -10,14 +10,11 @@ $members = qf_online_members(50);
 $history = mysqli_query(db(), "SELECT * FROM qf_online_daily ORDER BY day_date DESC LIMIT 60");
 
 $page_title = '在线统计 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title"><h1>在线统计</h1></div>
-    <p class="admin-back-row">
-        <a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a>
-    </p>
-    <p class="muted">15 分钟内有活动计为在线；访客按会话计数，会员按用户去重。每日自动记录当天峰值。</p>
+<p class="muted">15 分钟内有活动计为在线；访客按会话计数，会员按用户去重。每日自动记录当天峰值。</p>
 
     <div class="admin-points-grid">
         <div>
@@ -73,4 +70,4 @@ qf_include_header();
         <?php if ($n === 0) { ?><tr><td colspan="5" class="muted">暂无历史记录，访问站点后会自动开始统计。</td></tr><?php } ?>
     </table>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

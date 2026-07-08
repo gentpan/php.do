@@ -16,14 +16,13 @@ while ($forums && $forum = mysqli_fetch_assoc($forums)) {
     $forum_options[] = $forum;
 }
 $page_title = '用户管理 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
         <h1>用户管理</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
-    <?php if (!empty($_SESSION['flash'])) { ?>
+<?php if (!empty($_SESSION['flash'])) { ?>
         <div class="alert success"><?php echo nl2br(h($_SESSION['flash'])); unset($_SESSION['flash']); ?></div>
     <?php } ?>
     <form class="search user-search" method="get">
@@ -129,4 +128,4 @@ qf_include_header();
         <p class="muted">没有找到普通用户。</p>
     <?php } ?>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

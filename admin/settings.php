@@ -192,13 +192,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = '站点设置 - ' . SITE_NAME;
-qf_include_header();
+$admin_heading = '站点设置';
+$admin_extra_js = array(qf_asset_js('admin'));
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
         <h1>站点设置</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
     <?php if ($saved) { ?><div class="alert success">设置已保存。</div><?php } ?>
     <?php if ($s3_test_message !== '') { ?><div class="alert <?php echo $s3_test_ok ? 'success' : ''; ?>"><?php echo h($s3_test_message); ?></div><?php } ?>
     <form method="post" class="settings-form" x-data="{ tab: 'basic' }">
@@ -405,5 +406,4 @@ qf_include_header();
         <button class="btn" type="submit">保存设置</button>
     </form>
 </section>
-<script src="<?php echo h(qf_asset_js('admin')); ?>"></script>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

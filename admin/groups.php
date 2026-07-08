@@ -64,15 +64,11 @@ foreach ($groups as $g) {
     }
 }
 $page_title = '用户组管理 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title"><h1>用户组管理</h1></div>
-    <p class="admin-back-row">
-        <a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a>
-        <a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/points.php')); ?>">积分与等级</a>
-    </p>
-    <?php if ($flash !== '') { ?><div class="alert success"><?php echo h($flash); ?></div><?php } ?>
+<?php if ($flash !== '') { ?><div class="alert success"><?php echo h($flash); ?></div><?php } ?>
     <?php if ($error !== '') { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
     <p class="muted">用户组按「所需最低积分」自动分配；用户达到更高组门槛后自动升级。系统组可改名/改门槛，但不可删除。</p>
 
@@ -121,4 +117,4 @@ qf_include_header();
         <?php } ?>
     </table>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

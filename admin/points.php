@@ -43,15 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $logs = mysqli_query(db(), "SELECT l.*, u.nickname, u.username FROM qf_points_log l LEFT JOIN qf_users u ON u.id=l.user_id ORDER BY l.id DESC LIMIT 40");
 $page_title = '积分与等级 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title"><h1>积分与等级</h1></div>
-    <p class="admin-back-row">
-        <a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a>
-        <a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/groups.php')); ?>">用户组管理</a>
-    </p>
-    <?php if ($saved) { ?><div class="alert success">设置已保存。</div><?php } ?>
+<?php if ($saved) { ?><div class="alert success">设置已保存。</div><?php } ?>
     <?php if ($error !== '') { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
 
     <form method="post" class="settings-form">
@@ -105,4 +101,4 @@ qf_include_header();
         <?php if ($n === 0) { ?><tr><td colspan="6" class="muted">暂无流水。</td></tr><?php } ?>
     </table>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

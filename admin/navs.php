@@ -159,14 +159,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {
 
 $navs = qf_nav_table_ready() ? mysqli_query(db(), "SELECT * FROM qf_navs ORDER BY display_order ASC, id ASC") : false;
 $page_title = '主导航设置 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
         <h1>主导航设置</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
-    <?php if ($saved) { ?><div class="alert success">主导航已保存。</div><?php } ?>
+<?php if ($saved) { ?><div class="alert success">主导航已保存。</div><?php } ?>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
 
     <?php if (!$icons_ready) { ?><div class="alert">分类图标字段尚未创建，请访问 <code>install/upgrade.php</code> 升级数据库后即可为每个分类设置图标。</div><?php } ?>
@@ -277,4 +276,4 @@ qf_include_header();
     for (var i = 0; i < roots.length; i++) bind(roots[i]);
 })();
 </script>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>

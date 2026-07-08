@@ -759,6 +759,51 @@ function qf_include_footer() {
     include qf_theme_file('footer.php');
 }
 
+function qf_admin_nav_items() {
+    return array(
+        array(
+            'label' => '概览',
+            'items' => array(
+                array('title' => '版块与禁封', 'script' => 'index.php', 'icon' => 'fa-solid fa-gauge-high'),
+                array('title' => '在线统计', 'script' => 'online.php', 'icon' => 'fa-solid fa-signal'),
+            ),
+        ),
+        array(
+            'label' => '内容与展示',
+            'items' => array(
+                array('title' => '站点设置', 'script' => 'settings.php', 'icon' => 'fa-solid fa-sliders'),
+                array('title' => '主导航', 'script' => 'navs.php', 'icon' => 'fa-solid fa-bars'),
+                array('title' => '广告位置', 'script' => 'ads.php', 'icon' => 'fa-solid fa-rectangle-ad'),
+            ),
+        ),
+        array(
+            'label' => '用户',
+            'items' => array(
+                array('title' => '用户管理', 'script' => 'users.php', 'icon' => 'fa-solid fa-users'),
+                array('title' => '积分与等级', 'script' => 'points.php', 'icon' => 'fa-solid fa-star'),
+                array('title' => '用户组', 'script' => 'groups.php', 'icon' => 'fa-solid fa-user-tag'),
+                array('title' => '邀请码', 'script' => 'invites.php', 'icon' => 'fa-solid fa-ticket'),
+            ),
+        ),
+        array(
+            'label' => '系统',
+            'items' => array(
+                array('title' => '安全相关', 'script' => 'security.php', 'icon' => 'fa-solid fa-shield-halved'),
+                array('title' => '社交登录', 'script' => 'social.php', 'icon' => 'fa-solid fa-right-to-bracket'),
+                array('title' => '清理缓存', 'script' => 'cache.php', 'icon' => 'fa-solid fa-broom'),
+            ),
+        ),
+    );
+}
+
+function qf_include_admin_header() {
+    include qf_theme_file('admin/_layout_header.php');
+}
+
+function qf_include_admin_footer() {
+    include qf_theme_file('admin/_layout_footer.php');
+}
+
 function qf_asset_js($name, $base = 'assets/js/') {
     $name = trim((string)$name, '/');
     $base = rtrim((string)$base, '/') . '/';

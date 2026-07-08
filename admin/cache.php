@@ -19,15 +19,14 @@ $messages[] = '会话提示缓存已清理。';
 $messages[] = '缓存已清理。';
 
 $page_title = '清理缓存 - ' . SITE_NAME;
-qf_include_header();
+qf_include_admin_header();
 ?>
 <section class="card">
     <div class="admin-page-title">
         <h1>清理缓存</h1>
     </div>
-    <p class="admin-back-row"><a class="btn btn-light btn-small" href="<?php echo h(qf_url_page('admin/index.php')); ?>">返回后台</a></p>
-    <?php foreach ($messages as $msg) { ?>
+<?php foreach ($messages as $msg) { ?>
         <p class="success"><?php echo h($msg); ?></p>
     <?php } ?>
 </section>
-<?php qf_include_footer(); ?>
+<?php qf_include_admin_footer(); ?>
