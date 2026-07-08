@@ -217,7 +217,6 @@ qf_include_header();
                 <?php } ?>
             </div>
             <button type="button" class="phpdo-new-topics" data-new-topics hidden>
-                <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
                 查看 <b data-new-count>0</b> 个新的或更新的话题
             </button>
             <div class="phpdo-thread-list latest-list" data-feed-list data-filter="<?php echo h($filter); ?>" data-per-page="<?php echo intval($phpdo_per_page); ?>" data-has-more="<?php echo $phpdo_has_more ? '1' : '0'; ?>" data-latest-ts="<?php echo h($phpdo_latest_ts); ?>">

@@ -713,6 +713,9 @@
                             curList.setAttribute('data-filter', nextList.getAttribute('data-filter') || feedFilter);
                         }
                         document.title = nextDoc.title || document.title;
+                        if (typeof window.qfFeedRememberTitle === 'function') {
+                            window.qfFeedRememberTitle(document.title);
+                        }
                         if (typeof window.qfFeedSync === 'function') window.qfFeedSync();
                         enhanceMedia(document);
                     })
@@ -777,7 +780,8 @@
         var newBtn = document.querySelector('[data-new-topics]');
         var newCount = newBtn ? newBtn.querySelector('[data-new-count]') : null;
 
-        var state = { page: 1, loading: false, hasMore: false, autoUsed: false, filter: 'reply', latestTs: '' };
+        var state = { page: 1, loading: false, hasMore: false, autoUsed: false, filter: 'reply', latestTs: '', newCount: 0 };
+        var baseTitle = String(document.title || '').replace(/^\(\d+\)\s*/, '');
 
         function buildUrl(params) {
             var url = new URL(window.location.origin + window.location.pathname);
@@ -790,12 +794,36 @@
             if (endEl) endEl.hidden = state.hasMore || !list.querySelector('.phpdo-thread-row');
         }
 
-        function hideNewTopics() { if (newBtn) newBtn.hidden = true; }
+        function syncDocTitle(n) {
+            n = parseInt(n, 10) || 0;
+            document.title = n > 0 ? ('(' + n + ') ' + baseTitle) : baseTitle;
+        }
+
+        function rememberBaseTitle(title) {
+            baseTitle = String(title || document.title || '').replace(/^\(\d+\)\s*/, '');
+            syncDocTitle(state.newCount);
+        }
+
+        function hideNewTopics() {
+            state.newCount = 0;
+            if (newBtn) newBtn.hidden = true;
+            syncDocTitle(0);
+        }
 
         function showNewTopics(n) {
-            if (!newBtn) return;
+            n = parseInt(n, 10) || 0;
+            if (n <= 0) {
+                hideNewTopics();
+                return;
+            }
+            state.newCount = n;
+            if (!newBtn) {
+                syncDocTitle(n);
+                return;
+            }
             if (newCount) newCount.textContent = n;
             newBtn.hidden = false;
+            syncDocTitle(n);
         }
 
         function syncFromList() {
@@ -861,15 +889,23 @@
         }
 
         function poll() {
-            if (!state.latestTs) return;
+            if (!state.latestTs || document.hidden) return;
             var params = { ajax: 'check', since: state.latestTs };
             if (state.filter !== 'reply') params.filter = state.filter;
             fetch(buildUrl(params), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function(res) { return res.json(); })
-                .then(function(data) { if (data && data.count > 0) showNewTopics(data.count); })
+                .then(function(data) {
+                    if (data && data.count > 0) showNewTopics(data.count);
+                    else if (state.newCount > 0) hideNewTopics();
+                })
                 .catch(function() {});
         }
-        window.setInterval(poll, 45000);
+        window.setInterval(poll, 20000);
+        window.setTimeout(poll, 8000);
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) poll();
+        });
+        window.qfFeedRememberTitle = rememberBaseTitle;
 
         if (newBtn) {
             newBtn.addEventListener('click', function() {
