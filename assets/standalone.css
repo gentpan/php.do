@@ -370,6 +370,24 @@ body.pd-standalone .pd-banner-logo img {
 .pd-auth-oauth i {
     font-size: 17px;
 }
+.pd-auth-oauth .pd-oauth-logo {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    object-fit: contain;
+}
+.pd-auth-oauth .pd-oauth-ficon {
+    width: 18px;
+    font-size: 17px;
+    text-align: center;
+}
+/* 登录/Passkey/第三方按钮统一为圆角矩形（非胶囊），同一尺寸家族 */
+.pd-auth-submit,
+.pd-auth-oauth a,
+.pd-auth-oauth button {
+    border-radius: 8px;
+    height: 48px;
+}
 .pd-auth2-switch {
     margin: 22px 0 0;
     text-align: center;

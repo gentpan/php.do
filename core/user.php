@@ -329,6 +329,7 @@ function pd_oauth_providers() {
             'token' => 'https://github.com/login/oauth/access_token',
             'scope' => 'read:user user:email',
             'icon' => 'fa-brands fa-github',
+            'logo' => 'assets/logos/github.svg',
         ),
         'google' => array(
             'label' => 'Google',
@@ -336,6 +337,23 @@ function pd_oauth_providers() {
             'token' => 'https://oauth2.googleapis.com/token',
             'scope' => 'openid email profile',
             'icon' => 'fa-brands fa-google',
+            'logo' => 'assets/logos/google.svg',
+        ),
+        'x' => array(
+            'label' => 'X',
+            'authorize' => 'https://twitter.com/i/oauth2/authorize',
+            'token' => 'https://api.twitter.com/2/oauth2/token',
+            'scope' => 'users.read tweet.read',
+            'icon' => 'fa-brands fa-x-twitter',
+            'logo' => 'assets/logos/x.svg',
+        ),
+        'discord' => array(
+            'label' => 'Discord',
+            'authorize' => 'https://discord.com/oauth2/authorize',
+            'token' => 'https://discord.com/api/oauth2/token',
+            'scope' => 'identify email',
+            'icon' => 'fa-brands fa-discord',
+            'logo' => 'assets/logos/discord.svg',
         ),
     );
 }

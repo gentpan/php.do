@@ -38,11 +38,11 @@ pd_include_header(true);
             <div class="pd-auth-oauth">
                 <?php foreach (pd_oauth_providers() as $key => $info) { ?>
                     <a href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
-                        <i class="<?php echo h($info['icon']); ?>" aria-hidden="true"></i> 使用 <?php echo h($info['label']); ?> 登录
+                        <img class="pd-oauth-logo" src="<?php echo h($info['logo']); ?>" alt="" width="18" height="18"> 使用 <?php echo h($info['label']); ?> 登录
                     </a>
                 <?php } ?>
                 <button type="button" data-passkey-login>
-                    <i class="fa-solid fa-key" aria-hidden="true"></i> 使用通行密钥登录
+                    <i class="fa-solid fa-key pd-oauth-ficon" aria-hidden="true"></i> 使用通行密钥登录
                 </button>
             </div>
         </div>

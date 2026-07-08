@@ -54,7 +54,7 @@ pd_include_header(true);
             <div class="pd-auth-oauth">
                 <?php foreach (pd_oauth_providers() as $key => $info) { ?>
                     <a href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
-                        <i class="<?php echo h($info['icon']); ?>" aria-hidden="true"></i> 使用 <?php echo h($info['label']); ?> 继续
+                        <img class="pd-oauth-logo" src="<?php echo h($info['logo']); ?>" alt="" width="18" height="18"> 使用 <?php echo h($info['label']); ?> 继续
                     </a>
                 <?php } ?>
             </div>
