@@ -29,6 +29,7 @@ pd_include_header(true);
                     <label>密码</label>
                     <input type="password" name="password" required autocomplete="current-password" placeholder="密码">
                 </div>
+                <div class="pd-auth-forgot"><a href="<?php echo h(pd_url_page('forgot-password.php')); ?>">忘记密码？</a></div>
                 <button class="pd-auth-submit" type="submit">登录</button>
             </form>
         </div>

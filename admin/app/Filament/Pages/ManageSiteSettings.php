@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -46,7 +47,7 @@ class ManageSiteSettings extends Page
             'upload_max_mb', 'upload_allowed_exts', 'guest_download_enabled',
             'home_threads_per_page', 'forum_threads_per_page', 'thread_page_chars', 'reply_max_chars',
             'signin_base_coins', 'signin_streak_bonus',
-            'register_ip_daily_limit', 'captcha_enabled', 'captcha_reply_free_count', 'require_invite',
+            'register_ip_daily_limit', 'captcha_enabled', 'captcha_reply_free_count', 'require_invite', 'require_email_verify',
             'mail_method', 'mail_from_email', 'mail_from_name', 'smtp_host', 'smtp_port', 'smtp_secure', 'smtp_username', 'smtp_password', 'resend_api_key',
             's3_enabled', 's3_endpoint', 's3_region', 's3_bucket', 's3_access_key', 's3_secret_key', 's3_cdn_domain', 's3_path_prefix',
             'friend_links_enabled', 'friend_links', 'rewrite_enabled', 'rewrite_nginx_rules',
@@ -59,7 +60,7 @@ class ManageSiteSettings extends Page
             $value = Setting::getValue($key, '');
             if (in_array($key, [
                 'guest_download_enabled', 'captcha_enabled', 's3_enabled',
-                'friend_links_enabled', 'rewrite_enabled', 'require_invite',
+                'friend_links_enabled', 'rewrite_enabled', 'require_invite', 'require_email_verify',
             ], true)) {
                 $data[$key] = $value === '1';
             } else {
@@ -112,6 +113,7 @@ class ManageSiteSettings extends Page
                         Toggle::make('captcha_enabled')->label('开启验证码'),
                         TextInput::make('captcha_reply_free_count')->label('免验证码回复次数')->numeric(),
                         Toggle::make('require_invite')->label('注册需要邀请码')->helperText('开启后新用户必须填写有效邀请码才能注册（严格控制注册）'),
+                        Toggle::make('require_email_verify')->label('注册需要邮箱验证码')->helperText('开启后注册须通过邮箱验证码（需先在「邮件」配置好发送方式）'),
                     ]),
                     Tab::make('邮件')->schema([
                         Select::make('mail_method')->label('邮件发送方式')->options([
@@ -152,6 +154,18 @@ class ManageSiteSettings extends Page
                 ]),
             ])
             ->statePath('data');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('testMail')
+                ->label('发送测试邮件')
+                ->icon('heroicon-o-envelope')
+                ->color('gray')
+                ->url('/api/admin-test-mail.php')
+                ->openUrlInNewTab(),
+        ];
     }
 
     public function save(): void

@@ -321,6 +321,22 @@ function pd_oauth_table_ready() {
     return $t && mysqli_num_rows($t) > 0;
 }
 
+// 用户名规范：中英文/数字/下划线/连字符，5-16 字符，非纯数字，禁止句号逗号等标点。返回 '' 通过。
+function pd_validate_username($username) {
+    $len = function_exists('mb_strlen') ? mb_strlen($username, 'UTF-8') : strlen($username);
+    if ($len < 5 || $len > 16) return '用户名长度需为 5-16 个字符。';
+    if (!preg_match('/^[\p{L}\p{N}_-]+$/u', $username)) return '用户名只能包含中英文、数字、下划线或连字符，不能有句号、逗号等标点或空格。';
+    if (preg_match('/^[0-9]+$/', $username)) return '用户名不能是纯数字。';
+    return '';
+}
+
+// 密码规范：至少 8 位，非纯数字。返回 '' 通过。
+function pd_validate_password($password) {
+    if (strlen($password) < 8) return '密码至少 8 位。';
+    if (preg_match('/^[0-9]+$/', $password)) return '密码不能是纯数字。';
+    return '';
+}
+
 function pd_oauth_providers() {
     return array(
         'github' => array(

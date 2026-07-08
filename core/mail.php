@@ -35,6 +35,48 @@ function pd_mail_from_header($from) {
     return pd_mail_encode_header($from['name']) . ' <' . $from['email'] . '>';
 }
 
+// 是否强制邮箱验证码（需邮件系统已启用 + 后台开关）
+function pd_require_email_verify() {
+    return pd_mail_enabled() && intval(pd_setting('require_email_verify', '0')) === 1;
+}
+
+// 发送邮箱验证码（会话存储，60s 限流，10 分钟有效）。$purpose: register|reset
+function pd_email_code_send($email, $purpose, &$error = '') {
+    $email = strtolower(trim((string) $email));
+    $purpose = preg_replace('/[^a-z]/', '', (string) $purpose);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $error = '邮箱格式无效'; return false; }
+    if (!pd_mail_enabled()) { $error = '邮件系统未启用，无法发送验证码'; return false; }
+    $key = 'email_code_' . $purpose;
+    if (isset($_SESSION[$key]['sent_at']) && (time() - intval($_SESSION[$key]['sent_at'])) < 60) {
+        $error = '发送过于频繁，请 60 秒后再试。'; return false;
+    }
+    $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    $site = pd_site_name();
+    $subject = $site . ' 验证码：' . $code;
+    $html = '<div style="font-family:sans-serif;font-size:15px;color:#333">'
+        . '<p>你正在 ' . h($site) . ' 进行' . ($purpose === 'reset' ? '找回密码' : '注册') . '，验证码：</p>'
+        . '<p style="font-size:26px;font-weight:800;letter-spacing:3px;color:#505b93">' . $code . '</p>'
+        . '<p style="color:#888">验证码 10 分钟内有效。如非本人操作，请忽略本邮件。</p></div>';
+    if (!pd_send_mail($email, $subject, $html, $error)) return false;
+    $_SESSION[$key] = array('email' => $email, 'code' => $code, 'expires' => time() + 600, 'sent_at' => time());
+    return true;
+}
+
+function pd_email_code_verify($email, $code, $purpose) {
+    $email = strtolower(trim((string) $email));
+    $code = trim((string) $code);
+    $key = 'email_code_' . preg_replace('/[^a-z]/', '', (string) $purpose);
+    if (empty($_SESSION[$key])) return false;
+    $s = $_SESSION[$key];
+    if (strtolower((string) $s['email']) !== $email) return false;
+    if (time() > intval($s['expires'])) return false;
+    return $code !== '' && hash_equals((string) $s['code'], $code);
+}
+
+function pd_email_code_clear($purpose) {
+    unset($_SESSION['email_code_' . preg_replace('/[^a-z]/', '', (string) $purpose)]);
+}
+
 // 统一发信入口。成功返回 true；失败返回 false 并写 $error。
 function pd_send_mail($to, $subject, $html, &$error = '') {
     $error = '';

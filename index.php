@@ -67,6 +67,11 @@ if ($request_path === 'download' || $request_path === 'download.php') {
     require __DIR__ . '/api/download.php';
     exit;
 }
+if ($request_path === 'forgot-password' || $request_path === 'forgot-password.php') {
+    $_SERVER['SCRIPT_NAME'] = '/forgot-password.php';
+    require __DIR__ . '/pages/forgot-password.php';
+    exit;
+}
 if ($request_path === 'about' || $request_path === 'about.php') {
     if ($request_path === 'about' && pd_rewrite_enabled()) {
         pd_front_redirect(pd_url_page('about.php'));
