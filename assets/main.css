@@ -7825,3 +7825,61 @@ body.theme-php-dark .phpdo-reaction-count {
     .phpdo-reaction.is-popping,
     .phpdo-vote-button.is-popping { animation: none; }
 }
+
+/* 积分 / 用户组 */
+.phpdo-group-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 8px;
+    margin-left: 6px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    vertical-align: middle;
+    background: var(--group-color, #505b93);
+    border-radius: 4px;
+}
+.phpdo-level-name {
+    margin-left: 4px;
+    color: #8a9099;
+    font-size: 13px;
+    font-weight: 600;
+}
+.phpdo-level-progress {
+    max-width: 420px;
+    margin: 10px 0 4px;
+}
+.phpdo-level-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    color: #6a7078;
+    font-size: 12px;
+}
+.phpdo-level-progress-track {
+    height: 8px;
+    overflow: hidden;
+    background: #eef1f7;
+    border-radius: 999px;
+}
+.phpdo-level-progress-track span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #7a86c4, #505b93);
+    border-radius: 999px;
+}
+.admin-points-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 10px;
+}
+@media (max-width: 900px) {
+    .admin-points-grid { grid-template-columns: 1fr 1fr; }
+}
+body.theme-php-dark .phpdo-level-progress-track {
+    background: rgba(255,255,255,.08);
+}

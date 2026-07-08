@@ -39,7 +39,8 @@ if ($upload_saved > 0 && empty($upload_errors)) {
     $_SESSION['flash'] = '回帖成功';
 }
 mysqli_query(db(), "UPDATE qf_threads SET replies=replies+1, updated_at=NOW() WHERE id={$tid}");
-mysqli_query(db(), "UPDATE qf_users SET reply_count=reply_count+1, points=points+" . qf_points_for_reply() . " WHERE id={$uid}");
+mysqli_query(db(), "UPDATE qf_users SET reply_count=reply_count+1 WHERE id={$uid}");
+qf_add_user_points($uid, qf_points_for_reply(), 'reply', 'post', $post_id);
 if ($thread_info && intval($thread_info['user_id']) !== $uid) {
     qf_notify_user(intval($thread_info['user_id']), $tid, $post_id, '你的帖子《' . $thread_info['title'] . '》有新的回帖');
 }

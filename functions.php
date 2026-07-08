@@ -364,61 +364,292 @@ function qf_site_keywords() {
     return qf_setting('site_keywords', '');
 }
 
-// ===== 用户积分与等级 =====
-// 积分来源（累加到 qf_users.points）：发主题帖 +10，发回复 +3。
-// 等级共 10 级，按累计积分映射，只显示数字（Lv.N）。
-function qf_points_for_thread() { return 10; }
-function qf_points_for_reply() { return 3; }
+// ===== 用户积分、等级与用户组 =====
+function qf_ensure_points_schema() {
+    static $done = false;
+    if ($done) {
+        return true;
+    }
+    $done = true;
 
-// 各等级所需的累计积分下限（Lv => points）。可在此调整曲线。
-function qf_level_thresholds() {
-    return array(
-        1 => 0,
-        2 => 30,
-        3 => 100,
-        4 => 250,
-        5 => 500,
-        6 => 1000,
-        7 => 2000,
-        8 => 3500,
-        9 => 6000,
-        10 => 10000,
-    );
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_user_groups (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      name varchar(60) NOT NULL DEFAULT '',
+      slug varchar(40) NOT NULL DEFAULT '',
+      color varchar(20) NOT NULL DEFAULT '',
+      min_points int(11) NOT NULL DEFAULT '0',
+      is_system tinyint(1) NOT NULL DEFAULT '0',
+      display_order int(11) NOT NULL DEFAULT '0',
+      created_at datetime NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY slug (slug),
+      KEY min_points (min_points)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    mysqli_query(db(), "CREATE TABLE IF NOT EXISTS qf_points_log (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      user_id int(11) NOT NULL DEFAULT '0',
+      delta int(11) NOT NULL DEFAULT '0',
+      balance int(11) NOT NULL DEFAULT '0',
+      reason varchar(40) NOT NULL DEFAULT '',
+      ref_type varchar(20) NOT NULL DEFAULT '',
+      ref_id int(11) NOT NULL DEFAULT '0',
+      note varchar(255) NOT NULL DEFAULT '',
+      operator_id int(11) NOT NULL DEFAULT '0',
+      created_at datetime NOT NULL,
+      PRIMARY KEY (id),
+      KEY user_id (user_id),
+      KEY created_at (created_at),
+      KEY reason (reason)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    if (!qf_table_has_column('qf_users', 'points')) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD points int(11) NOT NULL DEFAULT '0' AFTER reply_count");
+        mysqli_query(db(), "UPDATE qf_users u SET u.points = u.reply_count * 3 + IFNULL((SELECT COUNT(*) FROM qf_threads t WHERE t.user_id = u.id AND t.is_deleted = 0), 0) * 10");
+    }
+    if (!qf_table_has_column('qf_users', 'group_id')) {
+        mysqli_query(db(), "ALTER TABLE qf_users ADD group_id int(11) NOT NULL DEFAULT '0' AFTER points");
+    }
+
+    $cnt_rs = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_user_groups");
+    $cnt_row = $cnt_rs ? mysqli_fetch_assoc($cnt_rs) : null;
+    if (!$cnt_row || intval($cnt_row['c']) === 0) {
+        $defaults = array(
+            array('name' => '新手', 'slug' => 'newbie', 'color' => '#8a9099', 'min_points' => 0, 'order' => 10),
+            array('name' => '活跃会员', 'slug' => 'member', 'color' => '#505b93', 'min_points' => 100, 'order' => 20),
+            array('name' => '资深会员', 'slug' => 'senior', 'color' => '#2f7d5a', 'min_points' => 500, 'order' => 30),
+            array('name' => '核心贡献者', 'slug' => 'core', 'color' => '#c26a00', 'min_points' => 2000, 'order' => 40),
+            array('name' => '社区元老', 'slug' => 'elder', 'color' => '#b54747', 'min_points' => 6000, 'order' => 50),
+        );
+        foreach ($defaults as $g) {
+            $name = esc($g['name']);
+            $slug = esc($g['slug']);
+            $color = esc($g['color']);
+            $min = intval($g['min_points']);
+            $order = intval($g['order']);
+            mysqli_query(db(), "INSERT INTO qf_user_groups (name,slug,color,min_points,is_system,display_order,created_at) VALUES ('{$name}','{$slug}','{$color}',{$min},1,{$order},NOW())");
+        }
+    }
+
+    if (qf_setting('points_thread', '') === '') qf_update_setting('points_thread', '10');
+    if (qf_setting('points_reply', '') === '') qf_update_setting('points_reply', '3');
+    if (qf_setting('points_floor_reply', '') === '') qf_update_setting('points_floor_reply', '1');
+    if (qf_setting('points_good_bonus', '') === '') qf_update_setting('points_good_bonus', '20');
+    if (qf_setting('level_thresholds', '') === '') {
+        qf_update_setting('level_thresholds', "1:0\n2:30\n3:100\n4:250\n5:500\n6:1000\n7:2000\n8:3500\n9:6000\n10:10000");
+    }
+    if (qf_setting('level_names', '') === '') {
+        qf_update_setting('level_names', "1:新手\n2:入门\n3:熟练\n4:进阶\n5:老手\n6:达人\n7:精英\n8:大神\n9:宗师\n10:传奇");
+    }
+
+    mysqli_query(db(), "UPDATE qf_users u
+        LEFT JOIN qf_user_groups g ON g.id = (
+            SELECT g2.id FROM qf_user_groups g2 WHERE g2.min_points <= u.points ORDER BY g2.min_points DESC, g2.display_order ASC, g2.id ASC LIMIT 1
+        )
+        SET u.group_id = IFNULL(g.id, 0)
+        WHERE u.group_id = 0");
+    return true;
 }
 
-// 根据积分返回等级数字（1..最高级）。
+function qf_points_for_thread() { return qf_setting_int('points_thread', 10, 0, 100000); }
+function qf_points_for_reply() { return qf_setting_int('points_reply', 3, 0, 100000); }
+function qf_points_for_floor_reply() { return qf_setting_int('points_floor_reply', 1, 0, 100000); }
+function qf_points_for_good() { return qf_setting_int('points_good_bonus', 20, 0, 100000); }
+
+function qf_default_level_thresholds() {
+    return array(1 => 0, 2 => 30, 3 => 100, 4 => 250, 5 => 500, 6 => 1000, 7 => 2000, 8 => 3500, 9 => 6000, 10 => 10000);
+}
+
+function qf_level_thresholds() {
+    $raw = trim((string)qf_setting('level_thresholds', ''));
+    $out = array();
+    if ($raw !== '') {
+        foreach (preg_split('/\r\n|\r|\n/', $raw) as $line) {
+            $line = trim($line);
+            if ($line === '' || strpos($line, ':') === false) continue;
+            list($lv, $need) = array_map('trim', explode(':', $line, 2));
+            $lv = intval($lv);
+            $need = intval($need);
+            if ($lv >= 1 && $lv <= 50) $out[$lv] = max(0, $need);
+        }
+    }
+    if (empty($out)) $out = qf_default_level_thresholds();
+    ksort($out, SORT_NUMERIC);
+    return $out;
+}
+
+function qf_level_names() {
+    $raw = trim((string)qf_setting('level_names', ''));
+    $out = array();
+    if ($raw === '') return $out;
+    foreach (preg_split('/\r\n|\r|\n/', $raw) as $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, ':') === false) continue;
+        list($lv, $name) = array_map('trim', explode(':', $line, 2));
+        $lv = intval($lv);
+        $name = clean_text($name, 20);
+        if ($lv >= 1 && $name !== '') $out[$lv] = $name;
+    }
+    return $out;
+}
+
+function qf_level_name($level) {
+    $names = qf_level_names();
+    $level = intval($level);
+    return isset($names[$level]) ? $names[$level] : ('Lv.' . $level);
+}
+
 function qf_user_level($points) {
     $points = intval($points);
     $level = 1;
     foreach (qf_level_thresholds() as $lv => $need) {
-        if ($points >= $need) {
-            $level = $lv;
-        } else {
-            break;
-        }
+        if ($points >= $need) $level = $lv;
+        else break;
     }
     return $level;
 }
 
-// 距离下一级还差多少积分；已满级返回 0。
 function qf_points_to_next_level($points) {
     $points = intval($points);
     $thresholds = qf_level_thresholds();
     $current = qf_user_level($points);
-    if (!isset($thresholds[$current + 1])) {
-        return 0;
-    }
+    if (!isset($thresholds[$current + 1])) return 0;
     return max(0, intval($thresholds[$current + 1]) - $points);
 }
 
-// 给用户增加积分（$delta 可为负）。
-function qf_add_user_points($user_id, $delta) {
+function qf_level_progress($points) {
+    $points = intval($points);
+    $thresholds = qf_level_thresholds();
+    $level = qf_user_level($points);
+    $curr_need = isset($thresholds[$level]) ? intval($thresholds[$level]) : 0;
+    if (!isset($thresholds[$level + 1])) {
+        return array('level' => $level, 'current' => $points, 'start' => $curr_need, 'next' => 0, 'remain' => 0, 'percent' => 100, 'max' => true);
+    }
+    $next_need = intval($thresholds[$level + 1]);
+    $span = max(1, $next_need - $curr_need);
+    $got = max(0, $points - $curr_need);
+    return array(
+        'level' => $level,
+        'current' => $points,
+        'start' => $curr_need,
+        'next' => $next_need,
+        'remain' => max(0, $next_need - $points),
+        'percent' => (int)min(100, floor($got * 100 / $span)),
+        'max' => false,
+    );
+}
+
+function qf_points_reason_label($reason) {
+    $map = array(
+        'thread' => '发布主题', 'reply' => '发表回复', 'floor_reply' => '楼中楼回复',
+        'del_thread' => '主题被删除', 'del_post' => '回复被删除',
+        'good_on' => '主题加精奖励', 'good_off' => '取消加精',
+        'admin' => '管理员调整', 'recalc' => '积分重算', 'clear' => '清除内容',
+    );
+    return isset($map[$reason]) ? $map[$reason] : $reason;
+}
+
+function qf_sync_user_group($user_id) {
+    $user_id = intval($user_id);
+    if ($user_id <= 0) return 0;
+    $rs = mysqli_query(db(), "SELECT points FROM qf_users WHERE id={$user_id} LIMIT 1");
+    $row = $rs ? mysqli_fetch_assoc($rs) : null;
+    if (!$row) return 0;
+    $points = intval($row['points']);
+    $g = mysqli_query(db(), "SELECT id FROM qf_user_groups WHERE min_points <= {$points} ORDER BY min_points DESC, display_order ASC, id ASC LIMIT 1");
+    $group = $g ? mysqli_fetch_assoc($g) : null;
+    $gid = $group ? intval($group['id']) : 0;
+    mysqli_query(db(), "UPDATE qf_users SET group_id={$gid} WHERE id={$user_id}");
+    return $gid;
+}
+
+function qf_user_group($user_or_id) {
+    qf_ensure_points_schema();
+    if (is_array($user_or_id)) {
+        $gid = intval(isset($user_or_id['group_id']) ? $user_or_id['group_id'] : 0);
+        $points = intval(isset($user_or_id['points']) ? $user_or_id['points'] : 0);
+    } else {
+        $uid = intval($user_or_id);
+        if ($uid <= 0) return null;
+        $rs = mysqli_query(db(), "SELECT points, group_id FROM qf_users WHERE id={$uid} LIMIT 1");
+        $row = $rs ? mysqli_fetch_assoc($rs) : null;
+        if (!$row) return null;
+        $gid = intval($row['group_id']);
+        $points = intval($row['points']);
+    }
+    if ($gid > 0) {
+        $gr = mysqli_query(db(), "SELECT * FROM qf_user_groups WHERE id={$gid} LIMIT 1");
+        $group = $gr ? mysqli_fetch_assoc($gr) : null;
+        if ($group) return $group;
+    }
+    $gr = mysqli_query(db(), "SELECT * FROM qf_user_groups WHERE min_points <= {$points} ORDER BY min_points DESC, display_order ASC, id ASC LIMIT 1");
+    return $gr ? mysqli_fetch_assoc($gr) : null;
+}
+
+function qf_user_group_badge_html($user_or_id) {
+    $group = qf_user_group($user_or_id);
+    if (!$group) return '';
+    $color = preg_match('/^#[0-9a-fA-F]{3,8}$/', $group['color']) ? $group['color'] : '#505b93';
+    return '<span class="phpdo-group-badge" style="--group-color:' . h($color) . '">' . h($group['name']) . '</span>';
+}
+
+function qf_level_badge_html($points, $show_name = false) {
+    $level = qf_user_level($points);
+    $html = '<span class="phpdo-level">Lv.' . intval($level) . '</span>';
+    if ($show_name) $html .= ' <span class="phpdo-level-name">' . h(qf_level_name($level)) . '</span>';
+    return $html;
+}
+
+function qf_add_user_points($user_id, $delta, $reason = '', $ref_type = '', $ref_id = 0, $note = '', $operator_id = 0) {
+    qf_ensure_points_schema();
     $user_id = intval($user_id);
     $delta = intval($delta);
-    if ($user_id <= 0 || $delta === 0) {
-        return;
-    }
+    if ($user_id <= 0 || $delta === 0) return false;
     mysqli_query(db(), "UPDATE qf_users SET points = GREATEST(0, points + ({$delta})) WHERE id={$user_id}");
+    $rs = mysqli_query(db(), "SELECT points FROM qf_users WHERE id={$user_id} LIMIT 1");
+    $row = $rs ? mysqli_fetch_assoc($rs) : null;
+    $balance = $row ? intval($row['points']) : 0;
+    $reason_sql = esc(clean_text($reason, 40));
+    $ref_type_sql = esc(clean_text($ref_type, 20));
+    $ref_id = intval($ref_id);
+    $note_sql = esc(clean_text($note, 255));
+    $operator_id = intval($operator_id);
+    mysqli_query(db(), "INSERT INTO qf_points_log (user_id,delta,balance,reason,ref_type,ref_id,note,operator_id,created_at) VALUES ({$user_id},{$delta},{$balance},'{$reason_sql}','{$ref_type_sql}',{$ref_id},'{$note_sql}',{$operator_id},NOW())");
+    qf_sync_user_group($user_id);
+    return true;
+}
+
+function qf_recalc_user_points($user_id) {
+    $user_id = intval($user_id);
+    if ($user_id <= 0) return 0;
+    $thread_pts = qf_points_for_thread();
+    $reply_pts = qf_points_for_reply();
+    $floor_pts = qf_points_for_floor_reply();
+    $good_pts = qf_points_for_good();
+    $tr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_threads WHERE user_id={$user_id} AND is_deleted=0");
+    $trow = $tr ? mysqli_fetch_assoc($tr) : null;
+    $pr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_posts WHERE user_id={$user_id} AND is_deleted=0");
+    $prow = $pr ? mysqli_fetch_assoc($pr) : null;
+    $fr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_post_comments WHERE user_id={$user_id} AND is_deleted=0");
+    $frow = $fr ? mysqli_fetch_assoc($fr) : null;
+    $gr = mysqli_query(db(), "SELECT COUNT(*) AS c FROM qf_threads WHERE user_id={$user_id} AND is_deleted=0 AND is_good=1");
+    $grow = $gr ? mysqli_fetch_assoc($gr) : null;
+    $total = intval($trow['c']) * $thread_pts + intval($prow['c']) * $reply_pts + intval($frow['c']) * $floor_pts + intval($grow['c']) * $good_pts;
+    $cur = mysqli_query(db(), "SELECT points FROM qf_users WHERE id={$user_id} LIMIT 1");
+    $crow = $cur ? mysqli_fetch_assoc($cur) : null;
+    $old = $crow ? intval($crow['points']) : 0;
+    $delta = $total - $old;
+    if ($delta !== 0) qf_add_user_points($user_id, $delta, 'recalc', 'user', $user_id, '按发帖回复重算');
+    else qf_sync_user_group($user_id);
+    return $total;
+}
+
+function qf_list_user_groups() {
+    qf_ensure_points_schema();
+    $rs = mysqli_query(db(), "SELECT * FROM qf_user_groups ORDER BY min_points ASC, display_order ASC, id ASC");
+    $rows = array();
+    while ($rs && $row = mysqli_fetch_assoc($rs)) $rows[] = $row;
+    return $rows;
 }
 
 function qf_theme_options() {
@@ -1386,8 +1617,17 @@ function qf_soft_delete_post($post_id, $thread_id) {
     if ($post_id <= 0 || $thread_id <= 0) {
         return false;
     }
+    $rs = mysqli_query(db(), "SELECT user_id, is_deleted FROM qf_posts WHERE id={$post_id} LIMIT 1");
+    $row = $rs ? mysqli_fetch_assoc($rs) : null;
     mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE id={$post_id}");
     mysqli_query(db(), "UPDATE qf_threads SET replies=GREATEST(replies-1,0) WHERE id={$thread_id}");
+    if ($row && intval($row['is_deleted']) === 0 && intval($row['user_id']) > 0) {
+        $delta = -qf_points_for_reply();
+        if ($delta !== 0) {
+            qf_add_user_points(intval($row['user_id']), $delta, 'del_post', 'post', $post_id);
+        }
+        mysqli_query(db(), "UPDATE qf_users SET reply_count=GREATEST(reply_count-1,0) WHERE id=" . intval($row['user_id']));
+    }
     return true;
 }
 
@@ -3048,6 +3288,7 @@ function qf_ensure_timezone_schema() {
     }
     $done = true;
     qf_ensure_account_auth_schema();
+    qf_ensure_points_schema();
     qf_migrate_storage_to_utc();
 }
 

@@ -4,7 +4,7 @@ qf_ensure_thread_reaction_schema();
 qf_ensure_post_vote_schema();
 $id = qf_path_id();
 mysqli_query(db(), "UPDATE qf_threads SET views=views+1 WHERE id={$id}");
-$rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.signature AS author_signature, u.points AS author_points, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
+$rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.signature AS author_signature, u.points AS author_points, u.group_id AS author_group_id, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_threads t
     LEFT JOIN qf_forums f ON t.forum_id=f.id
     LEFT JOIN qf_users u ON t.user_id=u.id
     WHERE t.id={$id} AND t.is_deleted=0 LIMIT 1");
@@ -22,7 +22,7 @@ $reply_page = isset($_GET['rp']) ? intval($_GET['rp']) : 1;
 if ($reply_page < 1) $reply_page = 1;
 if ($reply_page > $reply_pages) $reply_page = $reply_pages;
 $reply_offset = ($reply_page - 1) * $replies_per_page;
-$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.points, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
+$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.points, u.group_id, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM qf_posts p LEFT JOIN qf_users u ON p.user_id=u.id LEFT JOIN qf_threads t ON p.thread_id=t.id
     WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT {$reply_offset}, {$replies_per_page}");
 $attachments = mysqli_query(db(), "SELECT * FROM qf_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
 $guest_zip_download_blocked = !current_user() && !qf_guest_download_allowed();
@@ -75,6 +75,7 @@ if ($me) {
     <div class="phpdo-thread-foot-stats">
         <a class="phpdo-author-link" href="<?php echo h(qf_url_user($thread['user_id'])); ?>"><?php echo h($thread_author); ?></a>
         <span class="phpdo-level">Lv.<?php echo intval(qf_user_level($thread_author_points)); ?></span>
+        <?php echo qf_user_group_badge_html(array('group_id' => isset($thread['author_group_id']) ? $thread['author_group_id'] : 0, 'points' => $thread_author_points)); ?>
         <?php if (intval(isset($thread['author_is_moderator']) ? $thread['author_is_moderator'] : 0)) { ?><span class="moderator-badge">版主</span><?php } ?>
         <span class="phpdo-foot-nums"><?php echo qf_format_compact_number($thread['views']); ?> 浏览 · <?php echo qf_format_compact_number($thread['replies']); ?> 回复</span>
     </div>
@@ -123,6 +124,7 @@ if ($me) {
                     <div class="post-meta">
                         <a class="phpdo-reply-author" href="<?php echo h(qf_url_user($p['user_id'])); ?>"><?php echo h($reply_author); ?></a>
                         <span class="phpdo-level">Lv.<?php echo intval($reply_level); ?></span>
+                        <?php echo qf_user_group_badge_html($p); ?>
                         <?php if (intval(isset($p['author_is_moderator']) ? $p['author_is_moderator'] : 0)) { ?> <span class="moderator-badge">版主</span><?php } ?>
                         <span>发表于</span>
                         <span><?php echo qf_time_html($p['created_at']); ?></span>

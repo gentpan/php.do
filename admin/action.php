@@ -154,7 +154,31 @@ if ($action === 'clear_user_content' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_query(db(), "UPDATE qf_posts SET is_deleted=1 WHERE user_id={$user_id}");
         mysqli_query(db(), "UPDATE qf_threads t SET replies=(SELECT COUNT(*) FROM qf_posts p WHERE p.thread_id=t.id AND p.is_deleted=0) WHERE t.id IN (SELECT thread_id FROM qf_posts WHERE user_id={$user_id})");
         mysqli_query(db(), "UPDATE qf_users SET reply_count=0 WHERE id={$user_id} AND is_admin=0");
-        $_SESSION['flash'] = '已清除该用户全部发帖和回帖。';
+        qf_recalc_user_points($user_id);
+        $_SESSION['flash'] = '已清除该用户全部发帖和回帖，并重算积分。';
+    }
+    redirect(qf_url_page('admin/users.php'));
+}
+
+if ($action === 'adjust_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = intval($_POST['user_id']);
+    $delta = intval($_POST['delta']);
+    $note = clean_text(isset($_POST['note']) ? $_POST['note'] : '', 120);
+    $me = current_user();
+    if ($user_id > 0 && $delta !== 0) {
+        qf_add_user_points($user_id, $delta, 'admin', 'user', $user_id, $note !== '' ? $note : '后台调整', intval($me['id']));
+        $_SESSION['flash'] = '已调整用户积分 ' . ($delta > 0 ? '+' : '') . $delta . '。';
+    } else {
+        $_SESSION['flash'] = '积分调整失败，请填写非零数量。';
+    }
+    redirect(qf_url_page('admin/users.php'));
+}
+
+if ($action === 'recalc_points' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = intval($_POST['user_id']);
+    if ($user_id > 0) {
+        $total = qf_recalc_user_points($user_id);
+        $_SESSION['flash'] = '已重算该用户积分，当前为 ' . intval($total) . '。';
     }
     redirect(qf_url_page('admin/users.php'));
 }
@@ -221,10 +245,18 @@ if ($action === 'move_thread' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($action === 'good') {
     $id = intval($_GET['id']);
     qf_require_action_token('good', $id);
+    $before = qf_action_thread_row($id);
+    $was_good = intval(isset($before['is_good']) ? $before['is_good'] : 0);
     mysqli_query(db(), "UPDATE qf_threads SET is_good=IF(is_good=1,0,1) WHERE id={$id}");
+    $row = qf_action_thread_row($id);
+    $now_good = intval(isset($row['is_good']) ? $row['is_good'] : 0);
+    $author_id = intval(isset($row['user_id']) ? $row['user_id'] : 0);
+    $bonus = qf_points_for_good();
+    if ($author_id > 0 && $bonus > 0 && $was_good !== $now_good) {
+        qf_add_user_points($author_id, $now_good ? $bonus : -$bonus, $now_good ? 'good_on' : 'good_off', 'thread', $id);
+    }
     if (qf_is_ajax_request()) {
-        $row = qf_action_thread_row($id);
-        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html($row), 'msg' => intval(isset($row['is_good']) ? $row['is_good'] : 0) ? '已加精' : '已取消加精'));
+        qf_json_response(array('ok' => 1, 'tools' => qf_thread_admin_tools_html($row), 'msg' => $now_good ? '已加精' : '已取消加精'));
     }
     redirect(qf_url_thread($id));
 }
@@ -232,7 +264,20 @@ if ($action === 'good') {
 if ($action === 'del_thread') {
     $id = intval($_GET['id']);
     qf_require_action_token('del_thread', $id);
+    $before = qf_action_thread_row($id);
     mysqli_query(db(), "UPDATE qf_threads SET is_deleted=1 WHERE id={$id}");
+    if ($before && intval(isset($before['is_deleted']) ? $before['is_deleted'] : 0) === 0) {
+        $author_id = intval(isset($before['user_id']) ? $before['user_id'] : 0);
+        if ($author_id > 0) {
+            $delta = -qf_points_for_thread();
+            if (intval(isset($before['is_good']) ? $before['is_good'] : 0) === 1) {
+                $delta -= qf_points_for_good();
+            }
+            if ($delta !== 0) {
+                qf_add_user_points($author_id, $delta, 'del_thread', 'thread', $id);
+            }
+        }
+    }
     if (qf_is_ajax_request()) {
         qf_json_response(array('ok' => 1, 'redirect' => qf_url_page('index.php'), 'msg' => '已删除该主题'));
     }

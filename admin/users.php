@@ -1,14 +1,15 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 require_admin();
+qf_ensure_points_schema();
 
 $keyword = clean_text(isset($_GET['q']) ? $_GET['q'] : '', 30);
-$where = "is_admin=0";
+$where = "u.is_admin=0";
 if ($keyword !== '') {
     $keyword_sql = esc($keyword);
-    $where .= " AND username LIKE '%{$keyword_sql}%'";
+    $where .= " AND u.username LIKE '%{$keyword_sql}%'";
 }
-$users = mysqli_query(db(), "SELECT * FROM qf_users WHERE {$where} ORDER BY id DESC LIMIT 200");
+$users = mysqli_query(db(), "SELECT u.*, g.name AS group_name, g.color AS group_color FROM qf_users u LEFT JOIN qf_user_groups g ON g.id=u.group_id WHERE {$where} ORDER BY u.id DESC LIMIT 200");
 $forums = mysqli_query(db(), "SELECT id,name FROM qf_forums ORDER BY display_order ASC, id ASC");
 $forum_options = array();
 while ($forums && $forum = mysqli_fetch_assoc($forums)) {
@@ -37,6 +38,8 @@ qf_include_header();
                 <th>头像</th>
                 <th>用户名</th>
                 <th>昵称</th>
+                <th>积分/等级</th>
+                <th>用户组</th>
                 <th>状态</th>
                 <th>权限</th>
                 <th>注册时间</th>
@@ -55,6 +58,17 @@ qf_include_header();
                     <td><img class="admin-user-avatar" src="<?php echo h(qf_user_avatar($user, 64)); ?>" alt="" width="36" height="36" loading="lazy"></td>
                     <td><?php echo h($user['username']); ?></td>
                     <td><?php echo h($user['nickname']); ?></td>
+                    <td>
+                        <?php $up = intval(isset($user['points']) ? $user['points'] : 0); ?>
+                        <?php echo $up; ?> · Lv.<?php echo intval(qf_user_level($up)); ?>
+                    </td>
+                    <td>
+                        <?php if (!empty($user['group_name'])) { ?>
+                            <span class="phpdo-group-badge" style="--group-color:<?php echo h($user['group_color'] ? $user['group_color'] : '#505b93'); ?>"><?php echo h($user['group_name']); ?></span>
+                        <?php } else { ?>
+                            <span class="muted">—</span>
+                        <?php } ?>
+                    </td>
                     <td><?php echo h($mute_text); ?></td>
                     <td>
                         <?php if (intval(isset($user['is_moderator']) ? $user['is_moderator'] : 0)) { ?>
@@ -78,6 +92,16 @@ qf_include_header();
                             <label>每日删除上限</label>
                             <input type="number" name="moderator_delete_limit" min="0" max="10000" value="<?php echo intval(isset($user['moderator_delete_limit']) ? $user['moderator_delete_limit'] : qf_moderator_daily_delete_limit()); ?>">
                             <button class="btn btn-small btn-light" type="submit">保存版主设置</button>
+                        </form>
+                        <form class="user-action-points" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'adjust_points'))); ?>">
+                            <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
+                            <input type="number" name="delta" placeholder="+/- 积分" required>
+                            <input type="text" name="note" maxlength="120" placeholder="备注（可选）">
+                            <button class="btn btn-small btn-light" type="submit">调积分</button>
+                        </form>
+                        <form class="user-action-recalc" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'recalc_points'))); ?>" data-confirm="按发帖/回复/加精规则重算该用户积分？">
+                            <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
+                            <button class="btn btn-small btn-light" type="submit">重算积分</button>
                         </form>
                         <form class="user-action-mute" method="post" action="<?php echo h(qf_url_page('admin/action.php', array('action' => 'mute_user'))); ?>">
                             <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">

@@ -20,6 +20,11 @@ $uid = intval($u['id']);
 $ip = esc(client_ip());
 $content_sql = esc($content);
 mysqli_query(db(), "INSERT INTO qf_post_comments (thread_id,post_id,user_id,content,ip,is_deleted,created_at) VALUES ({$thread_id},{$post_id},{$uid},'{$content_sql}','{$ip}',0,NOW())");
+$comment_id = intval(mysqli_insert_id(db()));
+$floor_pts = qf_points_for_floor_reply();
+if ($floor_pts !== 0) {
+    qf_add_user_points($uid, $floor_pts, 'floor_reply', 'comment', $comment_id);
+}
 
 if (intval($post['user_id']) !== $uid) {
     qf_notify_user(intval($post['user_id']), $thread_id, $post_id, '有人回复了你的楼层');

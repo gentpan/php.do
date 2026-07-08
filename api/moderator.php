@@ -28,6 +28,16 @@ if ($action === 'del_thread') {
         redirect(qf_url_thread($id));
     }
     mysqli_query(db(), "UPDATE qf_threads SET is_deleted=1 WHERE id={$id}");
+    $author_id = intval(isset($thread['user_id']) ? $thread['user_id'] : 0);
+    if ($author_id > 0) {
+        $delta = -qf_points_for_thread();
+        if (intval(isset($thread['is_good']) ? $thread['is_good'] : 0) === 1) {
+            $delta -= qf_points_for_good();
+        }
+        if ($delta !== 0) {
+            qf_add_user_points($author_id, $delta, 'del_thread', 'thread', $id);
+        }
+    }
     qf_log_moderator_delete(intval($u['id']), 'thread', $id);
     if (qf_is_ajax_request()) {
         qf_json_response(array('ok' => 1, 'redirect' => qf_url_page('index.php'), 'msg' => '版主已删除该主题。'));
