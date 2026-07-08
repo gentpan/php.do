@@ -1631,9 +1631,19 @@ body.page-post .phpdo-post-form {
 }
 body.page-post .phpdo-post-meta {
     display: grid;
-    grid-template-columns: minmax(160px, 220px) minmax(160px, 220px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 3fr) minmax(140px, 1fr);
     gap: 14px;
+    align-items: end;
     margin-bottom: 16px;
+}
+body.page-post .phpdo-post-field-title {
+    grid-column: 1;
+}
+body.page-post .phpdo-post-field-forum {
+    grid-column: 2;
+}
+body.page-post .phpdo-post-field-category {
+    grid-column: 1 / -1;
 }
 body.page-post .phpdo-post-field label,
 body.page-post .phpdo-post-editor > label {

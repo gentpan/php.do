@@ -77,15 +77,19 @@ qf_include_header();
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
     <form class="phpdo-post-form" method="post" enctype="multipart/form-data">
         <div class="phpdo-post-meta">
-            <div class="phpdo-post-field">
-                <label for="post-forum-id">选择版块</label>
+            <div class="phpdo-post-field phpdo-post-field-title">
+                <label for="post-title">标题</label>
+                <input id="post-title" type="text" name="title" maxlength="100" required placeholder="一句话说清主题">
+            </div>
+            <div class="phpdo-post-field phpdo-post-field-forum">
+                <label for="post-forum-id">版块</label>
                 <select id="post-forum-id" name="forum_id" required>
                     <?php foreach ($forum_rows as $f) { ?>
                         <option value="<?php echo intval($f['id']); ?>" <?php if ($fid == intval($f['id'])) echo 'selected'; ?>><?php echo h($f['name']); ?></option>
                     <?php } ?>
                 </select>
             </div>
-            <div id="topic-category-box" class="phpdo-post-field forum-category-map">
+            <div id="topic-category-box" class="phpdo-post-field phpdo-post-field-category forum-category-map">
                 <label for="topic-category-select">主题分类</label>
                 <select name="topic_category" id="topic-category-select">
                     <option value="">不选择分类</option>
@@ -93,10 +97,6 @@ qf_include_header();
                         <option value="<?php echo h($cat); ?>"><?php echo h($cat); ?></option>
                     <?php } ?>
                 </select>
-            </div>
-            <div class="phpdo-post-field phpdo-post-field-title">
-                <label for="post-title">标题</label>
-                <input id="post-title" type="text" name="title" maxlength="100" required placeholder="一句话说清主题">
             </div>
         </div>
         <div class="phpdo-post-editor">
