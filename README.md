@@ -193,7 +193,8 @@ GIT_SSH_COMMAND="ssh -i ~/.ssh/gentpan.pem" git push server main
 index.php          # 前台路由入口
 pages/             # 论坛页面
 api/               # AJAX 接口
-functions.php      # 核心函数
+functions.php      # 引导加载器（config/compat/session → require core/*）
+core/              # 核心函数按领域拆分的模块（util/user/content/…）
 header.php footer.php
 assets/            # CSS / JS / 头像等
 admin/             # Laravel + Filament 后台
