@@ -829,19 +829,118 @@ function qf_append_url_parts($path, $params = array(), $fragment = '') {
     return $path . ($query !== '' ? '?' . $query : '') . ($fragment !== '' ? '#' . ltrim($fragment, '#') : '');
 }
 
+function qf_migrate_forum_nav_plan_a() {
+    static $ran = false;
+    if ($ran) {
+        return true;
+    }
+    $ran = true;
+    if (qf_setting('forum_nav_plan_a') === '1') {
+        return true;
+    }
+    $table = mysqli_query(db(), "SHOW TABLES LIKE 'qf_forums'");
+    if (!$table || mysqli_num_rows($table) === 0) {
+        return false;
+    }
+
+    $forum_id = function ($name) {
+        $name_sql = esc($name);
+        $rs = mysqli_query(db(), "SELECT id FROM qf_forums WHERE name='{$name_sql}' LIMIT 1");
+        $row = $rs ? mysqli_fetch_assoc($rs) : null;
+        return $row ? intval($row['id']) : 0;
+    };
+
+    $move_threads = function ($from_id, $to_id) {
+        $from_id = intval($from_id);
+        $to_id = intval($to_id);
+        if ($from_id < 1 || $to_id < 1 || $from_id === $to_id) {
+            return;
+        }
+        mysqli_query(db(), "UPDATE qf_threads SET forum_id={$to_id} WHERE forum_id={$from_id} AND is_deleted=0");
+    };
+
+    $delete_forum = function ($id) {
+        $id = intval($id);
+        if ($id < 1) {
+            return;
+        }
+        mysqli_query(db(), "DELETE FROM qf_moderator_forums WHERE forum_id={$id}");
+        mysqli_query(db(), "DELETE FROM qf_forums WHERE id={$id}");
+    };
+
+    $perf_id = $forum_id('性能优化');
+    if ($perf_id > 0) {
+        mysqli_query(db(), "UPDATE qf_forums SET name='数据库与缓存', description='MySQL、MariaDB、PostgreSQL、Redis、队列和缓存设计。', display_order=40 WHERE id={$perf_id}");
+    }
+
+    $chat_id = $forum_id('综合交流');
+    if ($chat_id < 1) {
+        $chat_id = $forum_id('灌水闲聊');
+    }
+    if ($chat_id > 0) {
+        mysqli_query(db(), "UPDATE qf_forums SET name='综合闲聊', description='日常灌水、闲聊与技术之外的话题讨论。', display_order=70 WHERE id={$chat_id}");
+    }
+
+    $release_id = $forum_id('程序发布');
+    $other_chat_id = $forum_id('灌水闲聊');
+    if ($other_chat_id > 0 && $other_chat_id !== $chat_id) {
+        if ($chat_id > 0) {
+            $move_threads($other_chat_id, $chat_id);
+        }
+        $delete_forum($other_chat_id);
+    }
+
+    foreach (array('作品展示', '个站展示') as $name) {
+        $fid = $forum_id($name);
+        if ($fid > 0) {
+            if ($release_id > 0) {
+                $move_threads($fid, $release_id);
+            }
+            $delete_forum($fid);
+        }
+    }
+
+    $orders = array(
+        '技术问答' => 10,
+        '框架生态' => 20,
+        '程序发布' => 30,
+        '数据库与缓存' => 40,
+        '部署运维' => 50,
+        '安全审计' => 60,
+        '综合闲聊' => 70,
+        '站务公告' => 200,
+    );
+    foreach ($orders as $name => $order) {
+        $fid = $forum_id($name);
+        if ($fid > 0) {
+            mysqli_query(db(), "UPDATE qf_forums SET display_order=" . intval($order) . " WHERE id={$fid}");
+        }
+    }
+
+    if ($release_id > 0) {
+        $cats = esc("开源项目\n商业程序\n插件扩展\n个站展示\n版本更新");
+        mysqli_query(db(), "UPDATE qf_forums SET topic_category_enabled=1, topic_categories='{$cats}' WHERE id={$release_id}");
+    }
+
+    $announce_id = $forum_id('站务公告');
+    if ($announce_id > 0) {
+        qf_update_setting('nav_hidden_forums', (string)$announce_id);
+    }
+
+    qf_update_setting('forum_nav_plan_a', '1');
+    return true;
+}
+
 function qf_forum_slug_map() {
     return array(
         '站务公告' => 'announcements',
         '技术问答' => 'qa',
         '框架生态' => 'frameworks',
         '程序发布' => 'release',
-        '性能优化' => 'performance',
+        '数据库与缓存' => 'database',
         '部署运维' => 'ops',
         '安全审计' => 'security',
-        '作品展示' => 'showcase',
-        '综合交流' => 'community',
-        '灌水闲聊' => 'chat',
-        '个站展示' => 'sites',
+        '综合闲聊' => 'chat',
     );
 }
 
