@@ -41,7 +41,7 @@ class ManageSiteSettings extends Page
     public function mount(): void
     {
         $keys = [
-            'site_title', 'site_name', 'site_desc', 'site_keywords', 'icp_code', 'stats_code',
+            'site_name', 'site_slogan', 'site_desc', 'site_keywords', 'icp_code', 'stats_code',
             'upload_max_mb', 'upload_allowed_exts', 'guest_download_enabled',
             'home_threads_per_page', 'forum_threads_per_page', 'thread_page_chars', 'reply_max_chars',
             'signin_base_coins', 'signin_streak_bonus',
@@ -74,9 +74,9 @@ class ManageSiteSettings extends Page
             ->components([
                 Tabs::make('settings')->tabs([
                     Tab::make('基本信息')->schema([
-                        TextInput::make('site_title')->label('站点标题'),
-                        TextInput::make('site_name')->label('网站名称'),
-                        Textarea::make('site_desc')->label('网站简介')->rows(3),
+                        TextInput::make('site_name')->label('站点名称'),
+                        TextInput::make('site_slogan')->label('站点副标题')->helperText('显示在浏览器标签标题与首页“关于社区”卡片'),
+                        Textarea::make('site_desc')->label('网站简介')->rows(3)->helperText('用于搜索引擎 meta description'),
                         TextInput::make('site_keywords')->label('关键词'),
                         Textarea::make('icp_code')->label('备案信息')->rows(2),
                         Textarea::make('stats_code')->label('统计代码')->rows(4),

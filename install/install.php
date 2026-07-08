@@ -336,8 +336,8 @@ if ($ok) {
         mysqli_query($conn, "INSERT INTO pd_users (username, password, nickname, is_admin, ip, created_at) VALUES ('admin', '{$pass}', '管理员', 1, '', NOW())");
     }
     $settings = array(
-        'site_title' => SITE_NAME,
         'site_name' => SITE_NAME,
+        'site_slogan' => SITE_DESC,
         'site_desc' => SITE_DESC,
         'site_keywords' => '',
         'home_banner' => '1',
