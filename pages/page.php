@@ -7,22 +7,37 @@ if (!$page) {
     exit('页面不存在');
 }
 $page_title = $page['title'] . ' - ' . SITE_NAME;
-pd_include_header();
+$contact_email = ($slug === 'contact') ? pd_contact_email() : '';
+pd_include_header(true);
 ?>
-<section class="card pd-page-head">
-    <div>
-        <h1><?php echo h($page['title']); ?></h1>
-        <p><a class="back-home" href="<?php echo h(pd_url_page('index.php')); ?>">返回首页</a></p>
+<div class="pd-info pd-info-page">
+    <div class="pd-breadcrumb">
+        <a href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
+        <span>»</span>
+        <strong><?php echo h($page['title']); ?></strong>
     </div>
-</section>
-<section class="card pd-static-page">
-    <?php foreach ($page['body'] as $paragraph) { ?>
-        <p><?php echo h($paragraph); ?></p>
-    <?php } ?>
-    <div class="pd-static-links">
+
+    <section class="pd-info-block">
+        <h1><?php echo h($page['title']); ?></h1>
+        <?php foreach ($page['body'] as $paragraph) { ?>
+            <p><?php echo h($paragraph); ?></p>
+        <?php } ?>
+        <?php if ($slug === 'contact') { ?>
+            <div class="pd-info-contact">
+                <?php if ($contact_email !== '') { ?>
+                    <a class="pd-info-mail" href="mailto:<?php echo h($contact_email); ?>"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span><?php echo h($contact_email); ?></span></a>
+                <?php } else { ?>
+                    <p class="muted">暂未设置公开联系邮箱，请登录后与管理员联系。</p>
+                <?php } ?>
+            </div>
+        <?php } ?>
+    </section>
+
+    <nav class="pd-info-links" aria-label="信息页导航">
+        <a href="<?php echo h(pd_url_page('about.php')); ?>">关于</a>
         <?php foreach (pd_static_pages() as $item_slug => $item) { ?>
             <a class="<?php echo $item_slug === $slug ? 'active' : ''; ?>" href="<?php echo h(pd_url_page('page.php', array('slug' => $item_slug))); ?>"><?php echo h($item['title']); ?></a>
         <?php } ?>
-    </div>
-</section>
+    </nav>
+</div>
 <?php pd_include_footer(); ?>

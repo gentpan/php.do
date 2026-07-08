@@ -23,9 +23,9 @@ function pd_staff_card($u) {
     return ob_get_clean();
 }
 
-pd_include_header();
+pd_include_header(true);
 ?>
-<div class="pd-about">
+<div class="pd-about pd-info">
     <div class="pd-breadcrumb">
         <a href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
         <span>»</span>
