@@ -157,10 +157,25 @@ $online_members = qf_online_members(12);
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
     </a>
-    <button type="button" class="cir-rail__b" data-theme-toggle aria-label="切换主题" data-tooltip="切换主题">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 2a10 10 0 0 1 0 20"></path>
+    <button type="button" class="cir-rail__b" data-theme-toggle data-theme-mode="system" aria-label="主题：跟随系统" data-tooltip="跟随系统">
+        <svg data-theme-icon="light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m4.93 19.07 1.41-1.41"></path>
+            <path d="m17.66 6.34 1.41-1.41"></path>
+        </svg>
+        <svg data-theme-icon="dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg data-theme-icon="system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
         </svg>
     </button>
 </nav>
@@ -201,7 +216,6 @@ $online_members = qf_online_members(12);
     // 深浅色三态切换：跟随系统 → 浅色 → 深色 → 跟随系统
     (function () {
         var order = ['system', 'light', 'dark'];
-        var icons = { system: 'fa-circle-half-stroke', light: 'fa-sun', dark: 'fa-moon' };
         var labels = { system: '跟随系统', light: '浅色', dark: '深色' };
         function pref() { try { return localStorage.getItem('qfThemeMode') || 'system'; } catch (e) { return 'system'; } }
         function systemDark() { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); }
@@ -209,10 +223,17 @@ $online_members = qf_online_members(12);
         function refresh(p) {
             var btns = document.querySelectorAll('[data-theme-toggle]');
             for (var i = 0; i < btns.length; i++) {
-                var ic = btns[i].querySelector('i');
-                if (ic) ic.className = 'fa-solid ' + icons[p];
-                btns[i].setAttribute('title', '主题：' + labels[p] + '（点击切换）');
-                btns[i].setAttribute('aria-label', '主题：' + labels[p]);
+                var btn = btns[i];
+                btn.setAttribute('data-theme-mode', p);
+                var label = '主题：' + labels[p] + '（点击切换）';
+                btn.setAttribute('title', label);
+                btn.setAttribute('aria-label', label);
+                btn.setAttribute('data-tooltip', labels[p]);
+                var ic = btn.querySelector('i');
+                if (ic) {
+                    var icons = { system: 'fa-circle-half-stroke', light: 'fa-sun', dark: 'fa-moon' };
+                    ic.className = 'fa-solid ' + icons[p];
+                }
             }
         }
         var cur = pref();

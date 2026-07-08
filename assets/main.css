@@ -6547,6 +6547,19 @@ body.theme-php-dark .qf-category-link.active {
     display: inline-block;
 }
 
+/* 侧边工具栏三态主题图标：太阳=浅色，月亮=深色，显示器=跟随系统 */
+body.theme-php .phpdo-right-toolbar.cir-rail [data-theme-toggle] [data-theme-icon] {
+    display: none;
+    width: 20px;
+    height: 20px;
+}
+
+body.theme-php .phpdo-right-toolbar.cir-rail [data-theme-toggle][data-theme-mode="light"] [data-theme-icon="light"],
+body.theme-php .phpdo-right-toolbar.cir-rail [data-theme-toggle][data-theme-mode="dark"] [data-theme-icon="dark"],
+body.theme-php .phpdo-right-toolbar.cir-rail [data-theme-toggle][data-theme-mode="system"] [data-theme-icon="system"] {
+    display: block;
+}
+
 /* 深色模式下显示太阳（点击切回浅色） */
 body.theme-php-dark .nav-theme-toggle {
     color: var(--phpdo-text);
