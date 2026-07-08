@@ -37,8 +37,8 @@ FrankenPHP
 | 运行环境 | **FrankenPHP** + **PHP 8.5** + **MySQL** + **Caddy** |
 | Web 模式 | Caddy `php_server`（非 `php_fastcgi` / PHP-FPM） |
 | 前台 | 原生 PHP + `mysqli`（`pages/`、`api/`、`functions.php`） |
-| 前台 UI | **Alpine.js** + **Preline UI** + 手写 CSS（无 Tailwind、无构建链） |
-| 后台 | **Laravel 12** + **Filament 3**（`admin/`） |
+| 前台 UI | **Alpine.js**（移动端菜单、头像切换等）+ 手写 CSS（无 Tailwind、无构建链）；国旗用 flag-icons |
+| 后台 | **Laravel 13** + **Filament 5**（`admin/`） |
 | 会话 / 鉴权 | PHP Session；前台管理操作走 `admin/action.php` |
 
 前台静态资源：`assets/main.css`、`assets/main.js`（生产环境自动优先加载 `main.min.js`）。
@@ -79,7 +79,7 @@ FrankenPHP
 
 | 项目 | 路径 / 说明 |
 |------|-------------|
-| 域名 | `php.do` / `www.php.do` |
+| 域名 | `php.do`（`www.php.do` 301 跳转至裸域） |
 | 站点根目录 | `/var/www/php.do` |
 | Git 裸仓库 | `/var/www/php.do.git` |
 | Caddy 配置 | `/etc/frankenphp/Caddyfile` |
@@ -104,7 +104,12 @@ FrankenPHP
 ### Caddy 站点路由要点
 
 ```caddyfile
-php.do, www.php.do {
+# www 统一 301 跳转到裸域（后台 APP_URL 固定为 https://php.do，避免跨源）
+www.php.do {
+    redir https://php.do{uri} permanent
+}
+
+php.do {
     root * /var/www/php.do
     encode gzip
 
@@ -204,6 +209,7 @@ config.php         # 数据库配置（不入库，参考 config.example.php）
 - 版块导航、发帖回帖、搜索、标签、投票与表情
 - 签到、积分、排行榜、系统通知
 - 伪静态 URL、RSS、深浅色主题（含跟随系统）
+- 独立信息页（关于 / 规则 / 帮助）与法律页（隐私政策 / 使用条款 / 服务协议），采用精简 banner + 内容布局
 - 后台：站点设置、版块、用户、广告、安全、邀请码等（Filament）
 - 附件上传；可选 S3/R2 对象存储
 - 高级验证码、IP 记录与封禁表
