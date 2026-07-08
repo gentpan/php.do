@@ -2772,7 +2772,39 @@ function require_admin() {
 }
 
 function client_ip() {
-    return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+    $remote = isset($_SERVER['REMOTE_ADDR']) ? trim((string)$_SERVER['REMOTE_ADDR']) : '';
+    $candidates = array();
+    // Cloudflare / 反代：优先取真实访客 IP（仅当直连地址为私网或本机时采纳，防伪造）
+    if (qf_ip_is_private_or_local($remote)) {
+        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $candidates[] = trim((string)$_SERVER['HTTP_CF_CONNECTING_IP']);
+        }
+        if (!empty($_SERVER['HTTP_TRUE_CLIENT_IP'])) {
+            $candidates[] = trim((string)$_SERVER['HTTP_TRUE_CLIENT_IP']);
+        }
+        if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+            $candidates[] = trim((string)$_SERVER['HTTP_X_REAL_IP']);
+        }
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            foreach (explode(',', (string)$_SERVER['HTTP_X_FORWARDED_FOR']) as $part) {
+                $candidates[] = trim($part);
+            }
+        }
+    }
+    foreach ($candidates as $ip) {
+        if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP) && !qf_ip_is_private_or_local($ip)) {
+            return $ip;
+        }
+    }
+    return $remote;
+}
+
+function qf_ip_is_private_or_local($ip) {
+    $ip = trim((string)$ip);
+    if ($ip === '' || !filter_var($ip, FILTER_VALIDATE_IP)) {
+        return true;
+    }
+    return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
 }
 
 function ip_banned($ip) {
