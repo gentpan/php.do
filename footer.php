@@ -29,16 +29,24 @@ if (!isset($current_script)) {
     $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 }
 $footer_unread_pm = $footer_user ? qf_pm_unread_count(intval($footer_user['id'])) : 0;
+$footer_unread_notifications = $footer_user ? qf_unread_notifications_count(intval($footer_user['id'])) : 0;
+$footer_signed_today = $footer_user ? qf_user_signed_today(intval($footer_user['id'])) : false;
+$footer_is_admin = $footer_user && intval($footer_user['is_admin']) === 1;
 $footer_login_url = qf_url_page('login.php');
 $footer_home_url = qf_url_page('index.php');
 $footer_user_url = $footer_user ? qf_url_user(intval($footer_user['id'])) : $footer_login_url;
 $footer_messages_url = $footer_user ? qf_url_messages() : $footer_login_url;
+$footer_notifications_url = $footer_user ? qf_url_page('notifications.php') : $footer_login_url;
 $footer_profile_url = $footer_user ? qf_url_page('profile.php') : $footer_login_url;
 $footer_post_url = $footer_user ? qf_url_page('post.php') : $footer_login_url;
+$footer_signin_url = $footer_user ? qf_url_page('signin.php') : $footer_login_url;
+$footer_logout_url = $footer_user ? qf_url_page('logout.php') : $footer_login_url;
+$footer_admin_url = '/admin';
 $footer_user_page_id = ($current_script === 'user.php') ? (function_exists('qf_path_id') ? qf_path_id() : intval(isset($_GET['id']) ? $_GET['id'] : 0)) : 0;
 $footer_rail_home_active = ($current_script === 'index.php');
 $footer_rail_user_active = ($footer_user && $current_script === 'user.php' && $footer_user_page_id === intval($footer_user['id']));
 $footer_rail_messages_active = ($current_script === 'messages.php');
+$footer_rail_notifications_active = ($current_script === 'notifications.php');
 $footer_rail_profile_active = ($current_script === 'profile.php');
 $footer_icp = trim(qf_setting('icp_code', ''));
 $online = qf_online_counts();
@@ -144,6 +152,15 @@ $online_members = qf_online_members(12);
             <span class="cir-rail__badge"><?php echo $footer_unread_pm > 99 ? '99+' : intval($footer_unread_pm); ?></span>
         <?php } ?>
     </a>
+    <a href="<?php echo h($footer_notifications_url); ?>" class="cir-rail__b<?php echo $footer_rail_notifications_active ? ' cir-rail__b--active' : ''; ?>" aria-label="系统消息" data-tooltip="系统消息"<?php echo $footer_rail_notifications_active ? ' aria-current="page"' : ''; ?>>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <?php if ($footer_unread_notifications > 0) { ?>
+            <span class="cir-rail__badge"><?php echo $footer_unread_notifications > 99 ? '99+' : intval($footer_unread_notifications); ?></span>
+        <?php } ?>
+    </a>
     <a href="<?php echo h($footer_post_url); ?>" class="cir-rail__b" aria-label="发帖" data-tooltip="发帖">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 20h9"></path>
@@ -157,6 +174,40 @@ $online_members = qf_online_members(12);
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
     </a>
+    <?php if ($footer_user) { ?>
+        <?php if ($footer_signed_today) { ?>
+            <span class="cir-rail__b cir-rail__b--done" aria-label="今日已签到" data-tooltip="今日已签到">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                    <path d="m9 16 2 2 4-4"></path>
+                </svg>
+            </span>
+        <?php } else { ?>
+            <form class="cir-rail__form" method="post" action="<?php echo h($footer_signin_url); ?>">
+                <button type="submit" class="cir-rail__b" aria-label="签到" data-tooltip="签到">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <path d="m9 16 2 2 4-4"></path>
+                    </svg>
+                </button>
+            </form>
+        <?php } ?>
+        <?php if ($footer_is_admin) { ?>
+            <a href="<?php echo h($footer_admin_url); ?>" class="cir-rail__b" aria-label="后台" data-tooltip="后台">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 20V10"></path>
+                    <path d="M18 20V4"></path>
+                    <path d="M6 20v-4"></path>
+                </svg>
+            </a>
+        <?php } ?>
+    <?php } ?>
     <button type="button" class="cir-rail__b" data-theme-toggle data-theme-mode="system" aria-label="主题：跟随系统" data-tooltip="跟随系统">
         <svg data-theme-icon="light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="4"></circle>
@@ -178,6 +229,16 @@ $online_members = qf_online_members(12);
             <line x1="12" y1="17" x2="12" y2="21"></line>
         </svg>
     </button>
+    <?php if ($footer_user) { ?>
+        <span class="cir-rail__sep" aria-hidden="true"></span>
+        <a href="<?php echo h($footer_logout_url); ?>" class="cir-rail__b cir-rail__b--logout" aria-label="退出" data-tooltip="退出">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        </a>
+    <?php } ?>
 </nav>
 <script src="assets/lib/litezoom.min.js"></script>
 <script src="<?php echo h(qf_asset_js('main', 'assets/')); ?>"></script>

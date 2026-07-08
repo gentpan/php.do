@@ -135,28 +135,9 @@ if (strpos($qf_page_banner, '{r}') !== false) {
                     <a class="qf-btn qf-btn-ghost<?php echo $current_script === 'login.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('login.php')); ?>">登录</a>
                     <a class="qf-btn qf-btn-solid<?php echo $current_script === 'register.php' ? ' active' : ''; ?>" href="<?php echo h(qf_url_page('register.php')); ?>">注册</a>
                 <?php } else { ?>
-                    <div class="hs-dropdown relative inline-flex">
-                        <button id="qf-user-dd" type="button" class="hs-dropdown-toggle qf-user-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="用户菜单">
-                            <img src="<?php echo h(qf_user_avatar($me, 96)); ?>" alt="">
-                            <span class="hidden sm:inline"><?php echo h($me['nickname']); ?></span>
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </button>
-                        <div class="hs-dropdown-menu qf-user-menu hidden" role="menu" aria-labelledby="qf-user-dd">
-                            <a href="<?php echo h(qf_url_page('post.php')); ?>"><i class="fa-solid fa-pen-to-square"></i><span>发帖</span></a>
-                            <a href="<?php echo h(qf_url_user($me['id'])); ?>"><i class="fa-regular fa-circle-user"></i><span><?php echo h($me['nickname']); ?></span></a>
-                            <a href="<?php echo h(qf_url_page('profile.php')); ?>"><i class="fa-solid fa-sliders"></i><span>个人设置</span></a>
-                            <a href="<?php echo h(qf_url_page('notifications.php')); ?>"><i class="fa-regular fa-bell"></i><span>消息<?php echo $unread_notifications > 0 ? ' · ' . intval($unread_notifications) : ''; ?></span></a>
-                            <?php if (qf_user_signed_today($me['id'])) { ?>
-                                <span class="qf-user-static"><i class="fa-solid fa-check"></i><span>已签到</span></span>
-                            <?php } else { ?>
-                                <form method="post" action="<?php echo h(qf_url_page('signin.php')); ?>"><button type="submit"><i class="fa-solid fa-calendar-check"></i><span>签到</span></button></form>
-                            <?php } ?>
-                            <?php if (intval($me['is_admin']) === 1) { ?>
-                                <a href="/admin"><i class="fa-solid fa-gauge-high"></i><span>后台</span></a>
-                            <?php } ?>
-                            <a href="<?php echo h(qf_url_page('logout.php')); ?>"><i class="fa-solid fa-right-from-bracket"></i><span>退出</span></a>
-                        </div>
-                    </div>
+                    <a class="qf-user-avatar-link" href="<?php echo h(qf_url_user(intval($me['id']))); ?>" aria-label="<?php echo h($me['nickname']); ?>">
+                        <img src="<?php echo h(qf_user_avatar($me, 96)); ?>" alt="" width="36" height="36" loading="lazy">
+                    </a>
                 <?php } ?>
             </div>
         </div>

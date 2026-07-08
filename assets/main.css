@@ -6902,6 +6902,31 @@ body.theme-php-dark .phpdo-oauth-google:hover {
 .qf-user-trigger { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 6px; color: #fff; background: rgba(255,255,255,.12); border: 0; cursor: pointer; font-weight: 600; font-size: 14px; }
 .qf-user-trigger:hover { background: rgba(255,255,255,.24); }
 .qf-user-trigger img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+
+.qf-user-avatar-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, .35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+    transition: transform .16s ease, border-color .16s ease;
+}
+
+.qf-user-avatar-link:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, .65);
+}
+
+.qf-user-avatar-link img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 .qf-user-menu { position: absolute; top: 100%; right: 0; min-width: 194px; padding: 6px; margin-top: 6px; background: #fff; border: 1px solid #e6e8ee; border-radius: 10px; box-shadow: 0 12px 30px rgba(20,20,20,.14); z-index: 60; }
 .qf-user-menu a, .qf-user-menu button, .qf-user-static { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 11px; border-radius: 7px; color: #333; font-size: 14px; background: transparent; border: 0; cursor: pointer; text-align: left; }
 .qf-user-menu a:hover, .qf-user-menu button:hover { background: #f2f4f8; color: var(--phpdo-accent); }
