@@ -8,7 +8,7 @@ $auth_register_username = isset($_SESSION['auth_register_username']) ? (string)$
 $auth_register_nickname = isset($_SESSION['auth_register_nickname']) ? (string)$_SESSION['auth_register_nickname'] : '';
 unset($_SESSION['auth_modal'], $_SESSION['auth_error'], $_SESSION['auth_register_username'], $_SESSION['auth_register_nickname']);
 $page_title = '注册 - ' . SITE_NAME;
-$reg_has_side = pd_oauth_any_enabled();
+$reg_has_side = true; // 始终显示第三方注册/登录（GitHub / Google）
 pd_include_header(true);
 ?>
 <div class="pd-info">
@@ -52,7 +52,7 @@ pd_include_header(true);
         <div class="pd-auth2-side">
             <p class="pd-auth-side-label">使用第三方账号注册 / 登录</p>
             <div class="pd-auth-oauth">
-                <?php foreach (pd_oauth_providers() as $key => $info) { if (!pd_oauth_enabled($key)) continue; ?>
+                <?php foreach (pd_oauth_providers() as $key => $info) { ?>
                     <a href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
                         <i class="<?php echo h($info['icon']); ?>" aria-hidden="true"></i> 使用 <?php echo h($info['label']); ?> 继续
                     </a>
