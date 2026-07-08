@@ -28,6 +28,10 @@ if (PHP_SAPI !== 'cli') {
     }
 }
 session_start();
+if (!empty($_SESSION['qf_uid']) && empty($_SESSION['pd_uid'])) {
+    $_SESSION['pd_uid'] = intval($_SESSION['qf_uid']);
+    unset($_SESSION['qf_uid']);
+}
 
 function db() {
     static $conn = null;
@@ -4321,6 +4325,7 @@ function pd_upload_attachments($thread_id, $post_id, $user_id, &$errors) {
     return $saved;
 }
 if (PHP_SAPI !== 'cli') {
+    pd_migrate_schema_prefix_from_qf();
     ob_start('pd_inject_csrf_fields');
     pd_ensure_upload_protection();
     pd_require_csrf();
