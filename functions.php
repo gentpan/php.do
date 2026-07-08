@@ -40,6 +40,7 @@ if (!empty($_SESSION['qf_uid']) && empty($_SESSION['pd_uid'])) {
 // ===== 函数模块（仅定义，无副作用；见 core/）=====
 require_once __DIR__ . '/core/content.php';
 require_once __DIR__ . '/core/geoip.php';
+require_once __DIR__ . '/core/mail.php';
 require_once __DIR__ . '/core/media.php';
 require_once __DIR__ . '/core/messaging.php';
 require_once __DIR__ . '/core/render.php';
