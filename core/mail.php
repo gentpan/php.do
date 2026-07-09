@@ -77,6 +77,26 @@ function pd_email_code_clear($purpose) {
     unset($_SESSION['email_code_' . preg_replace('/[^a-z]/', '', (string) $purpose)]);
 }
 
+// 注册成功后的欢迎邮件（尽力发送，失败不影响注册流程）。
+function pd_send_welcome_mail($email, $username) {
+    $email = strtolower(trim((string) $email));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return false;
+    if (!pd_mail_enabled()) return false;
+    $site = pd_site_name();
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : '';
+    $home = $host !== '' ? $scheme . '://' . $host . '/' : '/';
+    $subject = '欢迎加入 ' . $site;
+    $html = '<div style="font-family:sans-serif;font-size:15px;color:#333;line-height:1.7">'
+        . '<p>你好 <strong>' . h($username) . '</strong>，</p>'
+        . '<p>欢迎加入 <strong>' . h($site) . '</strong>！你的账号已注册成功。</p>'
+        . '<p>来这里，拓一方净土，重现互联网精神。</p>'
+        . '<p style="margin-top:22px"><a href="' . h($home) . '" style="display:inline-block;padding:10px 22px;background:#505b93;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">开始逛论坛</a></p>'
+        . '<p style="color:#888;margin-top:22px">如果这不是你本人的操作，请忽略本邮件。</p></div>';
+    $err = '';
+    return pd_send_mail($email, $subject, $html, $err);
+}
+
 // 统一发信入口。成功返回 true；失败返回 false 并写 $error。
 function pd_send_mail($to, $subject, $html, &$error = '') {
     $error = '';
