@@ -374,7 +374,9 @@ body.pd-standalone .pd-banner-logo img {
     color: var(--pd-text-title);
     background: var(--pd-surface);
     border: var(--pd-card-border);
-    border-radius: var(--pd-card-radius-lg);
+    /* !important 覆盖全局 input 的 6px；box-shadow:none 去掉全局给 input 的品牌色光晕 */
+    border-radius: var(--pd-card-radius-lg) !important;
+    box-shadow: none;
     outline: 0;
     transition: border-color .15s ease, box-shadow .15s ease;
 }
