@@ -338,6 +338,11 @@ body.pd-standalone .pd-banner-logo img {
     grid-template-columns: 1fr;
     max-width: 480px;
 }
+/* 注册/登录表单外框与首页卡片边框线保持一致（同一套卡片 token：色/宽/圆角） */
+.pd-info-block.pd-auth2 {
+    border: var(--pd-card-border);
+    border-radius: var(--pd-card-radius-lg);
+}
 .pd-auth2 h1 {
     margin: 0 0 22px;
     padding: 0;
