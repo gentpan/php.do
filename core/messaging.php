@@ -227,7 +227,19 @@ function pd_notification_sound_enabled($user) {
 }
 
 function pd_online_window_seconds() {
-    return 900; // 15 分钟内算在线
+    return 300; // 5 分钟内算在线（窗口越短越贴近"当前在线"）
+}
+
+// 判定是否为爬虫/机器人 UA（空 UA 也视为非真人）。
+function pd_is_bot_ua($ua) {
+    $ua = trim((string) $ua);
+    if ($ua === '') {
+        return true; // 空 UA 基本是脚本/爬虫/监控探测
+    }
+    return (bool) preg_match(
+        '/bot|crawl|spider|slurp|mediapartners|bingpreview|facebookexternalhit|embedly|pinterest|feedfetcher|ahrefs|semrush|mj12|dotbot|petalbot|bytespider|yandex|baidu|sogou|duckduck|applebot|headless|phantom|curl|wget|python-requests|python-urllib|go-http|okhttp|monitor|uptime|pingdom|statuscake|lighthouse|gtmetrix/i',
+        $ua
+    );
 }
 
 function pd_online_touch($force = false) {
@@ -250,8 +262,12 @@ function pd_online_touch($force = false) {
     $sid_sql = esc(substr($sid, 0, 64));
     $user = current_user();
     $uid = $user ? intval($user['id']) : 0;
-    $ip_sql = esc(substr((string)client_ip(), 0, 45));
     $ua = isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : '';
+    // 未登录的爬虫/机器人不计入在线；已登录用户一律视为真人
+    if ($uid === 0 && pd_is_bot_ua($ua)) {
+        return;
+    }
+    $ip_sql = esc(substr((string)client_ip(), 0, 45));
     $ua_sql = esc(substr($ua, 0, 255));
 
     mysqli_query(db(), "INSERT INTO pd_online (session_id,user_id,ip,user_agent,last_seen)
