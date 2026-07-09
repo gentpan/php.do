@@ -184,6 +184,36 @@ body.pd-standalone .pd-banner-logo img {
     font-size: 15px;
 }
 
+/* 页头信息区子导航（info 模式：banner 下方一排信息页链接） */
+.pd-infobar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--pd-surface);
+    border-top: 1px solid var(--pd-border);
+}
+.pd-infobar-link {
+    padding: 7px 15px;
+    font-size: 14px;
+    line-height: 1;
+    color: var(--pd-text);
+    background: transparent;
+    border: 1px solid var(--pd-border);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.pd-infobar-link:hover {
+    color: var(--pd-accent);
+    border-color: var(--pd-accent);
+}
+.pd-infobar-link.active {
+    color: var(--pd-text-on-accent);
+    background: var(--pd-accent);
+    border-color: var(--pd-accent);
+}
+
 /* 底部信息页互链 */
 .pd-info-links {
     display: flex;
