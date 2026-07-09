@@ -169,7 +169,7 @@ function pd_render_captcha() {
         . '<div class="captcha-box"><label>验证码</label><div class="captcha-row">'
         . '<input type="text" name="captcha_code" maxlength="4" autocomplete="off" required placeholder="4位字符">'
         . '<img src="api/captcha?t=' . time() . '" alt="验证码" data-captcha-refresh title="点击刷新">'
-        . '</div><p class="muted">看不清可点击图片刷新。</p></div>';
+        . '</div></div>';
 }
 
 function pd_browser_title($page_title) {
