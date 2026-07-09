@@ -43,7 +43,6 @@ pd_include_header(true);
                         <div class="pd-pw-strength-track"><span class="pd-pw-strength-fill"></span></div>
                         <span class="pd-pw-strength-text"></span>
                     </div>
-                    <p class="pd-field-hint">点骰子可生成 10-16 位随机强密码（会同时填入确认框）。</p>
                 </div>
                 <div class="pd-auth-field">
                     <label>确认密码</label>
