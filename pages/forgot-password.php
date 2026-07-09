@@ -17,7 +17,7 @@ pd_include_header(true);
         <strong>找回密码</strong>
     </div>
 
-    <section class="pd-info-block pd-auth2 pd-auth2--single">
+    <section class="pd-info-block pd-auth2">
         <div class="pd-auth2-main">
             <h1>找回密码</h1>
             <?php if ($auth_error !== '') { ?><div class="alert auth-alert"><?php echo h($auth_error); ?></div><?php } ?>
@@ -47,6 +47,9 @@ pd_include_header(true);
                 </div>
                 <button class="pd-auth-submit" type="submit">重置密码</button>
             </form>
+        </div>
+        <div class="pd-auth2-illus" aria-hidden="true">
+            <img src="assets/illustrations/forgot-password.png" alt="" loading="lazy" onerror="this.remove()">
         </div>
     </section>
 
