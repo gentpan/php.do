@@ -349,6 +349,7 @@ function pd_handle_register() {
                     pd_consume_invite($invite_code, $new_user_id);
                 }
                 pd_email_code_clear('register');
+                pd_send_welcome_mail($email, $username); // 尽力发送欢迎邮件，失败不阻断注册
                 session_regenerate_id(true);
                 $_SESSION['pd_uid'] = $new_user_id;
                 redirect(pd_url_page('index.php'));

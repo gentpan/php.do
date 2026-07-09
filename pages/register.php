@@ -39,6 +39,10 @@ pd_include_header(true);
                         <input type="password" name="password" required autocomplete="new-password" placeholder="至少 8 位，不能纯数字" data-reg-pw>
                         <button type="button" class="pd-affix-btn" data-gen-password title="生成随机密码"><i class="fa-solid fa-dice"></i></button>
                     </div>
+                    <div class="pd-pw-strength" data-pw-strength hidden aria-live="polite">
+                        <div class="pd-pw-strength-track"><span class="pd-pw-strength-fill"></span></div>
+                        <span class="pd-pw-strength-text"></span>
+                    </div>
                     <p class="pd-field-hint">点骰子可生成 10-16 位随机强密码（会同时填入确认框）。</p>
                 </div>
                 <div class="pd-auth-field">
@@ -84,6 +88,34 @@ pd_include_header(true);
 <script>
 (function () {
     function rand(str) { return str[Math.floor(Math.random() * str.length)]; }
+    // 密码实时强弱指示：与后端规则对齐（<8 位或纯数字判为弱）
+    var pwField = document.querySelector('[data-reg-pw]');
+    var pwBox = document.querySelector('[data-pw-strength]');
+    function scorePw(pw) {
+        if (!pw) return -1;
+        if (pw.length < 8 || /^\d+$/.test(pw)) return 1; // 不满足最低要求 → 弱
+        var variety = 0;
+        if (/[a-z]/.test(pw)) variety++;
+        if (/[A-Z]/.test(pw)) variety++;
+        if (/\d/.test(pw)) variety++;
+        if (/[^A-Za-z0-9]/.test(pw)) variety++;
+        var s = variety + (pw.length >= 12 ? 1 : 0);
+        if (s <= 2) return 1;   // 弱
+        if (s === 3) return 2;  // 中
+        return 3;               // 强
+    }
+    function renderPw() {
+        if (!pwField || !pwBox) return;
+        var lvl = scorePw(pwField.value);
+        if (lvl < 0) { pwBox.hidden = true; return; }
+        pwBox.hidden = false;
+        var names = { 1: '弱', 2: '中', 3: '强' };
+        var cls = { 1: 'is-weak', 2: 'is-mid', 3: 'is-strong' };
+        pwBox.className = 'pd-pw-strength ' + cls[lvl];
+        var txt = pwBox.querySelector('.pd-pw-strength-text');
+        if (txt) txt.textContent = '密码强度：' + names[lvl];
+    }
+    if (pwField) pwField.addEventListener('input', renderPw);
     // 随机密码：10-16 位，含大小写+数字+符号，非纯数字
     var pBtn = document.querySelector('[data-gen-password]');
     if (pBtn) pBtn.addEventListener('click', function () {
@@ -96,6 +128,7 @@ pd_include_header(true);
         var f1 = document.querySelector('[data-reg-pw]'), f2 = document.querySelector('[data-reg-pw2]');
         if (f1) { f1.type = 'text'; f1.value = pw; }
         if (f2) { f2.type = 'text'; f2.value = pw; }
+        renderPw();
     });
     // 前端确认密码一致
     var form = document.querySelector('[data-register-form]');

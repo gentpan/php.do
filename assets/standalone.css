@@ -184,6 +184,39 @@ body.pd-standalone .pd-banner-logo img {
     font-size: 15px;
 }
 
+/* 注册页：密码实时强弱指示 */
+.pd-pw-strength {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+.pd-pw-strength-track {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--pd-border);
+    overflow: hidden;
+}
+.pd-pw-strength-fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 3px;
+    transition: width .2s ease, background .2s ease;
+}
+.pd-pw-strength-text {
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--pd-text-muted, #888);
+}
+.pd-pw-strength.is-weak   .pd-pw-strength-fill { width: 33%;  background: #e5484d; }
+.pd-pw-strength.is-mid    .pd-pw-strength-fill { width: 66%;  background: #f5a524; }
+.pd-pw-strength.is-strong .pd-pw-strength-fill { width: 100%; background: #30a46c; }
+.pd-pw-strength.is-weak   .pd-pw-strength-text { color: #e5484d; }
+.pd-pw-strength.is-mid    .pd-pw-strength-text { color: #f5a524; }
+.pd-pw-strength.is-strong .pd-pw-strength-text { color: #30a46c; }
+
 /* 页头信息区子导航（info 模式：banner 下方一排信息页链接） */
 .pd-infobar {
     display: flex;
