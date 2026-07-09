@@ -371,8 +371,8 @@ body.pd-standalone .pd-banner-logo img {
     font-size: 15px;
     color: var(--pd-text-title);
     background: var(--pd-surface);
-    border: 1px solid var(--pd-border);
-    border-radius: 8px;
+    border: var(--pd-card-border);
+    border-radius: var(--pd-card-radius-lg);
     outline: 0;
     transition: border-color .15s ease, box-shadow .15s ease;
 }
