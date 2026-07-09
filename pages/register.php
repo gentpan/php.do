@@ -33,16 +33,16 @@ pd_include_header(true);
                     <input name="username" value="<?php echo h($auth_register_username); ?>" required autocomplete="username" placeholder="5-16 位，中英文/数字/下划线">
                     <p class="pd-field-hint">支持中英文、数字、下划线、连字符；5-16 位；不能纯数字或含句号逗号等标点。</p>
                 </div>
-                <div class="pd-auth-field">
-                    <label>密码</label>
+                <div class="pd-auth-field" data-pw-wrap>
+                    <div class="pd-auth-field-head">
+                        <label>密码</label>
+                        <span class="pd-pw-strength-text" data-pw-text hidden aria-live="polite"></span>
+                    </div>
                     <div class="pd-input-affix">
                         <input type="password" name="password" required autocomplete="new-password" placeholder="至少 8 位，不能纯数字" data-reg-pw>
                         <button type="button" class="pd-affix-btn" data-gen-password title="生成随机密码"><i class="fa-solid fa-dice"></i></button>
                     </div>
-                    <div class="pd-pw-strength" data-pw-strength hidden aria-live="polite">
-                        <div class="pd-pw-strength-track"><span class="pd-pw-strength-fill"></span></div>
-                        <span class="pd-pw-strength-text"></span>
-                    </div>
+                    <div class="pd-pw-strength-track" data-pw-track hidden><span class="pd-pw-strength-fill"></span></div>
                 </div>
                 <div class="pd-auth-field">
                     <label>确认密码</label>
@@ -89,7 +89,9 @@ pd_include_header(true);
     function rand(str) { return str[Math.floor(Math.random() * str.length)]; }
     // 密码实时强弱指示：与后端规则对齐（<8 位或纯数字判为弱）
     var pwField = document.querySelector('[data-reg-pw]');
-    var pwBox = document.querySelector('[data-pw-strength]');
+    var pwWrap = document.querySelector('[data-pw-wrap]');
+    var pwText = document.querySelector('[data-pw-text]');
+    var pwTrack = document.querySelector('[data-pw-track]');
     function scorePw(pw) {
         if (!pw) return -1;
         if (pw.length < 8 || /^\d+$/.test(pw)) return 1; // 不满足最低要求 → 弱
@@ -104,15 +106,19 @@ pd_include_header(true);
         return 3;               // 强
     }
     function renderPw() {
-        if (!pwField || !pwBox) return;
+        if (!pwField || !pwWrap) return;
         var lvl = scorePw(pwField.value);
-        if (lvl < 0) { pwBox.hidden = true; return; }
-        pwBox.hidden = false;
+        pwWrap.classList.remove('pw-weak', 'pw-mid', 'pw-strong');
+        if (lvl < 0) {
+            if (pwText) pwText.hidden = true;
+            if (pwTrack) pwTrack.hidden = true;
+            return;
+        }
         var names = { 1: '弱', 2: '中', 3: '强' };
-        var cls = { 1: 'is-weak', 2: 'is-mid', 3: 'is-strong' };
-        pwBox.className = 'pd-pw-strength ' + cls[lvl];
-        var txt = pwBox.querySelector('.pd-pw-strength-text');
-        if (txt) txt.textContent = '密码强度：' + names[lvl];
+        var cls = { 1: 'pw-weak', 2: 'pw-mid', 3: 'pw-strong' };
+        pwWrap.classList.add(cls[lvl]);
+        if (pwText) { pwText.hidden = false; pwText.textContent = '密码强度：' + names[lvl]; }
+        if (pwTrack) pwTrack.hidden = false;
     }
     if (pwField) pwField.addEventListener('input', renderPw);
     // 随机密码：10-16 位，含大小写+数字+符号，非纯数字
