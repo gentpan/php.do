@@ -7,7 +7,7 @@ if (!$page) {
     exit('页面不存在');
 }
 $page_title = $page['title'] . ' - ' . SITE_NAME;
-pd_include_header(true);
+pd_include_header('info');
 ?>
 <div class="pd-info pd-info-page">
     <div class="pd-breadcrumb">
@@ -28,12 +28,5 @@ pd_include_header(true);
             <?php } ?>
         </section>
     <?php } ?>
-
-    <nav class="pd-info-links" aria-label="信息页导航">
-        <a href="<?php echo h(pd_url_page('about.php')); ?>">关于</a>
-        <?php foreach (pd_static_pages() as $item_slug => $item) { ?>
-            <a class="<?php echo $item_slug === $slug ? 'active' : ''; ?>" href="<?php echo h(pd_url_page('page.php', array('slug' => $item_slug))); ?>"><?php echo h($item['title']); ?></a>
-        <?php } ?>
-    </nav>
 </div>
 <?php pd_include_footer(); ?>

@@ -141,6 +141,14 @@ if (strpos($pd_page_banner, '{r}') !== false) {
             </div>
             <?php } ?>
         </div>
+        <?php if (($pd_header_mode ?? '') === 'info') { ?>
+        <nav class="pd-infobar" aria-label="信息页导航">
+            <a class="pd-infobar-link<?php echo $current_script === 'about.php' ? ' active' : ''; ?>" href="<?php echo h(pd_url_page('about.php')); ?>">关于</a>
+            <?php foreach (pd_static_pages() as $pd_info_slug => $pd_info_item) { ?>
+                <a class="pd-infobar-link<?php echo ($current_script === 'page.php' && $pd_cur_slug === $pd_info_slug) ? ' active' : ''; ?>" href="<?php echo h(pd_url_page('page.php', array('slug' => $pd_info_slug))); ?>"><?php echo h($pd_info_item['title']); ?></a>
+            <?php } ?>
+        </nav>
+        <?php } ?>
         <?php if (empty($pd_lite_layout)) { ?>
         <nav class="pd-navbar flex flex-wrap items-center" aria-label="主导航">
             <button type="button" class="pd-burger sm:hidden" data-nav-burger aria-label="展开菜单" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>

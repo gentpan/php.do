@@ -1,10 +1,17 @@
 <?php
 /* core/render.php — 由 functions.php 自动切分。集中 11 个定义。 */
 
-function pd_include_header($lite = false) {
+function pd_include_header($mode = false) {
     global $page_title;
-    // $lite=true 时渲染精简布局：仅 banner+logo，无论坛导航（用于关于/规则/联系/帮助等信息页）
-    $pd_lite_layout = (bool) $lite;
+    // 页头模式：
+    //   false / 'full' —— 完整论坛头（banner+logo+论坛导航）
+    //   true  / 'lite' —— 精简头：仅 banner+logo，无导航（登录/注册/关于等）
+    //   'info'         —— 精简头 + 信息区子导航（信息页 page.php）
+    if ($mode === true) { $mode = 'lite'; }
+    if ($mode === false || $mode === '') { $mode = 'full'; }
+    $pd_header_mode = (string) $mode;
+    // lite 与 info 都走精简布局（加载 standalone.css、隐藏论坛导航、body.pd-standalone）
+    $pd_lite_layout = ($pd_header_mode !== 'full');
     include pd_theme_file('header.php');
 }
 
