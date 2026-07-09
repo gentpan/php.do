@@ -16,7 +16,7 @@ foreach (pd_footer_nav_forums() as $footer_forum) {
 }
 $footer_social_links = array(
     array('title' => 'GitHub', 'url' => 'https://github.com/gentpan/php.do', 'icon' => 'fa-brands fa-github'),
-    array('title' => 'Issues', 'url' => 'https://github.com/gentpan/php.do/issues', 'icon' => 'fa-regular fa-circle-question'),
+    array('title' => 'X', 'url' => 'https://x.com/phpdo', 'icon' => 'fa-brands fa-x-twitter'),
 );
 $footer_user = current_user();
 pd_ensure_pm_schema();
