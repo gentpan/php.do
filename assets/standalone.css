@@ -462,6 +462,18 @@ body.pd-standalone .pd-banner-logo img {
     border-radius: 8px !important;
     height: 48px;
 }
+/* 找回密码右栏插画位：4:3、object-fit:cover、圆角对齐卡片 */
+.pd-auth2-illus {
+    align-self: center;
+    display: flex;
+}
+.pd-auth2-illus img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--pd-card-radius-lg);
+}
 .pd-auth2-switch {
     margin: 22px 0 0;
     text-align: center;
