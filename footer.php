@@ -84,7 +84,7 @@ $online = pd_online_counts();
             </div>
         </div>
         <div class="site-footer-row site-footer-row2">
-            <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(pd_site_name()); ?><?php if ($footer_icp !== '') { ?> · <span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?></span>
+            <span class="site-footer-copy">&copy; <?php echo date('Y'); ?> <?php echo h(pd_site_name()); ?>. All rights reserved.<?php if ($footer_icp !== '') { ?> · <span class="site-footer-icp"><?php echo nl2br(h($footer_icp)); ?></span><?php } ?></span>
             <nav class="site-footer-links" aria-label="站点链接">
                 <?php foreach ($footer_pages as $link) { ?>
                     <a href="<?php echo h($link['url']); ?>"><?php echo h($link['title']); ?></a>
