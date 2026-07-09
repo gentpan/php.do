@@ -185,15 +185,22 @@ body.pd-standalone .pd-banner-logo img {
 }
 
 /* 注册页：密码实时强弱指示 */
-.pd-pw-strength {
+/* 密码标签行：左侧 label、右侧强度文字（密码强度：弱/中/强） */
+.pd-auth-field-head {
     display: flex;
-    align-items: center;
+    align-items: baseline;
+    justify-content: space-between;
     gap: 10px;
-    margin-top: 8px;
 }
+.pd-pw-strength-text {
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--pd-text-muted, #888);
+}
+/* 强度进度条：位于输入框下方 */
 .pd-pw-strength-track {
-    flex: 1;
     height: 6px;
+    margin-top: 8px;
     border-radius: 3px;
     background: var(--pd-border);
     overflow: hidden;
@@ -205,17 +212,12 @@ body.pd-standalone .pd-banner-logo img {
     border-radius: 3px;
     transition: width .2s ease, background .2s ease;
 }
-.pd-pw-strength-text {
-    font-size: 12px;
-    white-space: nowrap;
-    color: var(--pd-text-muted, #888);
-}
-.pd-pw-strength.is-weak   .pd-pw-strength-fill { width: 33%;  background: #e5484d; }
-.pd-pw-strength.is-mid    .pd-pw-strength-fill { width: 66%;  background: #f5a524; }
-.pd-pw-strength.is-strong .pd-pw-strength-fill { width: 100%; background: #30a46c; }
-.pd-pw-strength.is-weak   .pd-pw-strength-text { color: #e5484d; }
-.pd-pw-strength.is-mid    .pd-pw-strength-text { color: #f5a524; }
-.pd-pw-strength.is-strong .pd-pw-strength-text { color: #30a46c; }
+.pd-auth-field.pw-weak   .pd-pw-strength-fill { width: 33%;  background: #e5484d; }
+.pd-auth-field.pw-mid    .pd-pw-strength-fill { width: 66%;  background: #f5a524; }
+.pd-auth-field.pw-strong .pd-pw-strength-fill { width: 100%; background: #30a46c; }
+.pd-auth-field.pw-weak   .pd-pw-strength-text { color: #e5484d; }
+.pd-auth-field.pw-mid    .pd-pw-strength-text { color: #f5a524; }
+.pd-auth-field.pw-strong .pd-pw-strength-text { color: #30a46c; }
 
 /* 页头信息区子导航（info 模式：banner 下方一排信息页链接） */
 .pd-infobar {
