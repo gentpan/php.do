@@ -545,10 +545,10 @@ function pd_ensure_account_auth_schema() {
       KEY user_id (user_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-    // 空邮箱统一为 NULL，使唯一索引可以允许多个未绑定邮箱的账号。
+    // 必须先允许 NULL，再转换旧数据中的空字符串；反向执行会被旧的 NOT NULL 约束拒绝。
+    mysqli_query(db(), "ALTER TABLE pd_users MODIFY email varchar(190) NULL DEFAULT NULL");
     mysqli_query(db(), "UPDATE pd_users SET email=NULL WHERE email=''");
-    @mysqli_query(db(), "ALTER TABLE pd_users MODIFY email varchar(190) NULL DEFAULT NULL");
-    $duplicates = count_rows("SELECT COUNT(*) FROM (SELECT email FROM pd_users WHERE email IS NOT NULL GROUP BY email HAVING COUNT(*)>1) duplicate_emails");
+    $duplicates = count_rows("SELECT COUNT(*) FROM (SELECT LOWER(email) email FROM pd_users WHERE email IS NOT NULL AND email<>'' GROUP BY LOWER(email) HAVING COUNT(*)>1) duplicate_emails");
     $index = mysqli_query(db(), "SHOW INDEX FROM pd_users WHERE Key_name='uniq_users_email'");
     if ($duplicates === 0 && (!$index || mysqli_num_rows($index) === 0)) {
         mysqli_query(db(), "ALTER TABLE pd_users ADD UNIQUE KEY uniq_users_email (email)");
