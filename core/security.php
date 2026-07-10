@@ -33,12 +33,23 @@ function pd_captcha_required($scene, $user = null) {
 }
 
 function pd_webauthn_rp_id() {
+    if (defined('PD_PUBLIC_URL') && trim((string)PD_PUBLIC_URL) !== '') {
+        $configured_host = parse_url((string)PD_PUBLIC_URL, PHP_URL_HOST);
+        if (is_string($configured_host) && $configured_host !== '') return strtolower($configured_host);
+    }
     $host = isset($_SERVER['HTTP_HOST']) ? strtolower((string)$_SERVER['HTTP_HOST']) : '';
     $host = preg_replace('/:\d+$/', '', $host);
     return $host !== '' ? $host : 'localhost';
 }
 
 function pd_webauthn_origin() {
+    if (defined('PD_PUBLIC_URL') && trim((string)PD_PUBLIC_URL) !== '') {
+        $parts = parse_url((string)PD_PUBLIC_URL);
+        if (is_array($parts) && !empty($parts['scheme']) && !empty($parts['host'])) {
+            $port = !empty($parts['port']) ? ':' . intval($parts['port']) : '';
+            return strtolower($parts['scheme']) . '://' . strtolower($parts['host']) . $port;
+        }
+    }
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
     return ($https ? 'https://' : 'http://') . pd_webauthn_rp_id();
 }
@@ -196,9 +207,10 @@ function pd_webauthn_auth_data_info($auth_data) {
     return array('flags' => ord($auth_data[32]), 'sign_count' => intval($counter[1]));
 }
 
-function pd_passkey_count($user_id) {
-    pd_ensure_account_auth_schema();
-    return count_rows("SELECT COUNT(*) FROM pd_passkeys WHERE user_id=" . intval($user_id));
+function pd_webauthn_counter_valid($stored_counter, $new_counter) {
+    $stored_counter = intval($stored_counter);
+    $new_counter = intval($new_counter);
+    return ($stored_counter === 0 && $new_counter === 0) || $new_counter > $stored_counter;
 }
 
 function pd_ip_is_private_or_local($ip) {
@@ -239,7 +251,9 @@ function pd_security_guard() {
     $uri = isset($_SERVER['REQUEST_URI']) ? clean_text($_SERVER['REQUEST_URI'], 255) : '';
     $uri_sql = esc($uri);
     mysqli_query(db(), "INSERT INTO pd_security_logs (ip, uri, created_at) VALUES ('{$ip_sql}', '{$uri_sql}', NOW())");
-    mysqli_query(db(), "DELETE FROM pd_security_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 DAY)");
+    if (random_int(1, 200) === 1) {
+        mysqli_query(db(), "DELETE FROM pd_security_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 DAY)");
+    }
     $count = count_rows("SELECT COUNT(*) FROM pd_security_logs WHERE ip='{$ip_sql}' AND created_at >= DATE_SUB(NOW(), INTERVAL {$window} SECOND)");
     if ($count > $limit) {
         $reason = esc('防CC自动封禁：' . $window . '秒内访问' . $count . '次');
@@ -247,4 +261,59 @@ function pd_security_guard() {
         header('Content-Type: text/html; charset=utf-8', true, 429);
         exit('访问过于频繁，当前 IP 已被临时封禁。');
     }
+}
+
+function pd_rate_limit_allow($scope, $key, $limit, $window, &$retry_after = 0) {
+    $limit = max(1, intval($limit));
+    $window = max(1, intval($window));
+    $dir = PD_ROOT . '/storage/rate-limits';
+    if (!is_dir($dir) && !@mkdir($dir, 0750, true)) return true;
+    static $cleanup_checked = false;
+    if (!$cleanup_checked) {
+        $cleanup_checked = true;
+        if (random_int(1, 200) === 1) {
+            try {
+                $checked = 0;
+                foreach (new DirectoryIterator($dir) as $entry) {
+                    if (++$checked > 2000) break;
+                    if ($entry->isFile() && $entry->getMTime() < time() - 172800) {
+                        @unlink($entry->getPathname());
+                    }
+                }
+            } catch (Throwable $e) {
+                // 限流目录清理失败不应影响正常请求。
+            }
+        }
+    }
+    $file = $dir . '/' . hash('sha256', (string)$scope . '|' . (string)$key) . '.json';
+    $fp = @fopen($file, 'c+');
+    if (!$fp || !flock($fp, LOCK_EX)) {
+        if ($fp) fclose($fp);
+        return true;
+    }
+    $raw = stream_get_contents($fp);
+    $data = $raw !== false ? json_decode($raw, true) : null;
+    $now = time();
+    if (!is_array($data) || empty($data['started']) || $now - intval($data['started']) >= $window) {
+        $data = array('started' => $now, 'count' => 0);
+    }
+    if (intval($data['count']) >= $limit) {
+        $retry_after = max(1, $window - ($now - intval($data['started'])));
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        return false;
+    }
+    $data['count'] = intval($data['count']) + 1;
+    ftruncate($fp, 0);
+    rewind($fp);
+    fwrite($fp, json_encode($data));
+    fflush($fp);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+    return true;
+}
+
+function pd_rate_limit_clear($scope, $key) {
+    $file = PD_ROOT . '/storage/rate-limits/' . hash('sha256', (string)$scope . '|' . (string)$key) . '.json';
+    if (is_file($file)) @unlink($file);
 }

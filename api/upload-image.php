@@ -3,6 +3,14 @@ require_once __DIR__ . '/../functions.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $u = require_login();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    pd_json_response(array('ok' => 0, 'error' => '请求方式不正确。'), 405);
+}
+$retry_after = 0;
+if (!pd_rate_limit_allow('upload-user', intval($u['id']), 60, 3600, $retry_after)) {
+    header('Retry-After: ' . intval($retry_after));
+    pd_json_response(array('ok' => 0, 'error' => '上传过于频繁，请稍后再试。'), 429);
+}
 if (empty($_FILES['image']) || !is_array($_FILES['image'])) {
     echo json_encode(array('ok' => 0, 'error' => '没有选择图片。'));
     exit;
@@ -32,7 +40,7 @@ if (@getimagesize($file['tmp_name']) === false) {
     exit;
 }
 
-$safe_name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
+$safe_name = pd_random_upload_name($ext);
 if (pd_s3_enabled()) {
     $remote_error = '';
     $content_type = function_exists('mime_content_type') ? mime_content_type($file['tmp_name']) : 'application/octet-stream';
@@ -45,7 +53,7 @@ if (pd_s3_enabled()) {
         exit;
     }
 } else {
-    $upload_dir = __DIR__ . '/uploads';
+    $upload_dir = PD_ROOT . '/uploads';
     if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
         echo json_encode(array('ok' => 0, 'error' => '图片上传失败，uploads 目录创建失败。'));
         exit;

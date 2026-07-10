@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../functions.php';
-pd_ensure_pm_schema();
 $u = require_login();
 $uid = intval($u['id']);
 $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';

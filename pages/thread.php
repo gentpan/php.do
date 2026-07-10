@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../functions.php';
-pd_ensure_thread_reaction_schema();
-pd_ensure_post_vote_schema();
 $id = pd_path_id();
 mysqli_query(db(), "UPDATE pd_threads SET views=views+1 WHERE id={$id}");
 $rs = mysqli_query(db(), "SELECT t.*, f.name AS forum_name, u.nickname, u.username, u.avatar, u.email, u.signature AS author_signature, u.points AS author_points, u.group_id AS author_group_id, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM pd_threads t
@@ -22,7 +20,7 @@ $reply_page = isset($_GET['rp']) ? intval($_GET['rp']) : 1;
 if ($reply_page < 1) $reply_page = 1;
 if ($reply_page > $reply_pages) $reply_page = $reply_pages;
 $reply_offset = ($reply_page - 1) * $replies_per_page;
-$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.points, u.group_id, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator FROM pd_posts p LEFT JOIN pd_users u ON p.user_id=u.id LEFT JOIN pd_threads t ON p.thread_id=t.id
+$posts = mysqli_query(db(), "SELECT p.*, t.forum_id, u.nickname, u.username, u.avatar, u.email, u.signature, u.reply_count, u.points, u.group_id, u.is_admin AS author_is_admin, u.is_moderator AS author_is_moderator, g.name AS group_name, g.color AS group_color FROM pd_posts p LEFT JOIN pd_users u ON p.user_id=u.id LEFT JOIN pd_user_groups g ON g.id=u.group_id LEFT JOIN pd_threads t ON p.thread_id=t.id
     WHERE p.thread_id={$id} AND p.is_deleted=0 ORDER BY p.id ASC LIMIT {$reply_offset}, {$replies_per_page}");
 $attachments = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE thread_id={$id} AND post_id=0 ORDER BY id ASC");
 $guest_zip_download_blocked = !current_user() && !pd_guest_download_allowed();
@@ -34,6 +32,29 @@ if ($me) {
     $vote_rs = mysqli_query(db(), "SELECT pv.post_id, pv.vote FROM pd_post_votes pv INNER JOIN pd_posts p ON p.id=pv.post_id WHERE p.thread_id=" . intval($id) . " AND p.is_deleted=0 AND pv.user_id=" . intval($me['id']));
     while ($vote_rs && ($vote_row = mysqli_fetch_assoc($vote_rs))) {
         $user_post_votes[intval($vote_row['post_id'])] = intval($vote_row['vote']);
+    }
+}
+$post_rows = array();
+$post_ids = array();
+while ($posts && ($post_row = mysqli_fetch_assoc($posts))) {
+    $post_rows[] = $post_row;
+    $post_ids[] = intval($post_row['id']);
+}
+$reply_attachments_by_post = array();
+$floor_replies_by_post = array();
+if (!empty($post_ids)) {
+    $post_id_list = implode(',', $post_ids);
+    $all_reply_attachments = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE post_id IN ({$post_id_list}) ORDER BY post_id ASC, id ASC");
+    while ($all_reply_attachments && ($attachment_row = mysqli_fetch_assoc($all_reply_attachments))) {
+        $reply_attachments_by_post[intval($attachment_row['post_id'])][] = $attachment_row;
+    }
+    $all_floor_replies = mysqli_query(db(), "SELECT ranked.* FROM (
+        SELECT c.*, u.nickname, ROW_NUMBER() OVER (PARTITION BY c.post_id ORDER BY c.id ASC) AS row_num
+        FROM pd_post_comments c LEFT JOIN pd_users u ON c.user_id=u.id
+        WHERE c.post_id IN ({$post_id_list}) AND c.is_deleted=0
+    ) ranked WHERE ranked.row_num<=50 ORDER BY ranked.post_id ASC, ranked.id ASC");
+    while ($all_floor_replies && ($comment_row = mysqli_fetch_assoc($all_floor_replies))) {
+        $floor_replies_by_post[intval($comment_row['post_id'])][] = $comment_row;
     }
 }
 ?>
@@ -105,10 +126,10 @@ if ($me) {
 <section class="card replies" id="replies">
     <h2>回复 <?php echo pd_format_compact_number($thread['replies']); ?></h2>
     <?php $floor_no = $reply_offset; ?>
-    <?php while ($posts && $p = mysqli_fetch_assoc($posts)) { ?>
+    <?php foreach ($post_rows as $p) { ?>
         <?php $floor_no++; ?>
-        <?php $reply_attachments = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE post_id=" . intval($p['id']) . " ORDER BY id ASC"); ?>
         <?php
+        $reply_attachments = isset($reply_attachments_by_post[intval($p['id'])]) ? $reply_attachments_by_post[intval($p['id'])] : array();
         $reply_avatar = pd_user_avatar($p, 96);
         $reply_author = pd_user_display_name($p);
         $reply_level = pd_user_level(intval(isset($p['points']) ? $p['points'] : 0));
@@ -141,9 +162,9 @@ if ($me) {
                     </div>
                 <?php } ?>
             <?php echo pd_render_attachment_list($reply_attachments, array('reply' => true, 'guest_zip_blocked' => $guest_zip_download_blocked)); ?>
-            <?php $floor_replies = mysqli_query(db(), "SELECT c.*, u.nickname FROM pd_post_comments c LEFT JOIN pd_users u ON c.user_id=u.id WHERE c.post_id=" . intval($p['id']) . " AND c.is_deleted=0 ORDER BY c.id ASC LIMIT 50"); ?>
+            <?php $floor_replies = isset($floor_replies_by_post[intval($p['id'])]) ? array_slice($floor_replies_by_post[intval($p['id'])], 0, 50) : array(); ?>
             <div class="floor-replies">
-                <?php while ($floor_replies && $c = mysqli_fetch_assoc($floor_replies)) { ?>
+                <?php foreach ($floor_replies as $c) { ?>
                     <div class="floor-reply"><strong><?php echo h($c['nickname']); ?></strong>：<?php echo pd_render_content($c['content']); ?> <span><?php echo pd_time_html($c['created_at']); ?></span></div>
                 <?php } ?>
                 <?php if (current_user()) { ?>

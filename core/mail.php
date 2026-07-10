@@ -40,7 +40,7 @@ function pd_require_email_verify() {
     return pd_mail_enabled() && intval(pd_setting('require_email_verify', '0')) === 1;
 }
 
-// 发送邮箱验证码（会话存储，60s 限流，10 分钟有效）。$purpose: register|reset
+// 发送邮箱验证码（会话存储，60s 限流，10 分钟有效）。$purpose: register|reset|profile
 function pd_email_code_send($email, $purpose, &$error = '') {
     $email = strtolower(trim((string) $email));
     $purpose = preg_replace('/[^a-z]/', '', (string) $purpose);
@@ -54,11 +54,11 @@ function pd_email_code_send($email, $purpose, &$error = '') {
     $site = pd_site_name();
     $subject = $site . ' 验证码：' . $code;
     $html = '<div style="font-family:sans-serif;font-size:15px;color:#333">'
-        . '<p>你正在 ' . h($site) . ' 进行' . ($purpose === 'reset' ? '找回密码' : '注册') . '，验证码：</p>'
+        . '<p>你正在 ' . h($site) . ' 进行' . ($purpose === 'reset' ? '找回密码' : ($purpose === 'profile' ? '绑定新邮箱' : '注册')) . '，验证码：</p>'
         . '<p style="font-size:26px;font-weight:800;letter-spacing:3px;color:#505b93">' . $code . '</p>'
         . '<p style="color:#888">验证码 10 分钟内有效。如非本人操作，请忽略本邮件。</p></div>';
     if (!pd_send_mail($email, $subject, $html, $error)) return false;
-    $_SESSION[$key] = array('email' => $email, 'code' => $code, 'expires' => time() + 600, 'sent_at' => time());
+    $_SESSION[$key] = array('email' => $email, 'code' => $code, 'expires' => time() + 600, 'sent_at' => time(), 'attempts' => 0);
     return true;
 }
 
@@ -67,6 +67,11 @@ function pd_email_code_verify($email, $code, $purpose) {
     $code = trim((string) $code);
     $key = 'email_code_' . preg_replace('/[^a-z]/', '', (string) $purpose);
     if (empty($_SESSION[$key])) return false;
+    if (intval(isset($_SESSION[$key]['attempts']) ? $_SESSION[$key]['attempts'] : 0) >= 5) {
+        unset($_SESSION[$key]);
+        return false;
+    }
+    $_SESSION[$key]['attempts'] = intval(isset($_SESSION[$key]['attempts']) ? $_SESSION[$key]['attempts'] : 0) + 1;
     $s = $_SESSION[$key];
     if (strtolower((string) $s['email']) !== $email) return false;
     if (time() > intval($s['expires'])) return false;
@@ -83,9 +88,8 @@ function pd_send_welcome_mail($email, $username) {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return false;
     if (!pd_mail_enabled()) return false;
     $site = pd_site_name();
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : '';
-    $home = $host !== '' ? $scheme . '://' . $host . '/' : '/';
+    $base = pd_public_base_url();
+    $home = $base !== '' ? $base . '/' : '/';
     $subject = '欢迎加入 ' . $site;
     $html = '<div style="font-family:sans-serif;font-size:15px;color:#333;line-height:1.7">'
         . '<p>你好 <strong>' . h($username) . '</strong>，</p>'

@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../functions.php';
-pd_ensure_pm_schema();
 $u = require_login();
 $uid = intval($u['id']);
 $error = '';

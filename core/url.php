@@ -265,6 +265,8 @@ function pd_handle_oauth_action() {
     if ($user_id > 0) {
         session_regenerate_id(true);
         $_SESSION['pd_uid'] = $user_id;
+        $_SESSION['pd_auth_time'] = time();
+        $_SESSION['pd_auth_method'] = 'oauth';
         redirect(pd_url_page('index.php'));
     }
     $_SESSION['auth_error'] = '第三方登录失败，请稍后重试。';
@@ -278,11 +280,23 @@ function pd_handle_login() {
     $username_raw = clean_text(isset($_POST['username']) ? $_POST['username'] : '', 30);
     $username = esc($username_raw);
     $password = (string)(isset($_POST['password']) ? $_POST['password'] : '');
+    $login_ip = client_ip();
+    $rate_key = $login_ip . '|' . strtolower($username_raw);
+    $retry_after = 0;
+    if (!pd_rate_limit_allow('login', $rate_key, 8, 900, $retry_after)
+        || !pd_rate_limit_allow('login-ip', $login_ip, 40, 900, $retry_after)) {
+        header('Retry-After: ' . intval($retry_after));
+        $_SESSION['auth_error'] = '登录尝试过多，请稍后再试。';
+        redirect(pd_url_page('login.php'));
+    }
     $rs = mysqli_query(db(), "SELECT * FROM pd_users WHERE username='{$username}' AND status=1 LIMIT 1");
     $u = $rs ? mysqli_fetch_assoc($rs) : null;
     if ($u && pd_password_verify($password, $u['password'])) {
+        pd_rate_limit_clear('login', $rate_key);
         session_regenerate_id(true);
         $_SESSION['pd_uid'] = intval($u['id']);
+        $_SESSION['pd_auth_time'] = time();
+        $_SESSION['pd_auth_method'] = 'password';
         redirect(pd_url_page('index.php'));
     }
     $_SESSION['auth_error'] = '用户名或密码错误。';
@@ -338,23 +352,33 @@ function pd_handle_register() {
             $em = esc($email);
             $p = pd_password_hash($password);
             $ip = esc($ip_raw);
-            if (mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,email,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$em}','{$ip}',NOW())")) {
-                $new_user_id = intval(mysqli_insert_id(db()));
-                $avatar = pd_generate_default_avatar($new_user_id, $username, $nickname);
-                if ($avatar !== '') {
-                    $avatar_sql = esc($avatar);
-                    mysqli_query(db(), "UPDATE pd_users SET avatar='{$avatar_sql}' WHERE id={$new_user_id}");
+            $email_bound = pd_require_email_verify() ? 'NOW()' : 'NULL';
+            $conn = db();
+            mysqli_begin_transaction($conn);
+            if (mysqli_query($conn, "INSERT INTO pd_users (username,password,nickname,email,email_bound_at,ip,created_at) VALUES ('{$u}','{$p}','{$n}','{$em}',{$email_bound},'{$ip}',NOW())")) {
+                $new_user_id = intval(mysqli_insert_id($conn));
+                if (pd_require_invite() && !pd_consume_invite($invite_code, $new_user_id)) {
+                    mysqli_rollback($conn);
+                    $error = '邀请码刚刚已被使用，请更换邀请码重试。';
+                } else {
+                    mysqli_commit($conn);
+                    $avatar = pd_generate_default_avatar($new_user_id, $username, $nickname);
+                    if ($avatar !== '') {
+                        $avatar_sql = esc($avatar);
+                        mysqli_query($conn, "UPDATE pd_users SET avatar='{$avatar_sql}' WHERE id={$new_user_id}");
+                    }
+                    pd_email_code_clear('register');
+                    pd_send_welcome_mail($email, $username); // 尽力发送欢迎邮件，失败不阻断注册
+                    session_regenerate_id(true);
+                    $_SESSION['pd_uid'] = $new_user_id;
+                    $_SESSION['pd_auth_time'] = time();
+                    $_SESSION['pd_auth_method'] = 'password';
+                    redirect(pd_url_page('index.php'));
                 }
-                if (pd_require_invite()) {
-                    pd_consume_invite($invite_code, $new_user_id);
-                }
-                pd_email_code_clear('register');
-                pd_send_welcome_mail($email, $username); // 尽力发送欢迎邮件，失败不阻断注册
-                session_regenerate_id(true);
-                $_SESSION['pd_uid'] = $new_user_id;
-                redirect(pd_url_page('index.php'));
+            } else {
+                mysqli_rollback($conn);
+                if ($error === '') $error = '注册失败，用户名或邮箱可能已被使用。';
             }
-            $error = '注册失败，请稍后再试。';
         }
     }
     $_SESSION['auth_error'] = $error;
@@ -364,7 +388,12 @@ function pd_handle_register() {
 }
 
 function pd_handle_logout() {
-    unset($_SESSION['pd_uid']);
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Allow: POST');
+        http_response_code(405);
+        exit('退出登录仅接受 POST 请求。');
+    }
+    unset($_SESSION['pd_uid'], $_SESSION['pd_auth_time'], $_SESSION['pd_auth_method']);
     session_regenerate_id(true);
     redirect(pd_url_page('index.php'));
 }
@@ -408,7 +437,7 @@ function pd_handle_reset_password() {
         $error = '两次输入的密码不一致。';
     } else {
         $email_sql = esc($email);
-        $rs = mysqli_query(db(), "SELECT id FROM pd_users WHERE email='{$email_sql}' LIMIT 1");
+        $rs = mysqli_query(db(), "SELECT id FROM pd_users WHERE email='{$email_sql}' AND email_bound_at IS NOT NULL AND status=1 LIMIT 1");
         $row = $rs ? mysqli_fetch_assoc($rs) : null;
         if (!$row) {
             $error = '该邮箱未绑定任何账号。';

@@ -19,7 +19,6 @@ function pd_pm_ready() {
     if ($ready !== null) {
         return $ready;
     }
-    pd_ensure_pm_schema();
     $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_pm_threads'");
     $ready = $table && mysqli_num_rows($table) > 0;
     return $ready;
@@ -246,7 +245,6 @@ function pd_online_touch($force = false) {
     if (PHP_SAPI === 'cli') {
         return;
     }
-    pd_ensure_online_schema();
 
     $now = time();
     $last = isset($_SESSION['pd_online_touched_at']) ? intval($_SESSION['pd_online_touched_at']) : 0;
@@ -288,7 +286,6 @@ function pd_online_counts() {
     if ($cache !== null) {
         return $cache;
     }
-    pd_ensure_online_schema();
     $win = pd_online_window_seconds();
     $members = count_rows("SELECT COUNT(DISTINCT user_id) FROM pd_online WHERE user_id > 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
     $guests = count_rows("SELECT COUNT(*) FROM pd_online WHERE user_id = 0 AND last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND)");
@@ -298,24 +295,6 @@ function pd_online_counts() {
         'total' => $members + $guests,
     );
     return $cache;
-}
-
-function pd_online_members($limit = 20) {
-    pd_ensure_online_schema();
-    $win = pd_online_window_seconds();
-    $limit = max(1, min(50, intval($limit)));
-    $rs = mysqli_query(db(), "SELECT u.id, u.nickname, u.username, MAX(o.last_seen) AS last_seen
-        FROM pd_online o
-        INNER JOIN pd_users u ON u.id = o.user_id
-        WHERE o.user_id > 0 AND o.last_seen >= DATE_SUB(NOW(), INTERVAL {$win} SECOND) AND u.status=1
-        GROUP BY u.id, u.nickname, u.username
-        ORDER BY last_seen DESC
-        LIMIT {$limit}");
-    $rows = array();
-    while ($rs && ($row = mysqli_fetch_assoc($rs))) {
-        $rows[] = $row;
-    }
-    return $rows;
 }
 
 function pd_online_stat_day() {
@@ -343,22 +322,4 @@ function pd_online_record_daily_peak() {
           peak_at = IF(VALUES(peak_total) > peak_total, NOW(), peak_at),
           peak_total = GREATEST(peak_total, VALUES(peak_total)),
           updated_at = NOW()");
-}
-
-function pd_online_today_peak() {
-    pd_ensure_online_schema();
-    $day = esc(pd_online_stat_day());
-    $rs = mysqli_query(db(), "SELECT * FROM pd_online_daily WHERE day_date='{$day}' LIMIT 1");
-    $row = $rs ? mysqli_fetch_assoc($rs) : null;
-    if ($row) {
-        return $row;
-    }
-    $counts = pd_online_counts();
-    return array(
-        'day_date' => $day,
-        'peak_total' => intval($counts['total']),
-        'peak_members' => intval($counts['members']),
-        'peak_guests' => intval($counts['guests']),
-        'peak_at' => null,
-    );
 }

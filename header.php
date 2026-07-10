@@ -3,15 +3,12 @@ if (!isset($page_title)) {
     $page_title = SITE_NAME;
 }
 $me = current_user();
-pd_ensure_timezone_schema();
-pd_migrate_schema_prefix_from_qf();
-pd_migrate_forum_nav_plan_a();
 $unread_notifications = $me ? pd_unread_notifications_count(intval($me['id'])) : 0;
 pd_online_touch();
 $main_navs = pd_main_navs();
 $is_pd_theme = true;
 $header_forums = pd_header_nav_forums();
-$pd_rss_url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . (isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : '') . '/feed';
+$pd_rss_url = (pd_public_base_url() !== '' ? pd_public_base_url() : '') . '/feed';
 $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 $page_body_class = 'page-' . preg_replace('/[^a-z0-9_-]+/', '-', strtolower(str_replace('.php', '', $current_script)));
 $search_query = isset($_GET['q']) ? clean_text($_GET['q'], 60) : '';
@@ -156,6 +153,12 @@ if (strpos($pd_page_banner, '{r}') !== false) {
                 <li><a class="pd-menu-link<?php echo $current_script === 'index.php' ? ' active' : ''; ?>" href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house"></i><span>首页</span></a></li>
                 <?php foreach ($header_forums as $forum) { ?>
                     <li><a class="pd-menu-link<?php echo ($pd_current_forum && intval($pd_current_forum['id']) === intval($forum['id'])) ? ' active' : ''; ?>" href="<?php echo h(pd_url_forum($forum['id'])); ?>"><i class="<?php echo h(pd_forum_icon($forum)); ?>" aria-hidden="true"></i><span><?php echo h($forum['name']); ?></span></a></li>
+                <?php } ?>
+                <?php foreach ($main_navs as $nav) {
+                    $nav_url = pd_url_nav(isset($nav['url']) ? $nav['url'] : '');
+                    if (!pd_valid_nav_url($nav_url)) continue;
+                ?>
+                    <li><a class="pd-menu-link" href="<?php echo h($nav_url); ?>"<?php echo pd_nav_target($nav_url); ?>><?php echo pd_nav_icon_html($nav); ?><span><?php echo h($nav['title']); ?></span></a></li>
                 <?php } ?>
             </ul>
             <div class="pd-navbar-tools">

@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 
-pd_ensure_account_auth_schema();
-
 function pd_passkey_options_for_user($user) {
     $allow = array();
     $uid = intval($user['id']);
@@ -20,6 +18,9 @@ function pd_passkey_attested_credential($auth_data) {
     $info = pd_webauthn_auth_data_info($auth_data);
     if (($info['flags'] & 0x01) !== 0x01) {
         throw new Exception('请确认设备上的 Passkey 操作。');
+    }
+    if (($info['flags'] & 0x04) !== 0x04) {
+        throw new Exception('此 Passkey 未完成人机验证。');
     }
     if (($info['flags'] & 0x40) !== 0x40) {
         throw new Exception('Passkey 注册数据不完整。');
@@ -68,7 +69,7 @@ function pd_passkey_register_options() {
             'excludeCredentials' => pd_passkey_options_for_user($u),
             'authenticatorSelection' => array(
                 'residentKey' => 'preferred',
-                'userVerification' => 'preferred'
+                'userVerification' => 'required'
             )
         )
     ));
@@ -109,7 +110,14 @@ function pd_passkey_register_verify() {
         $transports_sql = esc($transports);
         $uid = intval($u['id']);
         $count = intval($credential['sign_count']);
-        mysqli_query(db(), "INSERT INTO pd_passkeys (user_id, credential_id, public_key_cose, sign_count, label, transports, created_at) VALUES ({$uid}, '{$credential_id}', '{$public_key}', {$count}, '{$label_sql}', '{$transports_sql}', NOW()) ON DUPLICATE KEY UPDATE user_id=VALUES(user_id), public_key_cose=VALUES(public_key_cose), label=VALUES(label), transports=VALUES(transports)");
+        $existing = mysqli_query(db(), "SELECT user_id FROM pd_passkeys WHERE credential_id='{$credential_id}' LIMIT 1");
+        if ($existing && mysqli_num_rows($existing) > 0) {
+            throw new Exception('该 Passkey 已经绑定，不能转移到其他账号。');
+        }
+        $inserted = mysqli_query(db(), "INSERT INTO pd_passkeys (user_id, credential_id, public_key_cose, sign_count, label, transports, created_at) VALUES ({$uid}, '{$credential_id}', '{$public_key}', {$count}, '{$label_sql}', '{$transports_sql}', NOW())");
+        if (!$inserted) {
+            throw new Exception('Passkey 保存失败，请重试。');
+        }
         pd_json_response(array('ok' => true, 'message' => 'Passkey 已添加。'));
     } catch (Throwable $e) {
         pd_json_response(array('ok' => false, 'error' => $e->getMessage()), 400);
@@ -121,6 +129,13 @@ function pd_passkey_login_options() {
     $username = clean_text(isset($input['username']) ? $input['username'] : '', 30);
     if ($username === '') {
         pd_json_response(array('ok' => false, 'error' => '请先输入用户名。'), 400);
+    }
+    $rate_key = client_ip() . '|' . strtolower($username);
+    $retry_after = 0;
+    if (!pd_rate_limit_allow('passkey-login', $rate_key, 12, 900, $retry_after)
+        || !pd_rate_limit_allow('passkey-login-ip', client_ip(), 40, 900, $retry_after)) {
+        header('Retry-After: ' . intval($retry_after));
+        pd_json_response(array('ok' => false, 'error' => '登录尝试过多，请稍后再试。'), 429);
     }
     $username_sql = esc($username);
     $rs = mysqli_query(db(), "SELECT * FROM pd_users WHERE username='{$username_sql}' AND status=1 LIMIT 1");
@@ -135,6 +150,7 @@ function pd_passkey_login_options() {
     $challenge = pd_b64url_encode(random_bytes(32));
     $_SESSION['pd_passkey_login_challenge'] = $challenge;
     $_SESSION['pd_passkey_login_user'] = intval($u['id']);
+    $_SESSION['pd_passkey_login_rate_key'] = $rate_key;
     pd_json_response(array(
         'ok' => true,
         'publicKey' => array(
@@ -142,7 +158,7 @@ function pd_passkey_login_options() {
             'rpId' => pd_webauthn_rp_id(),
             'allowCredentials' => $allow,
             'timeout' => 60000,
-            'userVerification' => 'preferred'
+            'userVerification' => 'required'
         )
     ));
 }
@@ -151,7 +167,8 @@ function pd_passkey_login_verify() {
     $input = pd_json_input();
     $expected = isset($_SESSION['pd_passkey_login_challenge']) ? (string)$_SESSION['pd_passkey_login_challenge'] : '';
     $expected_user = isset($_SESSION['pd_passkey_login_user']) ? intval($_SESSION['pd_passkey_login_user']) : 0;
-    unset($_SESSION['pd_passkey_login_challenge'], $_SESSION['pd_passkey_login_user']);
+    $rate_key = isset($_SESSION['pd_passkey_login_rate_key']) ? (string)$_SESSION['pd_passkey_login_rate_key'] : '';
+    unset($_SESSION['pd_passkey_login_challenge'], $_SESSION['pd_passkey_login_user'], $_SESSION['pd_passkey_login_rate_key']);
     try {
         $raw_id_b64 = isset($input['rawId']) ? (string)$input['rawId'] : '';
         $client_data = pd_b64url_decode(isset($input['clientDataJSON']) ? $input['clientDataJSON'] : '');
@@ -173,6 +190,9 @@ function pd_passkey_login_verify() {
         if (($info['flags'] & 0x01) !== 0x01) {
             throw new Exception('请确认设备上的 Passkey 操作。');
         }
+        if (($info['flags'] & 0x04) !== 0x04) {
+            throw new Exception('此 Passkey 未完成人机验证。');
+        }
         $public_key_cose = pd_b64url_decode($passkey['public_key_cose']);
         if ($public_key_cose === false) {
             throw new Exception('Passkey 公钥读取失败。');
@@ -187,9 +207,16 @@ function pd_passkey_login_verify() {
         }
         $pid = intval($passkey['id']);
         $counter = intval($info['sign_count']);
+        $stored_counter = intval($passkey['sign_count']);
+        if (!pd_webauthn_counter_valid($stored_counter, $counter)) {
+            throw new Exception('Passkey 计数器异常，凭据可能已被复制。');
+        }
         mysqli_query(db(), "UPDATE pd_passkeys SET sign_count={$counter}, last_used_at=NOW() WHERE id={$pid}");
         session_regenerate_id(true);
         $_SESSION['pd_uid'] = intval($passkey['user_id']);
+        $_SESSION['pd_auth_time'] = time();
+        $_SESSION['pd_auth_method'] = 'passkey';
+        if ($rate_key !== '') pd_rate_limit_clear('passkey-login', $rate_key);
         pd_json_response(array('ok' => true, 'redirect' => pd_url_page('index.php')));
     } catch (Throwable $e) {
         pd_json_response(array('ok' => false, 'error' => $e->getMessage()), 400);

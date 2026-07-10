@@ -8,6 +8,13 @@ function pd_require_csrf() {
     }
 }
 
+function pd_require_current_schema() {
+    if ((string)pd_setting('schema_version', '') === (string)PD_SCHEMA_VERSION) return;
+    header('Content-Type: text/html; charset=utf-8', true, 503);
+    header('Retry-After: 300');
+    exit('数据库结构需要升级。请由服务器管理员使用维护令牌运行 install/upgrade.php。');
+}
+
 function pd_require_action_token($action, $id, $extra = '') {
     $sent = isset($_GET['token']) ? (string)$_GET['token'] : '';
     if ($sent === '' || !hash_equals(pd_action_token($action, $id, $extra), $sent)) {
@@ -154,7 +161,7 @@ function pd_migrate_schema_prefix_from_qf() {
         'posts', 'post_votes', 'bans', 'security_logs', 'moderator_logs', 'moderator_forums',
         'attachments', 'post_comments', 'notifications', 'settings', 'signins', 'ads', 'navs',
         'invites', 'oauth', 'user_groups', 'points_log', 'pm_threads', 'pm_messages',
-        'online', 'online_daily',
+        'online', 'online_daily', 'attachment_downloads',
     );
     $renamed = false;
     foreach ($tables as $name) {
@@ -355,16 +362,16 @@ function pd_ensure_thread_reaction_schema() {
 }
 
 function pd_migrate_attachment_to_protected_storage($att) {
-    if (!$att || !in_array(strtolower($att['file_ext']), array('zip', 'rar'))) {
+    $image_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+    if (!$att || in_array(strtolower($att['file_ext']), $image_exts, true)) {
         return $att;
     }
     $path = (string)$att['file_path'];
-    if (strpos($path, 'uploads/protected/') === 0 || preg_match('/^https?:\/\//i', $path)) {
+    if (strpos($path, 'private://') === 0 || strpos($path, 's3-private://') === 0 || preg_match('/^https?:\/\//i', $path)) {
         return $att;
     }
-    $base_dir = realpath(PD_ROOT . '/uploads');
-    $old_file = realpath(PD_ROOT . '/' . ltrim($path, '/'));
-    if (!$base_dir || !$old_file || strpos($old_file, $base_dir . DIRECTORY_SEPARATOR) !== 0 || !is_file($old_file)) {
+    $old_file = pd_resolve_local_attachment_file($path);
+    if (!$old_file) {
         return $att;
     }
     list($target, $relative) = pd_protected_attachment_path($att['file_ext']);
@@ -375,9 +382,77 @@ function pd_migrate_attachment_to_protected_storage($att) {
         @unlink($old_file);
     }
     $relative_sql = esc($relative);
-    mysqli_query(db(), "UPDATE pd_attachments SET file_path='{$relative_sql}' WHERE id=" . intval($att['id']));
+    $attachment_id = intval($att['id']);
+    if (!mysqli_query(db(), "UPDATE pd_attachments SET file_path='{$relative_sql}' WHERE id={$attachment_id}")) {
+        @rename($target, $old_file);
+        return $att;
+    }
+    $old_path_sql = esc($path);
+    $download_path_sql = esc('api/download.php?id=' . $attachment_id);
+    mysqli_query(db(), "UPDATE pd_threads SET content=REPLACE(content,'{$old_path_sql}','{$download_path_sql}') WHERE INSTR(content,'{$old_path_sql}')>0");
+    mysqli_query(db(), "UPDATE pd_posts SET content=REPLACE(content,'{$old_path_sql}','{$download_path_sql}') WHERE INSTR(content,'{$old_path_sql}')>0");
     $att['file_path'] = $relative;
     return $att;
+}
+
+function pd_migrate_legacy_attachments_to_private_storage() {
+    $result = array('migrated' => 0, 'quarantined' => 0, 'failed' => 0);
+    $rs = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE file_path NOT LIKE 'private://%' AND file_path NOT LIKE 's3-private://%' AND file_path NOT LIKE 'http://%' AND file_path NOT LIKE 'https://%'");
+    if (!$rs) {
+        $result['failed'] = 1;
+        return $result;
+    }
+    while ($att = mysqli_fetch_assoc($rs)) {
+        if (in_array(strtolower($att['file_ext']), array('jpg', 'jpeg', 'png', 'gif', 'webp'), true)) continue;
+        if (!pd_resolve_local_attachment_file($att['file_path'])) continue;
+        $old_path = (string)$att['file_path'];
+        $migrated = pd_migrate_attachment_to_protected_storage($att);
+        if ((string)$migrated['file_path'] !== $old_path) {
+            $result['migrated']++;
+        } else {
+            $result['failed']++;
+        }
+    }
+    $uploads_dir = realpath(PD_ROOT . '/uploads');
+    if ($uploads_dir) {
+        $quarantine_dir = dirname(pd_protected_attachment_dir()) . '/quarantine';
+        if (!is_dir($quarantine_dir)) @mkdir($quarantine_dir, 0750, true);
+        try {
+            foreach (new DirectoryIterator($uploads_dir) as $entry) {
+                if (!$entry->isFile()) continue;
+                $name = $entry->getFilename();
+                if (in_array($name, array('.htaccess', 'index.html'), true)) continue;
+                $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                if (in_array($ext, array('jpg', 'jpeg', 'png', 'gif', 'webp'), true)) continue;
+                $target = $quarantine_dir . '/' . bin2hex(random_bytes(8)) . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
+                if (is_dir($quarantine_dir) && (@rename($entry->getPathname(), $target) || (@copy($entry->getPathname(), $target) && @unlink($entry->getPathname())))) {
+                    $result['quarantined']++;
+                } else {
+                    $result['failed']++;
+                }
+            }
+        } catch (Throwable $e) {
+            $result['failed']++;
+        }
+    }
+    return $result;
+}
+
+function pd_prepare_private_attachment_storage(&$error = '') {
+    $dir = pd_protected_attachment_dir();
+    if ((!is_dir($dir) && !@mkdir($dir, 0750, true)) || !is_writable($dir)) {
+        $error = '私有附件目录不可写：' . $dir;
+        return false;
+    }
+    $public_root = realpath(PD_ROOT);
+    $private_root = realpath($dir);
+    if (!$public_root || !$private_root
+        || $private_root === $public_root
+        || strpos($private_root, $public_root . DIRECTORY_SEPARATOR) === 0) {
+        $error = 'PD_PRIVATE_STORAGE_PATH 必须指向网站根目录之外的可写目录。';
+        return false;
+    }
+    return true;
 }
 
 function pd_ensure_forum_nav_schema() {
@@ -445,7 +520,7 @@ function pd_ensure_account_auth_schema() {
     $done = true;
     $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'email'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE pd_users ADD email varchar(190) NOT NULL DEFAULT '' AFTER nickname");
+        mysqli_query(db(), "ALTER TABLE pd_users ADD email varchar(190) DEFAULT NULL AFTER nickname");
     }
     $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'email_bound_at'");
     if ($check && mysqli_num_rows($check) == 0) {
@@ -469,6 +544,15 @@ function pd_ensure_account_auth_schema() {
       UNIQUE KEY credential_id (credential_id),
       KEY user_id (user_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // 空邮箱统一为 NULL，使唯一索引可以允许多个未绑定邮箱的账号。
+    mysqli_query(db(), "UPDATE pd_users SET email=NULL WHERE email=''");
+    @mysqli_query(db(), "ALTER TABLE pd_users MODIFY email varchar(190) NULL DEFAULT NULL");
+    $duplicates = count_rows("SELECT COUNT(*) FROM (SELECT email FROM pd_users WHERE email IS NOT NULL GROUP BY email HAVING COUNT(*)>1) duplicate_emails");
+    $index = mysqli_query(db(), "SHOW INDEX FROM pd_users WHERE Key_name='uniq_users_email'");
+    if ($duplicates === 0 && (!$index || mysqli_num_rows($index) === 0)) {
+        mysqli_query(db(), "ALTER TABLE pd_users ADD UNIQUE KEY uniq_users_email (email)");
+    }
 }
 
 function pd_require_invite() {
@@ -559,4 +643,113 @@ function pd_migrate_storage_to_utc() {
         }
     }
     pd_update_setting('data_timezone_utc_migrated', '1');
+}
+
+function pd_ensure_performance_indexes() {
+    $ok = true;
+    $indexes = array(
+        'pd_users' => array(
+            'status_points' => '(status,points)',
+            'created_at' => '(created_at)',
+        ),
+        'pd_threads' => array(
+            'forum_active_updated' => '(forum_id,is_deleted,is_top,updated_at)',
+            'active_updated' => '(is_deleted,is_top,updated_at)',
+            'user_active_updated' => '(user_id,is_deleted,updated_at)',
+        ),
+        'pd_posts' => array(
+            'thread_active_id' => '(thread_id,is_deleted,id)',
+            'user_active_created' => '(user_id,is_deleted,created_at)',
+        ),
+        'pd_attachments' => array(
+            'orphan_created' => '(thread_id,post_id,created_at)',
+        ),
+        'pd_post_comments' => array(
+            'post_active_id' => '(post_id,is_deleted,id)',
+        ),
+    );
+    foreach ($indexes as $table => $table_indexes) {
+        foreach ($table_indexes as $name => $columns) {
+            $check = mysqli_query(db(), "SHOW INDEX FROM `{$table}` WHERE Key_name='" . esc($name) . "'");
+            if (!$check || mysqli_num_rows($check) === 0) {
+                if (!mysqli_query(db(), "ALTER TABLE `{$table}` ADD KEY `{$name}` {$columns}")) {
+                    $ok = false;
+                }
+            }
+        }
+    }
+    return $ok;
+}
+
+function pd_schema_readiness_errors() {
+    $errors = array();
+    $required_tables = array(
+        'pd_users', 'pd_forums', 'pd_threads', 'pd_posts', 'pd_attachments',
+        'pd_post_comments', 'pd_notifications', 'pd_settings', 'pd_passkeys',
+        'pd_signins', 'pd_ads', 'pd_navs', 'pd_invites', 'pd_oauth',
+        'pd_user_groups', 'pd_points_log', 'pd_pm_threads', 'pd_pm_messages',
+        'pd_online', 'pd_online_daily', 'pd_thread_votes', 'pd_post_votes',
+        'pd_thread_reactions', 'pd_attachment_downloads', 'pd_bans',
+        'pd_security_logs', 'pd_moderator_logs', 'pd_moderator_forums',
+    );
+    $existing_tables = array();
+    foreach ($required_tables as $table) {
+        $table_sql = esc($table);
+        $rs = mysqli_query(db(), "SHOW TABLES LIKE '{$table_sql}'");
+        if (!$rs || mysqli_num_rows($rs) === 0) {
+            $errors[] = '缺少数据表 ' . $table;
+        } else {
+            $existing_tables[$table] = true;
+        }
+    }
+
+    $required_columns = array(
+        'pd_users' => array(
+            'email', 'email_bound_at', 'timezone', 'points', 'group_id', 'coins',
+            'reply_count', 'mute_until', 'is_moderator', 'moderator_delete_limit',
+            'signature', 'gender', 'custom_field', 'notification_sound_enabled',
+        ),
+        'pd_forums' => array('show_in_nav', 'banner', 'topic_category_enabled', 'topic_categories', 'post_user_limit_enabled', 'post_user_ids'),
+        'pd_threads' => array('topic_category', 'upvotes', 'downvotes', 'is_deleted'),
+        'pd_posts' => array('upvotes', 'downvotes', 'is_deleted'),
+        'pd_attachments' => array('post_id', 'file_path', 'original_name', 'file_ext', 'file_size', 'download_count'),
+        'pd_navs' => array('icon_type', 'icon_value'),
+    );
+    foreach ($required_columns as $table => $columns) {
+        if (empty($existing_tables[$table])) continue;
+        foreach ($columns as $column) {
+            if (!pd_table_has_column($table, $column)) {
+                $errors[] = '缺少字段 ' . $table . '.' . $column;
+            }
+        }
+    }
+
+    if (!empty($existing_tables['pd_users']) && pd_table_has_column('pd_users', 'email')) {
+        $duplicates = count_rows("SELECT COUNT(*) FROM (SELECT email FROM pd_users WHERE email IS NOT NULL AND email<>'' GROUP BY email HAVING COUNT(*)>1) duplicate_emails");
+        if ($duplicates > 0) {
+            $errors[] = 'pd_users 中存在 ' . $duplicates . ' 组重复邮箱，请先合并或清空重复值';
+        }
+    }
+
+    $required_indexes = array(
+        'pd_users' => array('uniq_users_email', 'status_points', 'created_at'),
+        'pd_threads' => array('forum_active_updated', 'active_updated', 'user_active_updated'),
+        'pd_posts' => array('thread_active_id', 'user_active_created'),
+        'pd_attachments' => array('orphan_created'),
+        'pd_post_comments' => array('post_active_id'),
+        'pd_attachment_downloads' => array('uniq_att_user'),
+        'pd_passkeys' => array('credential_id'),
+        'pd_signins' => array('user_date'),
+    );
+    foreach ($required_indexes as $table => $indexes) {
+        if (empty($existing_tables[$table])) continue;
+        foreach ($indexes as $index) {
+            $index_sql = esc($index);
+            $rs = mysqli_query(db(), "SHOW INDEX FROM `{$table}` WHERE Key_name='{$index_sql}'");
+            if (!$rs || mysqli_num_rows($rs) === 0) {
+                $errors[] = '缺少索引 ' . $table . '.' . $index;
+            }
+        }
+    }
+    return $errors;
 }
