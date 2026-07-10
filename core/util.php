@@ -37,6 +37,10 @@ function h($str) {
     return htmlspecialchars((string)$str, ENT_QUOTES, 'UTF-8');
 }
 
+function pd_cdata_text($text) {
+    return str_replace(']]>', ']]]]><![CDATA[>', (string)$text);
+}
+
 function clean_text($str, $max) {
     $str = trim((string)$str);
     $str = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $str);
@@ -247,35 +251,6 @@ function pd_recalc_user_points($user_id) {
     return $total;
 }
 
-function pd_list_user_groups() {
-    pd_ensure_points_schema();
-    $rs = mysqli_query(db(), "SELECT * FROM pd_user_groups ORDER BY min_points ASC, display_order ASC, id ASC");
-    $rows = array();
-    while ($rs && $row = mysqli_fetch_assoc($rs)) $rows[] = $row;
-    return $rows;
-}
-
-function pd_selected_font_urls() {
-    $options = pd_font_options();
-    $urls = array();
-    foreach (array('title_font', 'content_font') as $setting_key) {
-        $font_key = pd_font_key($setting_key);
-        $url = isset($options[$font_key]['url']) ? $options[$font_key]['url'] : '';
-        if ($url !== '') {
-            $urls[$url] = $url;
-        }
-    }
-    return array_values($urls);
-}
-
-function pd_include_admin_header() {
-    include pd_theme_file('admin/_layout_header.php');
-}
-
-function pd_include_admin_footer() {
-    include pd_theme_file('admin/_layout_footer.php');
-}
-
 function pd_append_url_parts($path, $params = array(), $fragment = '') {
     $query = '';
     if (!empty($params)) {
@@ -358,6 +333,16 @@ function pd_contact_email() {
     return ($row && $row['email']) ? $row['email'] : '';
 }
 
+function pd_public_base_url() {
+    if (defined('PD_PUBLIC_URL')) {
+        $configured = rtrim(trim((string)PD_PUBLIC_URL), '/');
+        if (preg_match('#^https?://[a-z0-9.-]+(?::[0-9]+)?$#i', $configured)) return $configured;
+    }
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', (string)$_SERVER['HTTP_HOST']) : '';
+    return $host !== '' ? $scheme . '://' . $host : '';
+}
+
 // 头部 banner：每个页面固定用对应图，首页用后台选定的 banner；优先 webp。返回本地路径或 ''。
 function pd_header_banner_src($script, $slug = '') {
     $dir = 'assets/banner/';
@@ -402,7 +387,6 @@ function pd_latest_users($limit = 8) {
 
 function pd_recount_thread_votes($thread_id) {
     $thread_id = intval($thread_id);
-    pd_ensure_thread_vote_schema();
     $up = count_rows("SELECT COUNT(*) FROM pd_thread_votes WHERE thread_id={$thread_id} AND vote=1");
     $down = count_rows("SELECT COUNT(*) FROM pd_thread_votes WHERE thread_id={$thread_id} AND vote=-1");
     mysqli_query(db(), "UPDATE pd_threads SET upvotes={$up}, downvotes={$down} WHERE id={$thread_id}");
@@ -411,7 +395,6 @@ function pd_recount_thread_votes($thread_id) {
 
 function pd_recount_post_votes($post_id) {
     $post_id = intval($post_id);
-    pd_ensure_post_vote_schema();
     $up = count_rows("SELECT COUNT(*) FROM pd_post_votes WHERE post_id={$post_id} AND vote=1");
     $down = count_rows("SELECT COUNT(*) FROM pd_post_votes WHERE post_id={$post_id} AND vote=-1");
     mysqli_query(db(), "UPDATE pd_posts SET upvotes={$up}, downvotes={$down} WHERE id={$post_id}");
@@ -419,32 +402,29 @@ function pd_recount_post_votes($post_id) {
 }
 
 function pd_protected_attachment_dir() {
-    return PD_ROOT . '/uploads/protected';
+    $base = defined('PD_PRIVATE_STORAGE_PATH') && trim((string)PD_PRIVATE_STORAGE_PATH) !== ''
+        ? rtrim(trim((string)PD_PRIVATE_STORAGE_PATH), DIRECTORY_SEPARATOR)
+        : dirname(PD_ROOT) . '/php-do-private';
+    return $base . '/attachments';
 }
 
 function pd_protected_attachment_path($ext = 'dat') {
     $dir = pd_protected_attachment_dir();
     if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
+        @mkdir($dir, 0750, true);
     }
-    $htaccess = $dir . '/.htaccess';
-    if (!file_exists($htaccess)) {
-        @file_put_contents($htaccess, "Require all denied\n");
-    }
-    $index = $dir . '/index.html';
-    if (!file_exists($index)) {
-        @file_put_contents($index, '');
-    }
-    $safe_ext = preg_replace('/[^a-z0-9]/i', '', (string)$ext);
-    if ($safe_ext === '') {
-        $safe_ext = 'dat';
-    }
-    $name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '_' . mt_rand(1000, 9999) . '.dat';
-    return array($dir . '/' . $name, 'uploads/protected/' . $name);
+    $name = pd_random_upload_name('dat');
+    return array($dir . '/' . $name, 'private://' . $name);
+}
+
+function pd_random_upload_name($ext) {
+    $safe_ext = preg_replace('/[^a-z0-9]/i', '', strtolower((string)$ext));
+    if ($safe_ext === '') $safe_ext = 'dat';
+    return gmdate('YmdHis') . '_' . bin2hex(random_bytes(12)) . '.' . $safe_ext;
 }
 
 function pd_store_uploaded_attachment_file($tmp_name, $ext, &$file_path) {
-    if (in_array(strtolower($ext), array('zip', 'rar'))) {
+    if (!in_array(strtolower($ext), array('jpg', 'jpeg', 'png', 'gif', 'webp'), true)) {
         list($target, $relative) = pd_protected_attachment_path($ext);
         if (!move_uploaded_file($tmp_name, $target)) {
             return false;
@@ -456,7 +436,7 @@ function pd_store_uploaded_attachment_file($tmp_name, $ext, &$file_path) {
     if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
         return false;
     }
-    $safe_name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . strtolower($ext);
+    $safe_name = pd_random_upload_name($ext);
     $target = $upload_dir . '/' . $safe_name;
     if (!move_uploaded_file($tmp_name, $target)) {
         return false;
@@ -478,27 +458,6 @@ function pd_resolve_attachment_from_url($url) {
         $rs = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE file_path='{$path_sql}' LIMIT 1");
         if ($rs && ($att = mysqli_fetch_assoc($rs))) {
             return pd_migrate_attachment_to_protected_storage($att);
-        }
-        $full_path = realpath(PD_ROOT . '/' . $path);
-        $base_dir = realpath(PD_ROOT . '/uploads');
-        if ($base_dir && $full_path && strpos($full_path, $base_dir . DIRECTORY_SEPARATOR) === 0 && is_file($full_path)) {
-            $original = basename($path);
-            $ext = strtolower(pathinfo($original, PATHINFO_EXTENSION));
-            if (in_array($ext, array('zip', 'rar'))) {
-                $original_sql = esc($original);
-                $ext_sql = esc($ext);
-                $size = intval(filesize($full_path));
-                list($target, $relative) = pd_protected_attachment_path($ext);
-                if (rename($full_path, $target) || (copy($full_path, $target) && @unlink($full_path))) {
-                    $path_sql = esc($relative);
-                }
-                mysqli_query(db(), "INSERT INTO pd_attachments (thread_id,post_id,user_id,file_path,original_name,file_ext,file_size,created_at) VALUES (0,0,0,'{$path_sql}','{$original_sql}','{$ext_sql}',{$size},NOW())");
-                $new_id = intval(mysqli_insert_id(db()));
-                if ($new_id > 0) {
-                    $new_rs = mysqli_query(db(), "SELECT * FROM pd_attachments WHERE id={$new_id} LIMIT 1");
-                    return $new_rs ? mysqli_fetch_assoc($new_rs) : null;
-                }
-            }
         }
     }
     return null;
@@ -568,6 +527,9 @@ function pd_valid_nav_url($url) {
     if ($url === '') {
         return false;
     }
+    if (strpos($url, '//') === 0 || preg_match('/[\x00-\x1F\x7F]/', $url)) {
+        return false;
+    }
     if (preg_match('/^https?:\/\//i', $url)) {
         return true;
     }
@@ -579,12 +541,17 @@ function pd_valid_nav_url($url) {
 
 function pd_sanitize_nav_svg($svg) {
     $svg = trim((string)$svg);
-    if ($svg === '' || stripos($svg, '<svg') === false) {
+    if ($svg === '' || !preg_match('#^<svg\b[\s\S]*</svg>$#i', $svg) || stripos($svg, '<!doctype') !== false || stripos($svg, '<!entity') !== false) {
         return '';
     }
-    // Admin-only input, but strip the obviously dangerous bits.
-    $svg = preg_replace('#<script[\s\S]*?</script>#i', '', $svg);
+    $svg = preg_replace('#<(script|style|foreignObject|iframe|object|embed|link|meta)\b[\s\S]*?</\1\s*>#i', '', $svg);
+    $svg = preg_replace('#<(script|style|foreignObject|iframe|object|embed|link|meta)\b[^>]*?/?>#i', '', $svg);
+    $svg = strip_tags($svg, '<svg><g><path><circle><rect><line><polyline><polygon><ellipse><defs><symbol><use><title><desc><clipPath><mask><linearGradient><radialGradient><stop>');
     $svg = preg_replace('#\son[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', '', $svg);
+    $svg = preg_replace('#\s(?:style|srcdoc)\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', '', $svg);
+    $svg = preg_replace_callback('#\s(?:xlink:)?href\s*=\s*(["\'])(.*?)\1#i', function ($m) {
+        return strpos($m[2], '#') === 0 ? ' href=' . $m[1] . h($m[2]) . $m[1] : '';
+    }, $svg);
     return $svg;
 }
 
@@ -592,15 +559,34 @@ function pd_delete_attachment_file($path) {
     if ($path === '' || preg_match('/^https?:\/\//i', $path)) {
         return true;
     }
-    $base_dir = realpath(PD_ROOT . '/uploads');
-    $file = realpath(PD_ROOT . '/' . ltrim($path, '/'));
-    if (!$base_dir || !$file || strpos($file, $base_dir . DIRECTORY_SEPARATOR) !== 0) {
-        return false;
+    if (strpos((string)$path, 's3-private://') === 0) {
+        $error = '';
+        return pd_s3_delete_private_ref($path, $error);
     }
+    $file = pd_resolve_local_attachment_file($path);
+    if (!$file) return false;
     if (is_file($file)) {
         return unlink($file);
     }
     return true;
+}
+
+function pd_resolve_local_attachment_file($path) {
+    $path = (string)$path;
+    if (strpos($path, 'private://') === 0) {
+        $name = substr($path, strlen('private://'));
+        if ($name === '' || basename($name) !== $name) return false;
+        $candidate = pd_protected_attachment_dir() . '/' . $name;
+    } else {
+        $candidate = PD_ROOT . '/' . ltrim($path, '/');
+    }
+    $file = realpath($candidate);
+    if (!$file || !is_file($file)) return false;
+    foreach (array(PD_ROOT . '/uploads', PD_ROOT . '/storage/attachments', pd_protected_attachment_dir()) as $root) {
+        $base = realpath($root);
+        if ($base && strpos($file, $base . DIRECTORY_SEPARATOR) === 0) return $file;
+    }
+    return false;
 }
 
 function pd_notify_user($user_id, $thread_id, $post_id, $message) {
@@ -612,22 +598,6 @@ function pd_notify_user($user_id, $thread_id, $post_id, $message) {
     }
     $message_sql = esc(clean_text($message, 180));
     return mysqli_query(db(), "INSERT INTO pd_notifications (user_id,thread_id,post_id,message,is_read,created_at) VALUES ({$user_id},{$thread_id},{$post_id},'{$message_sql}',0,NOW())");
-}
-
-function pd_floor_name($floor) {
-    $floor = intval($floor);
-    if ($floor === 1) return '沙发';
-    if ($floor === 2) return '椅子';
-    if ($floor === 3) return '板凳';
-    return $floor . '楼';
-}
-
-function pd_floor_icon($floor) {
-    $floor = intval($floor);
-    if ($floor === 1) return '🛋';
-    if ($floor === 2) return '🪑';
-    if ($floor === 3) return '▰';
-    return '';
 }
 
 function pd_guest_download_allowed() {
@@ -702,13 +672,6 @@ function is_admin() {
     return $u && intval($u['is_admin']) === 1;
 }
 
-function is_moderator_user($user = null) {
-    if ($user === null) {
-        $user = current_user();
-    }
-    return $user && (intval($user['is_admin']) === 1 || intval(isset($user['is_moderator']) ? $user['is_moderator'] : 0) === 1);
-}
-
 function pd_b64url_encode($data) {
     return rtrim(strtr(base64_encode((string)$data), '+/', '-_'), '=');
 }
@@ -747,16 +710,6 @@ function require_login() {
         exit;
     }
     return $u;
-}
-
-function pd_generate_invite_code() {
-    $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    $max = strlen($chars) - 1;
-    $code = '';
-    for ($i = 0; $i < 10; $i++) {
-        $code .= $chars[random_int(0, $max)];
-    }
-    return $code;
 }
 
 function pd_consume_invite($code, $user_id) {
@@ -976,10 +929,6 @@ function pd_time_html($dt, $attrs = array()) {
         $extra .= ' ' . h($key) . '="' . h((string)$value) . '"';
     }
     return '<time class="' . h($class) . '" datetime="' . h($iso) . '" title="' . h(pd_format_absolute($dt)) . '"' . $extra . '>' . h(pd_time_ago($dt)) . '</time>';
-}
-
-function format_time($time) {
-    return pd_time_ago($time);
 }
 
 function pd_content_looks_like_bbcode($content) {

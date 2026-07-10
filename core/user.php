@@ -1,17 +1,6 @@
 <?php
 /* core/user.php — 由 functions.php 自动切分。集中 48 个定义。 */
 
-function pd_avatar_initial($nickname, $username) {
-    $label = trim((string)$nickname);
-    if ($label === '') {
-        $label = trim((string)$username);
-    }
-    if ($label === '') {
-        return 'B';
-    }
-    return function_exists('mb_substr') ? mb_substr($label, 0, 1, 'UTF-8') : strtoupper(substr($label, 0, 1));
-}
-
 function pd_avatar_gravatar_enabled() {
     return intval(pd_setting('avatar_gravatar_enabled', '1')) === 1;
 }
@@ -110,14 +99,6 @@ function pd_user_level($points) {
     return $level;
 }
 
-function pd_points_to_next_level($points) {
-    $points = intval($points);
-    $thresholds = pd_level_thresholds();
-    $current = pd_user_level($points);
-    if (!isset($thresholds[$current + 1])) return 0;
-    return max(0, intval($thresholds[$current + 1]) - $points);
-}
-
 function pd_level_progress($points) {
     $points = intval($points);
     $thresholds = pd_level_thresholds();
@@ -140,18 +121,7 @@ function pd_level_progress($points) {
     );
 }
 
-function pd_points_reason_label($reason) {
-    $map = array(
-        'thread' => '发布主题', 'reply' => '发表回复', 'floor_reply' => '楼中楼回复',
-        'del_thread' => '主题被删除', 'del_post' => '回复被删除',
-        'good_on' => '主题加精奖励', 'good_off' => '取消加精',
-        'admin' => '管理员调整', 'recalc' => '积分重算', 'clear' => '清除内容',
-    );
-    return isset($map[$reason]) ? $map[$reason] : $reason;
-}
-
 function pd_user_group($user_or_id) {
-    pd_ensure_points_schema();
     if (is_array($user_or_id)) {
         $gid = intval(isset($user_or_id['group_id']) ? $user_or_id['group_id'] : 0);
         $points = intval(isset($user_or_id['points']) ? $user_or_id['points'] : 0);
@@ -174,17 +144,16 @@ function pd_user_group($user_or_id) {
 }
 
 function pd_user_group_badge_html($user_or_id) {
+    if (is_array($user_or_id) && array_key_exists('group_name', $user_or_id)) {
+        if (trim((string)$user_or_id['group_name']) === '') return '';
+        $raw_color = isset($user_or_id['group_color']) ? (string)$user_or_id['group_color'] : '';
+        $color = preg_match('/^#[0-9a-fA-F]{3,8}$/', $raw_color) ? $raw_color : '#505b93';
+        return '<span class="pd-group-badge" style="--group-color:' . h($color) . '">' . h($user_or_id['group_name']) . '</span>';
+    }
     $group = pd_user_group($user_or_id);
     if (!$group) return '';
     $color = preg_match('/^#[0-9a-fA-F]{3,8}$/', $group['color']) ? $group['color'] : '#505b93';
     return '<span class="pd-group-badge" style="--group-color:' . h($color) . '">' . h($group['name']) . '</span>';
-}
-
-function pd_level_badge_html($points, $show_name = false) {
-    $level = pd_user_level($points);
-    $html = '<span class="pd-level">Lv.' . intval($level) . '</span>';
-    if ($show_name) $html .= ' <span class="pd-level-name">' . h(pd_level_name($level)) . '</span>';
-    return $html;
 }
 
 function pd_staff_list($role) {
@@ -230,13 +199,27 @@ function pd_moderator_daily_delete_limit() {
     return pd_setting_int('moderator_daily_delete_limit', 20, 0, 10000);
 }
 
-function current_user() {
+function current_user($refresh = false) {
+    static $loaded = false;
+    static $cached = null;
+    if ($refresh) {
+        $loaded = false;
+        $cached = null;
+    }
+    if ($loaded) {
+        return $cached;
+    }
+    $loaded = true;
     if (empty($_SESSION['pd_uid'])) {
         return null;
     }
     $uid = intval($_SESSION['pd_uid']);
-    $rs = mysqli_query(db(), "SELECT * FROM pd_users WHERE id={$uid} LIMIT 1");
-    return $rs ? mysqli_fetch_assoc($rs) : null;
+    $rs = mysqli_query(db(), "SELECT * FROM pd_users WHERE id={$uid} AND status=1 LIMIT 1");
+    $cached = $rs ? mysqli_fetch_assoc($rs) : null;
+    if (!$cached) {
+        unset($_SESSION['pd_uid']);
+    }
+    return $cached;
 }
 
 function pd_signin_table_ready() {
@@ -273,10 +256,6 @@ function pd_signin_reward($user_id, &$message) {
         $message = '金币字段不存在，请先访问 install/upgrade.php 升级数据库。';
         return false;
     }
-    if (pd_user_signed_today($user_id)) {
-        $message = '今天已经签到过了。';
-        return false;
-    }
     $continuous_days = 1;
     $today = esc(pd_user_today_ymd($user_id));
     try {
@@ -284,7 +263,15 @@ function pd_signin_reward($user_id, &$message) {
     } catch (Exception $e) {
         $yesterday_ymd = esc(gmdate('Y-m-d', strtotime($today . ' -1 day')));
     }
-    $yesterday = mysqli_query(db(), "SELECT continuous_days FROM pd_signins WHERE user_id={$user_id} AND signin_date='{$yesterday_ymd}' LIMIT 1");
+    $conn = db();
+    mysqli_begin_transaction($conn);
+    $user_lock = mysqli_query($conn, "SELECT id FROM pd_users WHERE id={$user_id} AND status=1 LIMIT 1 FOR UPDATE");
+    if (!$user_lock || mysqli_num_rows($user_lock) === 0) {
+        mysqli_rollback($conn);
+        $message = '账号不可用。';
+        return false;
+    }
+    $yesterday = mysqli_query($conn, "SELECT continuous_days FROM pd_signins WHERE user_id={$user_id} AND signin_date='{$yesterday_ymd}' LIMIT 1");
     if ($yesterday && ($row = mysqli_fetch_assoc($yesterday))) {
         $continuous_days = intval($row['continuous_days']) + 1;
     }
@@ -292,8 +279,18 @@ function pd_signin_reward($user_id, &$message) {
     if ($continuous_days > 1) {
         $reward += pd_signin_streak_bonus();
     }
-    mysqli_query(db(), "INSERT INTO pd_signins (user_id, signin_date, continuous_days, reward_coins, created_at) VALUES ({$user_id}, '{$today}', {$continuous_days}, {$reward}, NOW())");
-    mysqli_query(db(), "UPDATE pd_users SET coins=coins+{$reward} WHERE id={$user_id}");
+    $inserted = mysqli_query($conn, "INSERT INTO pd_signins (user_id, signin_date, continuous_days, reward_coins, created_at) VALUES ({$user_id}, '{$today}', {$continuous_days}, {$reward}, NOW())");
+    if (!$inserted) {
+        mysqli_rollback($conn);
+        $message = '今天已经签到过了。';
+        return false;
+    }
+    if (!mysqli_query($conn, "UPDATE pd_users SET coins=coins+{$reward} WHERE id={$user_id}")) {
+        mysqli_rollback($conn);
+        $message = '签到奖励发放失败，请稍后重试。';
+        return false;
+    }
+    mysqli_commit($conn);
     $message = '签到成功，获得 ' . $reward . ' 金币，连续签到 ' . $continuous_days . ' 天。';
     return true;
 }
@@ -355,22 +352,6 @@ function pd_oauth_providers() {
             'icon' => 'fa-brands fa-google',
             'logo' => 'assets/logos/google.svg',
         ),
-        'x' => array(
-            'label' => 'X',
-            'authorize' => 'https://twitter.com/i/oauth2/authorize',
-            'token' => 'https://api.twitter.com/2/oauth2/token',
-            'scope' => 'users.read tweet.read',
-            'icon' => 'fa-brands fa-x-twitter',
-            'logo' => 'assets/logos/x.svg',
-        ),
-        'discord' => array(
-            'label' => 'Discord',
-            'authorize' => 'https://discord.com/oauth2/authorize',
-            'token' => 'https://discord.com/api/oauth2/token',
-            'scope' => 'identify email',
-            'icon' => 'fa-brands fa-discord',
-            'logo' => 'assets/logos/discord.svg',
-        ),
     );
 }
 
@@ -384,21 +365,9 @@ function pd_oauth_enabled($provider) {
         && trim(pd_setting('oauth_' . $provider . '_client_secret', '')) !== '';
 }
 
-function pd_oauth_any_enabled() {
-    foreach (array_keys(pd_oauth_providers()) as $p) {
-        if (pd_oauth_enabled($p)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 function pd_oauth_redirect_uri($provider) {
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
-    $scheme = $https ? 'https' : 'http';
-    $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'php.do';
-    return $scheme . '://' . $host . pd_url_page('api/oauth.php', array('provider' => $provider, 'action' => 'callback'));
+    $base = pd_public_base_url();
+    return ($base !== '' ? $base : 'https://php.do') . pd_url_page('api/oauth.php', array('provider' => $provider, 'action' => 'callback'));
 }
 
 function pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email) {
@@ -467,19 +436,6 @@ function pd_moderator_logs_ready() {
 function pd_moderator_forums_ready() {
     $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_moderator_forums'");
     return $table && mysqli_num_rows($table) > 0;
-}
-
-function pd_moderator_forum_ids($user_id) {
-    if (!pd_moderator_forums_ready()) {
-        return array();
-    }
-    $user_id = intval($user_id);
-    $rs = mysqli_query(db(), "SELECT forum_id FROM pd_moderator_forums WHERE user_id={$user_id}");
-    $ids = array();
-    while ($rs && $row = mysqli_fetch_assoc($rs)) {
-        $ids[] = intval($row['forum_id']);
-    }
-    return $ids;
 }
 
 function pd_moderator_assigned_to_forum($user_id, $forum_id) {

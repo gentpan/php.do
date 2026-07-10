@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../functions.php';
-pd_ensure_points_schema();
 $page_title = '排行榜 - ' . SITE_NAME;
 pd_include_header();
 

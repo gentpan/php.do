@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Support\SchemaPrefixMigrator;
+use App\Support\SchemaVersionGuard;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\HtmlString;
@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        SchemaPrefixMigrator::ensure();
+        SchemaVersionGuard::ensure();
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::STYLES_AFTER,

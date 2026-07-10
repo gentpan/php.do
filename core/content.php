@@ -1,12 +1,6 @@
 <?php
 /* core/content.php — 由 functions.php 自动切分。集中 25 个定义。 */
 
-// 按名称稳定地给分类分配一个配色变体 class（同名恒定同色）
-function pd_topic_tag_class($name) {
-    $variants = array('pd-pill-blue', 'pd-pill-green', 'pd-pill-amber', 'pd-pill-red', 'pd-pill-purple', 'pd-pill-cyan', 'pd-pill-slate');
-    return $variants[abs(crc32((string)$name)) % count($variants)];
-}
-
 function pd_forum_slug_map() {
     return array(
         '站务公告' => 'announcements',
@@ -192,7 +186,6 @@ function pd_reaction_types() {
 
 function pd_thread_reaction_counts($thread_id) {
     $thread_id = intval($thread_id);
-    pd_ensure_thread_reaction_schema();
     $counts = array();
     foreach (pd_reaction_types() as $key => $info) {
         $counts[$key] = 0;
@@ -228,11 +221,6 @@ function pd_thread_admin_tools_html($thread) {
         $out .= pd_action_badge(pd_url_page('moderator_action.php', array('action' => 'del_thread', 'id' => $tid, 'token' => pd_action_token('mod_del_thread', $tid))), '版主删除', 'fa-solid fa-trash-can', 'action-badge-danger', 'data-confirm="确定删除该主题？" data-ajax="1"');
     }
     return $out;
-}
-
-function pd_post_comments_ready() {
-    $table = mysqli_query(db(), "SHOW TABLES LIKE 'pd_post_comments'");
-    return $table && mysqli_num_rows($table) > 0;
 }
 
 function pd_home_threads_limit() {
@@ -285,7 +273,10 @@ function pd_topic_categories($forum_id) {
 
 function pd_forum_post_allowed($forum_id, $user_id) {
     $forum = pd_forum_info($forum_id);
-    if (!$forum || intval($forum['post_user_limit_enabled']) !== 1) {
+    if (!$forum) {
+        return false;
+    }
+    if (intval($forum['post_user_limit_enabled']) !== 1) {
         return true;
     }
     $ids = preg_split('/[\s,，、|]+/', $forum['post_user_ids']);

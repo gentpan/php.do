@@ -1,9 +1,8 @@
 <?php
 require_once __DIR__ . '/../functions.php';
 
-$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^a-zA-Z0-9.\-:]/', '', $_SERVER['HTTP_HOST']) : 'php.do';
-$base = $scheme . '://' . $host;
+$base = pd_public_base_url();
+if ($base === '') $base = 'https://php.do';
 
 $rows = mysqli_query(db(), "SELECT t.id, t.title, t.content, t.created_at, u.nickname, u.username
     FROM pd_threads t
@@ -30,6 +29,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     $text = preg_replace('/\[[^\]]{0,40}\]/u', '', $text);
     $text = trim(strip_tags($text));
     $excerpt = function_exists('mb_substr') ? mb_substr($text, 0, 200, 'UTF-8') : substr($text, 0, 200);
+    $excerpt = pd_cdata_text($excerpt);
     $pub_ts = pd_parse_utc_timestamp($r['created_at']);
     $pub = $pub_ts !== false ? gmdate(DATE_RSS, $pub_ts) : '';
 ?>

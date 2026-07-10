@@ -11,11 +11,13 @@ if ($reply_len > pd_reply_max_chars()) {
     $_SESSION['flash'] = '回复内容不能超过 ' . pd_reply_max_chars() . ' 字。';
     redirect(pd_url_thread($tid));
 }
-$thread_rs = mysqli_query(db(), "SELECT title,user_id FROM pd_threads WHERE id={$tid} AND is_deleted=0 LIMIT 1");
-$thread_info = $thread_rs ? mysqli_fetch_assoc($thread_rs) : null;
 $mute_message = pd_user_mute_message($u);
 if ($mute_message !== '') {
     $_SESSION['flash'] = $mute_message;
+    redirect(pd_url_thread($tid));
+}
+if (!empty($_SESSION['last_reply_at']) && time() - intval($_SESSION['last_reply_at']) < max(2, intval(POST_INTERVAL))) {
+    $_SESSION['flash'] = '回复太快了，请稍后再试。';
     redirect(pd_url_thread($tid));
 }
 if (pd_captcha_required('reply', $u) && !pd_verify_captcha()) {
@@ -25,8 +27,26 @@ if (pd_captcha_required('reply', $u) && !pd_verify_captcha()) {
 $uid = intval($u['id']);
 $ip = esc(client_ip());
 $content_sql = esc($content);
-mysqli_query(db(), "INSERT INTO pd_posts (thread_id,user_id,content,ip,created_at) VALUES ({$tid},{$uid},'{$content_sql}','{$ip}',NOW())");
-$post_id = mysqli_insert_id(db());
+$conn = db();
+mysqli_begin_transaction($conn);
+$thread_rs = mysqli_query($conn, "SELECT title,user_id FROM pd_threads WHERE id={$tid} AND is_deleted=0 LIMIT 1 FOR UPDATE");
+$thread_info = $thread_rs ? mysqli_fetch_assoc($thread_rs) : null;
+if (!$thread_info) {
+    mysqli_rollback($conn);
+    $_SESSION['flash'] = '帖子不存在或已被删除。';
+    redirect(pd_url_page('index.php'));
+}
+$inserted = mysqli_query($conn, "INSERT INTO pd_posts (thread_id,user_id,content,ip,created_at) VALUES ({$tid},{$uid},'{$content_sql}','{$ip}',NOW())");
+$post_id = $inserted ? intval(mysqli_insert_id($conn)) : 0;
+if ($post_id < 1
+    || !mysqli_query($conn, "UPDATE pd_threads SET replies=replies+1, updated_at=NOW() WHERE id={$tid} AND is_deleted=0")
+    || !mysqli_query($conn, "UPDATE pd_users SET reply_count=reply_count+1 WHERE id={$uid} AND status=1")) {
+    mysqli_rollback($conn);
+    $_SESSION['flash'] = '回帖失败，请稍后重试。';
+    redirect(pd_url_thread($tid));
+}
+mysqli_commit($conn);
+$_SESSION['last_reply_at'] = time();
 pd_bind_content_attachments($tid, $post_id, $uid, $content);
 $upload_errors = array();
 $upload_saved = pd_upload_attachments($tid, $post_id, $uid, $upload_errors);
@@ -39,8 +59,6 @@ if ($upload_saved > 0 && empty($upload_errors)) {
 } else {
     $_SESSION['flash'] = '回帖成功';
 }
-mysqli_query(db(), "UPDATE pd_threads SET replies=replies+1, updated_at=NOW() WHERE id={$tid}");
-mysqli_query(db(), "UPDATE pd_users SET reply_count=reply_count+1 WHERE id={$uid}");
 pd_add_user_points($uid, pd_points_for_reply(), 'reply', 'post', $post_id);
 if ($thread_info && intval($thread_info['user_id']) !== $uid) {
     pd_notify_user(intval($thread_info['user_id']), $tid, $post_id, '你的帖子《' . $thread_info['title'] . '》有新的回帖');

@@ -14,7 +14,7 @@
 | 前台 | 原生 PHP + `mysqli`（`pages/`、`api/`、`core/`、`functions.php`） |
 | 前台 UI | Alpine.js（移动端菜单、头像切换等）+ 手写 CSS（无 Tailwind、无构建链）；国旗用 flag-icons |
 | 后台 | **Laravel 13** + **Filament 5**（`admin/`） |
-| 会话 / 鉴权 | PHP Session；支持密码、OAuth（GitHub/Google/X/Discord）、Passkey；可选邮箱验证码 |
+| 会话 / 鉴权 | PHP Session；支持密码、OAuth（GitHub/Google）、Passkey；可选邮箱验证码 |
 
 前台静态资源：`assets/main.css`、`assets/main.js`（生产环境自动优先加载 `main.min.js`）。
 
@@ -34,15 +34,15 @@
 
 ## 安装
 
-1. 克隆仓库，将 `config.example.php` 复制为 `config.php` 并填写数据库信息。
-2. 浏览器访问 `install/install.php` 自动建表。
-3. 默认管理员：`admin` / `admin123`（登录后请立即修改密码）。
-4. 安装完成后删除 `install/install.php`。
+1. 克隆仓库，将 `config.example.php` 复制为 `config.php`，填写数据库信息，并配置随机的 `PD_MAINTENANCE_TOKEN`、固定的 `PD_PUBLIC_URL`，以及位于网站根目录之外的 `PD_PRIVATE_STORAGE_PATH`。
+2. 浏览器访问 `install/install.php?token=<维护令牌>` 自动建表；也可以直接通过 CLI 运行 `php install/install.php`。
+3. 安装器会生成管理员 `admin` 的随机初始密码并仅显示一次，登录后请立即修改。
+4. 安装完成后会写入 `storage/install.lock`；生产环境仍应在服务器层禁止访问整个 `install/` 目录。
 5. （可选）配置 `admin/.env` 后本地调试 Filament 后台：`cd admin && composer install && php artisan serve`
 
-升级旧版本：覆盖文件后访问一次 `install/upgrade.php` 升级表结构，完成后删除该文件。
+升级旧版本：覆盖文件后，通过 CLI 运行 `php install/upgrade.php`，或访问 `install/upgrade.php?token=<维护令牌>`。数据库未升级到当前版本时，前台和后台会返回 503，避免在普通请求中执行 DDL。
 
-> 生产环境请确保对外屏蔽敏感路径（`config.php`、`install/*`、`admin/.env` 等），并为 `uploads/`、`storage/` 目录赋予运行用户写权限。
+> 生产环境请确保对外屏蔽敏感路径（`config.php`、`install/*`、`admin/.env`、`storage/*` 等），将 `APP_DEBUG` 设为 `false`，并为 `uploads/`、`storage/` 目录赋予运行用户写权限。
 
 ---
 

@@ -19,7 +19,6 @@ if ($thread_id <= 0 && $post_id <= 0) {
 }
 
 if ($post_id > 0) {
-    pd_ensure_post_vote_schema();
     $post_rs = mysqli_query(db(), "SELECT id, thread_id FROM pd_posts WHERE id={$post_id} AND is_deleted=0 LIMIT 1");
     if (!$post_rs || mysqli_num_rows($post_rs) === 0) {
         pd_json_response(array('ok' => false, 'error' => '评论不存在。'), 404);
@@ -51,7 +50,6 @@ $vote_raw = isset($_POST['vote']) ? trim((string)$_POST['vote']) : '';
 
 // ===== 表情反应 =====
 if ($reaction_raw !== '') {
-    pd_ensure_thread_reaction_schema();
     $types = pd_reaction_types();
     if (!isset($types[$reaction_raw])) {
         pd_json_response(array('ok' => false, 'error' => '表态参数不正确。'), 400);
@@ -89,7 +87,6 @@ if ($vote === 0) {
 }
 
 if ($post_id > 0) {
-    pd_ensure_post_vote_schema();
     $current = 0;
     $vote_rs = mysqli_query(db(), "SELECT vote FROM pd_post_votes WHERE post_id={$post_id} AND user_id={$user_id} LIMIT 1");
     if ($vote_rs && ($row = mysqli_fetch_assoc($vote_rs))) {
@@ -115,7 +112,6 @@ if ($post_id > 0) {
     ));
 }
 
-pd_ensure_thread_vote_schema();
 $current = 0;
 $vote_rs = mysqli_query(db(), "SELECT vote FROM pd_thread_votes WHERE thread_id={$thread_id} AND user_id={$user_id} LIMIT 1");
 if ($vote_rs && ($row = mysqli_fetch_assoc($vote_rs))) {

@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../compat.php';
+require_once __DIR__ . '/guard.php';
+pd_require_maintenance_token('install');
 $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS);
 if (!$conn) {
     exit('数据库连接失败：' . mysqli_connect_error());
@@ -17,7 +19,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS pd_users (
   username varchar(32) NOT NULL DEFAULT '',
   password varchar(255) NOT NULL DEFAULT '',
   nickname varchar(32) NOT NULL DEFAULT '',
-  email varchar(190) NOT NULL DEFAULT '',
+  email varchar(190) DEFAULT NULL,
   email_bound_at datetime DEFAULT NULL,
   avatar varchar(255) NOT NULL DEFAULT '',
   signature varchar(255) NOT NULL DEFAULT '',
@@ -36,7 +38,10 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS pd_users (
   ip varchar(45) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY username (username)
+  UNIQUE KEY username (username),
+  UNIQUE KEY uniq_users_email (email),
+  KEY status_points (status, points),
+  KEY created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS pd_passkeys (
@@ -89,7 +94,10 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS pd_threads (
   PRIMARY KEY (id),
   KEY forum_id (forum_id),
   KEY updated_at (updated_at),
-  KEY is_top (is_top)
+  KEY is_top (is_top),
+  KEY forum_active_updated (forum_id,is_deleted,is_top,updated_at),
+  KEY active_updated (is_deleted,is_top,updated_at),
+  KEY user_active_updated (user_id,is_deleted,updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS pd_thread_votes (
@@ -130,7 +138,9 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS pd_posts (
   created_at datetime NOT NULL,
   PRIMARY KEY (id),
   KEY thread_id (thread_id),
-  KEY created_at (created_at)
+  KEY created_at (created_at),
+  KEY thread_active_id (thread_id,is_deleted,id),
+  KEY user_active_created (user_id,is_deleted,created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS pd_post_votes (
@@ -200,7 +210,8 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS pd_attachments (
   PRIMARY KEY (id),
   KEY thread_id (thread_id),
   KEY post_id (post_id),
-  KEY user_id (user_id)
+  KEY user_id (user_id),
+  KEY orphan_created (thread_id,post_id,created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS pd_post_comments (
@@ -215,7 +226,8 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS pd_post_comments (
   PRIMARY KEY (id),
   KEY post_id (post_id),
   KEY thread_id (thread_id),
-  KEY created_at (created_at)
+  KEY created_at (created_at),
+  KEY post_active_id (post_id,is_deleted,id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 $sqls[] = "CREATE TABLE IF NOT EXISTS pd_notifications (
@@ -304,6 +316,7 @@ $sqls[] = "CREATE TABLE IF NOT EXISTS pd_oauth (
 
 $ok = true;
 $errors = array();
+$generated_admin_password = '';
 foreach ($sqls as $sql) {
     if (!mysqli_query($conn, $sql)) {
         $ok = false;
@@ -312,6 +325,7 @@ foreach ($sqls as $sql) {
 }
 
 if ($ok) {
+    if (!defined('PD_INSTALLING')) define('PD_INSTALLING', true);
     require_once __DIR__ . '/../functions.php';
     $forum_count = 0;
     $rs = mysqli_query($conn, "SELECT COUNT(*) FROM pd_forums");
@@ -332,8 +346,12 @@ if ($ok) {
         $admin_count = intval($row[0]);
     }
     if ($admin_count === 0) {
-        $pass = pd_password_hash('admin123');
-        mysqli_query($conn, "INSERT INTO pd_users (username, password, nickname, is_admin, ip, created_at) VALUES ('admin', '{$pass}', '管理员', 1, '', NOW())");
+        $generated_admin_password = pd_b64url_encode(random_bytes(18));
+        $pass = pd_password_hash($generated_admin_password);
+        if (!mysqli_query($conn, "INSERT INTO pd_users (username, password, nickname, is_admin, ip, created_at) VALUES ('admin', '{$pass}', '管理员', 1, '', NOW())")) {
+            $ok = false;
+            $errors[] = '管理员账号创建失败：' . mysqli_error($conn);
+        }
     }
     $settings = array(
         'site_name' => SITE_NAME,
@@ -342,8 +360,6 @@ if ($ok) {
         'site_keywords' => '',
         'home_banner' => '1',
         'theme_name' => 'php',
-        'title_font' => 'system',
-        'content_font' => 'system',
         'icp_code' => '',
         'stats_code' => '',
         'upload_max_mb' => '5',
@@ -392,6 +408,35 @@ try_files $uri $uri/ /index.php?$query_string;'
         $title_sql = mysqli_real_escape_string($conn, $title);
         mysqli_query($conn, "INSERT IGNORE INTO pd_ads (position,title,updated_at) VALUES ('{$pos_sql}','{$title_sql}',NOW())");
     }
+    pd_ensure_timezone_schema();
+    pd_ensure_attachment_download_schema();
+    pd_ensure_thread_vote_schema();
+    pd_ensure_post_vote_schema();
+    pd_ensure_thread_reaction_schema();
+    pd_ensure_forum_nav_schema();
+    if (!pd_ensure_performance_indexes()) {
+        $ok = false;
+        $errors[] = '性能索引创建失败：' . mysqli_error($conn);
+    }
+    $private_storage_error = '';
+    if (!pd_prepare_private_attachment_storage($private_storage_error)) {
+        $ok = false;
+        $errors[] = $private_storage_error;
+    }
+    $readiness_errors = pd_schema_readiness_errors();
+    if (!empty($readiness_errors)) {
+        $ok = false;
+        $errors = array_merge($errors, $readiness_errors);
+    }
+    if ($ok && !pd_update_setting('schema_version', (string)PD_SCHEMA_VERSION)) {
+        $ok = false;
+        $errors[] = '数据库版本号写入失败：' . mysqli_error($conn);
+    }
+    if ($ok && !pd_write_install_lock()) {
+        $ok = false;
+        pd_update_setting('schema_version', '');
+        $errors[] = '无法写入 storage/install.lock，请检查目录权限。';
+    }
 }
 ?>
 <!doctype html>
@@ -408,9 +453,9 @@ try_files $uri $uri/ /index.php?$query_string;'
         <?php if ($ok) { ?>
             <p class="success">安装成功。</p>
             <p>默认管理员：<strong>admin</strong></p>
-            <p>默认密码：<strong>admin123</strong></p>
+            <?php if ($generated_admin_password !== '') { ?><p>随机初始密码：<strong><?php echo h($generated_admin_password); ?></strong>（仅显示一次）</p><?php } ?>
             <p><a class="btn" href="../">进入论坛</a></p>
-            <p class="muted">测试完成后请删除 install/install.php，并登录后台修改管理员密码。</p>
+            <p class="muted">安装入口已写入锁文件。仍建议在服务器层禁止访问 install/，并立即修改管理员密码。</p>
         <?php } else { ?>
             <p class="danger">安装失败：</p>
             <pre><?php echo htmlspecialchars(implode("\n", $errors), ENT_QUOTES, 'UTF-8'); ?></pre>

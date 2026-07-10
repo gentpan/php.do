@@ -56,6 +56,7 @@ class ManageSiteSettings extends Page
         ];
 
         $data = [];
+        $secretKeys = ['smtp_password', 'resend_api_key', 's3_secret_key'];
         foreach ($keys as $key) {
             $value = Setting::getValue($key, '');
             if (in_array($key, [
@@ -63,6 +64,8 @@ class ManageSiteSettings extends Page
                 'friend_links_enabled', 'rewrite_enabled', 'require_invite', 'require_email_verify',
             ], true)) {
                 $data[$key] = $value === '1';
+            } elseif (in_array($key, $secretKeys, true)) {
+                $data[$key] = '';
             } else {
                 $data[$key] = $value;
             }
@@ -124,7 +127,7 @@ class ManageSiteSettings extends Page
                         ])->default('none')->native(false),
                         TextInput::make('mail_from_email')->label('发件邮箱 From')->helperText('如 no-reply@php.do'),
                         TextInput::make('mail_from_name')->label('发件人名称')->helperText('留空则用站点名称'),
-                        TextInput::make('resend_api_key')->label('Resend API Key')->password()->helperText('mail_method 选 Resend 时填'),
+                        TextInput::make('resend_api_key')->label('Resend API Key')->password()->helperText('留空表示不修改；mail_method 选 Resend 时填写'),
                         TextInput::make('smtp_host')->label('SMTP 主机'),
                         TextInput::make('smtp_port')->label('SMTP 端口')->numeric()->helperText('465=SSL，587=TLS'),
                         Select::make('smtp_secure')->label('SMTP 加密')->options([
@@ -133,7 +136,7 @@ class ManageSiteSettings extends Page
                             'none' => '无',
                         ])->default('tls')->native(false),
                         TextInput::make('smtp_username')->label('SMTP 用户名'),
-                        TextInput::make('smtp_password')->label('SMTP 密码')->password(),
+                        TextInput::make('smtp_password')->label('SMTP 密码')->password()->helperText('留空表示不修改'),
                     ]),
                     Tab::make('对象存储')->schema([
                         Toggle::make('s3_enabled')->label('启用 S3/R2'),
@@ -141,7 +144,7 @@ class ManageSiteSettings extends Page
                         TextInput::make('s3_region')->label('Region'),
                         TextInput::make('s3_bucket')->label('Bucket'),
                         TextInput::make('s3_access_key')->label('Access Key'),
-                        TextInput::make('s3_secret_key')->label('Secret Key')->password(),
+                        TextInput::make('s3_secret_key')->label('Secret Key')->password()->helperText('留空表示不修改'),
                         TextInput::make('s3_cdn_domain')->label('CDN 域名'),
                         TextInput::make('s3_path_prefix')->label('路径前缀'),
                     ]),
@@ -171,7 +174,11 @@ class ManageSiteSettings extends Page
     public function save(): void
     {
         $state = $this->form->getState();
+        $secretKeys = ['smtp_password', 'resend_api_key', 's3_secret_key'];
         foreach ($state as $key => $value) {
+            if (in_array($key, $secretKeys, true) && blank($value)) {
+                continue;
+            }
             if (is_bool($value)) {
                 $value = $value ? '1' : '0';
             }
