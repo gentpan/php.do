@@ -33,9 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $topic_category_sql = esc($topic_category);
             $title_sql = esc($title);
             $content_sql = esc($content);
-            $ok = mysqli_query(db(), "INSERT INTO pd_threads (forum_id,user_id,topic_category,title,content,ip,created_at,updated_at) VALUES ({$fid},{$uid},'{$topic_category_sql}','{$title_sql}','{$content_sql}','{$ip}',NOW(),NOW())");
+            $conn = db();
+            mysqli_begin_transaction($conn);
+            $forum_lock = mysqli_query($conn, "SELECT id FROM pd_forums WHERE id={$fid} LIMIT 1 FOR UPDATE");
+            $ok = $forum_lock && mysqli_num_rows($forum_lock) > 0
+                && mysqli_query($conn, "INSERT INTO pd_threads (forum_id,user_id,topic_category,title,content,ip,created_at,updated_at) VALUES ({$fid},{$uid},'{$topic_category_sql}','{$title_sql}','{$content_sql}','{$ip}',NOW(),NOW())");
             if ($ok) {
-                $thread_id = mysqli_insert_id(db());
+                $thread_id = intval(mysqli_insert_id($conn));
+                mysqli_commit($conn);
                 pd_add_user_points($uid, pd_points_for_thread(), 'thread', 'thread', $thread_id);
                 pd_bind_content_attachments($thread_id, 0, $uid, $content);
                 $upload_errors = array();
@@ -52,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['last_post_at'] = time();
                 redirect(pd_url_thread($thread_id));
             } else {
-                $error = '发布失败：' . mysqli_error(db());
+                mysqli_rollback($conn);
+                $error = '发布失败，请稍后重试。';
             }
         }
     }

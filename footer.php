@@ -19,7 +19,6 @@ $footer_social_links = array(
     array('title' => 'X', 'url' => 'https://x.com/phpdo', 'icon' => 'fa-brands fa-x-twitter'),
 );
 $footer_user = current_user();
-pd_ensure_pm_schema();
 if (!isset($current_script)) {
     $current_script = basename(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
 }
@@ -216,13 +215,16 @@ $online = pd_online_counts();
     </button>
     <?php if ($footer_user) { ?>
         <span class="cir-rail__sep" aria-hidden="true"></span>
-        <a href="<?php echo h($footer_logout_url); ?>" class="cir-rail__b cir-rail__b--logout" aria-label="退出" data-tooltip="退出">
+        <form class="cir-rail__form" method="post" action="<?php echo h($footer_logout_url); ?>">
+        <?php echo pd_csrf_field(); ?>
+        <button type="submit" class="cir-rail__b cir-rail__b--logout" aria-label="退出" data-tooltip="退出">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
                 <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-        </a>
+        </button>
+        </form>
     <?php } ?>
 </nav>
 <script src="assets/lib/litezoom.min.js"></script>

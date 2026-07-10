@@ -44,68 +44,6 @@ function pd_default_level_thresholds() {
     return array(1 => 0, 2 => 30, 3 => 100, 4 => 250, 5 => 500, 6 => 1000, 7 => 2000, 8 => 3500, 9 => 6000, 10 => 10000);
 }
 
-function pd_theme_options() {
-    return array(
-        'php' => 'PHP 官方风格 · 浅色',
-        'php-dark' => 'PHP 官方风格 · 深色',
-    );
-}
-
-function pd_theme() {
-    // 深浅色改为客户端三态（light/dark/system），服务端固定 php 基础主题
-    return 'php';
-}
-
-function pd_font_options() {
-    return array(
-        'system' => array(
-            'label' => '系统默认',
-            'family' => '"Fira Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", "PingFang SC", sans-serif',
-            'url' => '',
-        ),
-        'tencentsans' => array(
-            'label' => '腾讯体',
-            'family' => '"TencentSans W7", "Microsoft YaHei", "PingFang SC", sans-serif',
-            'url' => 'https://static.bluecdn.com/fonts/tencentsans.css',
-        ),
-        'kuaikanshijieti' => array(
-            'label' => '快看世界体',
-            'family' => '"快看世界体", "Microsoft YaHei", "PingFang SC", sans-serif',
-            'url' => 'https://static.bluecdn.com/fonts/kuaikanshijieti.css',
-        ),
-        'luo' => array(
-            'label' => 'Luo',
-            'family' => '"Luo", "Microsoft YaHei", "PingFang SC", sans-serif',
-            'url' => 'https://static.bluecdn.com/fonts/luo.css',
-        ),
-        'source-han-serif-cn' => array(
-            'label' => '思源宋体',
-            'family' => '"Source Han Serif CN", "Noto Serif CJK SC", serif',
-            'url' => 'https://static.bluecdn.com/fonts/source-han-serif-cn.css',
-        ),
-        'lxgw-wenkai' => array(
-            'label' => '霞鹜文楷',
-            'family' => '"LXGW WenKai", "Microsoft YaHei", "PingFang SC", sans-serif',
-            'url' => 'https://static.bluecdn.com/fonts/lxgw-wenkai.css',
-        ),
-    );
-}
-
-function pd_font_key($setting_key, $default = 'system') {
-    $options = pd_font_options();
-    $font_key = pd_setting($setting_key, $default);
-    if (!isset($options[$font_key])) {
-        $font_key = isset($options[$default]) ? $default : 'system';
-    }
-    return $font_key;
-}
-
-function pd_font_family($setting_key, $default = 'system') {
-    $options = pd_font_options();
-    $font_key = pd_font_key($setting_key, $default);
-    return $options[$font_key]['family'];
-}
-
 function pd_default_nginx_rewrite_rules() {
     return "rewrite ^/thread/([0-9]+)\\.html$ /pages/thread.php?id=$1 last;\n"
         . "rewrite ^/download/([0-9]+)$ /api/download.php?id=$1 last;\n"
@@ -192,7 +130,6 @@ function pd_main_navs() {
 }
 
 function pd_header_nav_forums() {
-    pd_ensure_forum_nav_schema();
     $rs = mysqli_query(db(), "SELECT id, name FROM pd_forums WHERE show_in_nav=1 ORDER BY display_order ASC, id ASC");
     $rows = array();
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
@@ -202,29 +139,12 @@ function pd_header_nav_forums() {
 }
 
 function pd_footer_nav_forums() {
-    pd_ensure_forum_nav_schema();
     $rs = mysqli_query(db(), "SELECT id, name FROM pd_forums WHERE show_in_nav=0 ORDER BY display_order ASC, id ASC");
     $rows = array();
     while ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $rows[] = $row;
     }
     return $rows;
-}
-
-function pd_nav_icon_columns_ready() {
-    static $ready = null;
-    if ($ready === null) {
-        $ready = pd_nav_table_ready() && pd_table_has_column('pd_navs', 'icon_type');
-    }
-    return $ready;
-}
-
-function pd_nav_icon_types() {
-    return array(
-        'fa' => 'Font Awesome 图标类名',
-        'svg' => 'SVG 代码',
-        'img' => '上传图片',
-    );
 }
 
 function pd_nav_icon_html($nav) {

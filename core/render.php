@@ -237,9 +237,9 @@ function pd_render_file_tag($url, $name, $description) {
             $safe_url = h(pd_url_page('register.php'));
             $link_attr = ' ' . pd_guest_download_confirm_onclick();
         }
-    } elseif (preg_match('/^\/?uploads\/.*\.(zip|rar)$/i', $raw_url) && !current_user() && !pd_guest_download_allowed()) {
-        $safe_url = h(pd_url_page('register.php'));
-        $link_attr = ' ' . pd_guest_download_confirm_onclick();
+    } elseif (preg_match('/^\/?uploads\/.*\.(?!jpe?g$|png$|gif$|webp$)[a-z0-9]+$/i', $raw_url)) {
+        $safe_url = '#';
+        $link_attr = ' onclick="alert(\'旧附件未登记或已失效，请联系管理员处理。\');return false;"';
     }
     return '<div class="attachment-inline-card">'
         . '<a class="attachment-inline-link" href="' . $safe_url . '" target="_blank" rel="noopener"' . $link_attr . '>'
