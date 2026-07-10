@@ -36,6 +36,7 @@ $att = $rs ? mysqli_fetch_assoc($rs) : null;
 if (!$att) {
     exit('附件不存在');
 }
+$att = pd_migrate_attachment_to_protected_storage($att);
 
 $path = $att['file_path'];
 $name = $att['original_name'] !== '' ? $att['original_name'] : basename($path);
@@ -45,6 +46,45 @@ $dl_cost = pd_download_points_cost();
 $dl_uid = $download_user ? intval($download_user['id']) : 0;
 $dl_owner = intval($att['user_id']);
 $dl_is_admin = $download_user && !empty($download_user['is_admin']);
+
+// 未绑定的预上传附件只允许上传者本人或管理员读取；已绑定附件必须属于未删除内容。
+if (intval($att['thread_id']) === 0 && intval($att['post_id']) === 0) {
+    if (!$download_user || (!$dl_is_admin && $dl_uid !== $dl_owner)) {
+        http_response_code(404);
+        exit('附件不存在');
+    }
+} elseif (intval($att['post_id']) > 0) {
+    $parent = mysqli_query(db(), "SELECT p.id FROM pd_posts p INNER JOIN pd_threads t ON t.id=p.thread_id WHERE p.id=" . intval($att['post_id']) . " AND p.is_deleted=0 AND t.is_deleted=0 LIMIT 1");
+    if (!$parent || mysqli_num_rows($parent) === 0) {
+        http_response_code(404);
+        exit('附件所属内容不存在');
+    }
+} elseif (intval($att['thread_id']) > 0) {
+    $parent = mysqli_query(db(), "SELECT id FROM pd_threads WHERE id=" . intval($att['thread_id']) . " AND is_deleted=0 LIMIT 1");
+    if (!$parent || mysqli_num_rows($parent) === 0) {
+        http_response_code(404);
+        exit('附件所属内容不存在');
+    }
+}
+
+$file = false;
+$remote_url = '';
+$private_key = pd_s3_private_key($path);
+if ($private_key !== '') {
+    $remote_url = pd_s3_presigned_download_url($private_key, 120);
+    if ($remote_url === '') {
+        http_response_code(503);
+        exit('附件存储暂不可用');
+    }
+} elseif (preg_match('/^https?:\/\//i', $path)) {
+    $remote_url = $path; // 兼容旧版公开对象；新上传附件使用 s3-private:// 引用。
+} else {
+    $file = pd_resolve_local_attachment_file($path);
+    if (!$file) {
+        http_response_code(404);
+        exit('附件文件不存在');
+    }
+}
 
 // 付费附件：游客必须登录
 if ($dl_cost > 0 && !$download_user) {
@@ -57,38 +97,23 @@ if (!$download_user && !pd_guest_download_allowed() && in_array($ext, $compresse
 }
 
 // 下载扣积分：首次下载扣分；上传者本人与管理员免费；扣的分转给上传者
-if ($dl_cost > 0 && $dl_uid > 0 && $dl_uid !== $dl_owner && !$dl_is_admin && !pd_attachment_purchased($id, $dl_uid)) {
-    $br = mysqli_query(db(), "SELECT points FROM pd_users WHERE id={$dl_uid} LIMIT 1");
-    $brow = $br ? mysqli_fetch_assoc($br) : null;
-    $dl_balance = $brow ? intval($brow['points']) : 0;
-    if ($dl_balance < $dl_cost) {
-        pd_download_notice('积分不足', '<div class="alert">下载该附件需要 ' . $dl_cost . ' 积分，你当前 ' . $dl_balance . ' 积分，暂时不足。</div><p><a class="btn btn-light" href="' . h(pd_url_page('index.php')) . '">返回首页</a></p>');
-    }
-    pd_ensure_attachment_download_schema();
-    // 唯一键 (attachment_id,user_id) + INSERT IGNORE 防并发重复扣费
-    mysqli_query(db(), "INSERT IGNORE INTO pd_attachment_downloads (attachment_id,user_id,cost,created_at) VALUES ({$id},{$dl_uid},{$dl_cost},NOW())");
-    if (mysqli_affected_rows(db()) > 0) {
-        pd_add_user_points($dl_uid, -$dl_cost, '下载附件', 'attachment', $id);
-        if ($dl_owner > 0) {
-            pd_add_user_points($dl_owner, $dl_cost, '附件被下载', 'attachment', $id);
+if ($dl_cost > 0 && $dl_uid > 0 && $dl_uid !== $dl_owner && !$dl_is_admin) {
+    $purchase = pd_purchase_attachment($id, $dl_uid, $dl_owner, $dl_cost);
+    if (empty($purchase['ok'])) {
+        if (!empty($purchase['insufficient'])) {
+            $dl_balance = intval($purchase['balance']);
+            pd_download_notice('积分不足', '<div class="alert">下载该附件需要 ' . $dl_cost . ' 积分，你当前 ' . $dl_balance . ' 积分，暂时不足。</div><p><a class="btn btn-light" href="' . h(pd_url_page('index.php')) . '">返回首页</a></p>');
         }
+        http_response_code(503);
+        exit('积分结算失败，请稍后重试');
     }
 }
 
 mysqli_query(db(), "UPDATE pd_attachments SET download_count=download_count+1 WHERE id={$id}");
-if (preg_match('/^https?:\/\//i', $path)) {
-    header('Location: ' . $path);
+if ($remote_url !== '') {
+    header('Cache-Control: private, no-store');
+    header('Location: ' . $remote_url);
     exit;
-}
-
-$base_dir = realpath(PD_ROOT . '/uploads');
-$file = realpath(PD_ROOT . '/' . ltrim($path, '/'));
-if (!$base_dir || !$file || strpos($file, $base_dir . DIRECTORY_SEPARATOR) !== 0) {
-    header('Content-Type: text/html; charset=utf-8', true, 403);
-    exit('附件路径不安全');
-}
-if (!is_file($file)) {
-    exit('附件文件不存在');
 }
 $safe_name = pd_safe_download_name($name);
 header('X-Content-Type-Options: nosniff');

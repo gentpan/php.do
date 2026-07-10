@@ -1,9 +1,7 @@
 <?php
 // LiteBBS profile page build: 2026-06-15 with password_confirm
 require_once __DIR__ . '/../functions.php';
-pd_ensure_account_auth_schema();
 $u = require_login();
-$u = current_user();
 
 // AJAX：预览随机卡通头像（不落库，仅用于“换一个”实时预览）
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'avatar_cartoon') {
@@ -19,13 +17,18 @@ $saved = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nickname = clean_text($_POST['nickname'], 30);
-    $email = clean_text(isset($_POST['email']) ? $_POST['email'] : '', 190);
+    $email = strtolower(clean_text(isset($_POST['email']) ? $_POST['email'] : '', 190));
     $signature = clean_text(isset($_POST['signature']) ? $_POST['signature'] : '', 255);
     $gender = clean_text(isset($_POST['gender']) ? $_POST['gender'] : '', 10);
     $notification_sound_enabled = !empty($_POST['notification_sound_enabled']) ? 1 : 0;
     $timezone = clean_text(isset($_POST['timezone']) ? $_POST['timezone'] : '', 64);
     $password = (string)$_POST['password'];
     $password_confirm = (string)(isset($_POST['password_confirm']) ? $_POST['password_confirm'] : '');
+    $current_password = (string)(isset($_POST['current_password']) ? $_POST['current_password'] : '');
+    $email_code = trim((string)(isset($_POST['email_code']) ? $_POST['email_code'] : ''));
+    $old_email = strtolower(trim((string)(isset($u['email']) ? $u['email'] : '')));
+    $email_changed = $email !== $old_email;
+    $password_changed = $password !== '';
     $avatar_type = isset($_POST['avatar_type']) ? $_POST['avatar_type'] : '';
     if (!in_array($avatar_type, array('upload', 'gravatar', 'cartoon'), true)) {
         $avatar_type = '';
@@ -47,6 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email_user = mysqli_query(db(), "SELECT id FROM pd_users WHERE email='{$email_sql}' AND id<>" . intval($u['id']) . " LIMIT 1");
         if ($email_user && mysqli_num_rows($email_user) > 0) {
             $error = '这个邮箱已经被其他账号绑定。';
+        }
+    }
+
+    if ($error === '' && ($email_changed || $password_changed)) {
+        $recent_passwordless_auth = in_array(isset($_SESSION['pd_auth_method']) ? $_SESSION['pd_auth_method'] : '', array('oauth', 'passkey'), true)
+            && time() - intval(isset($_SESSION['pd_auth_time']) ? $_SESSION['pd_auth_time'] : 0) <= 600;
+        if (!$recent_passwordless_auth && ($current_password === '' || !pd_password_verify($current_password, (string)$u['password']))) {
+            $error = '修改邮箱或密码前，请输入当前密码确认身份。';
+        } elseif ($email_changed && $email !== '' && pd_mail_enabled() && !pd_email_code_verify($email, $email_code, 'profile')) {
+            $error = '新邮箱验证码错误或已过期。';
         }
     }
 
@@ -82,15 +95,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = '头像只支持 jpg、jpeg、png、gif、webp。';
                 } elseif (intval($_FILES['avatar']['size']) > 2 * 1024 * 1024) {
                     $error = '头像不能超过 2MB。';
+                } elseif (($image_info = @getimagesize($_FILES['avatar']['tmp_name'])) === false
+                    || intval($image_info[0]) < 1 || intval($image_info[1]) < 1
+                    || intval($image_info[0]) > 4096 || intval($image_info[1]) > 4096) {
+                    $error = '头像不是有效图片，或图片尺寸超过 4096×4096。';
                 } else {
+                    $retry_after = 0;
+                    if (!pd_rate_limit_allow('upload-user', intval($u['id']), 60, 3600, $retry_after)) {
+                        $error = '上传过于频繁，请稍后再试。';
+                    }
                     $dir = __DIR__ . '/../uploads/avatar';
-                    if (!is_dir($dir)) {
+                    if ($error === '' && !is_dir($dir)) {
                         mkdir($dir, 0755, true);
                     }
-                    $name = 'avatar_' . intval($u['id']) . '_' . time() . '.' . $ext;
-                    if (move_uploaded_file($_FILES['avatar']['tmp_name'], $dir . '/' . $name)) {
+                    $name = 'avatar_' . intval($u['id']) . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+                    if ($error === '' && move_uploaded_file($_FILES['avatar']['tmp_name'], $dir . '/' . $name)) {
                         $avatar_path = 'uploads/avatar/' . $name;
-                    } else {
+                    } elseif ($error === '') {
                         $error = '头像上传失败，请检查 uploads/avatar 权限。';
                     }
                 }
@@ -104,8 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($error === '') {
         $nickname_sql = esc($nickname);
-        $email_sql = esc($email);
-        $email_bound_sql = $email === '' ? 'NULL' : ((!isset($u['email']) || $u['email'] !== $email) ? 'NOW()' : 'email_bound_at');
+        $email_sql = $email === '' ? 'NULL' : "'" . esc($email) . "'";
+        $email_bound_sql = $email === '' ? 'NULL' : ($email_changed ? (pd_mail_enabled() ? 'NOW()' : 'NULL') : 'email_bound_at');
         $signature_sql = esc($signature);
         $gender_sql = esc($gender);
         $timezone_sql = esc($timezone);
@@ -113,18 +134,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($password !== '') {
             if ($password !== $password_confirm) {
                 $error = '两次输入的新密码不一致，请重新输入。';
-            } elseif (strlen($password) < 6) {
-                $error = '新密码至少 6 位。';
+            } elseif (($password_error = pd_validate_password($password)) !== '') {
+                $error = $password_error;
             } else {
                 $password_sql = esc(pd_password_hash($password));
-                mysqli_query(db(), "UPDATE pd_users SET nickname='{$nickname_sql}', email='{$email_sql}', email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', timezone='{$timezone_sql}', notification_sound_enabled={$notification_sound_enabled}, password='{$password_sql}' WHERE id=" . intval($u['id']));
-                $saved = true;
+                $saved = (bool)mysqli_query(db(), "UPDATE pd_users SET nickname='{$nickname_sql}', email={$email_sql}, email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', timezone='{$timezone_sql}', notification_sound_enabled={$notification_sound_enabled}, password='{$password_sql}' WHERE id=" . intval($u['id']));
             }
         } else {
-            mysqli_query(db(), "UPDATE pd_users SET nickname='{$nickname_sql}', email='{$email_sql}', email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', timezone='{$timezone_sql}', notification_sound_enabled={$notification_sound_enabled} WHERE id=" . intval($u['id']));
-            $saved = true;
+            $saved = (bool)mysqli_query(db(), "UPDATE pd_users SET nickname='{$nickname_sql}', email={$email_sql}, email_bound_at={$email_bound_sql}, avatar='{$avatar_sql}', signature='{$signature_sql}', gender='{$gender_sql}', timezone='{$timezone_sql}', notification_sound_enabled={$notification_sound_enabled} WHERE id=" . intval($u['id']));
         }
-        $u = current_user();
+        if ($saved && $email_changed) {
+            pd_email_code_clear('profile');
+        }
+        if (!$saved && $error === '') {
+            $error = '资料保存失败，请稍后重试。';
+        }
+        $u = current_user(true);
     }
 }
 
@@ -202,8 +227,16 @@ pd_include_header();
         <label>昵称</label>
         <input type="text" name="nickname" maxlength="30" value="<?php echo h($u['nickname']); ?>" required>
         <label>绑定邮箱</label>
-        <input type="email" name="email" maxlength="190" value="<?php echo h(isset($u['email']) ? $u['email'] : ''); ?>" placeholder="name@example.com" autocomplete="email">
-        <p class="muted">绑定后可作为账号联系方式。当前没有启用邮件验证码，保存后立即绑定。</p>
+        <input type="email" name="email" maxlength="190" value="<?php echo h(isset($u['email']) ? $u['email'] : ''); ?>" placeholder="name@example.com" autocomplete="email" data-profile-email>
+        <?php if (pd_mail_enabled()) { ?>
+        <div class="email-code-row">
+            <input type="text" name="email_code" maxlength="6" inputmode="numeric" placeholder="新邮箱验证码">
+            <button class="btn btn-light btn-small" type="button" data-send-profile-email-code data-url="<?php echo h(pd_url_page('api/send-email-code.php')); ?>">发送验证码</button>
+        </div>
+        <p class="muted" data-profile-email-status>修改邮箱时必须验证新邮箱。</p>
+        <?php } else { ?>
+        <p class="muted">邮件系统未启用；新邮箱会保存为未验证状态，不能用于找回密码。</p>
+        <?php } ?>
         <label>个性签名</label>
         <textarea name="signature" rows="3" maxlength="255" placeholder="写一句展示自己的签名"><?php echo h(isset($u['signature']) ? $u['signature'] : ''); ?></textarea>
         <label>性别</label>
@@ -229,7 +262,9 @@ pd_include_header();
         <input type="password" name="password" placeholder="不修改请留空" autocomplete="new-password">
         <label>重复新密码 <span class="muted">（必须与上方一致）</span></label>
         <input type="password" name="password_confirm" placeholder="再次输入新密码以确认" autocomplete="new-password">
-        <p class="muted">两次输入相同后才会保存新密码；两次都留空则不修改密码。</p>
+        <p class="muted">至少 8 位且不能为纯数字；两次都留空则不修改密码。</p>
+        <label>当前密码 <span class="muted">（修改邮箱或密码时必填；刚用 OAuth/Passkey 登录可免填）</span></label>
+        <input type="password" name="current_password" autocomplete="current-password">
         <button class="btn" type="submit">保存资料</button>
     </form>
 </section>
@@ -250,4 +285,28 @@ pd_include_header();
         <?php if ($passkey_count === 0) { ?><p class="muted">还没有添加 Passkey。</p><?php } ?>
     </div>
 </section>
+<?php if (pd_mail_enabled()) { ?>
+<script>
+(function () {
+    var button = document.querySelector('[data-send-profile-email-code]');
+    var email = document.querySelector('[data-profile-email]');
+    var status = document.querySelector('[data-profile-email-status]');
+    if (!button || !email) return;
+    button.addEventListener('click', function () {
+        if (!email.value) { if (status) status.textContent = '请先填写新邮箱。'; return; }
+        button.disabled = true;
+        var body = new URLSearchParams({ email: email.value, purpose: 'profile' });
+        fetch(button.getAttribute('data-url'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': window.pdCsrfToken || '' },
+            body: body.toString()
+        }).then(function (r) { return r.json(); }).then(function (data) {
+            if (status) status.textContent = data.message || data.error || '请求完成。';
+        }).catch(function () {
+            if (status) status.textContent = '发送失败，请稍后重试。';
+        }).finally(function () { button.disabled = false; });
+    });
+})();
+</script>
+<?php } ?>
 <?php pd_include_footer(); ?>

@@ -6,6 +6,9 @@ if (!defined('PD_START')) {
 if (!defined('PD_ROOT')) {
     define('PD_ROOT', __DIR__);
 }
+if (!defined('PD_SCHEMA_VERSION')) {
+    define('PD_SCHEMA_VERSION', '20260710');
+}
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/compat.php';
 if (PHP_SAPI !== 'cli') {
@@ -53,9 +56,10 @@ require_once __DIR__ . '/core/util.php';
 
 // ===== 运行时末尾守卫 =====
 if (PHP_SAPI !== 'cli') {
-    pd_migrate_schema_prefix_from_qf();
+    if (!defined('PD_INSTALLING')) {
+        pd_require_current_schema();
+    }
     ob_start('pd_inject_csrf_fields');
-    pd_ensure_upload_protection();
     pd_require_csrf();
 }
 pd_security_guard();

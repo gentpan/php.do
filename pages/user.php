@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../functions.php';
-pd_ensure_points_schema();
-pd_ensure_pm_schema();
 $me = current_user();
 $id = pd_path_id();
 $rs = mysqli_query(db(), "SELECT id,username,nickname,avatar,email,signature,coins,reply_count,points,group_id,created_at FROM pd_users WHERE id={$id} AND status=1 LIMIT 1");

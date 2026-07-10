@@ -1,5 +1,10 @@
 <?php
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/guard.php';
+pd_require_maintenance_token('upgrade');
+if (!defined('PD_INSTALLING')) define('PD_INSTALLING', true);
 require_once __DIR__ . '/../functions.php';
+$upgrade_error = '';
 
 $sql = "CREATE TABLE IF NOT EXISTS pd_attachments (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -45,7 +50,7 @@ if ($ok) {
     }
     $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'email'");
     if ($check && mysqli_num_rows($check) == 0) {
-        mysqli_query(db(), "ALTER TABLE pd_users ADD email varchar(190) NOT NULL DEFAULT '' AFTER nickname");
+        mysqli_query(db(), "ALTER TABLE pd_users ADD email varchar(190) DEFAULT NULL AFTER nickname");
     }
     $check = mysqli_query(db(), "SHOW COLUMNS FROM pd_users LIKE 'email_bound_at'");
     if ($check && mysqli_num_rows($check) == 0) {
@@ -359,8 +364,6 @@ if ($ok) {
         'site_keywords' => '',
         'home_banner' => '1',
         'theme_name' => 'php',
-        'title_font' => 'system',
-        'content_font' => 'system',
         'icp_code' => '',
         'stats_code' => '',
         'upload_max_mb' => '5',
@@ -513,6 +516,34 @@ if ($ok) {
     pd_migrate_schema_prefix_from_qf();
     pd_ensure_forum_nav_schema();
     pd_migrate_forum_nav_plan_a();
+    pd_ensure_attachment_download_schema();
+    pd_ensure_thread_vote_schema();
+    pd_ensure_post_vote_schema();
+    pd_ensure_thread_reaction_schema();
+    if (!pd_ensure_performance_indexes()) {
+        $ok = false;
+        $upgrade_error = '性能索引创建失败：' . mysqli_error(db());
+    }
+    $private_storage_error = '';
+    if (!pd_prepare_private_attachment_storage($private_storage_error)) {
+        $ok = false;
+        $upgrade_error = $private_storage_error;
+    } else {
+        $attachment_migration = pd_migrate_legacy_attachments_to_private_storage();
+        if (intval($attachment_migration['failed']) > 0) {
+            $ok = false;
+            $upgrade_error = '有 ' . intval($attachment_migration['failed']) . ' 个本地附件无法迁移到私有目录，请检查文件权限。';
+        }
+    }
+    $readiness_errors = pd_schema_readiness_errors();
+    if (!empty($readiness_errors)) {
+        $ok = false;
+        $upgrade_error = implode('；', $readiness_errors);
+    }
+    if ($ok && !pd_update_setting('schema_version', (string)PD_SCHEMA_VERSION)) {
+        $ok = false;
+        $upgrade_error = '数据库版本号写入失败：' . mysqli_error(db());
+    }
 }
 ?>
 <!doctype html>
@@ -531,7 +562,7 @@ if ($ok) {
             <p><a class="btn" href="../">返回首页</a></p>
             <p class="muted">升级完成后建议删除 install/upgrade.php。</p>
         <?php } else { ?>
-            <p class="danger">升级失败：<?php echo h(mysqli_error(db())); ?></p>
+            <p class="danger">升级失败：<?php echo h($upgrade_error !== '' ? $upgrade_error : mysqli_error(db())); ?></p>
         <?php } ?>
     </section>
 </main>

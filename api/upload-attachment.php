@@ -3,6 +3,14 @@ require_once __DIR__ . '/../functions.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $u = require_login();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    pd_json_response(array('ok' => 0, 'error' => '请求方式不正确。'), 405);
+}
+$retry_after = 0;
+if (!pd_rate_limit_allow('upload-user', intval($u['id']), 60, 3600, $retry_after)) {
+    header('Retry-After: ' . intval($retry_after));
+    pd_json_response(array('ok' => 0, 'error' => '上传过于频繁，请稍后再试。'), 429);
+}
 if (empty($_FILES['attachment']) || !is_array($_FILES['attachment'])) {
     echo json_encode(array('ok' => 0, 'error' => '没有选择附件。'));
     exit;
@@ -30,26 +38,17 @@ if (!in_array($ext, $attachment_exts) || !in_array($ext, pd_upload_allowed_exts(
 }
 
 if (pd_s3_enabled()) {
-    $safe_name = date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $ext;
+    $safe_name = pd_random_upload_name($ext);
     $remote_error = '';
-    $file_path = pd_remote_upload_file($file['tmp_name'], $safe_name, 'application/octet-stream', $remote_error);
+    $key = pd_s3_key($safe_name);
+    $file_path = pd_s3_upload_private_file($file['tmp_name'], $key, 'application/octet-stream', $remote_error);
     if ($file_path === '') {
         echo json_encode(array('ok' => 0, 'error' => '附件上传失败，' . $remote_error));
         exit;
     }
 } else {
-    $upload_dir = __DIR__ . '/uploads';
-    if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
-        echo json_encode(array('ok' => 0, 'error' => '附件上传失败，uploads 目录创建失败。'));
-        exit;
-    }
-    if (!is_writable($upload_dir)) {
-        echo json_encode(array('ok' => 0, 'error' => '附件上传失败，uploads 目录不可写。'));
-        exit;
-    }
-    pd_ensure_upload_protection();
     if (!pd_store_uploaded_attachment_file($file['tmp_name'], $ext, $file_path)) {
-        echo json_encode(array('ok' => 0, 'error' => '附件上传失败，保存失败。'));
+        echo json_encode(array('ok' => 0, 'error' => '附件上传失败，storage/attachments 目录不可写。'));
         exit;
     }
 }
