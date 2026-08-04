@@ -58,7 +58,6 @@ $editorClass = 'markdown-editor' . ($editorCompact ? ' is-compact' : '');
             </button>
         </span>
     </div>
-    <p class="muted upload-tip editor-upload-tip">支持 <?php echo h(pd_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(pd_upload_max_mb()); ?>MB。内容使用 Markdown。</p>
     <div class="editor-pane">
         <textarea name="<?php echo h($editorName); ?>"
                   rows="<?php echo $editorRows; ?>"
@@ -69,4 +68,5 @@ $editorClass = 'markdown-editor' . ($editorCompact ? ' is-compact' : '');
                   <?php if ($editorMaxlength > 0) { ?>maxlength="<?php echo $editorMaxlength; ?>"<?php } ?>
                   <?php if ($editorRequired) { ?>required<?php } ?>><?php echo h($editorValue); ?></textarea>
     </div>
+    <p class="editor-upload-tip">支持 <?php echo h(pd_upload_allowed_exts_label()); ?>，单个文件最大 <?php echo intval(pd_upload_max_mb()); ?>MB。内容使用 Markdown。</p>
 </div>

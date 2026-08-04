@@ -1675,9 +1675,19 @@ body.page-post .md-preview-box {
 .markdown-editor {
     margin: 8px 0 16px;
 }
+/* 上传提示已移到编辑器下方，作为普通说明行（此前夹在工具栏与输入区之间，
+   把本应连成一个框的两段从中劈开，且继承了 .upload-tip 的浮层边框） */
 .markdown-editor .editor-upload-tip {
     display: block;
-    margin: 0 0 8px;
+    position: static;
+    width: auto;
+    margin: 8px 2px 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    color: var(--pd-muted);
+    line-height: 1.6;
     font-size: 12px;
 }
 .markdown-editor .editor-toolbar {
