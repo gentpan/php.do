@@ -163,19 +163,21 @@ if (!empty($post_ids)) {
                 <?php } ?>
             <?php echo pd_render_attachment_list($reply_attachments, array('reply' => true, 'guest_zip_blocked' => $guest_zip_download_blocked)); ?>
             <?php $floor_replies = isset($floor_replies_by_post[intval($p['id'])]) ? array_slice($floor_replies_by_post[intval($p['id'])], 0, 50) : array(); ?>
+            <?php if (!empty($floor_replies)) { ?>
             <div class="floor-replies">
                 <?php foreach ($floor_replies as $c) { ?>
                     <div class="floor-reply"><strong><?php echo h($c['nickname']); ?></strong>：<?php echo pd_render_content($c['content']); ?> <span><?php echo pd_time_html($c['created_at']); ?></span></div>
                 <?php } ?>
-                <?php if (current_user()) { ?>
-                    <form id="floor-reply-form-<?php echo intval($p['id']); ?>" class="floor-reply-form" method="post" action="<?php echo h(pd_url_page('floor_reply.php')); ?>" style="display:none">
-                        <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
-                        <input type="hidden" name="post_id" value="<?php echo intval($p['id']); ?>">
-                        <input type="text" name="content" maxlength="500" placeholder="回复 <?php echo h($p['nickname']); ?>" required>
-                        <button class="action-badge action-badge-reply floor-reply-submit" type="submit" title="回复" aria-label="回复" data-tooltip="回复"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>回复</span></button>
-                    </form>
-                <?php } ?>
             </div>
+            <?php } ?>
+            <?php if (current_user()) { ?>
+                <form id="floor-reply-form-<?php echo intval($p['id']); ?>" class="floor-reply-form" method="post" action="<?php echo h(pd_url_page('floor_reply.php')); ?>" style="display:none">
+                    <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
+                    <input type="hidden" name="post_id" value="<?php echo intval($p['id']); ?>">
+                    <input type="text" name="content" maxlength="500" placeholder="回复 <?php echo h($p['nickname']); ?>" required>
+                    <button class="action-badge action-badge-reply floor-reply-submit" type="submit" title="回复" aria-label="回复" data-tooltip="回复"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>回复</span></button>
+                </form>
+            <?php } ?>
                 <div class="pd-reply-actions">
                     <div class="pd-reply-actions-main">
                         <?php if (current_user()) { ?>
