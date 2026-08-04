@@ -19,7 +19,14 @@ pd_include_header(true);
         <strong>注册</strong>
     </div>
 
-    <section class="pd-info-block pd-auth2">
+    <?php
+    // 只列出已在后台配置好并启用的第三方；一个都没有时收成单栏
+    $reg_oauth = array();
+    foreach (pd_oauth_providers() as $reg_k => $reg_v) {
+        if (pd_oauth_enabled($reg_k)) { $reg_oauth[$reg_k] = $reg_v; }
+    }
+    ?>
+    <section class="pd-info-block pd-auth2<?php echo empty($reg_oauth) ? ' pd-auth2--single' : ''; ?>">
         <div class="pd-auth2-main">
             <h1>创建账号</h1>
             <?php if ($auth_error !== '') { ?><div class="alert auth-alert"><?php echo h($auth_error); ?></div><?php } ?>
@@ -70,16 +77,18 @@ pd_include_header(true);
             </form>
         </div>
 
+        <?php if (!empty($reg_oauth)) { ?>
         <div class="pd-auth2-side">
             <p class="pd-auth-side-label">使用第三方账号注册 / 登录</p>
             <div class="pd-auth-oauth">
-                <?php foreach (pd_oauth_providers() as $key => $info) { ?>
+                <?php foreach ($reg_oauth as $key => $info) { ?>
                     <a href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
                         <img class="pd-oauth-logo" src="<?php echo h($info['logo']); ?>" alt="" width="18" height="18"> 使用 <?php echo h($info['label']); ?> 继续
                     </a>
                 <?php } ?>
             </div>
         </div>
+        <?php } ?>
     </section>
 
     <p class="pd-auth2-switch">已有账号？<a href="<?php echo h(pd_url_page('login.php')); ?>">登录</a></p>

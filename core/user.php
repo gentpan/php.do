@@ -370,17 +370,48 @@ function pd_oauth_redirect_uri($provider) {
     return ($base !== '' ? $base : 'https://php.do') . pd_url_page('api/oauth.php', array('provider' => $provider, 'action' => 'callback'));
 }
 
-function pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email) {
+function pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email, $email_verified = false, &$error = '') {
+    $error = '';
     if (!pd_oauth_table_ready() || $provider_uid === '') {
         return 0;
     }
     $p_sql = esc($provider);
     $uid_sql = esc($provider_uid);
+    $email = strtolower(trim((string)$email));
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $email = '';
+    }
     $rs = mysqli_query(db(), "SELECT user_id FROM pd_oauth WHERE provider='{$p_sql}' AND provider_uid='{$uid_sql}' LIMIT 1");
     if ($rs && ($row = mysqli_fetch_assoc($rs))) {
         $uid = intval($row['user_id']);
         $ur = mysqli_query(db(), "SELECT id FROM pd_users WHERE id={$uid} AND status=1 LIMIT 1");
-        return ($ur && mysqli_num_rows($ur) > 0) ? $uid : 0;
+        if ($ur && mysqli_num_rows($ur) > 0) {
+            return $uid;
+        }
+        $error = '该账号已被禁用，请联系管理员。';
+        return 0;
+    }
+
+    // 邮箱已属于站内账号：已验证则直接关联，未验证则拒绝（避免用未验证邮箱接管账号）
+    if ($email !== '' && pd_table_has_column('pd_users', 'email')) {
+        $email_sql = esc($email);
+        $ex = mysqli_query(db(), "SELECT id, status FROM pd_users WHERE email='{$email_sql}' LIMIT 1");
+        if ($ex && ($exist = mysqli_fetch_assoc($ex))) {
+            if (!$email_verified) {
+                $error = '该邮箱已被站内账号使用。请先用密码登录，再到「个人设置」里绑定第三方账号。';
+                return 0;
+            }
+            if (intval($exist['status']) !== 1) {
+                $error = '该账号已被禁用，请联系管理员。';
+                return 0;
+            }
+            $exist_id = intval($exist['id']);
+            mysqli_query(db(), "INSERT IGNORE INTO pd_oauth (user_id,provider,provider_uid,created_at) VALUES ({$exist_id},'{$p_sql}','{$uid_sql}',NOW())");
+            if (pd_table_has_column('pd_users', 'email_bound_at')) {
+                mysqli_query(db(), "UPDATE pd_users SET email_bound_at=NOW() WHERE id={$exist_id} AND email_bound_at IS NULL");
+            }
+            return $exist_id;
+        }
     }
     $base = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$login);
     if (strlen($base) < 3) {
@@ -411,11 +442,19 @@ function pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $em
     $random_pw = pd_password_hash(bin2hex(random_bytes(18)));
     if (pd_table_has_column('pd_users', 'email') && $email !== '') {
         $email_sql = esc(clean_text($email, 190));
-        $ok = mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,email,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$email_sql}','{$ip}',NOW())");
+        // 第三方已验证的邮箱才算「已绑定」，否则留空以免未验证邮箱可用于找回密码
+        $bound = ($email_verified && pd_table_has_column('pd_users', 'email_bound_at')) ? 'NOW()' : 'NULL';
+        $cols = pd_table_has_column('pd_users', 'email_bound_at') ? ',email_bound_at' : '';
+        $vals = pd_table_has_column('pd_users', 'email_bound_at') ? ",{$bound}" : '';
+        $ok = mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,email{$cols},ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$email_sql}'{$vals},'{$ip}',NOW())");
     } else {
         $ok = mysqli_query(db(), "INSERT INTO pd_users (username,password,nickname,ip,created_at) VALUES ('{$u_sql}','{$random_pw}','{$n_sql}','{$ip}',NOW())");
     }
     if (!$ok) {
+        // 1062 = 唯一键冲突（邮箱或用户名被并发占用），给出可操作提示而非通用失败
+        if (mysqli_errno(db()) === 1062) {
+            $error = '该邮箱或用户名已被占用。请先用密码登录，再到「个人设置」里绑定第三方账号。';
+        }
         return 0;
     }
     $new_id = intval(mysqli_insert_id(db()));

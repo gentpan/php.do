@@ -214,6 +214,7 @@ function pd_handle_oauth_action() {
     $login = '';
     $name = '';
     $email = '';
+    $email_verified = false;
     if ($provider === 'github') {
         $ures = pd_http_request('GET', 'https://api.github.com/user', null, array(
             'Authorization: Bearer ' . $access_token,
@@ -226,6 +227,7 @@ function pd_handle_oauth_action() {
             $login = isset($profile['login']) ? $profile['login'] : '';
             $name = isset($profile['name']) && $profile['name'] !== '' ? $profile['name'] : $login;
             $email = isset($profile['email']) && $profile['email'] !== null ? $profile['email'] : '';
+            $email = ''; // GitHub 的 /user 不返回验证状态，一律走 /user/emails 取已验证的主邮箱
         }
         if ($provider_uid !== '' && $email === '') {
             $eres = pd_http_request('GET', 'https://api.github.com/user/emails', null, array(
@@ -236,8 +238,10 @@ function pd_handle_oauth_action() {
             $emails = json_decode($eres['body'], true);
             if (is_array($emails)) {
                 foreach ($emails as $em) {
-                    if (!empty($em['primary']) && !empty($em['email'])) {
+                    // 只接受已验证的主邮箱，避免用未验证邮箱关联到站内既有账号
+                    if (!empty($em['primary']) && !empty($em['verified']) && !empty($em['email'])) {
                         $email = $em['email'];
+                        $email_verified = true;
                         break;
                     }
                 }
@@ -252,6 +256,9 @@ function pd_handle_oauth_action() {
             $provider_uid = (string)$profile['sub'];
             $name = isset($profile['name']) ? $profile['name'] : '';
             $email = isset($profile['email']) ? $profile['email'] : '';
+            // Google OIDC 的 email_verified 可能是布尔或字符串 "true"
+            $ev = isset($profile['email_verified']) ? $profile['email_verified'] : false;
+            $email_verified = ($ev === true || $ev === 'true' || $ev === 1 || $ev === '1');
             $login = $email !== '' ? explode('@', $email)[0] : ('g' . $provider_uid);
         }
     }
@@ -261,7 +268,8 @@ function pd_handle_oauth_action() {
         redirect(pd_url_page('login.php'));
     }
 
-    $user_id = pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email);
+    $oauth_error = '';
+    $user_id = pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email, $email_verified, $oauth_error);
     if ($user_id > 0) {
         session_regenerate_id(true);
         $_SESSION['pd_uid'] = $user_id;
@@ -269,7 +277,7 @@ function pd_handle_oauth_action() {
         $_SESSION['pd_auth_method'] = 'oauth';
         redirect(pd_url_page('index.php'));
     }
-    $_SESSION['auth_error'] = '第三方登录失败，请稍后重试。';
+    $_SESSION['auth_error'] = $oauth_error !== '' ? $oauth_error : '第三方登录失败，请稍后重试。';
     redirect(pd_url_page('login.php'));
 }
 

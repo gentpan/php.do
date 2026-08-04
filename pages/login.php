@@ -37,7 +37,9 @@ pd_include_header(true);
         <div class="pd-auth2-side">
             <p class="pd-auth-side-label">使用以下方式登录</p>
             <div class="pd-auth-oauth">
-                <?php foreach (pd_oauth_providers() as $key => $info) { ?>
+                <?php foreach (pd_oauth_providers() as $key => $info) {
+                    // 只显示已在后台配置好 Client ID/Secret 并启用的方式，避免出现点不通的按钮
+                    if (!pd_oauth_enabled($key)) { continue; } ?>
                     <a href="<?php echo h(pd_url_page('api/oauth.php', array('provider' => $key, 'action' => 'start'))); ?>">
                         <img class="pd-oauth-logo" src="<?php echo h($info['logo']); ?>" alt="" width="18" height="18"> 使用 <?php echo h($info['label']); ?> 登录
                     </a>
