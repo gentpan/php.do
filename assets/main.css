@@ -3635,7 +3635,8 @@ body.theme-pd .pd-home-layout {
     display: grid;
     grid-template-columns: var(--pd-home-cols);
     gap: var(--pd-home-gap);
-    align-items: start;
+    /* stretch：两列同高、底部对齐，避免右侧栏比左侧内容长出一截 */
+    align-items: stretch;
 }
 
 body.theme-pd .pd-feed-card,
@@ -3787,6 +3788,7 @@ body.theme-pd .pd-feed-more {
 body.theme-pd .pd-more-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     min-width: 168px;
     height: 44px;
@@ -7078,6 +7080,13 @@ body.theme-pd-dark .pd-side-search button { color: var(--pd-muted); border-left-
     transition: color .12s ease;
 }
 .pd-topbar-hasbg .pd-navbar-search-btn { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 4px rgba(0, 0, 0, .55); }
+/* 这个搜索框是 overflow:hidden 的胶囊，任何外扩描边环都会被裁成一条竖线，
+   所以聚焦时也不要全局的 box-shadow 光晕 */
+.pd-navbar-search-input,
+.pd-navbar-search-input:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
 .pd-navbar-search-input {
     width: 0;
     min-width: 0;
