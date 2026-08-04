@@ -168,6 +168,11 @@ function pd_upload_allowed_exts() {
     return $exts;
 }
 
+// 编辑器上传提示用的可读后缀列表（core/vendor/markdown-editor.php 调用）
+function pd_upload_allowed_exts_label() {
+    return implode('、', pd_upload_allowed_exts());
+}
+
 function pd_s3_enabled() {
     return intval(pd_setting('s3_enabled', '0')) === 1;
 }
