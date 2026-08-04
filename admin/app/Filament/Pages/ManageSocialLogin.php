@@ -56,7 +56,7 @@ class ManageSocialLogin extends Page
     {
         $base = rtrim((string) (Setting::getValue('site_public_url', '') ?: config('app.url')), '/');
 
-        return $base . '/api/oauth.php?provider=' . $provider . '&action=callback';
+        return $base . '/api/oauth/' . $provider . '/callback';
     }
 
     /** 密钥字段提示：告知是否已配置，但不回显内容 */

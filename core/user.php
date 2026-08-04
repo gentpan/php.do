@@ -365,9 +365,14 @@ function pd_oauth_enabled($provider) {
         && trim(pd_setting('oauth_' . $provider . '_client_secret', '')) !== '';
 }
 
+// 回调地址用无查询串的干净路径：/api/oauth/<provider>/callback
+// （Google Cloud Console 对重定向 URI 校验严格，带查询串容易被拒；GitHub 两种都接受。
+//   Caddy 的 @oauthcb 规则会把它重写回 /api/oauth.php?provider=X&action=callback，
+//   旧的带查询串地址仍然可用，便于平滑过渡。）
 function pd_oauth_redirect_uri($provider) {
     $base = pd_public_base_url();
-    return ($base !== '' ? $base : 'https://php.do') . pd_url_page('api/oauth.php', array('provider' => $provider, 'action' => 'callback'));
+    $provider = preg_replace('/[^a-z]/', '', strtolower((string)$provider));
+    return ($base !== '' ? $base : 'https://php.do') . '/api/oauth/' . $provider . '/callback';
 }
 
 function pd_oauth_login_or_register($provider, $provider_uid, $login, $name, $email, $email_verified = false, &$error = '') {
