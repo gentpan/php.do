@@ -8821,3 +8821,181 @@ body.theme-pd .signin-modal-box::after {
     display: block;
     clear: both;
 }
+
+/* ===== 个人中心（用户主页）===== */
+body.theme-pd .pd-profile-hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 22px 24px;
+    background: var(--pd-card-bg);
+    border: var(--pd-card-border);
+    border-radius: var(--pd-card-radius-lg);
+    box-shadow: var(--pd-card-shadow-subtle);
+}
+body.theme-pd .pd-profile-avatar {
+    flex: 0 0 auto;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--pd-surface-soft);
+}
+body.theme-pd .pd-profile-main { flex: 1 1 auto; min-width: 0; }
+body.theme-pd .pd-profile-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+body.theme-pd .pd-profile-name h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--pd-text-title);
+}
+body.theme-pd .pd-role-tag {
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 4px;
+}
+body.theme-pd .pd-role-admin { color: #fff; background: var(--pd-red); }
+body.theme-pd .pd-role-mod { color: #fff; background: var(--pd-accent); }
+body.theme-pd .pd-profile-handle {
+    margin: 6px 0 0;
+    color: var(--pd-muted);
+    font-size: 14px;
+}
+body.theme-pd .pd-profile-sign {
+    margin: 8px 0 0;
+    color: var(--pd-text);
+    font-size: 14px;
+    line-height: 1.6;
+}
+body.theme-pd .pd-profile-level { margin-top: 14px; max-width: 420px; }
+body.theme-pd .pd-profile-actions { flex: 0 0 auto; }
+
+/* 统计条 */
+body.theme-pd .pd-profile-stats {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 14px;
+    overflow: hidden;
+    background: var(--pd-line);
+    border: var(--pd-card-border);
+    border-radius: var(--pd-card-radius-lg);
+}
+body.theme-pd .pd-profile-stats > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 14px 6px;
+    background: var(--pd-card-bg);
+}
+body.theme-pd .pd-profile-stats b {
+    font-size: 19px;
+    font-weight: 900;
+    color: var(--pd-text-title);
+}
+body.theme-pd .pd-profile-stats span {
+    font-size: 12px;
+    color: var(--pd-muted);
+}
+
+/* 主体两栏 */
+body.theme-pd .pd-profile-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 16px;
+    margin-top: 14px;
+    align-items: start;
+}
+body.theme-pd .pd-profile-content {
+    background: var(--pd-card-bg);
+    border: var(--pd-card-border);
+    border-radius: var(--pd-card-radius-lg);
+    box-shadow: var(--pd-card-shadow-subtle);
+    overflow: hidden;
+}
+body.theme-pd .pd-profile-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 12px 0;
+    border-bottom: 1px solid var(--pd-line);
+}
+body.theme-pd .pd-profile-tabs button {
+    height: 34px;
+    padding: 0 14px;
+    color: var(--pd-muted);
+    font-size: 14px;
+    font-weight: 700;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0 !important;
+    cursor: pointer;
+}
+body.theme-pd .pd-profile-tabs button span {
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    opacity: .7;
+}
+body.theme-pd .pd-profile-tabs button.active {
+    color: var(--pd-accent);
+    border-bottom-color: var(--pd-accent);
+}
+body.theme-pd .pd-profile-panel { padding: 4px 0; }
+body.theme-pd .pd-profile-panel .pd-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--pd-muted);
+    font-size: 14px;
+}
+/* 回复条目 */
+body.theme-pd .pd-profile-reply {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--pd-line);
+}
+body.theme-pd .pd-profile-reply:last-child { border-bottom: 0; }
+body.theme-pd .pd-profile-reply-title {
+    color: var(--pd-text-title);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+}
+body.theme-pd .pd-profile-reply-title:hover { color: var(--pd-accent); }
+body.theme-pd .pd-profile-reply-body {
+    margin: 6px 0 0;
+    color: var(--pd-text);
+    font-size: 13px;
+    line-height: 1.6;
+}
+body.theme-pd .pd-profile-reply-meta {
+    margin: 6px 0 0;
+    color: var(--pd-muted);
+    font-size: 12px;
+}
+/* 侧栏资料表 */
+body.theme-pd .pd-profile-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 14px;
+    margin: 0;
+    font-size: 13px;
+}
+body.theme-pd .pd-profile-meta dt { color: var(--pd-muted); }
+body.theme-pd .pd-profile-meta dd { margin: 0; color: var(--pd-text); text-align: right; }
+
+@media (max-width: 900px) {
+    body.theme-pd .pd-profile-body { grid-template-columns: 1fr; }
+    body.theme-pd .pd-profile-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    body.theme-pd .pd-profile-hero { flex-wrap: wrap; gap: 14px; padding: 16px; }
+    body.theme-pd .pd-profile-avatar { width: 64px; height: 64px; }
+    body.theme-pd .pd-profile-actions { width: 100%; }
+}
