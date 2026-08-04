@@ -4607,6 +4607,9 @@ body.theme-pd .pd-right-toolbar.cir-rail.is-scrolled [data-scroll-top] {
     }
 }
 
+/* 小屏适配（此 @media 开头曾在历史重构中丢失，导致以下规则泄漏到所有屏幕宽度） */
+@media (max-width: 760px) {
+
     body.theme-pd .nav-search-form {
         flex: 0 0 40px;
         width: 40px;
