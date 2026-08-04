@@ -3829,7 +3829,8 @@ body.theme-pd .pd-more-btn .pd-more-spin {
     animation: pdSpin .7s linear infinite;
 }
 body.theme-pd .pd-more-btn.is-loading .pd-more-spin { display: inline-block; }
-body.theme-pd .pd-more-btn.is-loading .pd-more-label { opacity: .7; }
+/* 加载中：只留中间的转圈，隐藏「加载更多」文字（min-width 保证按钮宽度不跳动） */
+body.theme-pd .pd-more-btn.is-loading .pd-more-label { display: none; }
 @keyframes pdSpin { to { transform: rotate(360deg); } }
 body.theme-pd .pd-feed-end {
     padding: 6px 0 2px;

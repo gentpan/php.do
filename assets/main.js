@@ -1225,12 +1225,33 @@
         if (!toolbar) return;
         var topButton = toolbar.querySelector('[data-scroll-top]');
 
+        // 把工具栏底部钳制在内容框内：滚到页面底部时不再探出白框、压到页脚上
+        function clampToBottom() {
+            // 移动端是右下角固定布局（≤760px），不参与钳制
+            if (window.innerWidth <= 760) {
+                toolbar.style.top = '';
+                toolbar.style.transform = '';
+                return;
+            }
+            var frame = document.querySelector('.pd-page-frame');
+            if (!frame) return;
+            var frameBottom = frame.getBoundingClientRect().bottom; // 视口坐标
+            var h = toolbar.offsetHeight;
+            var natural = window.innerHeight * 0.64 - h / 2;        // CSS 里的 top:64% + translateY(-50%)
+            var maxTop = frameBottom - h - 16;                      // 底部留 16px 余量
+            var top = Math.min(natural, maxTop);
+            if (top < 16) top = 16;                                 // 也不要顶出屏幕
+            toolbar.style.top = Math.round(top) + 'px';
+            toolbar.style.transform = 'none';
+        }
+
         function setState() {
             var y = window.pageYOffset || document.documentElement.scrollTop || 0;
             var docH = (document.documentElement.scrollHeight || 0) - window.innerHeight;
             // 滚过半页才显示回到顶部：长页面按滚动进度过半，短页面按滚过半屏
             var pastHalf = docH > 120 ? (y / docH) > 0.5 : (y > window.innerHeight * 0.5);
             toolbar.classList.toggle('is-scrolled', pastHalf);
+            clampToBottom();
         }
 
         if (topButton) {
