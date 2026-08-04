@@ -3161,10 +3161,9 @@ input[type="submit"]:active {
     border-color: var(--pd-accent);
 }
 
-input,
-select,
-textarea,
-
+/* 聚焦态才出现品牌色描边环。此前 textarea 后多了一个逗号，
+   导致规则对所有 input/select/textarea 永久生效，搜索框收起时
+   这圈光晕被 overflow:hidden 裁成一条竖线。 */
 input:focus,
 select:focus,
 textarea:focus {
