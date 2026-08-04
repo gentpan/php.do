@@ -414,14 +414,40 @@
     }
 
     function initFloorReply() {
+        function closeForm(form) {
+            if (form) form.style.display = 'none';
+        }
         document.querySelectorAll('.floor-reply-toggle').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var form = document.getElementById(btn.getAttribute('data-reply-target'));
                 if (!form) return;
-                form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+                var opening = form.style.display === 'none';
+                // 同一时间只展开一个回复框，避免页面里散落多个输入卡片
+                if (opening) {
+                    document.querySelectorAll('.floor-reply-form').forEach(function(other) {
+                        if (other !== form) closeForm(other);
+                    });
+                }
+                form.style.display = opening ? 'flex' : 'none';
                 var input = form.querySelector('input[name="content"]');
-                if (form.style.display !== 'none' && input) input.focus();
+                if (opening && input) input.focus();
             });
+        });
+        // 「取消」按钮
+        document.querySelectorAll('[data-floor-cancel]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var form = btn.closest('.floor-reply-form');
+                if (!form) return;
+                var input = form.querySelector('input[name="content"]');
+                if (input) input.value = '';
+                closeForm(form);
+            });
+        });
+        // Esc 关闭当前回复框
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape') return;
+            var form = e.target && e.target.closest ? e.target.closest('.floor-reply-form') : null;
+            if (form) { closeForm(form); }
         });
     }
 

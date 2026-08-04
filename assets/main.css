@@ -8521,3 +8521,124 @@ body.theme-pd-dark .pd-messages-back {
 body.theme-pd-dark .pd-messages-placeholder-icon {
     background: #1f2430;
 }
+
+/* ===== 楼中楼回复卡片（登录后点「回复」展开）===== */
+/* 显隐仍由内联 style（display:none / flex）控制，与既有 JS 保持一致 */
+body.theme-pd .floor-reply-form.pd-frc {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 12px;
+    background: var(--pd-surface);
+    border: 1px solid #e3e7ee;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(20, 20, 20, .04);
+}
+body.theme-pd .pd-frc-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+body.theme-pd .pd-frc-avatar {
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-input {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 12px;
+    color: var(--pd-text-title);
+    font-size: 14px;
+    background: var(--pd-surface-soft);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    outline: 0;
+    transition: background .15s ease, border-color .15s ease;
+}
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-input:focus {
+    background: var(--pd-surface);
+    border-color: var(--pd-accent);
+}
+body.theme-pd .pd-frc-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-left: 40px;
+}
+body.theme-pd .pd-frc-hint {
+    color: var(--pd-muted);
+    font-size: 12px;
+}
+body.theme-pd .pd-frc-hint kbd {
+    padding: 1px 5px;
+    font-size: 11px;
+    font-family: inherit;
+    color: var(--pd-muted);
+    background: var(--pd-surface-soft);
+    border: 1px solid #e3e7ee;
+    border-radius: 4px;
+}
+body.theme-pd .pd-frc-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-cancel,
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-submit {
+    height: 32px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 6px !important;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-cancel {
+    color: var(--pd-muted);
+    background: transparent;
+    border: 1px solid #e3e7ee;
+}
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-cancel:hover {
+    color: var(--pd-text-title);
+    border-color: var(--pd-border);
+}
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--pd-text-on-accent);
+    background: var(--pd-accent);
+    border: 1px solid var(--pd-accent);
+}
+body.theme-pd .floor-reply-form.pd-frc .pd-frc-submit:hover {
+    background: var(--pd-accent-hover);
+    border-color: var(--pd-accent-hover);
+}
+body.theme-pd-dark .floor-reply-form.pd-frc {
+    background: var(--pd-surface);
+    border-color: var(--pd-border);
+}
+body.theme-pd-dark .floor-reply-form.pd-frc .pd-frc-input {
+    color: var(--pd-text);
+    background: #11141a;
+    border-color: #3a4150;
+}
+body.theme-pd-dark .floor-reply-form.pd-frc .pd-frc-cancel {
+    border-color: var(--pd-border);
+}
+body.theme-pd-dark .pd-frc-hint kbd {
+    background: #11141a;
+    border-color: #3a4150;
+}
+@media (max-width: 640px) {
+    body.theme-pd .pd-frc-foot {
+        padding-left: 0;
+        flex-wrap: wrap;
+    }
+}

@@ -170,12 +170,21 @@ if (!empty($post_ids)) {
                 <?php } ?>
             </div>
             <?php } ?>
-            <?php if (current_user()) { ?>
-                <form id="floor-reply-form-<?php echo intval($p['id']); ?>" class="floor-reply-form" method="post" action="<?php echo h(pd_url_page('floor_reply.php')); ?>" style="display:none">
+            <?php if ($me) { ?>
+                <form id="floor-reply-form-<?php echo intval($p['id']); ?>" class="floor-reply-form pd-frc" method="post" action="<?php echo h(pd_url_page('floor_reply.php')); ?>" style="display:none">
                     <input type="hidden" name="thread_id" value="<?php echo intval($id); ?>">
                     <input type="hidden" name="post_id" value="<?php echo intval($p['id']); ?>">
-                    <input type="text" name="content" maxlength="500" placeholder="回复 <?php echo h($p['nickname']); ?>" required>
-                    <button class="action-badge action-badge-reply floor-reply-submit" type="submit" title="回复" aria-label="回复" data-tooltip="回复"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>回复</span></button>
+                    <div class="pd-frc-main">
+                        <img class="pd-frc-avatar" src="<?php echo h(pd_user_avatar($me, 64)); ?>" alt="" width="30" height="30" loading="lazy">
+                        <input class="pd-frc-input" type="text" name="content" maxlength="500" placeholder="回复 @<?php echo h($p['nickname']); ?>…" autocomplete="off" required>
+                    </div>
+                    <div class="pd-frc-foot">
+                        <span class="pd-frc-hint">最多 500 字 · <kbd>Esc</kbd> 取消</span>
+                        <span class="pd-frc-actions">
+                            <button class="pd-frc-cancel" type="button" data-floor-cancel>取消</button>
+                            <button class="pd-frc-submit" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> 回复</button>
+                        </span>
+                    </div>
                 </form>
             <?php } ?>
                 <div class="pd-reply-actions">
