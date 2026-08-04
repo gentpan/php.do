@@ -250,26 +250,6 @@ body.pd-standalone .pd-banner-logo img {
 }
 
 /* 底部信息页互链 */
-.pd-info-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 22px;
-}
-.pd-info-links a {
-    padding: 8px 16px;
-    font-size: 14px;
-    color: var(--pd-text);
-    background: var(--pd-surface);
-    border: 1px solid var(--pd-border);
-    border-radius: 8px;
-    text-decoration: none;
-    transition: color .15s ease, border-color .15s ease, background .15s ease;
-}
-.pd-info-links a:hover {
-    color: var(--pd-accent);
-    border-color: var(--pd-accent);
-}
 .pd-info-links a.active {
     color: var(--pd-text-on-accent);
     background: var(--pd-accent);

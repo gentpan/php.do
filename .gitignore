@@ -30,3 +30,6 @@ admin/bootstrap/cache/*.php
 .phpunit.result.cache
 admin/.phpunit.cache
 auth.json
+
+# 本地运维笔记（含服务器信息，勿入公开仓库）
+AGENTS.md

@@ -1,8 +1,8 @@
 (function() {
     var loadingCounts = { bar: 0, page: 0, dots: 0 };
     var loadProgress = { value: 0, timer: null, raf: null };
-    var FEED_DOTS_SVG = '<svg fill="hsl(228, 97%, 42%)" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="4" cy="12" r="3" opacity="1"><animate id="spinner_qYjJ" begin="0;spinner_t4KZ.end-0.25s" attributeName="opacity" dur="0.75s" values="1;.2" fill="freeze"/></circle><circle cx="12" cy="12" r="3" opacity=".4"><animate begin="spinner_qYjJ.begin+0.15s" attributeName="opacity" dur="0.75s" values="1;.2" fill="freeze"/></circle><circle cx="20" cy="12" r="3" opacity=".3"><animate id="spinner_t4KZ" begin="spinner_qYjJ.begin+0.3s" attributeName="opacity" dur="0.75s" values="1;.2" fill="freeze"/></circle></svg>';
-    var PAGE_SPINNER_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="hsl(228, 97%, 42%)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="42 64"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/></circle></svg>';
+    var FEED_DOTS_SVG = '<svg fill="hsl(228, 97%, 42%)" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="4" cy="12" r="3"></circle><circle cx="12" cy="12" r="3"></circle><circle cx="20" cy="12" r="3"></circle></svg>';
+    var PAGE_SPINNER_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="hsl(228, 97%, 42%)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="42 64"></circle></svg>';
 
     function initNavMore() {
         var toggle = document.querySelector('[data-nav-more]');

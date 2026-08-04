@@ -61,7 +61,7 @@ function pd_render_thread_row($t, $opts = array()) {
                     <p>
                         <a class="pd-author-link" href="<?php echo h(pd_url_user($t['user_id'])); ?>"><?php echo h($author); ?></a>
                         <?php echo pd_time_html($t['created_at']); ?>
-                        <?php if (!empty($t['forum_name'])) { ?><a class="pd-forum-tag pd-forum-tag-<?php echo intval($t['forum_id']) % 8; ?>" href="<?php echo h(pd_url_forum(intval($t['forum_id']))); ?>"><?php echo h($t['forum_name']); ?></a><?php } ?>
+                        <?php if (!empty($t['forum_name'])) { ?><a class="pd-forum-tag pd-forum-tag-<?php echo pd_forum_color_index($t['forum_id']); ?>" href="<?php echo h(pd_url_forum(intval($t['forum_id']))); ?>"><?php echo h($t['forum_name']); ?></a><?php } ?>
                     </p>
                     <div class="pd-thread-stats" aria-label="帖子统计">
                         <span><i class="fa-regular fa-eye" aria-hidden="true"></i><?php echo pd_format_compact_number($t['views']); ?></span>

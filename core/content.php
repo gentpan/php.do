@@ -38,6 +38,23 @@ function pd_forum_icon($forum) {
     return 'fa-solid ' . $icon;
 }
 
+// 版块颜色索引：按展示排序取序号（每个版块唯一颜色，不随 id 取模重复）
+function pd_forum_color_index($forum_id) {
+    static $map = null;
+    if ($map === null) {
+        $map = array();
+        $rs = mysqli_query(db(), "SELECT id FROM pd_forums ORDER BY display_order ASC, id ASC");
+        if ($rs) {
+            $i = 0;
+            while ($row = mysqli_fetch_assoc($rs)) {
+                $map[intval($row['id'])] = $i % 8;
+                $i++;
+            }
+        }
+    }
+    return isset($map[intval($forum_id)]) ? $map[intval($forum_id)] : 0;
+}
+
 function pd_forum_slug_by_id($id) {
     static $cache = array();
     $id = intval($id);

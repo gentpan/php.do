@@ -12,7 +12,7 @@
 |------|------|
 | 运行环境 | **FrankenPHP** + **PHP 8.5** + **MySQL** |
 | 前台 | 原生 PHP + `mysqli`（`pages/`、`api/`、`core/`、`functions.php`） |
-| 前台 UI | Alpine.js（移动端菜单、头像切换等）+ 手写 CSS（无 Tailwind、无构建链）；国旗用 flag-icons |
+| 前台 UI | 原生 JS + 手写 CSS（无框架、无构建链）；国旗用 flag-icons |
 | 后台 | **Laravel 13** + **Filament 5**（`admin/`） |
 | 会话 / 鉴权 | PHP Session；支持密码、OAuth（GitHub/Google）、Passkey；可选邮箱验证码 |
 
