@@ -40,13 +40,23 @@ class ManageSocialLogin extends Page
     {
         $this->form->fill([
             'github_enabled' => Setting::getValue('oauth_github_enabled', '0') === '1',
+            'github_callback' => $this->callbackUrl('github'),
             'github_client_id' => Setting::getValue('oauth_github_client_id', ''),
             // 出于安全，密钥不回显到浏览器；下方 helperText 会提示是否已配置
             'github_client_secret' => '',
             'google_enabled' => Setting::getValue('oauth_google_enabled', '0') === '1',
+            'google_callback' => $this->callbackUrl('google'),
             'google_client_id' => Setting::getValue('oauth_google_client_id', ''),
             'google_client_secret' => '',
         ]);
+    }
+
+    /** 与前台 pd_oauth_redirect_uri() 保持一致的回调地址 */
+    protected function callbackUrl(string $provider): string
+    {
+        $base = rtrim((string) (Setting::getValue('site_public_url', '') ?: config('app.url')), '/');
+
+        return $base . '/api/oauth.php?provider=' . $provider . '&action=callback';
     }
 
     /** 密钥字段提示：告知是否已配置，但不回显内容 */
@@ -61,17 +71,14 @@ class ManageSocialLogin extends Page
 
     public function form(Schema $schema): Schema
     {
-        $appUrl = rtrim((string) config('app.url'), '/');
-
         return $schema
             ->components([
                 Section::make('GitHub')->schema([
                     Toggle::make('github_enabled')->label('启用 GitHub 登录'),
                     TextInput::make('github_callback')
                         ->label('回调地址')
-                        ->default($appUrl . '/api/oauth.php?provider=github&action=callback')
-                        ->helperText('必须与 GitHub OAuth App 里登记的 Authorization callback URL 完全一致')
-                        ->disabled()
+                        ->helperText('复制这一整串填到 GitHub OAuth App 的 Authorization callback URL，必须完全一致')
+                        ->readOnly()
                         ->dehydrated(false),
                     TextInput::make('github_client_id')->label('Client ID'),
                     TextInput::make('github_client_secret')
@@ -84,9 +91,8 @@ class ManageSocialLogin extends Page
                     Toggle::make('google_enabled')->label('启用 Google 登录'),
                     TextInput::make('google_callback')
                         ->label('回调地址')
-                        ->default($appUrl . '/api/oauth.php?provider=google&action=callback')
-                        ->helperText('必须与 Google Cloud Console 里「已获授权的重定向 URI」完全一致（Google 为精确匹配）')
-                        ->disabled()
+                        ->helperText('复制这一整串填到 Google Cloud Console 的「已获授权的重定向 URI」，Google 为精确匹配')
+                        ->readOnly()
                         ->dehydrated(false),
                     TextInput::make('google_client_id')->label('Client ID'),
                     TextInput::make('google_client_secret')
