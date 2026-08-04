@@ -6,6 +6,10 @@ if (!defined('PD_START')) {
 if (!defined('PD_ROOT')) {
     define('PD_ROOT', __DIR__);
 }
+// 应用版本（语义化版本）。数据库结构版本单独用 PD_SCHEMA_VERSION 追踪。
+if (!defined('PD_VERSION')) {
+    define('PD_VERSION', '1.0.0');
+}
 if (!defined('PD_SCHEMA_VERSION')) {
     define('PD_SCHEMA_VERSION', '20260710');
 }

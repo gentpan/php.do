@@ -25,7 +25,19 @@ class ServerInfo
             'database' => self::database(),
             'opcache' => self::opcache(),
             'forum_root' => realpath(base_path('..')) ?: base_path('..'),
+            'app_version' => self::appVersion(),
         ];
+    }
+
+    /** 从论坛的 functions.php 里读 PD_VERSION（后台是独立 Laravel 应用，不加载论坛引导） */
+    public static function appVersion(): string
+    {
+        $file = base_path('../functions.php');
+        if (is_file($file) && preg_match("/define\('PD_VERSION',\s*'([^']+)'\)/", (string) file_get_contents($file), $m)) {
+            return 'v' . $m[1];
+        }
+
+        return '—';
     }
 
     public static function serverSoftware(): string

@@ -63,6 +63,9 @@ class ServerInfo extends Page
     protected function environmentEntries(): array
     {
         return [
+            TextEntry::make('app_version')
+                ->label('论坛版本')
+                ->state(fn (): string => (string) ($this->info['app_version'] ?? '—')),
             TextEntry::make('hostname')
                 ->label('主机名')
                 ->state(fn (): string => (string) ($this->info['hostname'] ?? '—')),
