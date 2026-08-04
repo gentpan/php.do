@@ -253,11 +253,12 @@ if (!empty($post_ids)) {
         $editorRows = 8;
         $editorRequired = true;
         $editorCompact = true;
-        $editorMaxlength = intval(pd_reply_max_chars());
+        $reply_limit = intval(pd_reply_max_chars());   // 0 = 不限制
+        $editorMaxlength = $reply_limit;
         $editorPlaceholder = '写下你的回复（Markdown）';
         include __DIR__ . '/../core/vendor/markdown-editor.php';
         ?>
-        <p class="muted">最多可输入 <?php echo intval(pd_reply_max_chars()); ?> 字。</p>
+        <?php if ($reply_limit > 0) { ?><p class="muted">最多可输入 <?php echo $reply_limit; ?> 字。</p><?php } ?>
         <div class="upload-captcha-row">
             <div class="captcha-col"><?php if (pd_captcha_required('reply', current_user())) { echo pd_render_captcha(); } ?></div>
         </div>

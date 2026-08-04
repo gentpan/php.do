@@ -96,7 +96,7 @@ class ManageSiteSettings extends Page
                         TextInput::make('home_threads_per_page')->label('首页每页帖数')->numeric(),
                         TextInput::make('forum_threads_per_page')->label('版块每页帖数')->numeric(),
                         TextInput::make('thread_page_chars')->label('主题分页字数')->numeric(),
-                        TextInput::make('reply_max_chars')->label('回复最大字数')->numeric(),
+                        TextInput::make('reply_max_chars')->label('回复最大字数')->numeric()->helperText('0 = 不限制长度；填正数则至少 100'),
                     ]),
                     Tab::make('积分等级')->schema([
                         TextInput::make('points_thread')->label('发帖分')->numeric(),

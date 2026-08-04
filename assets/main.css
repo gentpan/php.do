@@ -2115,23 +2115,28 @@ textarea:focus {
     margin: 12px 0;
 }
 
+/* 输入框与验证码图等高：改用 flex，两者统一 44px（图为 SVG，缩放无损） */
 .captcha-row {
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .captcha-row input {
-    float: left;
+    flex: 0 1 160px;
     width: 160px;
-    max-width: calc(100% - 148px);
+    min-width: 0;
+    height: 44px;
+    padding: 0 12px;
     letter-spacing: .18em;
     text-transform: uppercase;
 }
 
 .captcha-row img {
-    float: left;
-    width: 132px;
-    height: 48px;
-    margin-left: 12px;
+    flex: 0 0 auto;
+    height: 44px;
+    width: auto;
+    margin: 0;
     border: 1px solid #d8e3ec;
     border-radius: 6px;
     cursor: pointer;

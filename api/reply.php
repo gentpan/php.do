@@ -4,12 +4,16 @@ $u = require_login();
 if (ip_banned(client_ip())) exit('当前 IP 已被封禁');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') redirect(pd_url_page('index.php'));
 $tid = intval($_POST['thread_id']);
-$content = clean_text($_POST['content'], pd_reply_max_chars() + 1000);
+$reply_limit = pd_reply_max_chars();          // 0 = 不限制
+// 不限制时仍设一个防滥用的硬上限（mediumtext 上限约 1600 万字节）
+$content = clean_text($_POST['content'], $reply_limit > 0 ? $reply_limit + 1000 : 2000000);
 if ($tid < 1 || $content === '') redirect(pd_url_thread($tid));
-$reply_len = function_exists('mb_strlen') ? mb_strlen($content, 'UTF-8') : strlen($content);
-if ($reply_len > pd_reply_max_chars()) {
-    $_SESSION['flash'] = '回复内容不能超过 ' . pd_reply_max_chars() . ' 字。';
-    redirect(pd_url_thread($tid));
+if ($reply_limit > 0) {
+    $reply_len = function_exists('mb_strlen') ? mb_strlen($content, 'UTF-8') : strlen($content);
+    if ($reply_len > $reply_limit) {
+        $_SESSION['flash'] = '回复内容不能超过 ' . $reply_limit . ' 字。';
+        redirect(pd_url_thread($tid));
+    }
 }
 $mute_message = pd_user_mute_message($u);
 if ($mute_message !== '') {

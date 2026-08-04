@@ -252,8 +252,12 @@ function pd_thread_page_chars() {
     return pd_setting_int('thread_page_chars', 4000, 500, 50000);
 }
 
+// 回复最大字数：0 表示不限制（pd_posts.content 是 mediumtext，容量充足）
 function pd_reply_max_chars() {
-    return pd_setting_int('reply_max_chars', 1000, 100, 50000);
+    if (intval(pd_setting('reply_max_chars', '1000')) === 0) {
+        return 0;
+    }
+    return pd_setting_int('reply_max_chars', 1000, 100, 200000);
 }
 
 function pd_forum_info($forum_id) {
