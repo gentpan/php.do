@@ -8650,3 +8650,103 @@ body.theme-pd-dark .pd-frc-hint kbd {
         flex-wrap: wrap;
     }
 }
+
+/* ===== 个人设置页：全宽 + 分组卡片网格（替代原 560px 单列 narrow-card）===== */
+body.theme-pd .pd-settings {
+    padding-bottom: 8px;
+}
+body.theme-pd .pd-settings-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 16px;
+}
+body.theme-pd .pd-settings-head h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--pd-text-title);
+}
+body.theme-pd .pd-settings-links {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+body.theme-pd .pd-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+body.theme-pd .pd-set-card {
+    padding: 20px 22px;
+    background: var(--pd-card-bg);
+    border: var(--pd-card-border);
+    border-radius: var(--pd-card-radius-lg);
+    box-shadow: var(--pd-card-shadow-subtle);
+}
+body.theme-pd .pd-set-card--full {
+    grid-column: 1 / -1;
+}
+body.theme-pd .pd-set-card > h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--pd-text-title);
+    border-bottom: 1px solid var(--pd-line);
+}
+body.theme-pd .pd-set-card > h2 i {
+    color: var(--pd-accent);
+    font-size: 15px;
+}
+body.theme-pd .pd-set-card label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pd-text);
+}
+body.theme-pd .pd-set-card > label:first-of-type {
+    margin-top: 0;
+}
+body.theme-pd .pd-set-card label.pd-set-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+}
+body.theme-pd .pd-set-card label.pd-set-check input {
+    width: auto;
+    margin: 0;
+}
+body.theme-pd .pd-set-card .muted {
+    margin: 6px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--pd-muted);
+}
+body.theme-pd .pd-settings-save {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 4px;
+}
+body.theme-pd .pd-settings-save .btn {
+    min-width: 140px;
+}
+/* Passkey 卡片：与设置卡片同宽，独立于表单 */
+body.theme-pd .pd-settings > .pd-set-card {
+    margin-top: 16px;
+}
+@media (max-width: 640px) {
+    body.theme-pd .pd-settings-grid { grid-template-columns: 1fr; }
+    body.theme-pd .pd-set-card { padding: 16px; }
+    body.theme-pd .pd-settings-save { justify-content: stretch; }
+    body.theme-pd .pd-settings-save .btn { width: 100%; }
+}

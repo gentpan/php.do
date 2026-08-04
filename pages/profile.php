@@ -157,12 +157,19 @@ $passkeys = mysqli_query(db(), "SELECT * FROM pd_passkeys WHERE user_id=" . intv
 $page_title = '个人设置 - ' . SITE_NAME;
 pd_include_header();
 ?>
-<section class="card narrow-card">
-    <h1>个人设置</h1>
-    <p>
-        <a class="btn btn-light btn-small" href="<?php echo h(pd_url_user($u['id'])); ?>">查看个人主页</a>
-        <a class="btn btn-light btn-small" href="<?php echo h(pd_url_page('rankings.php')); ?>">用户排行榜</a>
-    </p>
+<div class="pd-settings">
+    <div class="pd-breadcrumb">
+        <a href="<?php echo h(pd_url_page('index.php')); ?>"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
+        <span>»</span>
+        <strong>个人设置</strong>
+    </div>
+    <div class="pd-settings-head">
+        <h1>个人设置</h1>
+        <div class="pd-settings-links">
+            <a class="btn btn-light btn-small" href="<?php echo h(pd_url_user($u['id'])); ?>">查看个人主页</a>
+            <a class="btn btn-light btn-small" href="<?php echo h(pd_url_page('rankings.php')); ?>">用户排行榜</a>
+        </div>
+    </div>
     <?php if ($saved) { ?><div class="alert success">资料已保存。</div><?php } ?>
     <?php if ($error) { ?><div class="alert"><?php echo h($error); ?></div><?php } ?>
     <?php
@@ -187,8 +194,9 @@ pd_include_header();
     $cartoon_base_url = pd_url_page('profile.php');
     $cartoon_sep = (strpos($cartoon_base_url, '?') === false) ? '?' : '&';
     ?>
-    <form method="post" enctype="multipart/form-data" data-avatar-form data-cartoon-base="<?php echo h($cartoon_base_url . $cartoon_sep); ?>ajax=avatar_cartoon">
-        <label>头像</label>
+    <form class="pd-settings-grid" method="post" enctype="multipart/form-data" data-avatar-form data-cartoon-base="<?php echo h($cartoon_base_url . $cartoon_sep); ?>ajax=avatar_cartoon">
+        <section class="pd-set-card pd-set-card--full">
+        <h2><i class="fa-regular fa-circle-user" aria-hidden="true"></i> 头像</h2>
         <div class="profile-avatar-choose">
             <div class="profile-avatar-preview">
                 <img src="<?php echo h(pd_user_avatar($u, 200)); ?>" alt="<?php echo h($u['nickname']); ?>" data-avatar-preview-normal<?php if ($current_avatar_type === 'cartoon') echo ' style="display:none"'; ?>>
@@ -224,8 +232,26 @@ pd_include_header();
             <p class="muted">点击“换一个”随机生成头像，满意后点击下方“保存资料”即可保存。</p>
         </div>
         <?php } ?>
+        </section>
+
+        <section class="pd-set-card">
+        <h2><i class="fa-regular fa-id-card" aria-hidden="true"></i> 基本资料</h2>
         <label>昵称</label>
         <input type="text" name="nickname" maxlength="30" value="<?php echo h($u['nickname']); ?>" required>
+        <label>性别</label>
+        <select name="gender">
+            <?php $gender_value = isset($u['gender']) ? $u['gender'] : ''; ?>
+            <option value="" <?php if ($gender_value === '') echo 'selected'; ?>>请选择</option>
+            <option value="男" <?php if ($gender_value === '男') echo 'selected'; ?>>男</option>
+            <option value="女" <?php if ($gender_value === '女') echo 'selected'; ?>>女</option>
+            <option value="保密" <?php if ($gender_value === '保密') echo 'selected'; ?>>保密</option>
+        </select>
+        <label>个性签名</label>
+        <textarea name="signature" rows="3" maxlength="255" placeholder="写一句展示自己的签名"><?php echo h(isset($u['signature']) ? $u['signature'] : ''); ?></textarea>
+        </section>
+
+        <section class="pd-set-card">
+        <h2><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 账号与安全</h2>
         <label>绑定邮箱</label>
         <input type="email" name="email" maxlength="190" value="<?php echo h(isset($u['email']) ? $u['email'] : ''); ?>" placeholder="name@example.com" autocomplete="email" data-profile-email>
         <?php if (pd_mail_enabled()) { ?>
@@ -237,19 +263,17 @@ pd_include_header();
         <?php } else { ?>
         <p class="muted">邮件系统未启用；新邮箱会保存为未验证状态，不能用于找回密码。</p>
         <?php } ?>
-        <label>个性签名</label>
-        <textarea name="signature" rows="3" maxlength="255" placeholder="写一句展示自己的签名"><?php echo h(isset($u['signature']) ? $u['signature'] : ''); ?></textarea>
-        <label>性别</label>
-        <select name="gender">
-            <?php $gender_value = isset($u['gender']) ? $u['gender'] : ''; ?>
-            <option value="" <?php if ($gender_value === '') echo 'selected'; ?>>请选择</option>
-            <option value="男" <?php if ($gender_value === '男') echo 'selected'; ?>>男</option>
-            <option value="女" <?php if ($gender_value === '女') echo 'selected'; ?>>女</option>
-            <option value="保密" <?php if ($gender_value === '保密') echo 'selected'; ?>>保密</option>
-        </select>
-        <label>消息语音提示</label>
-        <label><input class="inline-check" type="checkbox" name="notification_sound_enabled" value="1" <?php if (pd_notification_sound_enabled($u)) echo 'checked'; ?>> 开启消息语音提示</label>
-        <p class="muted">关闭后不会播放语音，消息铃铛仍然正常显示。</p>
+        <label>新密码</label>
+        <input type="password" name="password" placeholder="不修改请留空" autocomplete="new-password">
+        <label>重复新密码 <span class="muted">（必须与上方一致）</span></label>
+        <input type="password" name="password_confirm" placeholder="再次输入新密码以确认" autocomplete="new-password">
+        <p class="muted">至少 8 位且不能为纯数字；两次都留空则不修改密码。</p>
+        <label>当前密码 <span class="muted">（修改邮箱或密码时必填；刚用 OAuth/Passkey 登录可免填）</span></label>
+        <input type="password" name="current_password" autocomplete="current-password">
+        </section>
+
+        <section class="pd-set-card">
+        <h2><i class="fa-solid fa-sliders" aria-hidden="true"></i> 偏好</h2>
         <label>显示时区</label>
         <select name="timezone">
             <?php $timezone_value = isset($u['timezone']) ? (string)$u['timezone'] : ''; ?>
@@ -258,18 +282,18 @@ pd_include_header();
             <?php } ?>
         </select>
         <p class="muted">列表时间显示为相对时间（如「3 小时前」），鼠标悬浮可查看绝对时间。选「跟随浏览器」时按本机时区显示。</p>
-        <label>新密码</label>
-        <input type="password" name="password" placeholder="不修改请留空" autocomplete="new-password">
-        <label>重复新密码 <span class="muted">（必须与上方一致）</span></label>
-        <input type="password" name="password_confirm" placeholder="再次输入新密码以确认" autocomplete="new-password">
-        <p class="muted">至少 8 位且不能为纯数字；两次都留空则不修改密码。</p>
-        <label>当前密码 <span class="muted">（修改邮箱或密码时必填；刚用 OAuth/Passkey 登录可免填）</span></label>
-        <input type="password" name="current_password" autocomplete="current-password">
-        <button class="btn" type="submit">保存资料</button>
+        <label>消息语音提示</label>
+        <label class="pd-set-check"><input class="inline-check" type="checkbox" name="notification_sound_enabled" value="1" <?php if (pd_notification_sound_enabled($u)) echo 'checked'; ?>> 开启消息语音提示</label>
+        <p class="muted">关闭后不会播放语音，消息铃铛仍然正常显示。</p>
+        </section>
+
+        <div class="pd-settings-save">
+            <button class="btn" type="submit">保存资料</button>
+        </div>
     </form>
-</section>
-<section class="card narrow-card passkey-card">
-    <h2>Passkey 登录</h2>
+
+    <section class="pd-set-card pd-set-card--full passkey-card">
+    <h2><i class="fa-solid fa-key" aria-hidden="true"></i> Passkey 登录</h2>
     <p class="muted">添加后可以使用系统指纹、面容、锁屏密码或安全密钥登录这个账号。</p>
     <button class="btn" type="button" data-passkey-register><i class="fa-solid fa-key" aria-hidden="true"></i> 添加 Passkey</button>
     <div class="passkey-list">
@@ -284,7 +308,8 @@ pd_include_header();
         <?php } ?>
         <?php if ($passkey_count === 0) { ?><p class="muted">还没有添加 Passkey。</p><?php } ?>
     </div>
-</section>
+    </section>
+</div>
 <?php if (pd_mail_enabled()) { ?>
 <script>
 (function () {
